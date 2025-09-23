@@ -1,0 +1,131 @@
+God-Level Prompt for Claude – Noli Me Tangere Semantic-Thematic Model
+
+I will provide 2 .txt files that should be treated as structured CSVs. Since I cannot upload .csv files here, I will provide them in .txt format.
+
+⚠️ Important Clarification: In the actual code, you must load and process them as CSV files (not .txt). The .txt explanation is only due to upload limitations.
+
+Important Instructions
+
+DO NOT generate a sample dataset, sample input, or sample table output in your response.
+
+The output must have a maximum of 3 chapters and a maximum of 3 sentences per chapter.
+
+The output format must always be a table with border lines for clarity and good UI/UX aesthetics (not plain text).
+
+Double-check the columns carefully — the correct schema is:
+
+themes.csv → English Title, Tagalog Title, Meaning
+
+chapters.csv → book_title, chapter_number, chapter_title, sentence_number, sentence_text
+
+At the end of the code, there must be a user-input testing query to validate the system interactively.
+
+Datasets Provided
+
+chapters.csv
+
+Columns:
+
+book_title
+
+chapter_number
+
+chapter_title
+
+sentence_number
+
+sentence_text
+
+themes.csv
+
+Columns:
+
+English Title
+
+Tagalog Title
+
+Meaning
+
+System Objective
+
+To build a semantic retrieval and thematic classification system for Noli Me Tangere using BERT or Tagalog-optimized variants. The model processes a query and outputs results according to three hierarchical rules.
+
+Confidence Level Requirement (Core Rule Across All Stages)
+
+The system must always compute a confidence level (similarity score / probability) for classification. This prevents false positives in nonsense detection, book retrieval, and thematic mapping.
+
+If confidence is below threshold, classify as nonsense.
+
+If confidence is moderate but insufficient for strong semantic link, classify as book-related only if similarity surpasses threshold.
+
+If confidence is high and aligned with thematic meaning, classify as thematic.
+
+Confidence levels must be included in outputs, so results can be validated.
+
+RULE 1 – Nonsense Detection
+
+A query is nonsense if it is:
+
+Gibberish (random strings, mixed numbers and letters like "fds12gsa").
+
+Not a valid Tagalog or English word.
+
+Produces embeddings with similarity below the minimum confidence threshold.
+
+⚠️ Do NOT classify as nonsense just because the query is not in the CSV.
+
+Output if nonsense:
+
+none
+
+RULE 2 – Book-Related Semantic Retrieval
+
+If the query passes nonsense detection:
+
+Rank top 3 semantically relevant chapters based on embeddings with confidence scores.
+
+Retrieve top 3 semantically similar sentences per chapter, also reporting confidence.
+
+Include neighboring sentences if contextually related, but never exceed 3 per chapter.
+
+Only include results above the similarity confidence threshold.
+
+Output Table (bordered, UI/UX aesthetic):
+
+| book_title | chapter_number | chapter_title | sentence_number | sentence_text | confidence_score |
+
+RULE 3 – Thematic Classification
+
+After semantic retrieval, evaluate alignment with themes.csv:
+
+Direct Match: If query aligns with Tagalog Title above confidence threshold, classify as thematic.
+
+Semantic Match: Compare retrieved sentence_text with Meaning. Only classify if confidence score is sufficiently high.
+
+Multi-theme Mapping: Sentences may map to multiple themes if confidence is above threshold.
+
+Output Table (bordered, UI/UX aesthetic):
+
+| book_title | chapter_number | chapter_title | sentence_number | sentence_text | English Title | Tagalog Title | Meaning | confidence_score |
+
+Final System Behavior
+
+Nonsense query → "none"
+
+Book-related query → Table of top 3 chapters × 3 sentences each, with confidence scores.
+
+Thematic query → Same as book-related, but extended with thematic columns and confidence scores.
+
+Implementation Requirements
+
+Use CSV files directly in the code (not .txt).
+
+Do NOT provide fake sample data or sample outputs.
+
+Ensure exact column handling as defined.
+
+Present outputs in bordered tables with clean formatting (UI/UX aesthetic).
+
+Always include a confidence_score for retrieved results.
+
+At the end of the code, include a user-input query prompt so the system can be tested interactively.
