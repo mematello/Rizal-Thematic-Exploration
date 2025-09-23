@@ -1,0 +1,79 @@
+I’ll give you 2 .txt files which are actually CSV files. When coding and reading, treat them as CSVs (not plain text). The files will be shared as .txt only because I cannot upload .csv directly.
+
+Important instructions (must follow strictly):
+
+DO NOT generate any sample dataset or sample input in your response.
+
+Use CSVs in the code, not arrays or hardcoded data.
+
+Make sure the column names match exactly as specified.
+
+DOUBLE CHECK the column names – there is an error. The correct columns are:
+
+themes.csv → English Title, Tagalog Title, Meaning
+
+chapters.csv → book_title, chapter_number, chapter_title, sentence_number, sentence_text
+
+Ensure there is a user input testing query at the end of the code.
+
+The output must have a maximum of 3 chapters and a maximum of 3 sentences per chapter.
+
+All outputs must be displayed in aesthetic tables with border lines (UI/UX friendly).
+
+Confidence scoring is required to validate results. If the confidence is below a threshold, classify properly as nonsense instead of forcing retrieval.
+
+System Logic
+RULE 1 – Nonsense Detection
+
+A query is nonsense if it is:
+
+Gibberish or random characters (e.g., "fdsagar", "qwerty123", "98asdj").
+
+Not a valid Tagalog or English word.
+
+⚠️ Do not reject a query just because the exact word does not appear in the CSV. If it’s a valid word in Tagalog or English, continue to Rule 2.
+⚠️ Use confidence level to validate nonsense detection — if the model has low confidence that the query matches any semantic context, classify as "none".
+
+Output format:
+
+A single-cell table with borders containing "none".
+
+RULE 2 – Book-Related / Semantic Retrieval
+
+If the query is valid:
+
+Rank related chapters → Compare query against all sentence_text values grouped by chapter_number. Retrieve the top 3 most semantically related chapters.
+
+For each chapter, retrieve the top 3 most semantically similar sentences.
+
+Optionally include previous and next sentence if needed for context, but never exceed 3 sentences per chapter.
+
+⚠️ Confidence must be checked: If retrieved sentences are below threshold (weak similarity), they should not be included to avoid showing irrelevant results.
+
+Output format (UI/UX aesthetic table with borders):
+
+Columns: book_title, chapter_number, chapter_title, sentence_number, sentence_text, confidence_score
+
+RULE 3 – Thematic Classification
+
+After retrieval:
+
+If the query directly matches or resembles a Tagalog Title, classify as thematic.
+
+Otherwise, compare retrieved sentence_text values against the Meaning column in themes.csv using semantic similarity.
+
+A sentence may map to one or more themes.
+
+⚠️ Confidence must be checked: Only output thematic classification if similarity score passes the threshold.
+
+Output format (UI/UX aesthetic table with borders):
+
+Columns: book_title, chapter_number, chapter_title, sentence_number, sentence_text, Tagalog Title, Meaning, confidence_score
+
+Final Expected Behavior
+
+Nonsense query → Table with "none"
+
+Book-related query → Table with book_title, chapter_number, chapter_title, sentence_number, sentence_text, confidence_score
+
+Thematic query → Table with book_title, chapter_number, chapter_title, sentence_number, sentence_text, Tagalog Title, Meaning, confidence_score
