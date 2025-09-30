@@ -1,0 +1,7 @@
+morphological issue
+
+short sentence confidence level
+
+choosing the best sentence among all sentence retrieve
+
+define confidence level number to output
