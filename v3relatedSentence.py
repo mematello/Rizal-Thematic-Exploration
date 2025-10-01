@@ -33,12 +33,11 @@ class EnhancedNoliSemanticSystem:
     def __init__(self):
         self.console = Console()
         
-        self.console.print("Building vocabulary from datasets...", style="cyan")
-        
-        self.console.print("Loading XLM-RoBERTa multilingual model...", style="cyan")
+        self.console.print("🔄 Building vocabulary from datasets...", style="cyan")
+        self.console.print("🔄 Loading XLM-RoBERTa multilingual model...", style="cyan")
         self.model = SentenceTransformer('sentence-transformers/paraphrase-xlm-r-multilingual-v1')
         
-        self.console.print("Loading datasets...", style="cyan")
+        self.console.print("📚 Loading datasets...", style="cyan")
         self.chapters_df = pd.read_csv('chapters.csv')
         self.themes_df = pd.read_csv('themes.csv')
         
@@ -47,12 +46,11 @@ class EnhancedNoliSemanticSystem:
         
         self.tagalog_vocab = self._build_tagalog_vocabulary()
         
-        self.console.print("Computing chapter embeddings...", style="cyan")
+        self.console.print("🧠 Computing chapter embeddings...", style="cyan")
         self._compute_chapter_embeddings()
-        self.console.print("Computing theme embeddings...", style="cyan")
+        self.console.print("🎯 Computing theme embeddings...", style="cyan")
         self._compute_theme_embeddings()
         
-        # Thresholds
         self.NONSENSE_THRESHOLD = 0.20
         self.BOOK_RELEVANCE_THRESHOLD = 0.35
         self.THEMATIC_THRESHOLD = 0.45
@@ -61,12 +59,14 @@ class EnhancedNoliSemanticSystem:
         self.SHORT_SENTENCE_PENALTY = 0.15
         self.EXACT_MATCH_BONUS = 0.25
         self.CONTEXT_BONUS = 0.10
-        self.HIGH_CONTEXT_BONUS = 0.20  # Bonus when surrounding sentences are also highly relevant
+        self.MAX_CONTEXT_EXPANSION = 5  # Maximum sentences to expand in each direction
         
-        self.console.print("Enhanced system ready!", style="bold green")
+        # Track used sentences globally to prevent reuse
+        self.used_context_sentences = set()
+        
+        self.console.print("✅ Enhanced system ready!", style="bold green")
     
     def _build_tagalog_vocabulary(self):
-        """Build comprehensive Tagalog vocabulary from the novel"""
         all_text = ' '.join(self.chapters_df['sentence_text'].astype(str))
         all_text += ' '.join(self.chapters_df['chapter_title'].astype(str))
         all_text += ' '.join(self.themes_df['Tagalog Title'].astype(str))
@@ -74,14 +74,12 @@ class EnhancedNoliSemanticSystem:
         
         words = re.findall(r'\b[a-zA-ZÀ-ÿñÑ]{2,}\b', all_text.lower())
         word_freq = Counter(words)
-        
         vocab_set = set(word for word, freq in word_freq.items() if freq >= 2 and len(word) > 2)
         
-        self.console.print(f"Built vocabulary: {len(vocab_set)} Tagalog words from dataset", style="dim cyan")
+        self.console.print(f"📖 Built vocabulary: {len(vocab_set)} Tagalog words from dataset", style="dim cyan")
         return vocab_set
     
     def _compute_chapter_embeddings(self):
-        """Precompute embeddings for all sentences with enhanced context"""
         self.chapters_df['combined_text'] = (
             self.chapters_df['chapter_title'].astype(str) + " " + 
             self.chapters_df['sentence_text'].astype(str)
@@ -95,7 +93,6 @@ class EnhancedNoliSemanticSystem:
         self.chapter_embeddings = self.model.encode(texts, show_progress_bar=False)
     
     def _compute_theme_embeddings(self):
-        """Precompute theme embeddings with enhanced context"""
         self.themes_df['theme_text'] = (
             self.themes_df['Tagalog Title'].astype(str) + " " + 
             self.themes_df['Meaning'].astype(str)
@@ -105,7 +102,6 @@ class EnhancedNoliSemanticSystem:
         self.theme_embeddings = self.model.encode(theme_texts, show_progress_bar=False)
     
     def _is_real_word(self, word):
-        """Enhanced word validation using available libraries only"""
         word_lower = word.lower()
         
         if english_words and word_lower in english_words:
@@ -123,7 +119,6 @@ class EnhancedNoliSemanticSystem:
         return False
     
     def _detect_language(self, text):
-        """Simple language detection using available tools"""
         if not text or len(text.strip()) < 2:
             return 'unknown'
             
@@ -155,21 +150,35 @@ class EnhancedNoliSemanticSystem:
         else:
             return 'unknown'
     
+    def _calculate_confidence_with_adjustments(self, base_confidence, sentence_text, is_exact_match=False, has_relevant_context=False):
+        adjusted_confidence = base_confidence
+        
+        word_count = len(str(sentence_text).split())
+        if word_count < self.SHORT_SENTENCE_THRESHOLD:
+            penalty = self.SHORT_SENTENCE_PENALTY * (self.SHORT_SENTENCE_THRESHOLD - word_count) / self.SHORT_SENTENCE_THRESHOLD
+            adjusted_confidence -= penalty
+        
+        if is_exact_match:
+            adjusted_confidence += self.EXACT_MATCH_BONUS
+        
+        if has_relevant_context:
+            adjusted_confidence += self.CONTEXT_BONUS
+        
+        return max(0.0, min(1.0, adjusted_confidence))
+    
     def _is_nonsense_query(self, query):
-        """RULE 1: Enhanced nonsense detection with real word validation"""
         query = query.strip()
         
         if len(query) < 2:
             return True, 0.95, "Too short"
         
         nonsense_patterns = [
-    (r'^[a-z]*\d+[a-z]*\d*', 0.9, "Mixed alphanumeric"),      
-    (r'^[^a-zA-ZÀ-ÿñÑ\s]+$', 0.85, "Only symbols/numbers"),        
-    (r'^(.)\1{3,}', 0.8, "Repeated characters"),                 
-    (r'^[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]+$', 0.7, "Only consonants"), 
-    (r'^\W+$', 0.9, "Only non-word characters")                       
-]
-
+            (r'^[a-z]*\d+[a-z]*\d*$', 0.9, "Mixed alphanumeric"),      
+            (r'^[^a-zA-ZÀ-ÿñÑ\s]+$', 0.85, "Only symbols/numbers"),        
+            (r'^(.)\1{3,}', 0.8, "Repeated characters"),                 
+            (r'^[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]+$', 0.7, "Only consonants"), 
+            (r'^\W+$', 0.9, "Only non-word characters")                       
+        ]
         
         for pattern, conf, reason in nonsense_patterns:
             if re.match(pattern, query):
@@ -197,7 +206,6 @@ class EnhancedNoliSemanticSystem:
         return False, valid_ratio, "Valid query"
     
     def _has_exact_match(self, query):
-        """RULE 3: Check for exact matches in sentence text"""
         query_lower = query.lower()
         
         exact_matches = []
@@ -212,22 +220,41 @@ class EnhancedNoliSemanticSystem:
         
         return exact_matches
     
-    def _get_surrounding_sentences(self, chapter_num, sentence_num, query, query_embedding, max_extend=5):
+    def _check_context_relevance(self, context_text, query, theme_context=None):
+        try:
+            query_embedding = self.model.encode([query])
+            context_embedding = self.model.encode([context_text])
+            query_similarity = cosine_similarity(query_embedding, context_embedding)[0][0]
+            
+            theme_similarity = 0.0
+            if theme_context:
+                theme_embedding = self.model.encode([theme_context])
+                theme_similarity = cosine_similarity(theme_embedding, context_embedding)[0][0]
+            
+            max_similarity = max(query_similarity, theme_similarity)
+            return max_similarity >= self.CONTEXT_RELEVANCE_THRESHOLD
+            
+        except:
+            return False
+    
+    def _get_expanded_context_sentences(self, chapter_num, sentence_num, query, theme_context=None):
         """
-        NEW: Get expanding context - checks prev/next sentences and extends if still relevant.
-        Returns list of relevant surrounding sentences with their confidence scores.
+        ENHANCED: Flexible context expansion that continues outward while sentences remain relevant.
+        Also checks if sentences are already used by other results.
         """
-        surrounding = []
+        context = {
+            'prev_sentences': [],
+            'next_sentences': [],
+            'prev_relevant_count': 0,
+            'next_relevant_count': 0
+        }
         
-        # Get all sentences in the same chapter, sorted
+        # Filter sentences in the same chapter
         chapter_sentences = self.chapters_df[
             self.chapters_df['chapter_number'] == chapter_num
         ].sort_values('sentence_number')
         
-        if chapter_sentences.empty:
-            return surrounding
-        
-        # Find current sentence position
+        # Find current sentence index
         current_idx = None
         for idx, row in chapter_sentences.iterrows():
             if row['sentence_number'] == sentence_num:
@@ -235,198 +262,169 @@ class EnhancedNoliSemanticSystem:
                 break
         
         if current_idx is None:
-            return surrounding
+            return context
         
         chapter_list = chapter_sentences.index.tolist()
         current_pos = chapter_list.index(current_idx)
         
-        # Check previous sentences (expanding backwards)
-        for offset in range(1, max_extend + 1):
-            if current_pos - offset < 0:
-                break
+        # Create a unique identifier for the current sentence
+        current_sentence_id = (chapter_num, sentence_num)
+        
+        # Expand BACKWARD (previous sentences)
+        for i in range(1, self.MAX_CONTEXT_EXPANSION + 1):
+            if current_pos - i < 0:
+                break  # Reached beginning of chapter
             
-            prev_idx = chapter_list[current_pos - offset]
+            prev_idx = chapter_list[current_pos - i]
             prev_row = self.chapters_df.loc[prev_idx]
-            prev_text = prev_row['sentence_text']
+            prev_sentence_id = (prev_row['chapter_number'], prev_row['sentence_number'])
             
-            # Calculate relevance
-            prev_embedding = self.chapter_embeddings[prev_idx]
-            similarity = cosine_similarity(query_embedding.reshape(1, -1), 
-                                         prev_embedding.reshape(1, -1))[0][0]
+            # Skip if already used by another result
+            if prev_sentence_id in self.used_context_sentences:
+                break  # Stop expansion if we hit a used sentence
             
-            if similarity >= self.CONTEXT_RELEVANCE_THRESHOLD:
-                surrounding.append({
-                    'position': 'before',
-                    'offset': offset,
-                    'sentence_number': prev_row['sentence_number'],
-                    'sentence_text': prev_text,
-                    'confidence': similarity,
-                    'index': prev_idx
-                })
+            # Check relevance
+            is_relevant = self._check_context_relevance(
+                prev_row['sentence_text'], query, theme_context
+            )
+            
+            sentence_data = {
+                'sentence_number': prev_row['sentence_number'],
+                'sentence_text': prev_row['sentence_text'],
+                'is_relevant': is_relevant,
+                'distance': i  # How far from main sentence
+            }
+            
+            context['prev_sentences'].append(sentence_data)
+            
+            if is_relevant:
+                context['prev_relevant_count'] += 1
             else:
-                # Stop extending backwards if not relevant
+                # Stop expanding if sentence is not relevant
                 break
         
-        # Check next sentences (expanding forwards)
-        for offset in range(1, max_extend + 1):
-            if current_pos + offset >= len(chapter_list):
-                break
+        # Reverse to maintain chronological order (oldest to newest)
+        context['prev_sentences'].reverse()
+        
+        # Expand FORWARD (next sentences)
+        for i in range(1, self.MAX_CONTEXT_EXPANSION + 1):
+            if current_pos + i >= len(chapter_list):
+                break  # Reached end of chapter
             
-            next_idx = chapter_list[current_pos + offset]
+            next_idx = chapter_list[current_pos + i]
             next_row = self.chapters_df.loc[next_idx]
-            next_text = next_row['sentence_text']
+            next_sentence_id = (next_row['chapter_number'], next_row['sentence_number'])
             
-            # Calculate relevance
-            next_embedding = self.chapter_embeddings[next_idx]
-            similarity = cosine_similarity(query_embedding.reshape(1, -1), 
-                                         next_embedding.reshape(1, -1))[0][0]
+            # Skip if already used by another result
+            if next_sentence_id in self.used_context_sentences:
+                break  # Stop expansion if we hit a used sentence
             
-            if similarity >= self.CONTEXT_RELEVANCE_THRESHOLD:
-                surrounding.append({
-                    'position': 'after',
-                    'offset': offset,
-                    'sentence_number': next_row['sentence_number'],
-                    'sentence_text': next_text,
-                    'confidence': similarity,
-                    'index': next_idx
-                })
+            # Check relevance
+            is_relevant = self._check_context_relevance(
+                next_row['sentence_text'], query, theme_context
+            )
+            
+            sentence_data = {
+                'sentence_number': next_row['sentence_number'],
+                'sentence_text': next_row['sentence_text'],
+                'is_relevant': is_relevant,
+                'distance': i  # How far from main sentence
+            }
+            
+            context['next_sentences'].append(sentence_data)
+            
+            if is_relevant:
+                context['next_relevant_count'] += 1
             else:
-                # Stop extending forwards if not relevant
+                # Stop expanding if sentence is not relevant
                 break
         
-        # Sort by position (before sentences in reverse order, after sentences in order)
-        before_sentences = sorted([s for s in surrounding if s['position'] == 'before'], 
-                                 key=lambda x: x['offset'], reverse=True)
-        after_sentences = sorted([s for s in surrounding if s['position'] == 'after'], 
-                                key=lambda x: x['offset'])
-        
-        return before_sentences + after_sentences
+        return context
     
-    def _calculate_context_boost(self, surrounding_sentences):
-        """
-        NEW: Calculate boost based on surrounding sentence confidences.
-        Higher boost when multiple surrounding sentences are highly relevant.
-        """
-        if not surrounding_sentences:
-            return 0.0
+    def _mark_context_as_used(self, chapter_num, sentence_num, context):
+        """Mark all context sentences as used to prevent reuse in other results"""
+        # Mark main sentence
+        self.used_context_sentences.add((chapter_num, sentence_num))
         
-        # Calculate average confidence of surrounding sentences
-        avg_surrounding_confidence = np.mean([s['confidence'] for s in surrounding_sentences])
+        # Mark all previous context sentences
+        for prev_sent in context.get('prev_sentences', []):
+            self.used_context_sentences.add((chapter_num, prev_sent['sentence_number']))
         
-        # Count high-confidence surrounding sentences
-        high_conf_count = sum(1 for s in surrounding_sentences if s['confidence'] >= 0.5)
-        
-        # Base boost from average confidence
-        base_boost = avg_surrounding_confidence * self.CONTEXT_BONUS
-        
-        # Additional boost for multiple high-confidence surrounding sentences
-        if high_conf_count >= 2:
-            extra_boost = self.HIGH_CONTEXT_BONUS * (high_conf_count / len(surrounding_sentences))
-            return base_boost + extra_boost
-        
-        return base_boost
-    
-    def _calculate_confidence_with_adjustments(self, base_confidence, sentence_text, 
-                                               is_exact_match=False, surrounding_sentences=None):
-        """
-        ENHANCED RULE 2: Apply confidence adjustments based on:
-        - Short sentence penalty
-        - Exact match bonus
-        - Context boost from surrounding sentences
-        """
-        adjusted_confidence = base_confidence
-        
-        # Short sentence penalty
-        word_count = len(str(sentence_text).split())
-        if word_count < self.SHORT_SENTENCE_THRESHOLD:
-            penalty = self.SHORT_SENTENCE_PENALTY * (self.SHORT_SENTENCE_THRESHOLD - word_count) / self.SHORT_SENTENCE_THRESHOLD
-            adjusted_confidence -= penalty
-        
-        # Exact match bonus
-        if is_exact_match:
-            adjusted_confidence += self.EXACT_MATCH_BONUS
-        
-        # Context boost from surrounding sentences
-        if surrounding_sentences:
-            context_boost = self._calculate_context_boost(surrounding_sentences)
-            adjusted_confidence += context_boost
-        
-        return max(0.0, min(1.0, adjusted_confidence))
+        # Mark all next context sentences
+        for next_sent in context.get('next_sentences', []):
+            self.used_context_sentences.add((chapter_num, next_sent['sentence_number']))
     
     def _get_semantic_results(self, query, top_k=9):
-        """
-        ENHANCED: Semantic search with expanding context and context-aware ranking.
-        Tracks used sentence indices to avoid duplication.
-        """
+        """Enhanced semantic search with flexible context expansion"""
+        # Reset used context sentences for new query
+        self.used_context_sentences = set()
+        
         exact_matches = self._has_exact_match(query)
         
         query_embedding = self.model.encode([query])
         similarities = cosine_similarity(query_embedding, self.chapter_embeddings)[0]
         
+        results = []
         exact_indices = set(match['index'] for match in exact_matches)
         
-        # Track all sentence indices that have been used (main + surrounding)
-        used_indices = set()
-        
-        # First pass: collect all candidates with their surrounding context
-        candidates = []
         for idx, sim_score in enumerate(similarities):
-            if sim_score >= self.BOOK_RELEVANCE_THRESHOLD and idx not in used_indices:
+            if sim_score >= self.BOOK_RELEVANCE_THRESHOLD:
                 row = self.chapters_df.iloc[idx]
                 is_exact = idx in exact_indices
                 
-                # Get expanding surrounding sentences
-                surrounding = self._get_surrounding_sentences(
-                    row['chapter_number'], 
-                    row['sentence_number'], 
-                    query,
-                    query_embedding[0],
-                    max_extend=5
-                )
+                # Get expanded context sentences
+                try:
+                    context = self._get_expanded_context_sentences(
+                        row['chapter_number'], 
+                        row['sentence_number'], 
+                        query
+                    )
+                    has_relevant_context = (context['prev_relevant_count'] > 0 or 
+                                          context['next_relevant_count'] > 0)
+                except Exception as e:
+                    context = {'prev_sentences': [], 'next_sentences': [], 
+                             'prev_relevant_count': 0, 'next_relevant_count': 0}
+                    has_relevant_context = False
                 
-                # Mark all surrounding sentence indices as used
-                for surr in surrounding:
-                    used_indices.add(surr['index'])
-                
-                # Calculate adjusted confidence with context boost
                 adjusted_confidence = self._calculate_confidence_with_adjustments(
-                    sim_score, 
-                    row['sentence_text'], 
-                    is_exact, 
-                    surrounding
+                    sim_score, row['sentence_text'], is_exact, has_relevant_context
                 )
                 
                 if adjusted_confidence >= self.BOOK_RELEVANCE_THRESHOLD:
-                    candidates.append({
+                    results.append({
                         'index': idx,
                         'chapter_number': row['chapter_number'],
                         'chapter_title': row['chapter_title'],
                         'sentence_number': row['sentence_number'],
                         'sentence_text': row['sentence_text'],
                         'confidence': adjusted_confidence,
-                        'base_confidence': sim_score,
                         'is_exact_match': is_exact,
                         'word_count': row['sentence_word_count'],
-                        'surrounding_sentences': surrounding,
-                        'context_count': len(surrounding)
+                        'context': context,
+                        'has_relevant_context': has_relevant_context,
+                        'total_context_sentences': len(context['prev_sentences']) + len(context['next_sentences'])
                     })
-                    
-                    # Mark this sentence as used
-                    used_indices.add(idx)
         
-        # Sort by adjusted confidence (which includes context boost)
-        candidates.sort(key=lambda x: x['confidence'], reverse=True)
+        # Sort by confidence
+        results.sort(key=lambda x: x['confidence'], reverse=True)
         
-        # Group by chapters - top 3 chapters, top 3 sentences each
+        # Mark context sentences as used in order of ranking
+        for result in results[:top_k]:
+            self._mark_context_as_used(
+                result['chapter_number'],
+                result['sentence_number'],
+                result['context']
+            )
+        
+        # Group by chapters
         chapter_groups = {}
-        for result in candidates:
+        for result in results:
             ch_num = result['chapter_number']
             if ch_num not in chapter_groups:
                 chapter_groups[ch_num] = []
             if len(chapter_groups[ch_num]) < 3:
                 chapter_groups[ch_num].append(result)
         
-        # Rank chapters by best sentence confidence (context-aware)
         chapter_rankings = []
         for ch_num, sentences in chapter_groups.items():
             best_confidence = max(s['confidence'] for s in sentences)
@@ -436,7 +434,6 @@ class EnhancedNoliSemanticSystem:
         
         chapter_rankings.sort(key=lambda x: x[1], reverse=True)
         
-        # Flatten results from top 3 chapters
         final_results = []
         for ch_num, _, sentences in chapter_rankings[:3]:
             final_results.extend(sentences)
@@ -444,7 +441,7 @@ class EnhancedNoliSemanticSystem:
         return final_results[:top_k]
     
     def _get_thematic_classification(self, retrieved_sentences, query):
-        """RULE 4: Enhanced thematic classification"""
+        """Enhanced thematic classification with expanded context consideration"""
         if not retrieved_sentences:
             return retrieved_sentences, False, 0.0
         
@@ -452,6 +449,7 @@ class EnhancedNoliSemanticSystem:
         
         for sentence_data in retrieved_sentences:
             sentence_text = sentence_data['sentence_text']
+            context = sentence_data.get('context', {})
             
             sentence_embedding = self.model.encode([sentence_text])
             theme_similarities = cosine_similarity(sentence_embedding, self.theme_embeddings)[0]
@@ -460,6 +458,21 @@ class EnhancedNoliSemanticSystem:
             for idx, similarity in enumerate(theme_similarities):
                 if similarity >= self.THEMATIC_THRESHOLD:
                     theme_row = self.themes_df.iloc[idx]
+                    theme_context = f"{theme_row['Tagalog Title']} {theme_row['Meaning']}"
+                    
+                    # Re-check expanded context sentences with theme context
+                    for prev_sent in context.get('prev_sentences', []):
+                        if not prev_sent['is_relevant']:
+                            prev_sent['is_relevant'] = self._check_context_relevance(
+                                prev_sent['sentence_text'], query, theme_context
+                            )
+                    
+                    for next_sent in context.get('next_sentences', []):
+                        if not next_sent['is_relevant']:
+                            next_sent['is_relevant'] = self._check_context_relevance(
+                                next_sent['sentence_text'], query, theme_context
+                            )
+                    
                     matching_themes.append({
                         'tagalog_title': theme_row['Tagalog Title'],
                         'meaning': theme_row['Meaning'],
@@ -479,6 +492,13 @@ class EnhancedNoliSemanticSystem:
                 enhanced_sentence['primary_theme'] = None
                 enhanced_sentence['has_theme'] = False
             
+            # Update context relevance counts
+            context['prev_relevant_count'] = sum(1 for s in context.get('prev_sentences', []) if s['is_relevant'])
+            context['next_relevant_count'] = sum(1 for s in context.get('next_sentences', []) if s['is_relevant'])
+            enhanced_sentence['context'] = context
+            enhanced_sentence['has_relevant_context'] = (context['prev_relevant_count'] > 0 or 
+                                                        context['next_relevant_count'] > 0)
+            
             thematic_results.append(enhanced_sentence)
         
         sentences_with_themes = sum(1 for s in thematic_results if s['has_theme'])
@@ -495,7 +515,7 @@ class EnhancedNoliSemanticSystem:
         return thematic_results, has_strong_thematic_connection, avg_theme_confidence
     
     def query(self, user_query):
-        """Main query processing with enhanced context-aware ranking"""
+        """Main query processing"""
         is_nonsense, confidence, reason = self._is_nonsense_query(user_query)
         
         if is_nonsense:
@@ -518,7 +538,8 @@ class EnhancedNoliSemanticSystem:
         
         book_relevance = np.mean([r['confidence'] for r in semantic_results])
         exact_matches = sum(1 for r in semantic_results if r['is_exact_match'])
-        total_context = sum(r['context_count'] for r in thematic_results)
+        context_matches = sum(1 for r in thematic_results if r['has_relevant_context'])
+        total_context_sentences = sum(r.get('total_context_sentences', 0) for r in thematic_results)
         
         return {
             'type': 'success',
@@ -527,13 +548,14 @@ class EnhancedNoliSemanticSystem:
             'book_confidence': book_relevance,
             'theme_confidence': avg_theme_conf,
             'exact_matches': exact_matches,
-            'total_context_sentences': total_context,
+            'context_matches': context_matches,
             'total_results': len(thematic_results),
-            'avg_confidence': book_relevance
+            'avg_confidence': book_relevance,
+            'total_context_sentences': total_context_sentences
         }
     
     def display_results(self, response, query=""):
-        """Enhanced results display with expanding context"""
+        """Enhanced results display with expanded context information"""
         result_type = response['type']
         
         if result_type != 'success':
@@ -568,7 +590,8 @@ class EnhancedNoliSemanticSystem:
         metrics_text = (
             f"📊 Book Relevance: {response['book_confidence']:.1%} | "
             f"Exact Matches: {response['exact_matches']} | "
-            f"Context Sentences: {response.get('total_context_sentences', 0)} | "
+            f"Context Matches: {response.get('context_matches', 0)} | "
+            f"Total Context: {response.get('total_context_sentences', 0)} | "
             f"Results: {response['total_results']}"
         )
         if response['theme_confidence'] > 0:
@@ -595,16 +618,17 @@ class EnhancedNoliSemanticSystem:
                 expand=True
             )
             
-            main_table.add_column("📖 Book", style="cyan", width=15, no_wrap=True)
+            main_table.add_column("📖 Book", style="cyan", width=12, no_wrap=True)
             main_table.add_column("📚 Ch", style="bright_green", width=6, justify="center")
             main_table.add_column("📝 S#", style="yellow", width=6, justify="center")
             main_table.add_column("🎯 Conf", style="bright_cyan", width=8, justify="center")
-            main_table.add_column("✅ Match", style="bright_yellow", width=10, justify="center")
-            main_table.add_column("🔄 Context", style="bright_white", width=10, justify="center")
+            main_table.add_column("✅ Match", style="bright_yellow", width=8, justify="center")
+            main_table.add_column("🔄 Context", style="bright_white", width=12, justify="center")
             
             confidence_str = f"{result['confidence']:.1%}"
             match_type = "Exact" if result['is_exact_match'] else "Semantic"
-            context_count = result.get('context_count', 0)
+            context_count = result.get('total_context_sentences', 0)
+            context_status = f"{context_count} sent" if context_count > 0 else "None"
             
             main_table.add_row(
                 "Noli Me Tangere",
@@ -612,7 +636,7 @@ class EnhancedNoliSemanticSystem:
                 str(result['sentence_number']),
                 confidence_str,
                 match_type,
-                f"{context_count} sent."
+                context_status
             )
             
             self.console.print(main_table)
@@ -636,11 +660,14 @@ class EnhancedNoliSemanticSystem:
             )
             self.console.print(content_panel)
             
-            # Display expanding context sentences
-            surrounding = result.get('surrounding_sentences', [])
-            if surrounding:
+            # Display expanded context
+            context = result.get('context', {})
+            prev_sentences = context.get('prev_sentences', [])
+            next_sentences = context.get('next_sentences', [])
+            
+            if prev_sentences or next_sentences:
                 context_table = Table(
-                    title=f"📋 Relevant Surrounding Context ({len(surrounding)} sentences)",
+                    title=f"📋 Expanded Context ({len(prev_sentences) + len(next_sentences)} sentences)",
                     show_header=True,
                     header_style="bold yellow",
                     border_style="yellow",
@@ -649,22 +676,33 @@ class EnhancedNoliSemanticSystem:
                 )
                 
                 context_table.add_column("Position", style="yellow", width=12)
-                context_table.add_column("Sentence #", style="bright_yellow", width=10, justify="center")
-                context_table.add_column("Confidence", style="bright_cyan", width=10, justify="center")
-                context_table.add_column("Content", style="white", min_width=50)
+                context_table.add_column("S#", style="bright_yellow", width=6, justify="center")
+                context_table.add_column("Dist", style="dim yellow", width=6, justify="center")
+                context_table.add_column("Relevant", style="bright_green", width=10, justify="center")
+                context_table.add_column("Content", style="white", min_width=40)
                 
-                for surr in surrounding:
-                    position = f"⬆️ -{surr['offset']}" if surr['position'] == 'before' else f"⬇️ +{surr['offset']}"
+                for prev_sent in prev_sentences:
+                    relevance_icon = "✓" if prev_sent['is_relevant'] else "○"
                     context_table.add_row(
-                        position,
-                        str(surr['sentence_number']),
-                        f"{surr['confidence']:.1%}",
-                        surr['sentence_text']
+                        "⬆️ Previous",
+                        str(prev_sent['sentence_number']),
+                        f"-{prev_sent['distance']}",
+                        relevance_icon,
+                        prev_sent['sentence_text']
+                    )
+                
+                for next_sent in next_sentences:
+                    relevance_icon = "✓" if next_sent['is_relevant'] else "○"
+                    context_table.add_row(
+                        "⬇️ Next",
+                        str(next_sent['sentence_number']),
+                        f"+{next_sent['distance']}",
+                        relevance_icon,
+                        next_sent['sentence_text']
                     )
                 
                 self.console.print(context_table)
             
-            # Thematic information
             if has_themes and result.get('has_theme'):
                 primary_theme = result['primary_theme']
                 
@@ -692,11 +730,11 @@ class EnhancedNoliSemanticSystem:
             if i < len(results):
                 self.console.print("─" * 100, style="dim blue")
         
-        # Summary footer
         chapters_found = len(set(r['chapter_number'] for r in results))
         exact_count = sum(1 for r in results if r['is_exact_match'])
-        context_total = sum(r.get('context_count', 0) for r in results)
+        context_count = sum(1 for r in results if r.get('has_relevant_context', False))
         theme_count = sum(1 for r in results if r.get('has_theme', False))
+        total_context = response.get('total_context_sentences', 0)
         
         classification = "🎭 Thematic Analysis" if has_themes else "📚 Semantic Search"
         
@@ -704,7 +742,8 @@ class EnhancedNoliSemanticSystem:
             f"{classification}",
             f"{len(results)} sentences from {chapters_found} chapters",
             f"{exact_count} exact matches",
-            f"{context_total} surrounding sentences"
+            f"{context_count} with context",
+            f"{total_context} total context sentences"
         ]
         
         if has_themes:
@@ -719,15 +758,15 @@ class EnhancedNoliSemanticSystem:
         )
         self.console.print(footer_panel)
 
-# Usage
 if __name__ == "__main__":
     system = EnhancedNoliSemanticSystem()
     
     welcome_panel = Panel(
         Align.center(Text(
             "📚 Enhanced Noli Me Tangere Semantic System\n"
-            "🎯 Context-Aware Ranking with Expanding Context\n"
-            "✅ No Duplicate Sentences | 🔍 Smart Context Extension | 📊 Confidence Boosting",
+            "🎯 XLM-RoBERTa with Flexible Context Expansion\n"
+            "✅ Real Word Detection | 🔍 Exact Match Priority | 🎭 Thematic Analysis\n"
+            "🔄 Non-Overlapping Context | 📊 Expanded Relevance Checking",
             style="bold white"
         )),
         style="bright_green",
