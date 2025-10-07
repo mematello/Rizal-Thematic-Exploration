@@ -1,0 +1,1 @@
+!pip install git+https://github.com/andrianllmm/tagalog-stemmer.git@main wordfreq stopwordsiso
