@@ -442,18 +442,8 @@ class CleanNoliSystem:
         
         return context
     
-    def _mark_passages_as_used(self, chapter_num, sentence_num, context, book_key):
-        """Mark all passages as globally used within a book"""
-        self.used_passages[book_key].add(self._get_passage_id(chapter_num, sentence_num))
-        
-        for sent in context.get('prev_sentences', []):
-            self.used_passages[book_key].add(self._get_passage_id(chapter_num, sent['sentence_number']))
-        
-        for sent in context.get('next_sentences', []):
-            self.used_passages[book_key].add(self._get_passage_id(chapter_num, sent['sentence_number']))
-    
     def _retrieve_passages(self, query, query_analysis, book_key, top_k=9):
-        """CLEAR-based hybrid retrieval for specified book"""
+        """CLEAR-based hybrid retrieval for specified book with immediate deduplication"""
         self.used_passages[book_key] = set()
         
         book_data = self.books_data[book_key]
@@ -469,7 +459,8 @@ class CleanNoliSystem:
         query_embedding = self.model.encode([query])
         semantic_similarities = cosine_similarity(query_embedding, embeddings)[0]
         
-        results = []
+        # Create scored candidates first (without context)
+        candidates = []
         
         for idx, semantic_sim in enumerate(semantic_similarities):
             if semantic_sim < self.MIN_SEMANTIC_THRESHOLD:
@@ -492,9 +483,51 @@ class CleanNoliSystem:
             else:
                 match_type = 'semantic'
             
+            final_score = self._calculate_clear_score(
+                semantic_sim, lexical_score, weights, row['sentence_word_count']
+            )
+            
+            candidates.append({
+                'index': idx,
+                'chapter_number': row['chapter_number'],
+                'chapter_title': row['chapter_title'],
+                'sentence_number': row['sentence_number'],
+                'sentence_text': row['sentence_text'],
+                'semantic_score': semantic_sim,
+                'lexical_score': lexical_score,
+                'final_score': final_score,
+                'match_type': match_type,
+                'word_count': row['sentence_word_count'],
+                'weights': {'lambda_emb': lambda_emb, 'lambda_lex': lambda_lex},
+                'stopword_ratio': stopword_ratio
+            })
+        
+        # Sort candidates by score
+        candidates.sort(key=lambda x: x['final_score'], reverse=True)
+        
+        # Now build final results with immediate deduplication
+        chapter_counts = {}
+        results = []
+        
+        for candidate in candidates:
+            # Check again if passage was used (might have been added as context)
+            passage_id = self._get_passage_id(candidate['chapter_number'], candidate['sentence_number'])
+            if passage_id in self.used_passages[book_key]:
+                continue
+            
+            # Check chapter limit
+            ch_num = candidate['chapter_number']
+            count = chapter_counts.get(ch_num, 0)
+            if count >= 3:
+                continue
+            
+            # Mark main passage as used FIRST
+            self.used_passages[book_key].add(passage_id)
+            
+            # Now get context (this will respect the updated used_passages)
             try:
                 context = self._get_expanded_context(
-                    row['chapter_number'], row['sentence_number'], query, book_key
+                    candidate['chapter_number'], candidate['sentence_number'], query, book_key
                 )
                 has_relevant_context = (
                     context['prev_relevant_count'] > 0 or context['next_relevant_count'] > 0
@@ -506,50 +539,24 @@ class CleanNoliSystem:
                 }
                 has_relevant_context = False
             
-            final_score = self._calculate_clear_score(
-                semantic_sim, lexical_score, weights, row['sentence_word_count']
-            )
+            # Mark context passages as used
+            for sent in context.get('prev_sentences', []):
+                self.used_passages[book_key].add(self._get_passage_id(ch_num, sent['sentence_number']))
+            for sent in context.get('next_sentences', []):
+                self.used_passages[book_key].add(self._get_passage_id(ch_num, sent['sentence_number']))
             
-            results.append({
-                'index': idx,
-                'chapter_number': row['chapter_number'],
-                'chapter_title': row['chapter_title'],
-                'sentence_number': row['sentence_number'],
-                'sentence_text': row['sentence_text'],
-                'semantic_score': semantic_sim,
-                'lexical_score': lexical_score,
-                'final_score': final_score,
-                'match_type': match_type,
-                'word_count': row['sentence_word_count'],
-                'context': context,
-                'has_relevant_context': has_relevant_context,
-                'total_context_sentences': len(context['prev_sentences']) + len(context['next_sentences']),
-                'weights': {'lambda_emb': lambda_emb, 'lambda_lex': lambda_lex},
-                'stopword_ratio': stopword_ratio
-            })
-        
-        results.sort(key=lambda x: x['final_score'], reverse=True)
-        
-        for result in results[:top_k]:
-            self._mark_passages_as_used(
-                result['chapter_number'], result['sentence_number'], result['context'], book_key
-            )
-        
-        chapter_counts = {}
-        final_results = []
-        
-        for result in results:
-            ch_num = result['chapter_number']
-            count = chapter_counts.get(ch_num, 0)
+            # Add full result
+            candidate['context'] = context
+            candidate['has_relevant_context'] = has_relevant_context
+            candidate['total_context_sentences'] = len(context['prev_sentences']) + len(context['next_sentences'])
             
-            if count < 3:
-                final_results.append(result)
-                chapter_counts[ch_num] = count + 1
-                
-                if len(final_results) >= top_k:
-                    break
+            results.append(candidate)
+            chapter_counts[ch_num] = count + 1
+            
+            if len(results) >= top_k:
+                break
         
-        return final_results[:top_k]
+        return results
     
     def _get_thematic_classification(self, passages, query, book_key):
         """Classify passages by themes"""
