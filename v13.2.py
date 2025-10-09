@@ -140,6 +140,161 @@ class QueryAnalyzer:
         words = re.findall(r'\b[a-zA-ZÀ-ÿñÑ]+\b', query)
         content_words = [w.lower() for w in words if w.lower() not in self.STOPWORDS]
         return content_words
+    
+    # Add this method to QueryAnalyzer class
+def _tokenize_with_hyphens(self, text):
+    """
+    Tokenize text while preserving hyphenated words as single tokens
+    Examples: "pag-ibig" -> ["pag-ibig"], not ["pag", "ibig"]
+    """
+    # Match hyphenated words (one or more hyphens) OR regular words
+    pattern = r'\b[a-zA-ZÀ-ÿñÑ]+(?:-[a-zA-ZÀ-ÿñÑ]+)+\b|\b[a-zA-ZÀ-ÿñÑ]+\b'
+    return re.findall(pattern, text.lower())
+
+# Update analyze_query_words method
+def analyze_query_words(self, query):
+    """Analyze query words: frequencies, stopword status, and semantic weight"""
+    words = self._tokenize_with_hyphens(query)  # CHANGED: use hyphen-aware tokenization
+    analysis = []
+
+    for word in words:
+        word_lower = word.lower()
+        
+        # For hyphenated words, check frequency of the full word
+        freq = self.get_word_frequency(word_lower, 'tl')
+        
+        # If hyphenated word has no frequency, try checking components
+        is_hyphenated = '-' in word_lower
+        if is_hyphenated and freq == 0:
+            components = word_lower.split('-')
+            component_freqs = [self.get_word_frequency(c, 'tl') for c in components]
+            freq = max(component_freqs) if component_freqs else 0
+        
+        is_stopword = word_lower in self.STOPWORDS
+        
+        # Hyphenated words should generally be treated as content words
+        if is_hyphenated:
+            semantic_weight = 1.0  # Full weight for hyphenated compound words
+        elif is_stopword:
+            semantic_weight = 0.05
+        elif freq > 0.001:
+            semantic_weight = 0.3
+        elif freq > 0.0001:
+            semantic_weight = 0.7
+        else:
+            semantic_weight = 1.0
+
+        analysis.append({
+            'word': word,
+            'frequency': freq,
+            'is_stopword': is_stopword,
+            'is_content_word': not is_stopword and (freq < 0.001 or is_hyphenated),
+            'semantic_weight': semantic_weight,
+            'is_hyphenated': is_hyphenated
+        })
+
+    return analysis
+
+# Update _compute_lexical_score_weighted in CleanNoliSystem
+def _compute_lexical_score_weighted(self, query, sentence_text, query_analysis):
+    """Compute weighted lexical overlap score with hyphen-aware exact matching"""
+    query_lower = query.lower().strip()
+    sentence_lower = sentence_text.lower().strip()
+
+    # 1. Exact sentence match
+    if query_lower == sentence_lower:
+        return 1.0
+
+    # 2. Phrase match with word boundaries (preserve hyphens)
+    # Escape regex special chars except hyphens
+    query_escaped = re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', query_lower)
+    query_pattern = r'\b' + query_escaped + r'\b'
+    
+    if re.search(query_pattern, sentence_lower):
+        # High score for phrase matches, scaled by length
+        phrase_score = min(1.0, len(query_lower) / len(sentence_lower) * 2)
+        return phrase_score
+
+    # 3. Word-level weighted matching (hyphen-aware)
+    query_words_data = {item['word'].lower(): item['semantic_weight']
+                       for item in query_analysis}
+    
+    # Tokenize sentence with same hyphen-aware method
+    sentence_words = set(self.query_analyzer._tokenize_with_hyphens(sentence_lower))
+
+    if not query_words_data:
+        return 0.0
+
+    total_weight = sum(query_words_data.values())
+    matched_weight = sum(
+        weight for word, weight in query_words_data.items()
+        if word in sentence_words
+    )
+
+    if total_weight == 0:
+        return 0.0
+
+    weighted_score = matched_weight / total_weight
+
+    # Apply stopword penalty
+    stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+    if stopword_ratio > self.HIGH_STOPWORD_RATIO:
+        penalty = (stopword_ratio - self.HIGH_STOPWORD_RATIO) * self.STOPWORD_PENALTY_FACTOR
+        weighted_score *= (1.0 - penalty)
+
+    return weighted_score
+
+# Update all other tokenization calls throughout the code:
+# Replace: re.findall(r'\b[a-zA-ZÀ-ÿñÑ]+\b', text)
+# With: self.query_analyzer._tokenize_with_hyphens(text)
+
+# Specifically update these methods:
+def get_stopword_ratio(self, query):
+    """Calculate the ratio of stopwords in query"""
+    words = self._tokenize_with_hyphens(query)  # CHANGED
+    if not words:
+        return 0.0
+    stopword_count = sum(1 for w in words if w.lower() in self.STOPWORDS)
+    return stopword_count / len(words)
+
+def get_content_words(self, query):
+    """Extract non-stopword content words from query"""
+    words = self._tokenize_with_hyphens(query)  # CHANGED
+    content_words = [w.lower() for w in words if w.lower() not in self.STOPWORDS]
+    return content_words
+
+def validate_filipino_query(self, query):
+    """Validate if query contains valid Filipino words"""
+    words = self._tokenize_with_hyphens(query)  # CHANGED
+    
+    if not words:
+        return False, {
+            'reason': 'No valid words found in query',
+            'total_words': 0,
+            'valid_words': 0,
+            'invalid_words': [],
+            'valid_ratio': 0.0
+        }
+
+    valid_words = []
+    invalid_words = []
+
+    for word in words:
+        # For hyphenated words, check if either the full word or components are valid
+        if '-' in word:
+            components = word.split('-')
+            component_valid = any(self.is_valid_filipino_word(c) for c in components)
+            full_valid = self.is_valid_filipino_word(word)
+            
+            if full_valid or component_valid:
+                valid_words.append(word)
+            else:
+                invalid_words.append(word)
+        else:
+            if self.is_valid_filipino_word(word):
+                valid_words.append(word)
+            else:
+                invalid_words.append(word)
 
 class CleanNoliSystem:
     """
