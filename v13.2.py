@@ -147,7 +147,8 @@ class CleanNoliSystem:
     Formula: s_final(q,d) = λ_emb · s_emb(q,d) + λ_lex · s_lex_weighted(q,d)
 
     Supports both Noli Me Tangere and El Filibusterismo with separate indexing
-    Includes lexical grounding check to block queries with zero corpus overlap
+    Includes lexical grounding check to block queries with zero overlap in corpus or themes
+    Themes are checked from CSV files (Tagalog Title and Meaning columns)
     """
 
     def __init__(self):
@@ -242,12 +243,23 @@ class CleanNoliSystem:
             book_data['theme_embeddings'] = self.model.encode(theme_texts, show_progress_bar=False)
 
     def _build_corpus_vocabulary(self):
-        """Build vocabulary from corpus for lexical grounding check"""
+        """Build vocabulary from corpus and themes for lexical grounding check"""
         for book_key, book_data in self.books_data.items():
             chapters_df = book_data['chapters']
+            themes_df = book_data['themes']
             vocabulary = set()
 
+            # Extract words from chapter sentences
             for text in chapters_df['sentence_text'].astype(str):
+                words = re.findall(r'\b[a-zA-ZÀ-ÿñÑ]+\b', text.lower())
+                vocabulary.update(words)
+
+            # Extract words from theme CSV (Tagalog Title and Meaning columns)
+            for text in themes_df['Tagalog Title'].astype(str):
+                words = re.findall(r'\b[a-zA-ZÀ-ÿñÑ]+\b', text.lower())
+                vocabulary.update(words)
+            
+            for text in themes_df['Meaning'].astype(str):
                 words = re.findall(r'\b[a-zA-ZÀ-ÿñÑ]+\b', text.lower())
                 vocabulary.update(words)
 
@@ -255,11 +267,12 @@ class CleanNoliSystem:
             vocabulary = vocabulary - self.query_analyzer.STOPWORDS
 
             self.corpus_vocabulary[book_key] = vocabulary
-            self.console.print(f"  {book_key} corpus vocabulary: {len(vocabulary)} content words", style="green")
+            self.console.print(f"  {book_key} corpus vocabulary: {len(vocabulary)} content words (including themes)", style="green")
 
     def _check_lexical_grounding(self, query):
         """
-        Check if query has any lexical overlap with corpus (excluding stopwords)
+        Check if query has any lexical overlap with corpus and themes (excluding stopwords)
+        Checks both novel text and theme CSV files (Tagalog Title and Meaning columns)
         Returns: (is_grounded, overlap_info_dict)
         """
         content_words = self.query_analyzer.get_content_words(query)
@@ -289,7 +302,7 @@ class CleanNoliSystem:
             'matched_words': matched_words,
             'total_content_words': len(content_words),
             'total_matched': total_matched,
-            'reason': '' if is_grounded else 'No lexical overlap with corpus (zero content words match)'
+            'reason': '' if is_grounded else 'No lexical overlap with corpus or themes (zero content words match)'
         }
 
         return is_grounded, overlap_info
