@@ -159,6 +159,7 @@ class CleanNoliSystem:
         self.books_data = {}
         self.used_passages = {}
         self.corpus_vocabulary = {}
+        self.global_vocabulary = set()
         self._load_books()
 
         self.console.print("Initializing query analyzer with official stopwords...", style="cyan")
@@ -261,6 +262,7 @@ class CleanNoliSystem:
             vocabulary = vocabulary - self.query_analyzer.STOPWORDS
 
             self.corpus_vocabulary[book_key] = vocabulary
+            self.global_vocabulary.update(vocabulary)
             self.console.print(f"  {book_key} corpus vocabulary: {len(vocabulary)} content words", style="green")
 
     def _get_passage_id(self, chapter_num, sentence_num):
@@ -735,6 +737,21 @@ class CleanNoliSystem:
                     'total_matched': 0
                 },
                 'message': "Query blocked: Query contains only stopwords"
+            }
+
+        missing_words = [w for w in content_words if w not in self.global_vocabulary]
+        if missing_words:
+            return {
+                'type': 'no_lexical_grounding',
+                'overlap_info': {
+                    'reason': 'Query contains words not found in novels or themes',
+                    'content_words': content_words,
+                    'missing_words': missing_words,
+                    'matched_words': {},
+                    'total_content_words': len(content_words),
+                    'total_matched': 0
+                },
+                'message': "Query blocked: Some words are not present in the novels or theme files"
             }
 
         query_analysis = self.query_analyzer.analyze_query_words(user_query)
