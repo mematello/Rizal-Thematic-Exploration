@@ -323,14 +323,17 @@ class CleanNoliSystem:
         return alpha, beta
     
     def _compute_lexical_score_weighted(self, query, sentence_text, query_analysis):
-        """Compute weighted lexical overlap score"""
+        """Compute weighted lexical overlap score with exact word boundary matching"""
         query_lower = query.lower().strip()
         sentence_lower = sentence_text.lower().strip()
         
         if query_lower == sentence_lower:
             return 1.0
         
-        if query_lower in sentence_lower:
+        # Check if query is a complete phrase match with word boundaries
+        # Use word boundary regex to ensure exact matching
+        query_pattern = r'\b' + re.escape(query_lower) + r'\b'
+        if re.search(query_pattern, sentence_lower):
             return min(1.0, len(query_lower) / len(sentence_lower) * 2)
         
         query_words_data = {item['word'].lower(): item['semantic_weight'] 
