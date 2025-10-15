@@ -64,42 +64,35 @@ class QueryAnalyzer:
                 'total_words': 0,
                 'valid_words': 0,
                 'invalid_words': [],
+                'valid_words_list': [],
                 'valid_ratio': 0.0
             }
 
-        overlap_info = {
-            'content_words': content_words,
-            'matched_words': matched_words,
-            'total_content_words': len(content_words),
-            'total_matched': sum(len(v) for v in matched_words.values()),
-            'no_grounding_books': no_grounding_books
+        valid_words = [word for word in words if self.is_valid_filipino_word(word)]
+        invalid_words = [word for word in words if word not in valid_words]
+
+        total_words = len(words)
+        valid_count = len(valid_words)
+        valid_ratio = valid_count / total_words if total_words else 0.0
+        is_valid = valid_ratio >= self.MIN_VALID_WORD_RATIO
+
+        validation_info = {
+            'total_words': total_words,
+            'valid_words': valid_count,
+            'invalid_words': invalid_words,
+            'valid_words_list': valid_words,
+            'valid_ratio': valid_ratio,
+            'reason': ''
         }
 
-        if not results_by_book:
-            if len(no_grounding_books) == len(self.books_data):
-                return {
-                    'type': 'no_lexical_grounding',
-                    'overlap_info': overlap_info,
-                    'message': "No lexical grounding in both novels"
-                }
-            else:
-                return {
-                    'type': 'no_matches',
-                    'message': "No matches found in either novel",
-                    'query_analysis': query_analysis,
-                    'query_length': query_length,
-                    'stopword_ratio': stopword_ratio,
-                    'overlap_info': overlap_info
-                }
+        if not is_valid:
+            validation_info['reason'] = (
+                'No valid Filipino words detected'
+                if valid_count == 0
+                else f'Only {valid_ratio:.1%} of words are valid Filipino'
+            )
 
-        return {
-            'type': 'success',
-            'results_by_book': results_by_book,
-            'query_length': query_length,
-            'stopword_ratio': stopword_ratio,
-            'query_analysis': query_analysis,
-            'overlap_info': overlap_info
-        }
+        return is_valid, validation_info
 
     def _display_neighbor_similarities(self, context):
         """Display neighbor similarities with combined neighbor score"""
