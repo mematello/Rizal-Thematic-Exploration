@@ -1,9 +1,10 @@
-🔹 FINAL SYSTEM FLOW — QUERY ANALYSIS AND RETRIEVAL (DYNAMIC WEIGHTS)
+UPDATED FINAL SYSTEM FLOW — QUERY ANALYSIS AND RETRIEVAL (DYNAMIC WEIGHTS + SEMANTIC RELEVANCE FILTER)
+
 1. Query Validation Phase
 
 Extract words from the query (tokenized and lowercased).
 
-Check each word’s validity using wordfreq (tl):
+Validate words using wordfreq (tl):
 
 Word is valid if it has a positive frequency score.
 
@@ -11,7 +12,7 @@ Check for Filipino stopwords using stopwords-tl:
 
 If all words are stopwords → mark as uninformative query.
 
-If no valid Filipino words → gibberish.
+If no valid Filipino words → mark as gibberish query.
 
 If valid non-stopwords exist → proceed to next phase.
 
@@ -31,64 +32,92 @@ For each CSV entry:
 
 Determine sentence length of sentence_text.
 
-Dynamic weight calculation based on length:
+Apply dynamic weight calculation based on length:
 
-Longer sentence → increase Semantic weight, decrease Lexical weight
+Longer sentence → increase Semantic weight, decrease Lexical weight.
 
-Shorter sentence → increase Lexical weight, decrease Semantic weight
+Shorter sentence → increase Lexical weight, decrease Semantic weight.
 
-Lexical Score → compare the query vs sentence_text (overlap/frequency).
+Compute Lexical Score → overlap/frequency between query and sentence_text.
 
-Semantic Score → compute XLM-RoBERTa embedding similarity between query and sentence_text.
+Compute Semantic Score → cosine similarity between XLM-RoBERTa embeddings of the query and sentence_text.
 
-Total Score = dynamic_lexical × Lexical + dynamic_semantic × Semantic.
+Combine scores:
 
-Rank all sentences by total score.
+Total Score = (dynamic_lexical × Lexical) + (dynamic_semantic × Semantic)
+
+
+Rank all sentences by Total Score.
 
 Select the top-ranked sentence_text as the retrieved sentence.
 
-4. Neighbor Sentence Expansion (Paragraph Context Generation)
+4. Semantic Relevance Evaluation (Blocking Mechanism) ✅ (New Phase)
+
+Compute maximum semantic similarity between the query and all candidate sentences.
+
+If the maximum similarity score < threshold (e.g., 0.55):
+
+Classify the query as semantically irrelevant to the corpus.
+
+Output:
+
+“No thematically or semantically relevant passage found.”
+
+
+Stop further retrieval phases.
+
+If the score ≥ threshold → proceed to neighbor expansion.
+
+(Optional: dynamically adjust threshold based on query length or lexical presence.)
+
+5. Neighbor Sentence Expansion (Paragraph Context Generation)
 
 Identify neighbor sentences (previous and next rows relative to the retrieved sentence).
 
 For each neighbor sentence:
 
-Determine neighbor sentence length.
+Determine its length relative to the retrieved sentence.
 
-Dynamic weights based on length relative to retrieved sentence:
+Apply dynamic weighting:
 
-Longer neighbor → higher Semantic weight, lower Lexical weight
+Longer neighbor → higher Semantic weight, lower Lexical weight.
 
-Shorter neighbor → higher Lexical weight, lower Semantic weight
+Shorter neighbor → higher Lexical weight, lower Semantic weight.
 
-Lexical Score → compare the retrieved sentence vs neighbor sentence.
+Compute Lexical Score → overlap between retrieved and neighbor sentences.
 
-Semantic Score → compute XLM-RoBERTa embedding similarity between retrieved sentence and neighbor sentence.
+Compute Semantic Score → embedding similarity between them.
 
-Total Score = dynamic_lexical × Lexical + dynamic_semantic × Semantic.
+Combine scores to form total similarity:
 
-Include neighbors exceeding a similarity threshold.
+Total Score = (dynamic_lexical × Lexical) + (dynamic_semantic × Semantic)
 
-Merge selected neighbors with the retrieved sentence to form the paragraph context.
 
-5. Thematic Exploration
+Include neighbors exceeding the similarity threshold.
+
+Merge retrieved sentence + selected neighbors → paragraph context.
+
+6. Thematic Exploration
 
 For each entry in the meaning column:
 
-Determine meaning entry length.
+Determine entry length relative to the retrieved sentence.
 
-Dynamic weights based on length relative to retrieved sentence:
+Apply dynamic weights:
 
-Longer entry → higher Semantic weight, lower Lexical weight
+Longer meaning → higher Semantic weight, lower Lexical weight.
 
-Shorter entry → higher Lexical weight, lower Semantic weight
+Shorter meaning → higher Lexical weight, lower Semantic weight.
 
-Lexical Score → compare retrieved sentence_text vs meaning entry (overlap/frequency).
+Compute Lexical Score (overlap/frequency).
 
-Semantic Score → compute XLM-RoBERTa embedding similarity between retrieved sentence_text and meaning entry.
+Compute Semantic Score (embedding similarity).
 
-Total Score = dynamic_lexical × Lexical + dynamic_semantic × Semantic.
+Combine:
 
-Rank all entries by Total Score.
+Total Score = (dynamic_lexical × Lexical) + (dynamic_semantic × Semantic)
 
-Retrieve the top meaning-based related sentences.
+
+Rank all meaning entries by Total Score.
+
+Retrieve top meaning-based related sentences for thematic expansion.
