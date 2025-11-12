@@ -15,6 +15,7 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.align import Align
 from rich import box
+import itertools
 
 warnings.filterwarnings('ignore')
 
@@ -148,6 +149,13 @@ class CleanNoliSystem:
     - Thematic Exploration: Dynamic weights based on meaning entry length
     """
 
+    CORE_ENTITIES = {
+        'ibarra', 'crisostomo', 'crisóstomo', 'simoun', 'maria', 'clara', 'elias',
+        'basilio', 'sisa', 'kapitan', 'tiago', 'tiyago', 'tasio', 'pilosopo',
+        'juli', 'isagani', 'paulita', 'salvi', 'damaso', 'camorra', 'camora',
+        'kabesang', 'tales', 'kundiman', 'ben', 'zayb', 'donya', 'victorina'
+    }
+
     def __init__(self):
         self.console = Console()
         self.console.print("Loading XLM-RoBERTa model...", style="cyan")
@@ -158,6 +166,13 @@ class CleanNoliSystem:
         self.used_passages = {}
         self.corpus_vocabulary = {}
         self.global_vocabulary = set()
+        self.global_passages = []
+        self.global_passage_embeddings = []
+        self.global_theme_texts = []
+        self.global_theme_embeddings = []
+        self.entity_list = []
+        self.co_occurrence_matrix = None
+        self.semantic_grounding_ready = False
         self._load_books()
 
         self.console.print("Initializing query analyzer with official stopwords...", style="cyan")
@@ -182,6 +197,9 @@ class CleanNoliSystem:
 
         self.console.print("Building corpus vocabulary...", style="cyan")
         self._build_corpus_vocabulary()
+
+        self.console.print("Building semantic grounding resources...", style="cyan")
+        self._build_semantic_grounding_resources()
 
         # System parameters
         self.MIN_SEMANTIC_THRESHOLD = 0.20
@@ -244,7 +262,7 @@ class CleanNoliSystem:
 
     def _compute_all_embeddings(self):
         """Compute embeddings for all books"""
-        for book_data in self.books_data.values():
+        for book_key, book_data in self.books_data.items():
             chapters_df = book_data['chapters']
             themes_df = book_data['themes']
 
@@ -259,6 +277,15 @@ class CleanNoliSystem:
 
             texts = chapters_df['combined_text'].tolist()
             book_data['embeddings'] = self.model.encode(texts, show_progress_bar=False)
+            for row, embedding in zip(chapters_df.itertuples(index=False), book_data['embeddings']):
+                self.global_passages.append({
+                    'book_key': book_key,
+                    'chapter_number': row.chapter_number,
+                    'chapter_title': row.chapter_title,
+                    'sentence_number': row.sentence_number,
+                    'sentence_text': row.sentence_text
+                })
+                self.global_passage_embeddings.append(embedding)
 
             themes_df['theme_text'] = (
                 themes_df['Tagalog Title'].astype(str) + " " +
@@ -267,6 +294,8 @@ class CleanNoliSystem:
 
             theme_texts = themes_df['theme_text'].tolist()
             book_data['theme_embeddings'] = self.model.encode(theme_texts, show_progress_bar=False)
+            self.global_theme_texts.extend(theme_texts)
+            self.global_theme_embeddings.extend(book_data['theme_embeddings'])
 
     def _build_corpus_vocabulary(self):
         """Build vocabulary from corpus and themes for lexical presence check"""
@@ -309,6 +338,103 @@ class CleanNoliSystem:
             self.corpus_vocabulary[book_key] = vocabulary
             self.global_vocabulary.update(vocabulary)
             self.console.print(f"  {book_key} corpus vocabulary: {len(vocabulary)} content words", style="green")
+
+    def _build_semantic_grounding_resources(self):
+        """
+        Build corpus-wide resources required for semantic grounding validation.
+        Aggregates passage/theme embeddings and prepares entity co-occurrence graphs.
+        """
+        embedding_dim = self.model.get_sentence_embedding_dimension()
+
+        if self.global_passage_embeddings:
+            self.passage_embeddings_matrix = np.vstack(self.global_passage_embeddings)
+        else:
+            self.passage_embeddings_matrix = np.empty((0, embedding_dim))
+        self.global_passage_embeddings = []
+
+        if self.global_theme_embeddings:
+            self.theme_embeddings_matrix = np.vstack(self.global_theme_embeddings)
+        else:
+            self.theme_embeddings_matrix = np.empty((0, embedding_dim))
+        self.global_theme_embeddings = []
+
+        self.entity_list = self._derive_entity_list()
+        self.entity_set = set(self.entity_list)
+
+        sentences = [entry['sentence_text'] for entry in self.global_passages]
+        if self.entity_list and sentences:
+            self.co_occurrence_matrix = self.build_co_occurrence(sentences, self.entity_list)
+        else:
+            self.co_occurrence_matrix = pd.DataFrame()
+
+        self.semantic_grounding_ready = True
+
+    def _derive_entity_list(self):
+        """
+        Construct an entity inventory using case statistics and predefined core entities.
+        Acts as a lightweight NER substitute tailored to Rizal's novels.
+        """
+        entities = set(self.CORE_ENTITIES)
+
+        for token, counts in getattr(self, 'global_token_case_counts', {}).items():
+            cap_count = counts.get('cap', 0)
+            lower_count = counts.get('lower', 0)
+            if cap_count >= 3 and cap_count >= lower_count and len(token) > 2 and token.isalpha():
+                entities.add(token)
+
+        return sorted(entities)
+
+    def extract_entities(self, text):
+        """
+        Simple rule-based entity extraction.
+        Combines capitalisation heuristics with curated entity vocabulary.
+        """
+        if not text:
+            return []
+
+        tokens = extract_words(str(text))
+        entities = []
+        for token in tokens:
+            token_lower = token.lower()
+            if token_lower in getattr(self, 'entity_set', set()) and token_lower not in entities:
+                entities.append(token_lower)
+
+        # Attempt spaCy named entity recognition if available for extra recall
+        if self.spacy_nlp:
+            try:
+                doc = self.spacy_nlp(str(text))
+                for ent in doc.ents:
+                    ent_lower = ent.text.lower()
+                    if ent_lower in self.entity_set and ent_lower not in entities:
+                        entities.append(ent_lower)
+            except Exception:
+                # spaCy pipeline may be unavailable for some languages; ignore errors silently.
+                pass
+
+        return entities
+
+    def build_co_occurrence(self, sentences, entities):
+        """
+        Count entity pair co-occurrences at the sentence level to approximate narrative proximity.
+        """
+        entity_order = sorted(set(entities))
+        matrix = pd.DataFrame(0, index=entity_order, columns=entity_order, dtype=int)
+        entity_index = set(entity_order)
+
+        for sentence in sentences:
+            sentence_entities = set(self.extract_entities(sentence))
+            sentence_entities &= entity_index
+
+            if len(sentence_entities) < 2:
+                continue
+
+            for e1, e2 in itertools.combinations(sorted(sentence_entities), 2):
+                if e1 in matrix.index and e2 in matrix.columns:
+                    matrix.loc[e1, e2] += 1
+                    matrix.loc[e2, e1] += 1
+
+        np.fill_diagonal(matrix.values, 0)
+        return matrix
 
     def _get_passage_id(self, chapter_num, sentence_num):
         """Create unique identifier for passages"""
@@ -425,6 +551,99 @@ class CleanNoliSystem:
 
         return semantic_sim, lexical_sim, combined_score, lambda_lex, lambda_sem
 
+    def _validate_semantic_grounding(self, query, query_embedding):
+        """
+        Multi-level semantic grounding validation inspired by DAPT.
+        Ensures that queries align with canonical passages, themes, and entity co-occurrences.
+        """
+        if not self.semantic_grounding_ready:
+            return True, None
+
+        query_vec = np.asarray(query_embedding)
+        if query_vec.ndim == 1:
+            query_vec = query_vec.reshape(1, -1)
+        elif query_vec.ndim > 2:
+            query_vec = query_vec.reshape(1, -1)
+
+        if self.passage_embeddings_matrix.size == 0:
+            return True, None
+
+        # Level 1: Maximum Passage Similarity Check
+        max_passage_sim = float(np.max(cosine_similarity(query_vec, self.passage_embeddings_matrix)))
+        if np.isnan(max_passage_sim) or max_passage_sim < 0.20:
+            return False, "No semantically similar passages found"
+
+        # Level 2: Thematic Alignment Check
+        if self.theme_embeddings_matrix.size > 0:
+            max_theme_sim = float(np.max(cosine_similarity(query_vec, self.theme_embeddings_matrix)))
+            if np.isnan(max_theme_sim) or max_theme_sim < 0.30:
+                return False, "Query not aligned with any valid theme"
+
+        # Level 3: Entity Co-occurrence Check
+        entities = self.extract_entities(query)
+        if len(entities) >= 2 and self.co_occurrence_matrix is not None and not self.co_occurrence_matrix.empty:
+            for e1, e2 in itertools.combinations(entities, 2):
+                if (
+                    e1 not in self.co_occurrence_matrix.index
+                    or e2 not in self.co_occurrence_matrix.columns
+                    or self.co_occurrence_matrix.loc[e1, e2] == 0
+                ):
+                    return False, f"'{e1}' and '{e2}' never appear in related contexts"
+
+        return True, None
+
+    def _generate_semantic_suggestions(self, query_embedding, top_k=3):
+        """
+        Suggest alternative, corpus-grounded queries based on nearest passages/themes.
+        """
+        suggestions = []
+
+        if self.passage_embeddings_matrix.size == 0:
+            return suggestions
+
+        query_vec = np.asarray(query_embedding)
+        if query_vec.ndim == 1:
+            query_vec = query_vec.reshape(1, -1)
+
+        similarities = cosine_similarity(query_vec, self.passage_embeddings_matrix)[0]
+        top_indices = np.argsort(similarities)[::-1]
+
+        for idx in top_indices:
+            passage = self.global_passages[idx]
+            sentence = passage['sentence_text']
+            chapter = passage['chapter_title']
+            entities = self.extract_entities(sentence)
+
+            if entities:
+                suggestion = f"{entities[0].title()} sa {chapter.lower()}"
+            else:
+                keywords = [
+                    word for word in extract_words(sentence.lower())
+                    if word not in self.query_analyzer.STOPWORDS
+                ]
+                suggestion = " ".join(word.title() for word in keywords[:2]) or chapter
+
+            suggestion = suggestion.strip()
+
+            if suggestion and suggestion not in suggestions:
+                suggestions.append(suggestion)
+
+            if len(suggestions) >= top_k:
+                break
+
+        if len(suggestions) < top_k and self.theme_embeddings_matrix.size > 0:
+            theme_similarities = cosine_similarity(query_vec, self.theme_embeddings_matrix)[0]
+            theme_indices = np.argsort(theme_similarities)[::-1]
+            for idx in theme_indices:
+                theme_text = self.global_theme_texts[idx]
+                primary_title = theme_text.split(" ", 1)[0].title()
+                if primary_title and primary_title not in suggestions:
+                    suggestions.append(primary_title)
+                if len(suggestions) >= top_k:
+                    break
+
+        return suggestions[:top_k]
+
     def _get_expanded_context(self, chapter_num, sentence_num, query, book_key, main_text, main_length):
         """Get context sentences with dynamic neighbor scoring"""
         context = {
@@ -531,7 +750,7 @@ class CleanNoliSystem:
 
         return context
 
-    def _retrieve_passages(self, query, query_analysis, book_key, top_k=9):
+    def _retrieve_passages(self, query, query_analysis, book_key, top_k=9, query_embedding=None):
         """CLEAR-based hybrid retrieval with dynamic length-based weights"""
         self.used_passages[book_key] = set()
 
@@ -539,8 +758,13 @@ class CleanNoliSystem:
         chapters_df = book_data['chapters']
         embeddings = book_data['embeddings']
 
-        query_embedding = self.model.encode([query])
-        semantic_similarities = cosine_similarity(query_embedding, embeddings)[0]
+        if query_embedding is None:
+            query_embedding_vec = self.model.encode([query])
+        else:
+            query_embedding_vec = np.asarray(query_embedding)
+            if query_embedding_vec.ndim == 1:
+                query_embedding_vec = query_embedding_vec.reshape(1, -1)
+        semantic_similarities = cosine_similarity(query_embedding_vec, embeddings)[0]
 
         candidates = []
 
@@ -811,6 +1035,18 @@ class CleanNoliSystem:
                 'plot_path': relation_info.get('plot_path')
             }
 
+        # Stage 5: Semantic Grounding Validation (DAPT-inspired)
+        query_embedding_vector = self.model.encode([user_query])[0]
+        grounding_ok, grounding_reason = self._validate_semantic_grounding(user_query, query_embedding_vector)
+        if not grounding_ok:
+            suggestions = self._generate_semantic_suggestions(query_embedding_vector, top_k=3)
+            return {
+                'type': 'semantic_grounding_rejected',
+                'status': 'rejected',
+                'reason': grounding_reason or "Query concept not found in novel context.",
+                'suggestions': suggestions or ["Basahin muli ang kabanata para sa mas angkop na paksa."]
+            }
+
         # Phase 3 & 4: Lexical & Semantic Scoring + Neighbor Expansion
         query_analysis = self.query_analyzer.analyze_query_words(user_query)
         query_length = len(extract_words(user_query))
@@ -827,7 +1063,12 @@ class CleanNoliSystem:
                 no_grounding_books.append(book_key)
                 continue
 
-            passages = self._retrieve_passages(user_query, query_analysis, book_key)
+            passages = self._retrieve_passages(
+                user_query,
+                query_analysis,
+                book_key,
+                query_embedding=query_embedding_vector
+            )
 
             if passages:
                 # Phase 5: Thematic Exploration
@@ -1355,6 +1596,40 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(validation_panel)
+            return
+
+        if result_type == 'semantic_grounding_rejected':
+            none_table = Table(show_header=False, box=box.HEAVY, border_style="red", width=20)
+            none_table.add_column("Result", style="bold red", justify="center")
+            none_table.add_row("rejected")
+            self.console.print(none_table)
+
+            suggestions = response.get('suggestions', [])
+            suggest_table = Table(
+                title="Suggested Queries",
+                show_header=True,
+                header_style="bold cyan",
+                border_style="cyan",
+                box=box.ROUNDED,
+                expand=False
+            )
+            suggest_table.add_column("#", style="bright_white", width=4, justify="center")
+            suggest_table.add_column("Query Idea", style="bright_green", justify="left")
+
+            for idx, suggestion in enumerate(suggestions, 1):
+                suggest_table.add_row(str(idx), suggestion)
+
+            rejection_panel = Panel(
+                f"{response.get('reason', 'Query concept not found in novel context.')}\n\n"
+                "The system blocks hallucinated events by grounding every query "
+                "in canonical passages, validated themes, and entity co-occurrences.",
+                title="Semantic Grounding Validation",
+                style="red",
+                box=box.ROUNDED
+            )
+            self.console.print(rejection_panel)
+            if suggestions:
+                self.console.print(suggest_table)
             return
 
         if result_type == 'no_lexical_grounding':
