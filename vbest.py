@@ -206,6 +206,12 @@ class CleanNoliSystem:
         self.RELATION_COOCC_THRESHOLD_NAMED = 1  # relaxed threshold for named entities
         self.RELATION_ENABLE_TSNE = False  # default to PCA for speed
 
+        # Semantic query validator thresholds
+        self.SEMANTIC_SIMILARITY_THRESHOLD = 0.4  # Primary: average embedding similarity threshold
+        self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD = 0.75  # Secondary: high similarity when co-occurrence = 0
+        self.MIN_COOCCURRENCE_NORMAL = 1  # Minimum co-occurrence for normal cases
+        self.MIN_COOCCURRENCE_STRICT = 3  # Minimum co-occurrence for strict cases
+
         self.console.print("Dynamic Dual-Formula CLEAR system ready!", style="bold green")
 
     def _load_books(self):
@@ -752,7 +758,22 @@ class CleanNoliSystem:
                 'message': "Query blocked: Some words are not present in the novels or theme files"
             }
 
-        # Phase 2.5: Domain Coherence Check (DAPT-inspired)
+        # Phase 2.5: Semantic Query Validation (Embedding Similarity + Co-occurrence)
+        semantic_validation = self._validate_semantic_query(content_words)
+        if not semantic_validation['proceed']:
+            return {
+                'type': 'semantic_validation_failed',
+                'message': f"Query blocked: {semantic_validation['reason']}",
+                'content_words': content_words,
+                'avg_similarity': semantic_validation['avg_similarity'],
+                'min_cooccurrence': semantic_validation['min_cooccurrence'],
+                'word_pairs': semantic_validation['word_pairs'],
+                'reason': semantic_validation['reason']
+            }
+        # Validation passed - proceed with query processing
+        # (semantic_validation['reason'] contains the pass reason if needed for logging)
+
+        # Phase 2.6: Domain Coherence Check (DAPT-inspired)
         # Ensure multi-word queries have semantically coherent content words within domain
         if len(content_words) >= self.DOMAIN_MIN_WORDS:
             sim_info = self._compute_domain_coherence(content_words)
@@ -774,7 +795,7 @@ class CleanNoliSystem:
                     'outliers': outliers
                 }
 
-        # Phase 2.6: Relation Consistency Check (e.g., "X ng Y", "A ni B")
+        # Phase 2.7: Relation Consistency Check (e.g., "X ng Y", "A ni B")
         relation_info = self._analyze_relations(user_query, content_words)
         if relation_info and not relation_info['passed']:
             return {
@@ -908,6 +929,113 @@ class CleanNoliSystem:
             'similarity_matrix': sim_matrix,
             'per_word_avg': per_word_avg,
             'overall_avg': overall_avg
+        }
+
+    def _validate_semantic_query(self, content_words):
+        """
+        Semantic query validator: checks embedding similarity and co-occurrence.
+        
+        Rules:
+        1. Primary: Average word embedding similarity ≥ threshold (0.4)
+        2. Secondary: If co-occurrence = 0, allow only if similarity ≥ 0.75
+        3. Otherwise: enforce normal co-occurrence rules (≥ 1 or 3)
+        
+        Returns: dict with 'proceed' (bool), 'reason' (str), and diagnostic info
+        """
+        if len(content_words) < 2:
+            # Single word queries pass (no pairs to check)
+            return {
+                'proceed': True,
+                'reason': 'Single word query - no semantic validation needed',
+                'avg_similarity': 1.0,
+                'min_cooccurrence': 0,
+                'word_pairs': []
+            }
+
+        # Compute word embeddings
+        tokens = [w.lower() for w in content_words]
+        embeddings = self.model.encode(tokens, show_progress_bar=False)
+        sim_matrix = cosine_similarity(embeddings)
+
+        # Compute average pairwise similarity (excluding diagonal)
+        triu_indices = np.triu_indices(len(tokens), k=1)
+        avg_similarity = float(np.mean(sim_matrix[triu_indices])) if triu_indices[0].size > 0 else 0.0
+
+        # Compute co-occurrence for all word pairs
+        word_pairs = []
+        min_cooccurrence = float('inf')
+        
+        for i in range(len(tokens)):
+            for j in range(i + 1, len(tokens)):
+                word1 = tokens[i]
+                word2 = tokens[j]
+                cooccurrence = self._count_cooccurrence(word1, word2)
+                similarity = float(sim_matrix[i][j])
+                
+                word_pairs.append({
+                    'word1': word1,
+                    'word2': word2,
+                    'similarity': similarity,
+                    'cooccurrence': cooccurrence
+                })
+                
+                if cooccurrence < min_cooccurrence:
+                    min_cooccurrence = cooccurrence
+
+        # Apply validation rules
+        # Rule 1: Primary condition - average similarity must meet threshold
+        if avg_similarity < self.SEMANTIC_SIMILARITY_THRESHOLD:
+            return {
+                'proceed': False,
+                'reason': f'Blocked due to low semantic similarity (avg: {avg_similarity:.2f} < {self.SEMANTIC_SIMILARITY_THRESHOLD})',
+                'avg_similarity': avg_similarity,
+                'min_cooccurrence': min_cooccurrence if min_cooccurrence != float('inf') else 0,
+                'word_pairs': word_pairs
+            }
+
+        # Rule 2: Secondary condition - if co-occurrence = 0, require high similarity
+        if min_cooccurrence == 0:
+            if avg_similarity >= self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD:
+                return {
+                    'proceed': True,
+                    'reason': 'Passed via high semantic similarity (co-occurrence = 0, but similarity ≥ 0.75)',
+                    'avg_similarity': avg_similarity,
+                    'min_cooccurrence': 0,
+                    'word_pairs': word_pairs
+                }
+            else:
+                return {
+                    'proceed': False,
+                    'reason': f'Blocked due to zero co-occurrence and low similarity (similarity: {avg_similarity:.2f} < {self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD})',
+                    'avg_similarity': avg_similarity,
+                    'min_cooccurrence': 0,
+                    'word_pairs': word_pairs
+                }
+
+        # Rule 3: Normal co-occurrence rules
+        # Use strict threshold (3) if similarity is borderline, normal (1) if similarity is good
+        if avg_similarity < 0.5:
+            required_cooccurrence = self.MIN_COOCCURRENCE_STRICT
+        else:
+            required_cooccurrence = self.MIN_COOCCURRENCE_NORMAL
+
+        if min_cooccurrence < required_cooccurrence:
+            return {
+                'proceed': False,
+                'reason': f'Blocked due to low co-occurrence (min: {min_cooccurrence} < {required_cooccurrence})',
+                'avg_similarity': avg_similarity,
+                'min_cooccurrence': min_cooccurrence,
+                'word_pairs': word_pairs,
+                'required_cooccurrence': required_cooccurrence
+            }
+
+        # All checks passed
+        return {
+            'proceed': True,
+            'reason': f'Passed semantic validation (similarity: {avg_similarity:.2f}, co-occurrence: {min_cooccurrence})',
+            'avg_similarity': avg_similarity,
+            'min_cooccurrence': min_cooccurrence,
+            'word_pairs': word_pairs
         }
 
     def _extract_relations_regex(self, text):
@@ -1260,6 +1388,78 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(grounding_panel)
+            return
+
+        if result_type == 'semantic_validation_failed':
+            none_table = Table(show_header=False, box=box.HEAVY, border_style="red", width=20)
+            none_table.add_column("Result", style="bold red", justify="center")
+            none_table.add_row("Block")
+            self.console.print(none_table)
+
+            avg_sim = response.get('avg_similarity', 0.0)
+            min_coocc = response.get('min_cooccurrence', 0)
+            word_pairs = response.get('word_pairs', [])
+            reason = response.get('reason', 'Semantic validation failed')
+
+            # Word pairs table
+            if word_pairs:
+                pairs_table = Table(
+                    title="Word Pair Analysis",
+                    show_header=True,
+                    header_style="bold cyan",
+                    border_style="cyan",
+                    box=box.ROUNDED,
+                    expand=False
+                )
+                pairs_table.add_column("Word 1", style="bright_white")
+                pairs_table.add_column("Word 2", style="bright_white")
+                pairs_table.add_column("Similarity", style="bright_yellow", justify="center")
+                pairs_table.add_column("Co-occurrence", style="bright_magenta", justify="center")
+
+                for pair in word_pairs:
+                    sim_val = pair['similarity']
+                    coocc_val = pair['cooccurrence']
+                    
+                    # Color code similarity
+                    if sim_val >= 0.7:
+                        sim_style = "bright_green"
+                    elif sim_val >= 0.4:
+                        sim_style = "yellow"
+                    else:
+                        sim_style = "red"
+                    
+                    # Color code co-occurrence
+                    if coocc_val >= 3:
+                        coocc_style = "bright_green"
+                    elif coocc_val >= 1:
+                        coocc_style = "yellow"
+                    else:
+                        coocc_style = "red"
+                    
+                    pairs_table.add_row(
+                        pair['word1'],
+                        pair['word2'],
+                        f"[{sim_style}]{sim_val:.2f}[/{sim_style}]",
+                        f"[{coocc_style}]{coocc_val}[/{coocc_style}]"
+                    )
+                
+                self.console.print(pairs_table)
+
+            summary_text = (
+                f"{reason}\n\n"
+                f"Validation Metrics:\n"
+                f"  Average Similarity: {avg_sim:.2f} (threshold: {self.SEMANTIC_SIMILARITY_THRESHOLD})\n"
+                f"  Minimum Co-occurrence: {min_coocc}\n"
+                f"  Content Words: {', '.join(response.get('content_words', []))}"
+            )
+
+            validation_panel = Panel(
+                summary_text,
+                title="Semantic Query Validation Failed",
+                style="red",
+                box=box.ROUNDED
+            )
+            self.console.print(validation_panel)
             return
 
         if result_type == 'domain_incoherent':
