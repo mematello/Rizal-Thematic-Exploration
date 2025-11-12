@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from collections import defaultdict, Counter
 import re
 import warnings
 import matplotlib
@@ -183,6 +184,20 @@ class CleanNoliSystem:
         self.console.print("Building corpus vocabulary...", style="cyan")
         self._build_corpus_vocabulary()
 
+        self.console.print("Building character and action lists...", style="cyan")
+        self.characters = set()
+        self.character_display_names = {}
+        self.action_words = set()
+        self.action_display_names = {}
+        self.character_action_pairs = defaultdict(set)
+        self.character_action_pair_counts = defaultdict(lambda: defaultdict(int))
+        self.character_to_actions = defaultdict(set)
+        self._build_character_and_action_lists()
+
+        self.console.print("Mapping concepts to characters...", style="cyan")
+        self.concept_character_map = defaultdict(set)
+        self._build_theme_concept_map()
+
         # System parameters
         self.MIN_SEMANTIC_THRESHOLD = 0.20
         self.THEMATIC_THRESHOLD = 0.45
@@ -208,7 +223,7 @@ class CleanNoliSystem:
 
         # Semantic query validator thresholds
         self.SEMANTIC_SIMILARITY_THRESHOLD = 0.4  # Primary: average embedding similarity threshold
-        self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD = 0.75  # Secondary: high similarity when co-occurrence = 0
+        self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD = 0.70  # Override: allow pass even if co-occurrence low/zero
         self.MIN_COOCCURRENCE_NORMAL = 1  # Minimum co-occurrence for normal cases
         self.MIN_COOCCURRENCE_STRICT = 3  # Minimum co-occurrence for strict cases
 
@@ -309,6 +324,453 @@ class CleanNoliSystem:
             self.corpus_vocabulary[book_key] = vocabulary
             self.global_vocabulary.update(vocabulary)
             self.console.print(f"  {book_key} corpus vocabulary: {len(vocabulary)} content words", style="green")
+
+    def _build_character_and_action_lists(self):
+        """Build lists of characters (proper nouns) and action words (verbs) from corpus"""
+        known_character_displays = {
+            'crisostomo ibarra': 'Crisostomo Ibarra',
+            'ibarra': 'Ibarra',
+            'maria clara': 'Maria Clara',
+            'kapitan tiago': 'Kapitan Tiago',
+            'tiago': 'Kapitan Tiago',
+            'padre damaso': 'Padre Damaso',
+            'padre salvi': 'Padre Salvi',
+            'elias': 'Elias',
+            'sisa': 'Sisa',
+            'basilio': 'Basilio',
+            'don rafael': 'Don Rafael',
+            'donya victorina': 'Donya Victorina',
+            'doña victorina': 'Doña Victorina',
+            'don tiburcio': 'Don Tiburcio',
+            'isagani': 'Isagani',
+            'juli': 'Juli',
+            'simoun': 'Simoun',
+            'placido': 'Placido',
+            'makaraig': 'Makaraig',
+            'cabesang tales': 'Cabesang Tales',
+            'tales': 'Tales',
+            'basilio at crispin': 'Basilio at Crispin',
+            'crispin': 'Crispin',
+            'tasio': 'Tasio',
+            'pilosopo tasio': 'Pilosopo Tasio',
+            'ben-zayb': 'Ben-Zayb',
+            'sandoval': 'Sandoval',
+            'juanito pelaez': 'Juanito Pelaez',
+            'juanito': 'Juanito',
+            'hermana penchang': 'Hermanang Penchang',
+            'hermana bali': 'Hermanang Bali',
+            'don custodio': 'Don Custodio',
+            'padre florentino': 'Padre Florentino',
+            'padre sibyla': 'Padre Sibyla',
+            'padre irene': 'Padre Irene',
+            'padre camorra': 'Padre Camorra'
+        }
+        known_characters = set(known_character_displays.keys())
+        excluded_pronouns = {
+            'siya', 'sila', 'ito', 'iyan', 'iyon', 'ako', 'ikaw', 'kayo', 'kami', 'tayo',
+            'kaniya', 'kanila', 'niya', 'nila', 'natin', 'atin', 'amin', 'amin', 'kaniya',
+            'inyong', 'inyo', 'ating', 'sarili', 'sino', 'alin', 'ano', 'saan', 'dito',
+            'roon', 'doon', 'ganito', 'ganyan', 'ganon', 'ganun', 'kung', 'aking', 'iyong',
+            'inyong', 'kanyang', 'kanyang', 'kanilang', 'kanilang', 'sila', 'siya'
+        }
+        title_tokens = {'don', 'donya', 'doña', 'padre', 'kapitan', 'teniente', 'alferez', 'senor', 'señor'}
+        connector_tokens = {'de', 'del', 'la', 'el', 'y', 'at'}
+        known_action_exceptions = {'pag', 'mag', 'nag', 'pagkaka', 'pagka'}
+
+        character_counts = Counter()
+        character_forms = defaultdict(Counter)
+        action_counts = Counter()
+        action_forms = defaultdict(Counter)
+        pair_counts = defaultdict(lambda: defaultdict(int))
+
+        for book_key, book_data in self.books_data.items():
+            for text in book_data['chapters']['sentence_text'].astype(str):
+                if not text:
+                    continue
+                tokens_original = extract_words(str(text))
+                if not tokens_original:
+                    continue
+                tokens_lower = [t.lower() for t in tokens_original]
+                length = len(tokens_original)
+
+                # Extract potential characters (proper noun sequences)
+                idx = 0
+                while idx < length:
+                    token = tokens_original[idx]
+                    token_lower = tokens_lower[idx]
+
+                    if token_lower in excluded_pronouns or len(token_lower) <= 1:
+                        idx += 1
+                        continue
+
+                    is_known = token_lower in known_characters
+                    is_cap = token[:1].isupper()
+
+                    if not is_known and not is_cap:
+                        idx += 1
+                        continue
+
+                    name_tokens = [token_lower]
+                    display_tokens = [token]
+                    j = idx + 1
+
+                    while j < length:
+                        next_token = tokens_original[j]
+                        next_lower = tokens_lower[j]
+
+                        if next_lower in excluded_pronouns:
+                            break
+
+                        if next_token[:1].isupper() or next_lower in known_characters or next_lower in connector_tokens:
+                            name_tokens.append(next_lower)
+                            display_tokens.append(next_token)
+                            j += 1
+                        else:
+                            break
+
+                    name_key = " ".join(name_tokens).strip()
+                    name_key = " ".join(name_key.split())
+
+                    if name_key and name_tokens[0] not in excluded_pronouns:
+                        if name_key not in title_tokens and name_tokens[0] not in title_tokens:
+                            character_counts[name_key] += 1
+                            display_name = " ".join(display_tokens).strip()
+                            character_forms[name_key][display_name] += 1
+
+                    idx = j if j > idx else idx + 1
+
+                # Extract action words and character-action pairs
+                for i, tok_lower in enumerate(tokens_lower):
+                    if tok_lower not in {'ni', 'ng'}:
+                        continue
+
+                    # Find action word preceding the marker
+                    action_idx = i - 1
+                    while action_idx >= 0 and (tokens_lower[action_idx] in self.query_analyzer.STOPWORDS or len(tokens_lower[action_idx]) <= 2):
+                        action_idx -= 1
+
+                    if action_idx < 0:
+                        continue
+
+                    action_word = tokens_lower[action_idx]
+
+                    if (len(action_word) < 4 and action_word not in known_action_exceptions) or action_word in excluded_pronouns:
+                        continue
+
+                    # Determine character tokens after marker
+                    j = i + 1
+                    char_tokens = []
+                    display_tokens = []
+
+                    while j < length:
+                        next_lower = tokens_lower[j]
+                        next_original = tokens_original[j]
+
+                        if next_lower in excluded_pronouns:
+                            break
+
+                        if next_original[:1].isupper() or next_lower in known_characters or next_lower in connector_tokens:
+                            char_tokens.append(next_lower)
+                            display_tokens.append(next_original)
+                            j += 1
+                        else:
+                            break
+
+                    char_key = " ".join(char_tokens).strip()
+                    char_key = " ".join(char_key.split())
+
+                    if not char_key or char_key in excluded_pronouns or char_key in title_tokens:
+                        continue
+
+                    action_counts[action_word] += 1
+                    action_forms[action_word][tokens_original[action_idx]] += 1
+                    pair_counts[action_word][char_key] += 1
+
+        # Finalize characters and their display names
+        self.characters = set()
+        self.character_display_names = {}
+
+        for char_key, count in character_counts.items():
+            if count >= 2:
+                self.characters.add(char_key)
+                display = character_forms[char_key].most_common(1)[0][0]
+                self.character_display_names[char_key] = display
+
+        for known_char, display in known_character_displays.items():
+            self.characters.add(known_char)
+            if known_char not in self.character_display_names:
+                self.character_display_names[known_char] = display
+
+        # Clean up characters: remove titles without specific name
+        for title in title_tokens:
+            if title in self.characters:
+                self.characters.remove(title)
+                self.character_display_names.pop(title, None)
+
+        # Finalize action words and character-action pairs
+        self.action_words = set()
+        self.action_display_names = {}
+        self.character_action_pairs = defaultdict(set)
+        self.character_action_pair_counts = defaultdict(lambda: defaultdict(int))
+        self.character_to_actions = defaultdict(set)
+
+        for action_word, count in action_counts.items():
+            valid_chars = {
+                char_key: freq for char_key, freq in pair_counts[action_word].items()
+                if char_key in self.characters
+            }
+
+            if not valid_chars:
+                continue
+
+            self.action_words.add(action_word)
+            self.action_display_names[action_word] = action_forms[action_word].most_common(1)[0][0]
+
+            for char_key, freq in valid_chars.items():
+                self.character_action_pairs[action_word].add(char_key)
+                self.character_action_pair_counts[action_word][char_key] = freq
+                self.character_to_actions[char_key].add(action_word)
+
+        self.console.print(
+            f"  Characters: {len(self.characters)} | Actions: {len(self.action_words)} | Pairs: "
+            f"{sum(len(chars) for chars in self.character_action_pairs.values())}",
+            style="green"
+        )
+
+    def _build_theme_concept_map(self):
+        """Map thematic concepts to associated characters based on theme descriptions."""
+        concept_map = defaultdict(set)
+
+        for book_data in self.books_data.values():
+            themes_df = book_data.get('themes')
+            if themes_df is None:
+                continue
+
+            for _, row in themes_df.iterrows():
+                tagalog_title = str(row.get('Tagalog Title', '')).lower()
+                meaning_text = str(row.get('Meaning', '')).lower()
+
+                if not tagalog_title and not meaning_text:
+                    continue
+
+                title_tokens = [tok for tok in extract_words(tagalog_title)
+                                if tok not in self.query_analyzer.STOPWORDS and len(tok) > 2]
+
+                if not meaning_text:
+                    continue
+
+                meaning_tokens = extract_words(meaning_text)
+                found_characters = set()
+
+                max_window = 4
+                for window in range(max_window, 0, -1):
+                    for start in range(0, len(meaning_tokens) - window + 1):
+                        span_tokens = meaning_tokens[start:start + window]
+                        candidate = " ".join(span_tokens)
+                        normalized = self._normalize_character_name(candidate)
+                        if normalized:
+                            found_characters.add(normalized)
+
+                if not found_characters:
+                    continue
+
+                for concept in title_tokens:
+                    concept_map[concept].update(found_characters)
+
+                # include multi-token concept phrases (first two tokens)
+                if len(title_tokens) >= 2:
+                    combined = " ".join(title_tokens[:2])
+                    concept_map[combined].update(found_characters)
+
+        self.concept_character_map = concept_map
+
+    def _extract_nouns_and_verbs(self, query):
+        """Extract nouns and verbs from query using SpaCy or regex fallback"""
+        nouns = set()
+        verbs = set()
+        excluded_tokens = {
+            'ni', 'ng', 'sa', 'kay', 'para', 'ang', 'mga', 'mga', 'sina', 'kina', 'kay',
+            'ay', 'at', 'si', 'siya', 'ito', 'iyan', 'iyon', 'sila', 'kami', 'tayo', 'kayo'
+        }
+
+        original_tokens = extract_words(query)
+        lower_tokens = [tok.lower() for tok in original_tokens]
+
+        if self.spacy_nlp:
+            try:
+                doc = self.spacy_nlp(query)
+                for token in doc:
+                    tok_lower = token.text.lower().strip()
+                    if tok_lower in excluded_tokens or tok_lower in self.query_analyzer.STOPWORDS:
+                        continue
+                    if token.pos_ in ['NOUN', 'PROPN'] or (token.text[:1].isupper() and len(token.text) >= 3):
+                        nouns.add(tok_lower)
+                    elif token.pos_ == 'VERB':
+                        verbs.add(tok_lower)
+            except Exception:
+                pass
+
+        # Fallback: use regex and heuristics if SpaCy missing or empty
+        if not nouns and not verbs:
+            for token, lower in zip(original_tokens, lower_tokens):
+                if lower in excluded_tokens or lower in self.query_analyzer.STOPWORDS:
+                    continue
+                if token[:1].isupper() and len(token) >= 3:
+                    nouns.add(lower)
+                elif lower in self.characters:
+                    nouns.add(lower)
+                elif lower in self.action_words:
+                    verbs.add(lower)
+                elif len(lower) >= 5:
+                    nouns.add(lower)
+
+        # Attempt to capture multi-word characters present in the query
+        for window in range(2, 4):
+            for start in range(len(lower_tokens) - window + 1):
+                span = lower_tokens[start:start + window]
+                candidate = " ".join(span)
+                if candidate in self.characters:
+                    nouns.add(candidate)
+
+        # Keep only nouns that map to known characters if available
+        recognized_nouns = set()
+        for noun in nouns:
+            if noun in self.characters:
+                recognized_nouns.add(noun)
+            else:
+                recognized_nouns.add(noun)
+
+        # For verbs, keep those that are in the action list if present
+        recognized_verbs = set()
+        for verb in verbs:
+            if verb in self.action_words:
+                recognized_verbs.add(verb)
+            else:
+                recognized_verbs.add(verb)
+
+        return list(recognized_nouns), list(recognized_verbs)
+
+    def _normalize_character_name(self, name):
+        """Normalize character name to known corpus character key."""
+        if not name:
+            return None
+
+        tokens = extract_words(str(name).lower())
+        if not tokens:
+            return None
+
+        candidate = " ".join(tokens)
+        candidate = " ".join(candidate.split())
+        if candidate in self.characters:
+            return candidate
+
+        # Attempt to find best lexical overlap with known characters
+        candidate_set = set(tokens)
+        best_char = None
+        best_score = 0.0
+
+        for char_key in self.characters:
+            char_tokens = set(char_key.split())
+            intersection = len(candidate_set & char_tokens)
+            union = len(candidate_set | char_tokens)
+            if union == 0:
+                continue
+            score = intersection / union
+            if score > best_score:
+                best_score = score
+                best_char = char_key
+
+        if best_score >= 0.5:
+            return best_char
+
+        return None
+
+    def _get_character_display(self, char_key):
+        """Return display-friendly character name."""
+        if not char_key:
+            return ""
+        if char_key in self.character_display_names:
+            return self.character_display_names[char_key]
+
+        parts = []
+        for token in char_key.split():
+            if token in {'de', 'del', 'la', 'el', 'y', 'at'}:
+                parts.append(token)
+            else:
+                parts.append(token.capitalize())
+        return " ".join(parts)
+
+    def _get_action_display(self, action_word):
+        if not action_word:
+            return ""
+        display = self.action_display_names.get(action_word)
+        if display:
+            return display
+        return action_word.capitalize()
+
+    def _concept_character_override(self, query):
+        """Allow concept-character pairs recognized from thematic mapping to pass validation."""
+        nouns, verbs = self._extract_nouns_and_verbs(query)
+
+        concept_tokens = []
+        for token in nouns + verbs:
+            if token in self.concept_character_map:
+                concept_tokens.append(token)
+
+        if not concept_tokens:
+            # Try combined two-token spans from original query
+            query_tokens = extract_words(query.lower())
+            for window in range(2, 3):
+                for start in range(len(query_tokens) - window + 1):
+                    candidate = " ".join(query_tokens[start:start + window])
+                    if candidate in self.concept_character_map:
+                        concept_tokens.append(candidate)
+            if not concept_tokens:
+                return {'proceed': False}
+
+        concept = concept_tokens[0]
+
+        character_tokens = []
+        for token in nouns:
+            normalized = self._normalize_character_name(token)
+            if normalized:
+                character_tokens.append(normalized)
+
+        if not character_tokens:
+            # fall back to verbs/potential character tokens
+            for token in verbs:
+                normalized = self._normalize_character_name(token)
+                if normalized:
+                    character_tokens.append(normalized)
+
+        concept_chars = self.concept_character_map.get(concept, set())
+        if concept_chars:
+            if character_tokens:
+                for char in character_tokens:
+                    if char in concept_chars:
+                        return {
+                            'proceed': True,
+                            'concept': concept,
+                            'character': char,
+                            'reason': (
+                                f"Concept '{self._get_action_display(concept)}' is thematically linked with "
+                                f"{self._get_character_display(char)} in the novels."
+                            )
+                        }
+            else:
+                # no character supplied, choose strongest from concept map
+                char = next(iter(concept_chars))
+                return {
+                    'proceed': True,
+                    'concept': concept,
+                    'character': char,
+                    'reason': (
+                        f"Concept '{self._get_action_display(concept)}' is thematically linked with "
+                        f"{self._get_character_display(char)} in the novels."
+                    )
+                }
+
+        return {'proceed': False}
 
     def _get_passage_id(self, chapter_num, sentence_num):
         """Create unique identifier for passages"""
@@ -760,18 +1222,41 @@ class CleanNoliSystem:
 
         # Phase 2.5: Semantic Query Validation (Embedding Similarity + Co-occurrence)
         semantic_validation = self._validate_semantic_query(content_words)
+        concept_override = None
         if not semantic_validation['proceed']:
-            return {
-                'type': 'semantic_validation_failed',
-                'message': f"Query blocked: {semantic_validation['reason']}",
-                'content_words': content_words,
-                'avg_similarity': semantic_validation['avg_similarity'],
-                'min_cooccurrence': semantic_validation['min_cooccurrence'],
-                'word_pairs': semantic_validation['word_pairs'],
-                'reason': semantic_validation['reason']
-            }
+            concept_override = self._concept_character_override(user_query)
+            if concept_override and concept_override.get('proceed'):
+                semantic_validation = {
+                    'proceed': True,
+                    'reason': concept_override['reason'],
+                    'avg_similarity': semantic_validation.get('avg_similarity', 0.0),
+                    'min_cooccurrence': semantic_validation.get('min_cooccurrence', 0),
+                    'word_pairs': semantic_validation.get('word_pairs', [])
+                }
+                if concept_override.get('concept'):
+                    content_words.append(concept_override['concept'])
+                if concept_override.get('character'):
+                    content_words.append(concept_override['character'])
+            else:
+                # Generate "Did you mean" suggestions
+                suggestion = self._generate_suggestion(user_query, content_words, semantic_validation)
+                
+                return {
+                    'type': 'semantic_validation_failed',
+                    'status': 'Fail',
+                    'original_query': user_query,
+                    'message': f"Query blocked: {semantic_validation['reason']}",
+                    'content_words': content_words,
+                    'avg_similarity': semantic_validation['avg_similarity'],
+                    'min_cooccurrence': semantic_validation['min_cooccurrence'],
+                    'word_pairs': semantic_validation['word_pairs'],
+                    'reason': semantic_validation['reason'],
+                    'suggestion': suggestion
+                }
         # Validation passed - proceed with query processing
         # (semantic_validation['reason'] contains the pass reason if needed for logging)
+
+        content_words = list(dict.fromkeys(content_words))
 
         # Phase 2.6: Domain Coherence Check (DAPT-inspired)
         # Ensure multi-word queries have semantically coherent content words within domain
@@ -896,7 +1381,8 @@ class CleanNoliSystem:
             'query_length': query_length,
             'stopword_ratio': stopword_ratio,
             'query_analysis': query_analysis,
-            'overlap_info': overlap_info
+            'overlap_info': overlap_info,
+            'semantic_override': concept_override if concept_override and concept_override.get('proceed') else None
         }
 
     def _compute_domain_coherence(self, words):
@@ -993,24 +1479,15 @@ class CleanNoliSystem:
                 'word_pairs': word_pairs
             }
 
-        # Rule 2: Secondary condition - if co-occurrence = 0, require high similarity
-        if min_cooccurrence == 0:
-            if avg_similarity >= self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD:
-                return {
-                    'proceed': True,
-                    'reason': 'Passed via high semantic similarity (co-occurrence = 0, but similarity ≥ 0.75)',
-                    'avg_similarity': avg_similarity,
-                    'min_cooccurrence': 0,
-                    'word_pairs': word_pairs
-                }
-            else:
-                return {
-                    'proceed': False,
-                    'reason': f'Blocked due to zero co-occurrence and low similarity (similarity: {avg_similarity:.2f} < {self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD})',
-                    'avg_similarity': avg_similarity,
-                    'min_cooccurrence': 0,
-                    'word_pairs': word_pairs
-                }
+        # Override: very high semantic similarity allows proceeding even if co-occurrence is low or zero
+        if avg_similarity >= self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD:
+            return {
+                'proceed': True,
+                'reason': f'Passed via high semantic similarity (avg: {avg_similarity:.2f} ≥ {self.HIGH_SEMANTIC_SIMILARITY_THRESHOLD})',
+                'avg_similarity': avg_similarity,
+                'min_cooccurrence': min_cooccurrence if min_cooccurrence != float('inf') else 0,
+                'word_pairs': word_pairs
+            }
 
         # Rule 3: Normal co-occurrence rules
         # Use strict threshold (3) if similarity is borderline, normal (1) if similarity is good
@@ -1036,6 +1513,337 @@ class CleanNoliSystem:
             'avg_similarity': avg_similarity,
             'min_cooccurrence': min_cooccurrence,
             'word_pairs': word_pairs
+        }
+
+    def _generate_suggestion(self, original_query, content_words, validation_result):
+        """
+        Generate "Did you mean" suggestions anchored to actual character-action pairs from the novels.
+        """
+        nouns, verbs = self._extract_nouns_and_verbs(original_query)
+        tokens_original = extract_words(original_query)
+        tokens_lower = [tok.lower() for tok in tokens_original]
+
+        preferred_marker = 'ni' if ' ni ' in original_query.lower() else 'ng'
+
+        query_action = None
+        query_character = None
+        query_concepts = []
+
+        for idx, token_lower in enumerate(tokens_lower):
+            if token_lower not in {'ni', 'ng'}:
+                continue
+
+            preferred_marker = token_lower
+
+            action_idx = idx - 1
+            while action_idx >= 0 and tokens_lower[action_idx] in {'mga', 'ang', 'sa', 'kay', 'ng', 'ni'}:
+                action_idx -= 1
+
+            if action_idx >= 0:
+                candidate_action = tokens_lower[action_idx]
+                if candidate_action in self.action_words:
+                    query_action = candidate_action
+                elif not query_action:
+                    query_action = candidate_action
+
+            j = idx + 1
+            char_tokens = []
+            while j < len(tokens_lower):
+                next_original = tokens_original[j]
+                next_lower = tokens_lower[j]
+                if next_lower in {'ng', 'ni', 'sa', 'kay', 'para', 'ang'}:
+                    break
+                if next_original[:1].isupper() or next_lower in self.characters or next_lower in {'de', 'del', 'la', 'el', 'y', 'at'}:
+                    char_tokens.append(next_lower)
+                    j += 1
+                else:
+                    break
+
+            if char_tokens:
+                candidate_char = " ".join(char_tokens)
+                normalized_char = self._normalize_character_name(candidate_char)
+                if normalized_char:
+                    query_character = normalized_char
+                elif not query_character:
+                    next_token = tokens_original[idx + 1] if idx + 1 < len(tokens_original) else ""
+                    query_character = self._normalize_character_name(next_token)
+
+        # Collect potential concept tokens (non-character, non-action words from query)
+        for tok in nouns + verbs:
+            if tok not in self.characters and tok not in self.action_words:
+                query_concepts.append(tok)
+        # Also consider query_action itself if it is not a known action
+        if query_action and query_action not in self.action_words:
+            query_concepts.insert(0, query_action)
+
+        if not query_action and verbs:
+            for verb in verbs:
+                if verb in self.action_words:
+                    query_action = verb
+                    break
+            if not query_action and verbs:
+                query_action = verbs[0]
+
+        if not query_character and nouns:
+            for noun in nouns:
+                normalized = self._normalize_character_name(noun)
+                if normalized:
+                    query_character = normalized
+                    break
+
+        if query_action in self.character_action_pairs and query_character in self.character_action_pairs.get(query_action, set()):
+            suggested_query = f"{self._get_action_display(query_action)} {preferred_marker} {self._get_character_display(query_character)}"
+            reason = (
+                f"'{self._get_action_display(query_action)}' with {self._get_character_display(query_character)} "
+                "occurs in the novels. Removing unsupported context makes the query valid."
+            )
+            return {
+                'has_suggestion': True,
+                'suggested_query': suggested_query,
+                'reason': reason,
+                'suggestions': [{
+                    'suggested_query': suggested_query,
+                    'score': 1.0,
+                    'action': query_action,
+                    'character': query_character
+                }]
+            }
+
+        action_embeddings = {}
+        character_embeddings = {}
+
+        def get_embedding(cache, key, text):
+            if key not in cache:
+                cache[key] = self.model.encode([text], show_progress_bar=False)[0]
+            return cache[key]
+
+        query_action_embedding = None
+        query_character_embedding = None
+        concept_embedding = None
+
+        if query_action:
+            query_action_embedding = get_embedding(action_embeddings, query_action, self._get_action_display(query_action))
+
+        if query_character:
+            query_character_embedding = get_embedding(
+                character_embeddings,
+                query_character,
+                self._get_character_display(query_character)
+            )
+
+        # Prefer first concept token in the original order if available
+        if query_concepts:
+            first_concept = query_concepts[0]
+            concept_embedding = self.model.encode([first_concept], show_progress_bar=False)[0]
+
+        candidates = []
+        seen_suggestions = set()
+        for action, characters in self.character_action_pairs.items():
+            if not characters:
+                continue
+
+            action_display = self._get_action_display(action)
+            action_embedding = get_embedding(action_embeddings, action, action_display)
+
+            # Similarity of candidate action to the query action (if present)
+            action_similarity = 0.0
+            if query_action_embedding is not None:
+                action_similarity = float(cosine_similarity([query_action_embedding], [action_embedding])[0][0])
+            # Similarity of candidate action to the main concept (if present)
+            concept_similarity = 0.0
+            if concept_embedding is not None:
+                concept_similarity = float(cosine_similarity([concept_embedding], [action_embedding])[0][0])
+
+            # Require some semantic alignment to either action or concept
+            if max(action_similarity, concept_similarity) < 0.30:
+                continue
+
+            for char_key in characters:
+                pair_count = self.character_action_pair_counts[action].get(char_key, 0)
+                if pair_count <= 0:
+                    continue
+
+                char_display = self._get_character_display(char_key)
+                char_embedding = get_embedding(character_embeddings, char_key, char_display)
+
+                character_similarity = 0.0
+                if query_character_embedding is not None:
+                    character_similarity = float(cosine_similarity(
+                        [query_character_embedding],
+                        [char_embedding]
+                    )[0][0])
+                    if character_similarity < 0.30:
+                        continue
+                else:
+                    character_similarity = 0.5
+
+                # Scoring: combine action similarity, concept similarity (to preserve concept), character similarity, and pair frequency
+                score = (
+                    0.45 * max(action_similarity, 0.0) +
+                    0.25 * max(concept_similarity, 0.0) +
+                    0.20 * max(character_similarity, 0.0) +
+                    0.10 * np.log1p(pair_count)
+                )
+
+                # If action token literally matches the concept, add a preservation bonus
+                if query_concepts and action == query_concepts[0]:
+                    score += 0.05
+
+                marker = preferred_marker
+                # Preserve the original concept token in the suggestion text if it is close to this action
+                if query_concepts and concept_similarity >= 0.70:
+                    suggested_action_text = self._get_action_display(query_concepts[0])
+                else:
+                    suggested_action_text = action_display
+                suggested_query = f"{suggested_action_text} {marker} {char_display}"
+
+                if suggested_query.lower() in seen_suggestions:
+                    continue
+                seen_suggestions.add(suggested_query.lower())
+
+                candidates.append({
+                    'suggested_query': suggested_query,
+                    'action': action,
+                    'character': char_key,
+                    'action_display': action_display,
+                    'character_display': char_display,
+                    'action_similarity': action_similarity,
+                    'concept_similarity': concept_similarity,
+                    'character_similarity': character_similarity,
+                    'pair_count': pair_count,
+                    'score': score
+                })
+
+        # Fallback: preserve original concept by pairing with best characters even if not present in corpus pairs
+        if query_concepts:
+            concept_token = query_concepts[0]
+            if concept_embedding is None:
+                concept_embedding = self.model.encode([concept_token], show_progress_bar=False)[0]
+
+            concept_display = (
+                self._get_action_display(concept_token) if concept_token in self.action_words
+                else concept_token.capitalize()
+            )
+
+            candidate_chars = []
+            if query_character:
+                candidate_chars.append(query_character)
+
+            if not candidate_chars:
+                char_scores = []
+                for char_key in self.characters:
+                    char_display = self._get_character_display(char_key)
+                    char_emb = get_embedding(character_embeddings, char_key, char_display)
+                    sim = float(cosine_similarity([concept_embedding], [char_emb])[0][0])
+                    char_scores.append((sim, char_key))
+                char_scores.sort(reverse=True, key=lambda x: x[0])
+                candidate_chars = [char for sim, char in char_scores[:3] if sim >= 0.10]
+
+            for idx, char_key in enumerate(candidate_chars):
+                char_display = self._get_character_display(char_key)
+                marker = preferred_marker
+                suggested_query = f"{concept_display} {marker} {char_display}"
+
+                if suggested_query.lower() in seen_suggestions:
+                    continue
+
+                suggested_content = [concept_token, char_key]
+                suggestion_validation = self._validate_semantic_query(suggested_content)
+                if not suggestion_validation['proceed']:
+                    continue
+
+                char_emb = get_embedding(character_embeddings, char_key, char_display)
+                char_sim = float(cosine_similarity([concept_embedding], [char_emb])[0][0])
+                positional_bonus = 1.0 - min(idx, 4) * 0.15
+                score = (
+                    0.7 * max(char_sim, 0.0) +
+                    0.2 * suggestion_validation['avg_similarity'] +
+                    0.1 * positional_bonus
+                )
+                score += 0.2  # strong preference for concept-preserving suggestion
+
+                seen_suggestions.add(suggested_query.lower())
+                candidates.append({
+                    'suggested_query': suggested_query,
+                    'action': concept_token,
+                    'character': char_key,
+                    'action_display': concept_display,
+                    'character_display': char_display,
+                    'action_similarity': 0.0,
+                    'concept_similarity': char_sim,
+                    'character_similarity': char_sim,
+                    'pair_count': self.character_action_pair_counts.get(concept_token, {}).get(char_key, 0),
+                    'score': score
+                })
+
+        if not candidates:
+            if query_action and not query_character:
+                reason = (
+                    f"No character in the novels performs '{self._get_action_display(query_action)}'. "
+                    "Try a different action or specify a known character."
+                )
+                return {
+                    'has_suggestion': False,
+                    'suggested_query': None,
+                    'reason': reason,
+                    'suggestions': []
+                }
+
+            if query_character and not query_action:
+                reason = (
+                    f"No action associated with {self._get_character_display(query_character)} matches the query. "
+                    "Try a different action for this character."
+                )
+                return {
+                    'has_suggestion': False,
+                    'suggested_query': None,
+                    'reason': reason,
+                    'suggestions': []
+                }
+
+            return {
+                'has_suggestion': False,
+                'suggested_query': None,
+                'reason': "No valid suggestions found. Please try a different query.",
+                'suggestions': []
+            }
+
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        top_candidate = candidates[0]
+
+        reason_parts = []
+        if query_concepts and top_candidate['action'] == query_concepts[0]:
+            reason_parts.append(
+                f"Preserved concept '{self._get_action_display(query_concepts[0])}' with {top_candidate['character_display']} based on semantic alignment."
+            )
+        if query_character and top_candidate['character'] != query_character:
+            if query_action:
+                reason_parts.append(
+                    f"{self._get_character_display(query_character)} is incompatible with "
+                    f"'{self._get_action_display(query_action)}'."
+                )
+            reason_parts.append(
+                f"{top_candidate['character_display']} performs '{top_candidate['action_display']}' in the novels."
+            )
+        elif query_action and top_candidate['action'] != query_action:
+            reason_parts.append(
+                f"'{self._get_action_display(query_action)}' is not aligned with the novel context."
+            )
+            reason_parts.append(
+                f"'{top_candidate['action_display']}' matches {top_candidate['character_display']} based on corpus evidence."
+            )
+        else:
+            reason_parts.append(
+                f"Suggestion is grounded in passages featuring {top_candidate['character_display']}."
+            )
+
+        reason = " ".join(reason_parts) if reason_parts else validation_result.get('reason', '')
+
+        return {
+            'has_suggestion': True,
+            'suggested_query': top_candidate['suggested_query'],
+            'reason': reason,
+            'suggestions': candidates[:3]
         }
 
     def _extract_relations_regex(self, text):
@@ -1391,75 +2199,101 @@ class CleanNoliSystem:
             return
 
         if result_type == 'semantic_validation_failed':
-            none_table = Table(show_header=False, box=box.HEAVY, border_style="red", width=20)
-            none_table.add_column("Result", style="bold red", justify="center")
-            none_table.add_row("Block")
-            self.console.print(none_table)
-
-            avg_sim = response.get('avg_similarity', 0.0)
-            min_coocc = response.get('min_cooccurrence', 0)
-            word_pairs = response.get('word_pairs', [])
+            status = response.get('status', 'Fail')
+            original_query = response.get('original_query', query)
+            suggestion = response.get('suggestion', {})
             reason = response.get('reason', 'Semantic validation failed')
-
-            # Word pairs table
-            if word_pairs:
+            
+            # Display in requested format
+            result_table = Table(
+                show_header=True,
+                header_style="bold cyan",
+                border_style="cyan",
+                box=box.ROUNDED,
+                expand=False
+            )
+            result_table.add_column("Field", style="bright_white", width=20)
+            result_table.add_column("Value", style="white", min_width=50)
+            
+            result_table.add_row("Status", f"[bold red]{status}[/bold red]")
+            result_table.add_row("Original Query", f"[yellow]{original_query}[/yellow]")
+            
+            if suggestion.get('has_suggestion') and suggestion.get('suggested_query'):
+                suggested_query = suggestion['suggested_query']
+                result_table.add_row("Did you mean", f"[bold green]{suggested_query}[/bold green]")
+            else:
+                result_table.add_row("Did you mean", "[dim]No suggestions available[/dim]")
+            
+            # Compact alternative suggestions row
+            alt_suggestions = []
+            for alt in suggestion.get('suggestions', [])[:3]:
+                alt_suggestions.append(alt['suggested_query'])
+            if alt_suggestions:
+                result_table.add_row(
+                    "Alternative Suggestions",
+                    ", ".join(alt_suggestions)
+                )
+            
+            suggestion_reason = suggestion.get('reason', reason)
+            result_table.add_row("Reason", f"[cyan]{suggestion_reason}[/cyan]")
+            
+            self.console.print("\n")
+            self.console.print(result_table)
+            
+            # Show additional suggestions if available
+            if suggestion.get('suggestions') and len(suggestion['suggestions']) > 1:
+                alt_table = Table(
+                    title="Alternative Suggestions",
+                    show_header=True,
+                    header_style="bold yellow",
+                    border_style="yellow",
+                    box=box.SIMPLE,
+                    expand=False
+                )
+                alt_table.add_column("Rank", style="bright_yellow", width=6, justify="center")
+                alt_table.add_column("Suggestion", style="white", min_width=40)
+                alt_table.add_column("Score", style="bright_cyan", width=10, justify="center")
+                
+                for idx, alt in enumerate(suggestion['suggestions'][:3], 1):
+                    alt_table.add_row(
+                        str(idx),
+                        alt['suggested_query'],
+                        f"{alt.get('score', 0.0):.2f}"
+                    )
+                
+                self.console.print("\n")
+                self.console.print(alt_table)
+            
+            # Show detailed word pair analysis (optional, for debugging)
+            word_pairs = response.get('word_pairs', [])
+            if word_pairs and len(word_pairs) <= 5:  # Only show if not too many
                 pairs_table = Table(
                     title="Word Pair Analysis",
                     show_header=True,
-                    header_style="bold cyan",
-                    border_style="cyan",
-                    box=box.ROUNDED,
+                    header_style="bold dim cyan",
+                    border_style="dim cyan",
+                    box=box.SIMPLE,
                     expand=False
                 )
-                pairs_table.add_column("Word 1", style="bright_white")
-                pairs_table.add_column("Word 2", style="bright_white")
-                pairs_table.add_column("Similarity", style="bright_yellow", justify="center")
-                pairs_table.add_column("Co-occurrence", style="bright_magenta", justify="center")
+                pairs_table.add_column("Word 1", style="dim white")
+                pairs_table.add_column("Word 2", style="dim white")
+                pairs_table.add_column("Similarity", style="dim yellow", justify="center")
+                pairs_table.add_column("Co-occurrence", style="dim magenta", justify="center")
 
-                for pair in word_pairs:
+                for pair in word_pairs[:5]:  # Limit to 5 pairs
                     sim_val = pair['similarity']
                     coocc_val = pair['cooccurrence']
-                    
-                    # Color code similarity
-                    if sim_val >= 0.7:
-                        sim_style = "bright_green"
-                    elif sim_val >= 0.4:
-                        sim_style = "yellow"
-                    else:
-                        sim_style = "red"
-                    
-                    # Color code co-occurrence
-                    if coocc_val >= 3:
-                        coocc_style = "bright_green"
-                    elif coocc_val >= 1:
-                        coocc_style = "yellow"
-                    else:
-                        coocc_style = "red"
                     
                     pairs_table.add_row(
                         pair['word1'],
                         pair['word2'],
-                        f"[{sim_style}]{sim_val:.2f}[/{sim_style}]",
-                        f"[{coocc_style}]{coocc_val}[/{coocc_style}]"
+                        f"{sim_val:.2f}",
+                        str(coocc_val)
                     )
                 
+                self.console.print("\n")
                 self.console.print(pairs_table)
-
-            summary_text = (
-                f"{reason}\n\n"
-                f"Validation Metrics:\n"
-                f"  Average Similarity: {avg_sim:.2f} (threshold: {self.SEMANTIC_SIMILARITY_THRESHOLD})\n"
-                f"  Minimum Co-occurrence: {min_coocc}\n"
-                f"  Content Words: {', '.join(response.get('content_words', []))}"
-            )
-
-            validation_panel = Panel(
-                summary_text,
-                title="Semantic Query Validation Failed",
-                style="red",
-                box=box.ROUNDED
-            )
-            self.console.print(validation_panel)
+            
             return
 
         if result_type == 'domain_incoherent':
