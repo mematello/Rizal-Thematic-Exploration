@@ -533,6 +533,238 @@ class CleanNoliSystem:
 
         return max(0.0, min(1.0, final_score))
 
+    def _sanitize_text(self, text):
+        """Normalize whitespace and ensure strings are JSON-safe."""
+        if text is None:
+            return ""
+        sanitized = " ".join(str(text).strip().split())
+        return sanitized.replace('"', "'")
+
+    def shorten_sentence(self, text, max_words=12):
+        """
+        Truncate sentences while preserving readability for suggestion strings.
+        Ensures output remains JSON-safe.
+        """
+        if not text:
+            return ""
+
+        words = str(text).strip().split()
+        if not words:
+            return ""
+
+        if len(words) > max_words:
+            snippet = " ".join(words[:max_words]) + " ..."
+        else:
+            snippet = " ".join(words)
+
+        return self._sanitize_text(snippet)
+
+    def filter_by_theme_alignment(self, candidates, top_k=3, min_similarity=0.35):
+        """
+        Filter and rank candidate suggestions using theme embeddings for grounding.
+
+        Args:
+            candidates (list[dict]): [{'text': str, 'score': float, 'embedding': np.ndarray}, ...]
+            top_k (int): number of suggestions to return.
+            min_similarity (float): minimum theme similarity required to keep a suggestion.
+
+        Returns:
+            list[str]: Top-k suggestion texts passing theme alignment.
+        """
+        if not candidates:
+            return []
+
+        sanitized = []
+        embeddings = []
+        for candidate in candidates:
+            text = self._sanitize_text(candidate.get('text', ''))
+            if not text:
+                continue
+            sanitized.append({
+                'text': text,
+                'score': float(candidate.get('score', 0.0))
+            })
+
+            embedding = candidate.get('embedding')
+            if embedding is not None:
+                embeddings.append(np.asarray(embedding))
+            else:
+                embeddings.append(self.model.encode([text], show_progress_bar=False)[0])
+
+        if not sanitized:
+            return []
+
+        embeddings_matrix = np.vstack(embeddings)
+        if getattr(self, 'theme_embeddings_matrix', None) is not None and self.theme_embeddings_matrix.size > 0:
+            theme_scores = cosine_similarity(embeddings_matrix, self.theme_embeddings_matrix).max(axis=1)
+        else:
+            theme_scores = np.zeros(len(sanitized))
+
+        enriched = []
+        for idx, candidate in enumerate(sanitized):
+            theme_score = float(theme_scores[idx])
+            candidate['theme_score'] = theme_score
+            candidate['embedding'] = embeddings_matrix[idx]
+            if theme_score >= min_similarity:
+                enriched.append(candidate)
+
+        if not enriched:
+            enriched = sorted(
+                sanitized,
+                key=lambda c: (c.get('theme_score', c.get('score', 0.0)), c.get('score', 0.0)),
+                reverse=True
+            )[:top_k]
+        else:
+            enriched.sort(key=lambda c: (c['theme_score'], c.get('score', 0.0)), reverse=True)
+
+        return [candidate['text'] for candidate in enriched[:top_k]]
+
+    def generate_recovery_suggestions(self, user_query, failure_context=None, top_k=3, query_embedding=None):
+        """
+        Generate Tier 1 recovery suggestions when a query fails validation.
+
+        Args:
+            user_query (str): Original query text.
+            failure_context (dict): Optional metadata about failure point.
+            top_k (int): Number of suggestions to return.
+            query_embedding (np.ndarray): Optional pre-computed embedding for the query.
+        """
+        if not getattr(self, 'semantic_grounding_ready', False):
+            return []
+
+        if self.passage_embeddings_matrix.size == 0 or not getattr(self, 'global_passages', None):
+            return []
+
+        if query_embedding is None:
+            query_vec = self.model.encode([user_query], show_progress_bar=False)[0]
+        else:
+            query_vec = np.asarray(query_embedding)
+            if query_vec.ndim > 1:
+                query_vec = query_vec.flatten()
+
+        similarities = cosine_similarity(
+            query_vec.reshape(1, -1),
+            self.passage_embeddings_matrix
+        )[0]
+
+        top_indices = np.argsort(similarities)[::-1]
+        candidates = []
+        seen_texts = set()
+
+        for idx in top_indices:
+            passage = self.global_passages[idx]
+            sentence = self.shorten_sentence(passage.get('sentence_text', ''), max_words=14)
+
+            if not sentence or sentence.lower() == self._sanitize_text(user_query).lower():
+                continue
+
+            if sentence in seen_texts:
+                continue
+
+            is_valid, validation_info = self.query_analyzer.validate_filipino_query(sentence)
+            if not is_valid:
+                continue
+
+            content_words = self.query_analyzer.get_content_words(sentence)
+            if not content_words:
+                continue
+
+            candidates.append({
+                'text': sentence,
+                'score': float(similarities[idx]),
+                'embedding': self.passage_embeddings_matrix[idx]
+            })
+            seen_texts.add(sentence)
+
+            if len(candidates) >= top_k * 4:
+                break
+
+        filtered = self.filter_by_theme_alignment(candidates, top_k=top_k)
+        if not filtered:
+            filtered = [
+                candidate['text']
+                for candidate in sorted(candidates, key=lambda c: c.get('score', 0.0), reverse=True)[:top_k]
+            ]
+
+        return filtered[:top_k]
+
+    def generate_followup_suggestions(self, user_query, results_by_book, top_k=3):
+        """
+        Generate Tier 2 follow-up suggestions after a successful retrieval.
+
+        Args:
+            user_query (str): Original user query.
+            results_by_book (dict): Retrieval results organized by book.
+            top_k (int): Number of follow-up suggestions to return.
+        """
+        if not results_by_book:
+            return []
+
+        candidate_passages = []
+        for book_data in results_by_book.values():
+            candidate_passages.extend(book_data.get('results', []))
+
+        if not candidate_passages:
+            return []
+
+        candidate_passages.sort(key=lambda p: p.get('final_score', 0.0), reverse=True)
+
+        candidates = []
+        seen = set()
+        normalized_query = self._sanitize_text(user_query).lower()
+
+        for passage in candidate_passages:
+            sentence_text = passage.get('sentence_text', '')
+            chapter_title = passage.get('chapter_title', '')
+            primary_theme = passage.get('primary_theme')
+
+            if primary_theme:
+                base_suggestion = f"{primary_theme.get('tagalog_title', '').strip()} sa {chapter_title}".strip()
+            else:
+                entities = self.extract_entities(sentence_text)
+                if entities:
+                    base_suggestion = f"{entities[0].title()} sa {chapter_title}".strip()
+                else:
+                    base_suggestion = self.shorten_sentence(sentence_text, max_words=12)
+
+            suggestion_text = self._sanitize_text(base_suggestion)
+
+            if not suggestion_text or suggestion_text.lower() == normalized_query:
+                continue
+
+            if suggestion_text in seen:
+                continue
+
+            candidates.append({
+                'text': suggestion_text,
+                'score': passage.get('final_score', 0.0)
+            })
+            seen.add(suggestion_text)
+
+            if len(candidates) >= top_k * 4:
+                break
+
+        filtered = self.filter_by_theme_alignment(candidates, top_k=top_k, min_similarity=0.30)
+
+        if not filtered:
+            fallback = []
+            seen_fallback = set()
+            for passage in candidate_passages:
+                primary_theme = passage.get('primary_theme')
+                if primary_theme:
+                    theme_title = self._sanitize_text(primary_theme.get('tagalog_title', ''))
+                    if not theme_title or theme_title.lower() == normalized_query:
+                        continue
+                    if theme_title in seen or theme_title in seen_fallback:
+                        continue
+                    fallback.append(theme_title)
+                    seen_fallback.add(theme_title)
+                if len(fallback) >= top_k:
+                    break
+            filtered = fallback
+
+        return filtered[:top_k]
+
     def _compute_neighbor_similarity(self, main_text, main_length, neighbor_text, neighbor_length):
         """Compute similarity between main sentence and neighbor with dynamic weights"""
         # Dynamic weights based on relative lengths
@@ -596,53 +828,12 @@ class CleanNoliSystem:
         """
         Suggest alternative, corpus-grounded queries based on nearest passages/themes.
         """
-        suggestions = []
-
-        if self.passage_embeddings_matrix.size == 0:
-            return suggestions
-
-        query_vec = np.asarray(query_embedding)
-        if query_vec.ndim == 1:
-            query_vec = query_vec.reshape(1, -1)
-
-        similarities = cosine_similarity(query_vec, self.passage_embeddings_matrix)[0]
-        top_indices = np.argsort(similarities)[::-1]
-
-        for idx in top_indices:
-            passage = self.global_passages[idx]
-            sentence = passage['sentence_text']
-            chapter = passage['chapter_title']
-            entities = self.extract_entities(sentence)
-
-            if entities:
-                suggestion = f"{entities[0].title()} sa {chapter.lower()}"
-            else:
-                keywords = [
-                    word for word in extract_words(sentence.lower())
-                    if word not in self.query_analyzer.STOPWORDS
-                ]
-                suggestion = " ".join(word.title() for word in keywords[:2]) or chapter
-
-            suggestion = suggestion.strip()
-
-            if suggestion and suggestion not in suggestions:
-                suggestions.append(suggestion)
-
-            if len(suggestions) >= top_k:
-                break
-
-        if len(suggestions) < top_k and self.theme_embeddings_matrix.size > 0:
-            theme_similarities = cosine_similarity(query_vec, self.theme_embeddings_matrix)[0]
-            theme_indices = np.argsort(theme_similarities)[::-1]
-            for idx in theme_indices:
-                theme_text = self.global_theme_texts[idx]
-                primary_title = theme_text.split(" ", 1)[0].title()
-                if primary_title and primary_title not in suggestions:
-                    suggestions.append(primary_title)
-                if len(suggestions) >= top_k:
-                    break
-
-        return suggestions[:top_k]
+        return self.generate_recovery_suggestions(
+            user_query="",
+            failure_context={'source': 'semantic_grounding'},
+            top_k=top_k,
+            query_embedding=query_embedding
+        )
 
     def _get_expanded_context(self, chapter_num, sentence_num, query, book_key, main_text, main_length):
         """Get context sentences with dynamic neighbor scoring"""
@@ -944,16 +1135,25 @@ class CleanNoliSystem:
         is_valid, validation_info = self.query_analyzer.validate_filipino_query(user_query)
 
         if not is_valid:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={'stage': 'filipino_validation', 'details': validation_info}
+            )
             return {
                 'type': 'invalid_filipino',
                 'validation_info': validation_info,
-                'message': f"Invalid Filipino query: {validation_info['reason']}"
+                'message': f"Invalid Filipino query: {validation_info['reason']}",
+                'suggestions': recovery_suggestions
             }
 
         # Check for stopwords-only query
         content_words = self.query_analyzer.get_content_words(user_query)
 
         if not content_words:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={'stage': 'stopword_only'}
+            )
             return {
                 'type': 'no_lexical_grounding',
                 'overlap_info': {
@@ -963,12 +1163,20 @@ class CleanNoliSystem:
                     'total_content_words': 0,
                     'total_matched': 0
                 },
-                'message': "Query blocked: Query contains only stopwords"
+                'message': "Query blocked: Query contains only stopwords",
+                'suggestions': recovery_suggestions
             }
 
         # Phase 2: Lexical Presence Check
         missing_words = [w for w in content_words if w not in self.global_vocabulary]
         if missing_words:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={
+                    'stage': 'lexical_presence',
+                    'missing_words': missing_words
+                }
+            )
             return {
                 'type': 'no_lexical_grounding',
                 'overlap_info': {
@@ -979,12 +1187,20 @@ class CleanNoliSystem:
                     'total_content_words': len(content_words),
                     'total_matched': 0
                 },
-                'message': "Query blocked: Some words are not present in the novels or theme files"
+                'message': "Query blocked: Some words are not present in the novels or theme files",
+                'suggestions': recovery_suggestions
             }
 
         # Phase 2.5: Semantic Query Validation (Embedding Similarity + Co-occurrence)
         semantic_validation = self._validate_semantic_query(content_words)
         if not semantic_validation['proceed']:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={
+                    'stage': 'semantic_validation',
+                    'details': semantic_validation
+                }
+            )
             return {
                 'type': 'semantic_validation_failed',
                 'message': f"Query blocked: {semantic_validation['reason']}",
@@ -992,10 +1208,13 @@ class CleanNoliSystem:
                 'avg_similarity': semantic_validation['avg_similarity'],
                 'min_cooccurrence': semantic_validation['min_cooccurrence'],
                 'word_pairs': semantic_validation['word_pairs'],
-                'reason': semantic_validation['reason']
+                'reason': semantic_validation['reason'],
+                'suggestions': recovery_suggestions
             }
         # Validation passed - proceed with query processing
         # (semantic_validation['reason'] contains the pass reason if needed for logging)
+
+        query_embedding_vector = None
 
         # Phase 2.6: Domain Coherence Check (DAPT-inspired)
         # Ensure multi-word queries have semantically coherent content words within domain
@@ -1007,6 +1226,14 @@ class CleanNoliSystem:
             outliers = [w for w, avg in per_word_avg.items() if avg + self.DOMAIN_OUTLIER_DELTA < overall_avg]
 
             if overall_avg < self.DOMAIN_COHERENCE_THRESHOLD or outliers:
+                recovery_suggestions = self.generate_recovery_suggestions(
+                    user_query,
+                    failure_context={
+                        'stage': 'domain_coherence',
+                        'details': sim_info,
+                        'outliers': outliers
+                    }
+                )
                 return {
                     'type': 'domain_incoherent',
                     'message': (
@@ -1016,12 +1243,20 @@ class CleanNoliSystem:
                     'similarity_matrix': sim_info['similarity_matrix'],
                     'per_word_avg': per_word_avg,
                     'overall_avg': overall_avg,
-                    'outliers': outliers
+                    'outliers': outliers,
+                    'suggestions': recovery_suggestions
                 }
 
         # Phase 2.7: Relation Consistency Check (e.g., "X ng Y", "A ni B")
         relation_info = self._analyze_relations(user_query, content_words)
         if relation_info and not relation_info['passed']:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={
+                    'stage': 'relation_consistency',
+                    'details': relation_info
+                }
+            )
             return {
                 'type': 'domain_incoherent',
                 'message': "Query blocked: Relation(s) are semantically inconsistent within the domain",
@@ -1032,19 +1267,28 @@ class CleanNoliSystem:
                 'outliers': relation_info.get('outliers', []),
                 'relations': relation_info.get('relations', []),
                 'relation_scores': relation_info.get('relation_scores', []),
-                'plot_path': relation_info.get('plot_path')
+                'plot_path': relation_info.get('plot_path'),
+                'suggestions': recovery_suggestions
             }
 
         # Stage 5: Semantic Grounding Validation (DAPT-inspired)
         query_embedding_vector = self.model.encode([user_query])[0]
         grounding_ok, grounding_reason = self._validate_semantic_grounding(user_query, query_embedding_vector)
         if not grounding_ok:
-            suggestions = self._generate_semantic_suggestions(query_embedding_vector, top_k=3)
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={
+                    'stage': 'semantic_grounding',
+                    'reason': grounding_reason
+                },
+                top_k=3,
+                query_embedding=query_embedding_vector
+            )
             return {
                 'type': 'semantic_grounding_rejected',
                 'status': 'rejected',
                 'reason': grounding_reason or "Query concept not found in novel context.",
-                'suggestions': suggestions or ["Basahin muli ang kabanata para sa mas angkop na paksa."]
+                'suggestions': recovery_suggestions or ["Basahin muli ang kabanata para sa mas angkop na paksa."]
             }
 
         # Phase 3 & 4: Lexical & Semantic Scoring + Neighbor Expansion
@@ -1115,11 +1359,18 @@ class CleanNoliSystem:
         }
 
         if not results_by_book:
+            recovery_suggestions = self.generate_recovery_suggestions(
+                user_query,
+                failure_context={'stage': 'no_results', 'details': overlap_info},
+                top_k=3,
+                query_embedding=query_embedding_vector
+            )
             if len(no_grounding_books) == len(self.books_data):
                 return {
                     'type': 'no_lexical_grounding',
                     'overlap_info': overlap_info,
-                    'message': "No lexical grounding in both novels"
+                    'message': "No lexical grounding in both novels",
+                    'suggestions': recovery_suggestions
                 }
             else:
                 return {
@@ -1128,8 +1379,15 @@ class CleanNoliSystem:
                     'query_analysis': query_analysis,
                     'query_length': query_length,
                     'stopword_ratio': stopword_ratio,
-                    'overlap_info': overlap_info
+                    'overlap_info': overlap_info,
+                    'suggestions': recovery_suggestions
                 }
+
+        next_queries = self.generate_followup_suggestions(
+            user_query,
+            results_by_book,
+            top_k=3
+        )
 
         return {
             'type': 'success',
@@ -1137,7 +1395,9 @@ class CleanNoliSystem:
             'query_length': query_length,
             'stopword_ratio': stopword_ratio,
             'query_analysis': query_analysis,
-            'overlap_info': overlap_info
+            'overlap_info': overlap_info,
+            'suggestions': [],
+            'next_queries': next_queries
         }
 
     def _compute_domain_coherence(self, words):
@@ -1508,6 +1768,27 @@ class CleanNoliSystem:
 
         self.console.print(sim_table)
 
+    def _render_suggestions(self, title, items, border_style="cyan"):
+        """Render suggestion lists in a consistent table format."""
+        if not items:
+            return
+
+        suggestion_table = Table(
+            title=title,
+            show_header=True,
+            header_style="bold cyan",
+            border_style=border_style,
+            box=box.ROUNDED,
+            expand=False
+        )
+        suggestion_table.add_column("#", style="bright_white", width=4, justify="center")
+        suggestion_table.add_column("Suggestion", style="bright_green", justify="left")
+
+        for idx, suggestion in enumerate(items, 1):
+            suggestion_table.add_row(str(idx), suggestion)
+
+        self.console.print(suggestion_table)
+
     def _display_query_analysis(self, query_analysis):
         """Display query word analysis with semantic weights"""
         if not query_analysis:
@@ -1596,6 +1877,7 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(validation_panel)
+            self._render_suggestions("Recovery Suggestions", response.get('suggestions', []))
             return
 
         if result_type == 'semantic_grounding_rejected':
@@ -1605,20 +1887,6 @@ class CleanNoliSystem:
             self.console.print(none_table)
 
             suggestions = response.get('suggestions', [])
-            suggest_table = Table(
-                title="Suggested Queries",
-                show_header=True,
-                header_style="bold cyan",
-                border_style="cyan",
-                box=box.ROUNDED,
-                expand=False
-            )
-            suggest_table.add_column("#", style="bright_white", width=4, justify="center")
-            suggest_table.add_column("Query Idea", style="bright_green", justify="left")
-
-            for idx, suggestion in enumerate(suggestions, 1):
-                suggest_table.add_row(str(idx), suggestion)
-
             rejection_panel = Panel(
                 f"{response.get('reason', 'Query concept not found in novel context.')}\n\n"
                 "The system blocks hallucinated events by grounding every query "
@@ -1628,8 +1896,7 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(rejection_panel)
-            if suggestions:
-                self.console.print(suggest_table)
+            self._render_suggestions("Recovery Suggestions", suggestions)
             return
 
         if result_type == 'no_lexical_grounding':
@@ -1663,6 +1930,7 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(grounding_panel)
+            self._render_suggestions("Recovery Suggestions", response.get('suggestions', []))
             return
 
         if result_type == 'semantic_validation_failed':
@@ -1735,6 +2003,7 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(validation_panel)
+            self._render_suggestions("Recovery Suggestions", response.get('suggestions', []))
             return
 
         if result_type == 'domain_incoherent':
@@ -1838,6 +2107,7 @@ class CleanNoliSystem:
 
             self.console.print(avg_table)
             self.console.print(summary_panel)
+            self._render_suggestions("Recovery Suggestions", response.get('suggestions', []))
             return
 
         if result_type != 'success':
@@ -1848,6 +2118,7 @@ class CleanNoliSystem:
                 box=box.ROUNDED
             )
             self.console.print(error_panel)
+            self._render_suggestions("Recovery Suggestions", response.get('suggestions', []))
 
             if 'query_analysis' in response:
                 self._display_query_analysis(response['query_analysis'])
@@ -1891,6 +2162,8 @@ class CleanNoliSystem:
 
         book_names = {'noli': 'Noli Me Tangere', 'elfili': 'El Filibusterismo'}
         book_colors = {'noli': 'bright_yellow', 'elfili': 'bright_magenta'}
+
+        self._render_suggestions("Next Suggested Queries", response.get('next_queries', []), border_style="magenta")
 
         for book_key in ['noli', 'elfili']:
             if book_key not in results_by_book:
