@@ -32,6 +32,8 @@ class DataLoader:
         self.passage_embeddings_matrix = None
         self.theme_embeddings_matrix = None
         
+        self.used_passages = {} # Track used passages to avoid overlap
+        
         self.ready = False
 
     def load(self, query_analyzer):
