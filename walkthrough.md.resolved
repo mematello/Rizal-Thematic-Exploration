@@ -1,0 +1,65 @@
+# Walkthrough: Refactored Rizal Exploration Engine
+
+I have successfully restructured your codebase into a modular, testable Python package following **Option C (Minimal Package)**.
+
+## Changes Completed
+
+1.  **Package Structure**: Created `src/rizal/` containing the core logic.
+    *   `engine.py`: Headless search logic (returns data only).
+    *   `ui.py`: Handles all printing and plotting.
+    *   `loader.py`: Loads CSVs and embeddings.
+    *   `query_analyzer.py`: Validates and analyzes queries.
+    *   `utils.py`, `config.py`, `errors.py`: Helpers and settings.
+2.  **Configuration**: created `pyproject.toml` for easy installation (`pip install -e .`).
+3.  **Entry Points**:
+    *   `main.py` (Root): Run this to start the CLI app.
+    *   `tests/`: Unit tests verify utilities and engine logic without loading heavy models.
+
+## Verification Results
+
+### Unit Tests
+Ran `pytest` successfully:
+```text
+tests/test_engine.py ...                   [ 42%]
+tests/test_utils.py ....                   [100%]
+========== 7 passed, 1 warning in 4.31s ==========
+```
+
+### Installation
+Dependencies installed via `pip install -e ".[dev]"`.
+
+## How to Use
+
+### 1. Local Execution (CLI)
+Run the application locally (uses your CSVs and GPU/CPU):
+```bash
+python3 main.py
+```
+
+### 2. Google Colab Usage
+To run this on Colab with T4 GPU:
+1.  Upload your whole folder (or git clone this repo).
+2.  Install the package in editable mode:
+    ```python
+    !pip install -e .
+    ```
+3.  Import and run:
+    ```python
+    from rizal.main import run_cli
+    run_cli()
+    ```
+    *Or use the Headless Engine directly for custom notebook analysis:*
+    ```python
+    from rizal.loader import DataLoader
+    from rizal.engine import RizalEngine
+    
+    loader = DataLoader('sentence-transformers/paraphrase-xlm-r-multilingual-v1')
+    loader.load(query_analyzer=None) # Note: requires QA setup, see main.py
+    engine = RizalEngine(loader)
+    results = engine.query("Ibarra")
+    print(results)
+    ```
+
+## Next Steps
+-   You can safely delete `vbest.py` once you confirm `main.py` works for you.
+-   Run `main.py` now to verify the interactive loop!

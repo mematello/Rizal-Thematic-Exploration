@@ -1,0 +1,54 @@
+Metadata-Version: 2.4
+Name: rizal-exploration
+Version: 0.1.0
+Summary: A semantic search engine for Noli Me Tangere and El Filibusterismo
+Author-email: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: sentence-transformers
+Requires-Dist: scikit-learn
+Requires-Dist: matplotlib
+Requires-Dist: rich
+Requires-Dist: stopwordsiso
+Requires-Dist: wordfreq
+Requires-Dist: spacy
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+
+# Rizal Thematic Analysis
+
+This repository contains the materials, datasets, and code used for our undergraduate thesis on the thematic analysis of José Rizal's novels *Noli Me Tangere* and *El Filibusterismo*.  
+
+## 📖 Project Overview
+The study focuses on extracting, categorizing, and analyzing the central themes of Rizal’s works.  
+We aim to present thematic explanations in a way that is accessible to both students and researchers.  
+
+## ⚙️ Features
+- Automated extraction of themes per chapter  
+- CSV dataset containing chapter numbers, titles, and thematic explanations  
+- Tools for enhancing thematic content for academic use  
+
+## 🛠️ Tech Stack
+- **Python 3** (Pandas, NLTK, NumPy)  
+- **GitHub** for version control  
+
+## 👥 Contributors
+- Marcus Kent Oliver
+- Ian Kurby Placencia
+- Dominic Vilog
+
+## 🎓 Academic Information
+- **Degree Program:** Bachelor of Science in Computer Science (BSCS)  
+- **Section:** CS41S1  
+- **Institution:** Technological Institute of the Philippines – Manila  
+- **Course:** CCS 401 - Thesis 01
+- **Research Adviser:** Dr. Melvin Ballera  
+
+## 📜 License
+This project is for academic purposes only.  
+Unauthorized reproduction or distribution is not allowed without permission.

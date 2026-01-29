@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rizal-exploration"
+version = "0.1.0"
+description = "A semantic search engine for Noli Me Tangere and El Filibusterismo"
+readme = "README.md"
+authors = [
+  { name = "Marcus Oliver", email = "marcuskentoliver1205@gmail.com" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas",
+    "numpy",
+    "sentence-transformers",
+    "scikit-learn",
+    "matplotlib",
+    "rich",
+    "stopwordsiso",
+    "wordfreq",
+    "spacy",
+    # Note: tagalog-stemmer is a git dependency, usually handled via requirements.txt or direct pip install
+]
+requires-python = ">=3.7"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]

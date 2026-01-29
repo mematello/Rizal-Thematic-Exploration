@@ -1,0 +1,12 @@
+pandas
+numpy
+sentence-transformers
+scikit-learn
+matplotlib
+rich
+stopwordsiso
+wordfreq
+spacy
+
+[dev]
+pytest
