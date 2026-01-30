@@ -2,7 +2,7 @@
 name = "rizal-api"
 version = "0.1.0"
 description = "Backend API for Rizal Thematic Exploration System"
-authors = ["Marcus Oliver <marcus@example.com>"]
+authors = ["Marcus Oliver <mmkoliver@tip.edu.ph>"]
 readme = "README.md"
 packages = [{include = "app"}]
 
