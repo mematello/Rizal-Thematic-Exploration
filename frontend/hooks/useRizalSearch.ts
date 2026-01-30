@@ -30,7 +30,7 @@ async function fetchSearchResults(query: string): Promise<SearchResponse> {
             chapter: item.chapter_number,
             chapterTitle: item.chapter_title,
             passageHtml: item.sentence_text,
-            contextHtml: item.sentence_text, // Backend doesn't provide context yet, reuse sentence
+            contextHtml: item.context_text,
             scores: item.scores,
             themes: item.themes,
             confidenceBadge: item.scores.final > 85

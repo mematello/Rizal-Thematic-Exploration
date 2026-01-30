@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Search, Loader2, Zap, Clock } from "lucide-react";
+import { Search, Loader2, Zap, Clock, X } from "lucide-react";
 import { SearchBarProps, Suggestion } from "../types";
 
 export function SearchBar({
@@ -55,6 +55,12 @@ export function SearchBar({
         }
     };
 
+    const handleClear = () => {
+        setQuery("");
+        onSearch(""); // Optional: clear results or just input? Usually just input.
+        setIsOpen(false);
+    };
+
     const heightClass = variant === 'hero' ? 'h-14' : 'h-12';
     const textClass = variant === 'hero' ? 'text-lg' : 'text-base';
 
@@ -87,7 +93,7 @@ export function SearchBar({
                     }}
                     placeholder={placeholder}
                     className={`
-            w-full h-full bg-transparent px-6 rounded-full
+            w-full h-full bg-transparent pl-6 pr-20 rounded-full
             focus:outline-none font-roboto ${textClass}
             text-brand-text placeholder:text-gray-400 placeholder:italic
           `}
@@ -97,20 +103,34 @@ export function SearchBar({
                     aria-expanded={isOpen && suggestions.length > 0}
                 />
 
-                {/* Icon / Spinner */}
-                <div className="absolute right-4">
+                {/* Icons Area */}
+                <div className="absolute right-3 flex items-center gap-2">
+                    {/* Clear Button */}
+                    {query.length > 0 && (
+                        <button
+                            onClick={handleClear}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                            aria-label="Clear search"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
+
+                    {/* Search Button / Spinner */}
                     {isLoading ? (
-                        <Loader2 className="animate-spin text-brand-brown" size={20} />
+                        <div className="p-2">
+                            <Loader2 className="animate-spin text-brand-brown" size={20} />
+                        </div>
                     ) : (
                         <button
                             onClick={() => handleSubmit(query)}
                             className="
-                p-2 hover:bg-gray-100 rounded-full transition-colors
+                p-2 bg-brand-cream hover:bg-brand-brown/10 text-brand-brown rounded-full transition-colors
                 focus:outline-none focus:ring-2 focus:ring-brand-blue
               "
                             aria-label="Search"
                         >
-                            <Search size={20} className="text-brand-brown" />
+                            <Search size={20} />
                         </button>
                     )}
                 </div>

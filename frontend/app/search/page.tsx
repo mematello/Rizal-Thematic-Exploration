@@ -75,7 +75,7 @@ function SearchContent() {
 
                         {/* Noli Column */}
                         {(matchFilter === 'all' || matchFilter === 'noli') && (
-                            <section className={matchFilter === 'all' ? 'hidden md:block' : 'block'}>
+                            <section className="block">
                                 <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-noli-gold">
                                     <span className="font-roboto font-bold text-brand-brown uppercase tracking-wider">
                                         Noli Me Tangere
@@ -103,7 +103,7 @@ function SearchContent() {
 
                         {/* Fili Column */}
                         {(matchFilter === 'all' || matchFilter === 'fili') && (
-                            <section className={matchFilter === 'all' ? 'hidden md:block' : 'block'}>
+                            <section className="block">
                                 <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-fili-magenta">
                                     <span className="font-roboto font-bold text-brand-brown uppercase tracking-wider">
                                         El Filibusterismo

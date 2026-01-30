@@ -58,13 +58,13 @@ class RizalEngine:
         stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
         
         for sent in candidates:
-            # Re-compute cosine similarity (1 - distance) locally or rely on order?
-            # We need the actual score for the formula.
-            # Cosine Sim = dot product if normalized? SentenceTransformer output is normalized.
-            # Let's compute it manually to be safe and get exact float
-            sem_score = float(np.dot(query_embedding, np.array(sent.embedding)))
-            # Clamp between 0 and 1
-            sem_score = max(0.0, min(1.0, sem_score))
+            # Normalize vectors to ensure dot product = cosine similarity
+            v_query = query_embedding / np.linalg.norm(query_embedding)
+            v_sent = np.array(sent.embedding)
+            v_sent = v_sent / np.linalg.norm(v_sent)
+            
+            # Re-compute cosine similarity
+            sem_score = float(np.dot(v_query, v_sent))
             
             # Lexical Score
             lex_score = self._compute_lexical_score(query, sent.sentence_text, query_analysis, stopword_ratio)
@@ -76,11 +76,32 @@ class RizalEngine:
             # Final Score
             final_score = self._calculate_clear_score(sem_score, lex_score, lambda_lex, lambda_sem, text_len)
             
+            # Fetch Context (Previous + Next Sentence)
+            context_text = sent.sentence_text
+            try:
+                prev_sent = db.query(Sentence).filter(
+                    Sentence.book == sent.book,
+                    Sentence.sentence_index == sent.sentence_index - 1
+                ).first()
+                next_sent = db.query(Sentence).filter(
+                    Sentence.book == sent.book,
+                    Sentence.sentence_index == sent.sentence_index + 1
+                ).first()
+                
+                parts = []
+                if prev_sent: parts.append(prev_sent.sentence_text)
+                parts.append(f"<strong>{sent.sentence_text}</strong>")
+                if next_sent: parts.append(next_sent.sentence_text)
+                context_text = " ".join(parts)
+            except Exception:
+                pass # Fallback to just sentence if DB error
+
             result_item = {
                 'id': sent.id,
                 'chapter_number': sent.chapter_number,
                 'chapter_title': sent.chapter_title,
                 'sentence_text': sent.sentence_text,
+                'context_text': context_text,
                 'scores': {
                     'semantic': round(sem_score * 100),
                     'lexical': round(lex_score * 100),
@@ -114,10 +135,34 @@ class RizalEngine:
             return 0.0
             
         for item in query_analysis:
-            if item['word'].lower() in sentence_words:
+            w = item['word'].lower()
+            if w in sentence_words:
                 matched_weight += item['semantic_weight']
+            else:
+                # Substring check for basic morphology (e.g. "kain" in "kumain")
+                # Only for words longer than 3 chars to avoid noise
+                if len(w) > 3:
+                    for sw in sentence_words:
+                        if w in sw:
+                            # partial match gets 50% weight
+                            matched_weight += (item['semantic_weight'] * 0.5)
+                            break
         
-        score = matched_weight / total_weight
+        # Metric 1: Query Coverage (How much of the query is found?)
+        coverage_score = matched_weight / total_weight
+        
+        # Metric 2: Sentence Density (How much of the sentence is relevant?)
+        # Simple Jaccard-like: match_count / total_sentence_words
+        match_count = 0
+        for item in query_analysis:
+            if item['word'].lower() in sentence_words:
+                match_count += 1
+        
+        density_score = match_count / max(1, len(sentence_words))
+        
+        # Final Lexical Score = Average (giving more weight to coverage usually)
+        # Let's say 70% Coverage, 30% Density to allow variance based on length
+        score = (coverage_score * 0.7) + (density_score * 0.3)
         
         if stopword_ratio > self.HIGH_STOPWORD_RATIO:
             penalty = (stopword_ratio - self.HIGH_STOPWORD_RATIO) * self.STOPWORD_PENALTY_FACTOR
