@@ -33,12 +33,23 @@ class RizalEngine:
         # Convert numpy array to list for SQLAlchemy
         query_list = query_embedding.tolist()
         
-        # Fetch more candidates for re-ranking (2x top_k)
-        candidates = db.scalars(
+        # Fetch candidates for Noli
+        noli_candidates = db.scalars(
             select(Sentence)
+            .filter(Sentence.book == 'noli')
             .order_by(Sentence.embedding.cosine_distance(query_list))
             .limit(top_k * 2)
         ).all()
+
+        # Fetch candidates for Fili
+        fili_candidates = db.scalars(
+            select(Sentence)
+            .filter(Sentence.book == 'elfili')
+            .order_by(Sentence.embedding.cosine_distance(query_list))
+            .limit(top_k * 2)
+        ).all()
+        
+        candidates = list(noli_candidates) + list(fili_candidates)
         
         # 3. Hybrid Re-ranking
         results = {'noli': [], 'elfili': []}

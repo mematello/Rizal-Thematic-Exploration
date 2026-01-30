@@ -20,7 +20,33 @@ async function fetchSearchResults(query: string): Promise<SearchResponse> {
         throw new Error('Search failed');
     }
 
-    return response.json();
+    const data = await response.json();
+
+    // Transform backend data to match ResultCardProps
+    const transformResults = (results: any[], novel: 'noli' | 'fili') => {
+        return results.map(item => ({
+            id: String(item.id),
+            novel: novel,
+            chapter: item.chapter_number,
+            chapterTitle: item.chapter_title,
+            passageHtml: item.sentence_text,
+            contextHtml: item.sentence_text, // Backend doesn't provide context yet, reuse sentence
+            scores: item.scores,
+            themes: item.themes,
+            confidenceBadge: item.scores.final > 85
+        }));
+    };
+
+    return {
+        results: {
+            noli: transformResults(data.results.noli, 'noli'),
+            fili: transformResults(data.results.elfili || [], 'fili') // Backend sends 'elfili', frontend expects 'fili'
+        },
+        metadata: {
+            totalTime: 0,
+            queryAnalysis: null
+        }
+    };
 }
 
 export function useRizalSearch(query: string) {
