@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-brand-cream relative overflow-hidden">
       {/* Background decoration (optional) */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('/paper-texture.png')] mix-blend-multiply"></div>
+      <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#3E2723_0.5px,transparent_0.5px)] [background-size:20px_20px] mix-blend-multiply"></div>
 
       <div className="z-10 w-full max-w-2xl text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
 

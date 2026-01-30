@@ -14,9 +14,12 @@ class QueryAnalyzer:
         self.STOPWORDS = self._load_official_stopwords()
 
     def _load_official_stopwords(self):
-        if stopwords:
-            return set(stopwords('tl'))
-        return {'ng', 'sa', 'ang', 'na', 'ay', 'at', 'mga'}
+        try:
+            if stopwords:
+                return set(stopwords('tl'))
+        except Exception as e:
+            print(f"Error loading stopwords: {e}")
+        return {'ng', 'sa', 'ang', 'na', 'ay', 'at', 'mga', 'si', 'ni', 'kay'}
 
     def get_word_frequency(self, word, lang='tl'):
         try:
