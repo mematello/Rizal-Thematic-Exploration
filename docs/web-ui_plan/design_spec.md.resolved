@@ -1,0 +1,169 @@
+# Web UI Design Specifications: Rizal Thematic Exploration System
+
+## 1. Sitemap / Route List
+
+Based on the thesis goals (accessibility, student/educator use) and [vbest.py](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py) features:
+
+*   **Public Pages** (No authentication required based on current scope)
+    *   `/` **(Home)**: Search entry point, system introduction, quick access to "How it works".
+    *   `/search` **(Results)**: Displays retrieval results, differentiated by novel (Noli vs. El Fili).
+    *   `/explore` **(Thematic Explorer)**: Browse pre-defined themes (Edukasyon, Katarungan, etc.) and characters. *Inferred from "Thematic Exploration" methodology.*
+    *   `/about` **(Methodology)**: Explains the "Dynamic Dual-Formula CLEAR System", metrics (Semantic/Lexical scores), and project context.
+    *   `/methodology` **(Technical Details)**: Detailed breakdown of the hybrid scoring, intended for scholars/teachers who want to understand the "why" behind results.
+
+## 2. Key User Flows
+
+### A. The Research Flow (Primary)
+1.  **Entry**: User lands on `/`.
+2.  **Action**: User types a natural language query (e.g., *"Edukasyon bilang pag-asa ni Ibarra"*).
+3.  **Validation (System)**:
+    *   Backend checks [validate_filipino_query](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#63-100).
+    *   If invalid/stops-only: Show **Error State** with [generate_recovery_suggestions](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#622-690).
+    *   If valid: Proceed to search.
+4.  **Results**: User sees `/search` with two columns/tabs: "Noli Me Tangere" and "El Filibusterismo".
+5.  **Investigation**:
+    *   User sees a passage with a high score.
+    *   User clicks "View Context" (Expand).
+    *   System displays `prev_sentences` and `next_sentences` (Neighbor Retrieval).
+6.  **Refinement**: User clicks a "Next Query" suggestion at the bottom (from [generate_followup_suggestions](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#691-767)).
+
+### B. The Discovery Flow (Exploratory)
+1.  **Entry**: User navigates to `/explore`.
+2.  **Selection**: User clicks the "Justiya / Katarungan" theme card.
+3.  **Display**: User is taken to `/search?q=Justiya&mode=theme` (simulating a query or using a specific theme filter).
+4.  **Analysis**: User filters functionality to see "Semantic Matches" vs "Exact Matches".
+
+### C. The Error/Recovery Flow
+1.  **Action**: User inputs a nonsense or out-of-domain query (e.g., "Space travel in Noli").
+2.  **Validation**: `domain_adaptive_semantic_validation` rejects it.
+3.  **Feedback**: UI shows: "No thematically relevant passage found." (Preventing hallucination).
+4.  **Recovery**: UI displays "Did you mean?" suggestions or "Try these related themes: ..." provided by [generate_recovery_suggestions](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#622-690).
+
+## 3. Component Breakdown
+
+### Global Layout
+*   **Navbar**: Logo ("Rizal Thematic Engine"), Links (Home, Explore, About), Search Icon (mobile).
+*   **Footer**: School/Thesis Credits, disclaimer about "Summary Versions" usage.
+
+### Page: Home (`/`)
+*   **HeroSection**: Branding and main headline ("Hybrid Lexical-Semantic Analysis").
+*   **MainSearchBar**: Large input field with auto-complete (optional).
+*   **SuggestionChips**: "Try: 'Karahasan sa El Fili', 'Pag-ibig ni Maria Clara'".
+
+### Page: Search Results (`/search`)
+*   **SearchHeader**: Shows current query, "Edit" button, and Summary Metrics (Total results, Time taken).
+*   **NovelToggle** (Mobile) / **SplitView** (Desktop): Switch between Noli and El Fili results.
+*   **FilterBar**:
+    *   Match Type: [All | Exact | Semantic]
+    *   Min Score Slider (Filter by `final_score`).
+*   **ResultCard**:
+    *   **Header**: Chapter Title + #.
+    *   **Body**: Highlighted passage text (Yellow for lexical matches, Blue underline for semantic).
+    *   **Badges**: "Exact Match", "High Confidence", "Theme: Edukasyon".
+    *   **Metrics**: Small indicator for `Lexical score` vs `Semantic score` (Visual bar).
+    *   **Action**: "Show Context" button.
+*   **ContextModal / ExpandablePanel**:
+    *   Shows `prev_sentences` and `next_sentences`.
+    *   Visualizes neighbor similarity weights (as seen in [_display_neighbor_similarities](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#1722-1770) table).
+*   **SuggestionsWidget**: "Next Suggested Queries" list at bottom.
+
+### Page: Explore (`/explore`)
+*   **ThemeGrid**: Cards for each major theme (Icon + Title + Description).
+*   **CharacterList**: List of key characters (Ibarra, Simoun, Basilio) -> link to search their names.
+
+## 4. Global Component Library (Design System)
+
+*   **Typography**: Serif for novel text (academic feel), Sans-serif for UI controls.
+*   **Color Palette**:
+    *   Primary: Dark Blue/Brown (Academic/Historical).
+    *   Noli Accents: `bright_yellow` (from [vbest.py](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py) CLI styles).
+    *   El Fili Accents: `bright_magenta` (from [vbest.py](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py) CLI styles).
+    *   Semantic Score: Cyan/Teal.
+    *   Lexical Score: Amber/Orange.
+*   **Feedback Components**:
+    *   `ScoreGauge`: Circular or bar chart showing the hybrid score.
+    *   `LoadingState`: Skeletons for result cards (embeddings take time).
+    *   `ErrorBanner`: For validation failures, styled distinctly (Red/Yellow).
+*   **Visualizations** (from [vbest.py](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py) plotting features):
+    *   `EmbeddingScatterPlot`: A wrapper for a charting library (e.g., Recharts) to render the PCA/t-SNE coordinates if the backend sends them.
+
+## 5. Data Model & API Contract Assumptions
+
+### API Endpoints
+
+**POST /api/v1/search**
+*   **Request**:
+    ```json
+    {
+      "query": "string",
+      "top_k": 10,
+      "include_plots": false
+    }
+    ```
+*   **Response** (Success):
+    ```json
+    {
+      "status": "success",
+      "query_analysis": { ... }, // Token breakdown
+      "results": {
+        "noli": {
+          "items": [
+            {
+              "chapter_number": 1,
+              "chapter_title": "Isang Handaan",
+              "sentence_text": "...",
+              "scores": {
+                "final": 0.85,
+                "semantic": 0.82,
+                "lexical": 0.90
+              },
+              "match_type": "exact",
+              "context": { "prev": [...], "next": [...] },
+              "themes": [{ "title": "...", "confidence": 0.9 }]
+            }
+          ],
+          "metadata": { "avg_score": 0.8, "count": 5 }
+        },
+        "elfili": { ... }
+      },
+      "next_queries": ["suggestion 1", "suggestion 2"]
+    }
+    ```
+*   **Response** (Validation Failure):
+    ```json
+    {
+      "status": "blocked",
+      "reason": "domain_incoherent",
+      "message": "Query blocked: Words are not semantically coherent...",
+      "suggestions": ["Recovery suggestion 1", ...]
+    }
+    ```
+
+### Data Structures
+*   **Book**: Enum [`noli`, `elfili`]
+*   **MatchType**: Enum [`exact`, `partial_lexical`, [semantic](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#1435-1541)]
+*   **ThematicTag**: `{ id: string, label: string, definition: string }`
+
+## 6. Roles & Permissions
+
+*   **Public User**:
+    *   Access to all search and exploration features.
+    *   Read-only access to methodology.
+*   **Researcher/Admin** (Implied for potential future data entry, but currently code-driven):
+    *   No specific UI required for MVP as data is loaded from static CSVs ([_load_books](file:///Users/marcusoliver/Desktop/Rizal-Thematic-Exploration/vbest.py#235-262)).
+
+## 7. Non-functional Requirements
+
+*   **Performance**: BERT embeddings can be slow.
+    *   **Requirement**: API response < 2 seconds for cached/common queries.
+    *   **UI Mitigation**: Meaningful loading states (skeletons) explaining "Analyzing semantics...".
+*   **Mobile Responsiveness**:
+    *   **Critical**: Survey indicates 95% smartphone ownership.
+    *   **Requirement**: Design must be "Mobile First". Split views for Noli/El Fili must become stacked tabs on mobile.
+*   **Accessibility**:
+    *   Color contrast for text (Yellow on White is hard; adjust `bright_yellow` to darker gold for web).
+    *   Screen reader support for lengthy novel passages.
+*   **Language**:
+    *   Interface should be primarily in **English** or **Tagalog** (or toggleable), but the *content* and *queries* are Filipino. The thesis uses English for headers ("Chapter 1") but Filipino for content. *Recommendation: English UI shell, Filipino content.*
+*   **Offline/Low-Bandwidth**:
+    *   Survey mentions widespread mobile data usage. Minimize asset sizes.
