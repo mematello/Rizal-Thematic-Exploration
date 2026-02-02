@@ -185,7 +185,7 @@ class RizalEngine:
                     'id': t.id,
                     'tagalog_title': t.tagalog_title,
                     'meaning': t.meaning,
-                    'embedding': np.array(t.embedding),
+                    'embedding': np.array(t.embedding) / np.linalg.norm(np.array(t.embedding)),
                     'meaning_len': len(t.meaning.split())
                 }
                 for t in themes
@@ -193,10 +193,15 @@ class RizalEngine:
         
         matches = []
         sent_vec = np.array(sentence_embedding)
+        norm_sent = np.linalg.norm(sent_vec)
+        if norm_sent > 0:
+            sent_vec = sent_vec / norm_sent
+            
         sent_len = len(sentence_text.split())
 
+        candidates = []
         for theme in self.theme_cache:
-            # Semantic Sim
+            # Semantic Sim (now true Cosine Sim)
             sem_sim = float(np.dot(sent_vec, theme['embedding']))
             sem_sim = max(0.0, min(1.0, sem_sim))
             
@@ -209,16 +214,34 @@ class RizalEngine:
             
             theme_score = (lambda_sem * sem_sim) + (lambda_lex * lex_score)
             
-            if theme_score >= 0.70: # THEMATIC_THRESHOLD form vbest
-                matches.append({
-                    'id': str(theme['id']),
-                    'label': theme['tagalog_title'],
-                    'score': theme_score
-                })
+            candidates.append({
+                'id': str(theme['id']),
+                'label': theme['tagalog_title'],
+                'score': theme_score,
+                'explanation': theme['meaning']
+            })
         
-        # Sort and take top 2
-        matches.sort(key=lambda x: x['score'], reverse=True)
-        return matches[:2]
+        # Sort by score descending
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        
+        # Pick best one (Top 1)
+        unique_matches = []
+        seen_labels = set()
+        
+        # 1. Try to find the best match above threshold
+        for m in candidates:
+            if m['score'] >= 0.45:
+                if m['label'] not in seen_labels:
+                    unique_matches.append(m)
+                    seen_labels.add(m['label'])
+                    break # Limit to 1
+        
+        # 2. Fallback: If no theme met the threshold, force the absolute best candidate
+        if not unique_matches and candidates:
+            best = candidates[0]
+            unique_matches.append(best)
+
+        return unique_matches
 
     def _compute_simple_lexical(self, text1, text2):
         w1 = set(extract_words(text1.lower()))

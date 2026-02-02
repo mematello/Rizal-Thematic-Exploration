@@ -22,11 +22,13 @@ export function ResultCard({
     const theme = {
         noli: {
             border: 'border-l-noli-gold',
+            innerBorder: 'border-noli-gold',
             badge: 'bg-noli-gold/10 text-amber-800',
             novelName: 'Noli Me Tangere',
         },
         fili: {
             border: 'border-l-fili-magenta',
+            innerBorder: 'border-fili-magenta',
             badge: 'bg-fili-magenta/10 text-pink-800',
             novelName: 'El Filibusterismo',
         },
@@ -76,16 +78,28 @@ export function ResultCard({
                 aria-label="Search result passage"
             />
 
-            {/* Theme Tags */}
+            {/* Theme Section (Editorial Style) */}
             {themes.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3" aria-label="Related themes">
+                <div className={`mb-4 pl-4 border-l-2 ${theme.innerBorder}`}>
                     {themes.map((theme) => (
-                        <span
-                            key={theme.id}
-                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                        >
-                            {theme.label}
-                        </span>
+                        <div key={theme.id} className="flex flex-col gap-1">
+                            {/* Label */}
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                                Theme
+                            </span>
+
+                            {/* Title */}
+                            <h4 className="text-base font-bold text-stone-800">
+                                {theme.label}
+                            </h4>
+
+                            {/* Explanation (Quote Style) */}
+                            {theme.explanation && (
+                                <p className="font-crimson text-sm text-stone-600 italic leading-relaxed mt-1">
+                                    "{theme.explanation}"
+                                </p>
+                            )}
+                        </div>
                     ))}
                 </div>
             )}
