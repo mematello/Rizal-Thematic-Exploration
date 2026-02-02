@@ -125,9 +125,21 @@ class RizalEngine:
         return results
 
     def _compute_lexical_score(self, query, sentence_text, query_analysis, stopword_ratio):
-        sentence_lower = sentence_text.lower()
+        query_lower = query.lower().strip()
+        sentence_lower = sentence_text.lower().strip()
         sentence_words = set(extract_words(sentence_lower))
-        
+
+        if query_lower == sentence_lower:
+            return 1.0
+
+        # 1. Exact Phrase Match (Regex Word Boundary) - from vbest.py
+        # Prioritize exact phrase matches with boundaries over scattered words
+        query_pattern = r'\b' + re.escape(query_lower) + r'\b'
+        if re.search(query_pattern, sentence_lower):
+            # If phrase is found, use length ratio logic from vbest
+            # This ensures "Jose Rizal" matches better than just "Jose ... Rizal"
+            return min(1.0, len(query_lower) / len(sentence_lower) * 2)
+
         matched_weight = 0.0
         total_weight = sum(item['semantic_weight'] for item in query_analysis)
         
@@ -136,23 +148,15 @@ class RizalEngine:
             
         for item in query_analysis:
             w = item['word'].lower()
+            # Strict word matching only (equivalent to regex boundary \b)
             if w in sentence_words:
                 matched_weight += item['semantic_weight']
-            else:
-                # Substring check for basic morphology (e.g. "kain" in "kumain")
-                # Only for words longer than 3 chars to avoid noise
-                if len(w) > 3:
-                    for sw in sentence_words:
-                        if w in sw:
-                            # partial match gets 50% weight
-                            matched_weight += (item['semantic_weight'] * 0.5)
-                            break
+            # Removed unsafe substring check (e.g. "bus" in "abuso") to reduce noise
         
-        # Metric 1: Query Coverage (How much of the query is found?)
+        # Metric 1: Query Coverage
         coverage_score = matched_weight / total_weight
         
-        # Metric 2: Sentence Density (How much of the sentence is relevant?)
-        # Simple Jaccard-like: match_count / total_sentence_words
+        # Metric 2: Sentence Density
         match_count = 0
         for item in query_analysis:
             if item['word'].lower() in sentence_words:
