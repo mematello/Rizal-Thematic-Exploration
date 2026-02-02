@@ -25,7 +25,12 @@ export interface ResultCardProps {
         final: number;
     };
     confidenceBadge?: boolean;
-    themes?: { id: string; label: string }[];
+    themes?: {
+        id: string;
+        label: string;
+        score: number;
+        explanation?: string;
+    }[];
 }
 
 export interface ScoreVisualizerProps {
