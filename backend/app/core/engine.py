@@ -23,6 +23,10 @@ class RizalEngine:
         self.SHORT_SENTENCE_PENALTY = 0.08
         self.HIGH_STOPWORD_RATIO = 0.6
         self.STOPWORD_PENALTY_FACTOR = 0.5
+        
+        # Context expansion settings
+        self.MAX_CONTEXT_EXPANSION = 3
+        self.NEIGHBOR_RELEVANCE_THRESHOLD = 0.40
 
     def search(self, db: Session, query: str, top_k: int = 10):
         # 1. Generate Embedding
@@ -76,25 +80,8 @@ class RizalEngine:
             # Final Score
             final_score = self._calculate_clear_score(sem_score, lex_score, lambda_lex, lambda_sem, text_len)
             
-            # Fetch Context (Previous + Next Sentence)
-            context_text = sent.sentence_text
-            try:
-                prev_sent = db.query(Sentence).filter(
-                    Sentence.book == sent.book,
-                    Sentence.sentence_index == sent.sentence_index - 1
-                ).first()
-                next_sent = db.query(Sentence).filter(
-                    Sentence.book == sent.book,
-                    Sentence.sentence_index == sent.sentence_index + 1
-                ).first()
-                
-                parts = []
-                if prev_sent: parts.append(prev_sent.sentence_text)
-                parts.append(f"<strong>{sent.sentence_text}</strong>")
-                if next_sent: parts.append(next_sent.sentence_text)
-                context_text = " ".join(parts)
-            except Exception:
-                pass # Fallback to just sentence if DB error
+            # Fetch Context (Dynamic Expansion)
+            context_text = self._expand_context(db, sent)
 
             result_item = {
                 'id': sent.id,
@@ -250,6 +237,78 @@ class RizalEngine:
         if ratio < 0.5:
             return 0.4, 0.6
         return 0.6, 0.4
+
+    def _expand_context(self, db: Session, center_sentence: Sentence) -> str:
+        # 1. Fetch range
+        max_dist = self.MAX_CONTEXT_EXPANSION
+        range_start = center_sentence.sentence_index - max_dist
+        range_end = center_sentence.sentence_index + max_dist
+        
+        candidates = db.scalars(
+            select(Sentence)
+            .filter(
+                Sentence.book == center_sentence.book,
+                Sentence.chapter_number == center_sentence.chapter_number,
+                Sentence.sentence_index >= range_start,
+                Sentence.sentence_index <= range_end
+            )
+        ).all()
+        
+        # Organize by index
+        sent_map = {s.sentence_index: s for s in candidates}
+        
+        # Expand backward
+        prefix = []
+        for i in range(1, max_dist + 1):
+            idx = center_sentence.sentence_index - i
+            if idx not in sent_map: break
+            
+            neighbor = sent_map[idx]
+            score = self._compute_neighbor_score(center_sentence, neighbor)
+            
+            if score >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                prefix.append(neighbor.sentence_text)
+            else:
+                break
+        
+        # Expand forward
+        suffix = []
+        for i in range(1, max_dist + 1):
+            idx = center_sentence.sentence_index + i
+            if idx not in sent_map: break
+            
+            neighbor = sent_map[idx]
+            score = self._compute_neighbor_score(center_sentence, neighbor)
+            
+            if score >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                suffix.append(neighbor.sentence_text)
+            else:
+                break
+                
+        # Join (reverse prefix because we appended 1-away, 2-away...)
+        return " ".join(reversed(prefix)) + f" <strong>{center_sentence.sentence_text}</strong> " + " ".join(suffix)
+
+    def _compute_neighbor_score(self, center, neighbor):
+        # Semantic
+        v_center = np.array(center.embedding)
+        v_neigh = np.array(neighbor.embedding)
+        # Normalize
+        norm_c = np.linalg.norm(v_center)
+        norm_n = np.linalg.norm(v_neigh)
+        if norm_c == 0 or norm_n == 0: return 0.0
+        
+        score_sem = np.dot(v_center, v_neigh) / (norm_c * norm_n)
+        
+        # Lexical (Inline Jaccard)
+        w1 = set(extract_words(center.sentence_text.lower()))
+        w2 = set(extract_words(neighbor.sentence_text.lower()))
+        if not w1 or not w2:
+            score_lex = 0.0
+        else:
+            score_lex = len(w1.intersection(w2)) / len(w1.union(w2))
+        
+        # Balanced weights (simplified from vbest)
+        return (0.6 * score_sem) + (0.4 * score_lex)
 
 @lru_cache()
 def get_engine():
