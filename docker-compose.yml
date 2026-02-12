@@ -1,19 +1,17 @@
-version: '3.8'
-
 services:
   postgres:
     image: ankane/pgvector:latest
     container_name: rizal_postgres
     environment:
       POSTGRES_USER: rizal
-      POSTGRES_PASSWORD: dev123
+      POSTGRES_PASSWORD: rizalpass123
       POSTGRES_DB: rizal_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rizal -d rizal_db"]
+      test: [ "CMD-SHELL", "pg_isready -U rizal -d rizal_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,7 +24,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
