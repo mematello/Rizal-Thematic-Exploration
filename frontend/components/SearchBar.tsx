@@ -7,7 +7,7 @@ import { SearchBarProps, Suggestion } from "../types";
 export function SearchBar({
     variant = 'hero',
     defaultValue = '',
-    placeholder = 'Maghanap ng tema, tauhan, o salita...',
+    placeholder = 'Search for themes, characters, or passages...',
     isLoading = false,
     onSearch,
     showSuggestions = true,
@@ -17,15 +17,14 @@ export function SearchBar({
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
-    // Mock suggestions (replace with API call)
+    // Mock suggestions (replace with API call later)
     const MOCK_SUGGESTIONS: Suggestion[] = [
-        { text: 'Edukasyon bilang susi', type: 'semantic' },
-        { text: 'Katarungan para kay Sisa', type: 'semantic' },
-        { text: "Simoun's jewelry", type: 'lexical' },
-        { text: 'Padre Damaso', type: 'recent' },
+        { text: 'Edukasyon', type: 'semantic' },
+        { text: 'Justicia', type: 'semantic' },
+        { text: "Simoun's Lamp", type: 'lexical' },
+        { text: 'Crisostomo Ibarra', type: 'recent' },
     ];
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -36,7 +35,6 @@ export function SearchBar({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Load suggestions when typing (debounced)
     useEffect(() => {
         if (query.length >= 3 && showSuggestions) {
             const timer = setTimeout(() => {
@@ -57,25 +55,13 @@ export function SearchBar({
 
     const handleClear = () => {
         setQuery("");
-        onSearch(""); // Optional: clear results or just input? Usually just input.
+        onSearch("");
         setIsOpen(false);
     };
 
-    const heightClass = variant === 'hero' ? 'h-14' : 'h-12';
-    const textClass = variant === 'hero' ? 'text-lg' : 'text-base';
-
     return (
-        <div ref={wrapperRef} className="relative w-full max-w-2xl mx-auto z-50">
-            {/* Input Field */}
-            <div
-                className={`
-          relative flex items-center bg-white rounded-full
-          border-2 border-brand-brown ${heightClass} shadow-md
-          transition-all duration-200
-          focus-within:ring-4 focus-within:ring-brand-brown/10
-          focus-within:border-brand-blue
-        `}
-            >
+        <div ref={wrapperRef} className="relative w-full max-w-xl mx-auto z-50">
+            <div className="relative group">
                 <input
                     type="search"
                     inputMode="search"
@@ -92,86 +78,47 @@ export function SearchBar({
                         }
                     }}
                     placeholder={placeholder}
-                    className={`
-            w-full h-full bg-transparent pl-6 pr-20 rounded-full
-            focus:outline-none font-roboto ${textClass}
-            text-brand-text placeholder:text-gray-400 placeholder:italic
-          `}
+                    className="w-full py-3 pl-4 pr-12 bg-transparent border-b-2 border-brand-gold/50 text-brand-text font-serif text-lg placeholder:text-brand-text-light/50 focus:outline-none focus:border-brand-navy transition-colors duration-300"
                     aria-label="Search Rizal's novels"
-                    aria-autocomplete="list"
-                    aria-controls="search-suggestions"
-                    aria-expanded={isOpen && suggestions.length > 0}
                 />
 
-                {/* Icons Area */}
-                <div className="absolute right-3 flex items-center gap-2">
-                    {/* Clear Button */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-2">
                     {query.length > 0 && (
                         <button
                             onClick={handleClear}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                            aria-label="Clear search"
+                            className="p-1 text-brand-text-light hover:text-brand-navy transition-colors mr-2"
                         >
                             <X size={16} />
                         </button>
                     )}
 
-                    {/* Search Button / Spinner */}
                     {isLoading ? (
-                        <div className="p-2">
-                            <Loader2 className="animate-spin text-brand-brown" size={20} />
-                        </div>
+                        <Loader2 className="animate-spin text-brand-gold" size={20} />
                     ) : (
-                        <button
-                            onClick={() => handleSubmit(query)}
-                            className="
-                p-2 bg-brand-cream hover:bg-brand-brown/10 text-brand-brown rounded-full transition-colors
-                focus:outline-none focus:ring-2 focus:ring-brand-blue
-              "
-                            aria-label="Search"
-                        >
-                            <Search size={20} />
-                        </button>
+                        <Search className="text-brand-gold group-focus-within:text-brand-navy transition-colors duration-300" size={20} />
                     )}
                 </div>
             </div>
 
-            {/* Type-ahead Dropdown */}
             {isOpen && suggestions.length > 0 && (
-                <div
-                    id="search-suggestions"
-                    role="listbox"
-                    className="
-            absolute top-16 left-0 right-0 bg-white rounded-xl
-            shadow-xl border border-brand-brown/10 overflow-hidden
-            py-2 animate-in fade-in slide-in-from-top-2 duration-200
-          "
-                >
-                    <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Suggestions
-                    </div>
+                <div className="absolute top-full left-0 right-0 mt-2 bg-brand-paper rounded-sm shadow-lg border border-brand-gold/20 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
                     {suggestions.map((item, idx) => (
                         <button
                             key={idx}
-                            role="option"
                             onClick={() => {
                                 setQuery(item.text);
                                 handleSubmit(item.text);
                             }}
-                            className="
-                w-full text-left px-4 py-3 hover:bg-brand-cream
-                flex items-center gap-3 transition-colors
-                focus:outline-none focus:bg-brand-cream
-              "
+                            className="w-full text-left px-4 py-3 hover:bg-brand-gold/10 flex items-center gap-3 transition-colors group"
                         >
                             {item.type === 'semantic' ? (
-                                <Zap size={16} className="text-semantic-teal" aria-hidden="true" />
+                                <Zap size={14} className="text-brand-gold group-hover:text-brand-navy" />
                             ) : item.type === 'recent' ? (
-                                <Clock size={16} className="text-gray-400" aria-hidden="true" />
+                                <Clock size={14} className="text-brand-text-light" />
                             ) : (
-                                <Search size={16} className="text-gray-400" aria-hidden="true" />
+                                <Search size={14} className="text-brand-text-light" />
                             )}
-                            <span className="font-crimson text-lg text-brand-text">{item.text}</span>
+                            <span className="font-serif text-brand-text">{item.text}</span>
                         </button>
                     ))}
                 </div>

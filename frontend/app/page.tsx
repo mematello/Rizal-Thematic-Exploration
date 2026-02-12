@@ -1,60 +1,168 @@
+
 "use client";
 
-import { SearchBar } from "@/components/SearchBar";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { NovelToggle } from "@/components/NovelToggle";
+import { ContentTabs } from "@/components/ContentTabs";
+import { SearchBar } from "@/components/SearchBar";
+import { ChapterGrid } from "@/components/ChapterGrid";
+import { CharacterList } from "@/components/CharacterList";
+import { ThemeList } from "@/components/ThemeList";
+import { ChapterModal } from "@/components/ChapterModal";
+import { motion, AnimatePresence } from "framer-motion";
+
+type Novel = "noli" | "fili" | "both";
+type Tab = "chapters" | "characters" | "themes";
+
+interface ChapterContent {
+  sentence_index: number;
+  sentence_text: string;
+}
+
+interface SelectedChapter {
+  book: string;
+  chapter_number: number;
+  title: string;
+}
 
 export default function Home() {
   const router = useRouter();
+  const [novel, setNovel] = useState<Novel>("noli");
+  const [activeTab, setActiveTab] = useState<Tab>("chapters");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Modal State lifted from ChapterGrid
+  const [selectedChapter, setSelectedChapter] = useState<SelectedChapter | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [chapterContent, setChapterContent] = useState<ChapterContent[]>([]);
+  const [loadingContent, setLoadingContent] = useState(false);
+  const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
 
   const handleSearch = (query: string) => {
-    router.push(`/search?q=${encodeURIComponent(query)}`);
+    setSearchQuery(query);
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    }
+  };
+
+  const handleChapterSelect = async (book: string, chapter: number, title?: string, sentenceIndex?: number) => {
+    // If title is missing (from cross-nav), we might want to fetch it or just use "Chapter X"
+    const displayTitle = title || `Chapter ${chapter}`;
+
+    setSelectedChapter({ book, chapter_number: chapter, title: displayTitle });
+    setIsModalOpen(true);
+    setLoadingContent(true);
+    setChapterContent([]);
+    setHighlightSentenceIndex(sentenceIndex);
+    console.log('handleChapterSelect - sentenceIndex:', sentenceIndex);
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/chapters/${book}/${chapter}`);
+      if (!res.ok) throw new Error("Failed to fetch chapter content");
+      const data = await res.json();
+      setChapterContent(data);
+
+      // If we didn't have a title, maybe we can find it in the response? 
+      // The sentence objects don't always carry the chapter title in a unified way (they do in DB, but let's see).
+      // Actually checking content.py, currently ChapterContentResponse only has index and text.
+      // We can rely on the user knowing what they clicked or update the API later.
+    } catch (error) {
+      console.error("Error fetching chapter content:", error);
+    } finally {
+      setLoadingContent(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setHighlightSentenceIndex(undefined);
+    setTimeout(() => {
+      setSelectedChapter(null);
+      setChapterContent([]);
+    }, 300);
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-brand-cream relative overflow-hidden">
-      {/* Background decoration (optional) */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#3E2723_0.5px,transparent_0.5px)] [background-size:20px_20px] mix-blend-multiply"></div>
+    <main className="min-h-screen bg-brand-cream pb-20">
+      {/* Header Section */}
+      <header className="sticky top-0 z-40 bg-brand-cream/95 backdrop-blur-sm border-b border-brand-gold/10 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-4xl font-serif text-center text-brand-navy mb-6 tracking-wide"
+          >
+            Rizal Thematic Exploration
+          </motion.h1>
 
-      <div className="z-10 w-full max-w-2xl text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
-
-        {/* Logo / Title */}
-        <div className="space-y-2">
-          <h1 className="font-crimson font-bold text-5xl md:text-6xl text-brand-brown tracking-tight">
-            Noli & Fili
-          </h1>
-          <p className="font-roboto text-brand-text/80 text-lg uppercase tracking-widest">
-            Semantikong Paggalugad
-          </p>
+          <div className="flex flex-col gap-6">
+            <SearchBar
+              onSearch={handleSearch}
+              variant="hero"
+              placeholder={`Search within ${novel === 'both' ? 'both novels' : novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
+            />
+            <NovelToggle selected={novel} onSelect={setNovel} />
+          </div>
         </div>
+      </header>
 
-        {/* Hero Search */}
-        <div className="w-full">
-          <SearchBar
-            variant="hero"
-            onSearch={handleSearch}
-            placeholder="Tanungin tungkol sa hustisya, pag-ibig, o himagsikan..."
-          />
-        </div>
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 mt-8">
+        <ContentTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Quick Links / Hints */}
-        <div className="flex flex-wrap justify-center gap-3 text-sm font-crimson text-brand-brown/60">
-          <span>Subukan:</span>
-          <button onClick={() => handleSearch("katarungan")} className="hover:text-brand-blue hover:underline">Katarungan</button>
-          <span>•</span>
-          <button onClick={() => handleSearch("edukasyon")} className="hover:text-brand-blue hover:underline">Edukasyon</button>
-          <span>•</span>
-          <button onClick={() => handleSearch("Sisa")} className="hover:text-brand-blue hover:underline">Sisa</button>
-          <span>•</span>
-          <button onClick={() => handleSearch("Simoun")} className="hover:text-brand-blue hover:underline">Simoun</button>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-[50vh]"
+          >
+            {activeTab === "chapters" && (
+              <ChapterGrid
+                selectedNovel={novel}
+                onChapterSelect={handleChapterSelect}
+              />
+            )}
 
+            {activeTab === "characters" && (
+              <CharacterList
+                onChapterSelect={handleChapterSelect}
+              />
+            )}
+
+            {activeTab === "themes" && (
+              <ThemeList
+                onChapterSelect={handleChapterSelect}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Footer */}
-      <footer className="absolute bottom-4 text-xs font-roboto text-brand-brown/40 uppercase tracking-widest">
-        Rizal Thematic Exploration System
+      {/* Footer Decoration */}
+      <footer className="mt-20 py-10 text-center border-t border-brand-gold/20">
+        <p className="text-brand-text-light font-serif italic text-sm">
+          &quot;To foretell the destiny of a nation, it is necessary to open the book that tells of her past.&quot;
+        </p>
       </footer>
+
+      {/* Global Chapter Modal */}
+      {selectedChapter && (
+        <ChapterModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={selectedChapter.title}
+          chapterNumber={selectedChapter.chapter_number}
+          book={selectedChapter.book}
+          content={chapterContent}
+          isLoading={loadingContent}
+          highlightSentenceIndex={highlightSentenceIndex}
+        />
+      )}
     </main>
   );
 }

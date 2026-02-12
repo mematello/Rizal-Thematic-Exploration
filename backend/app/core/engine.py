@@ -27,8 +27,68 @@ class RizalEngine:
         # Context expansion settings
         self.MAX_CONTEXT_EXPANSION = 3
         self.NEIGHBOR_RELEVANCE_THRESHOLD = 0.40
+        
+        # Load vocabulary for validation
+        self.vocabulary = self._load_vocabulary()
+
+    def _load_vocabulary(self):
+        vocab = set()
+        import os
+        import pandas as pd
+        
+        # Define paths relative to backend/app/core/
+        # __file__ = backend/app/core/engine.py
+        # dirname = backend/app/core
+        # ../ = backend/app
+        # ../../ = backend
+        # ../../../ = root (Rizal-Thematic-Exploration)
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))) 
+        csv_dir = os.path.join(base_dir, 'csvFiles')
+        
+        files = ['noli_chapters.csv', 'elfili_chapters.csv']
+        
+        print(f"Loading vocabulary from: {csv_dir}")
+        print(f"Files to check: {files}")
+        for f in files:
+            path = os.path.join(csv_dir, f)
+            if os.path.exists(path):
+                print(f"Processing {f}...")
+                try:
+                    df = pd.read_csv(path)
+                    df.columns = df.columns.str.strip() # Strip whitespace from headers
+                    print(f"Columns in {f}: {df.columns.tolist()}")
+                    # Assuming column 'sentence_text' exists
+                    if 'sentence_text' in df.columns:
+                        count = 0
+                        for text in df['sentence_text'].dropna():
+                            words = extract_words(str(text).lower())
+                            vocab.update(words)
+                            count += 1
+                        print(f"Added words from {count} rows in {f}")
+                    else:
+                        print(f"WARNING: 'sentence_text' column not found in {f}")
+                except Exception as e:
+                    print(f"Error loading vocab from {f}: {e}")
+            else:
+                print(f"File not found: {path}")
+                    
+        print(f"Vocabulary loaded: {len(vocab)} unique words.")
+        return vocab
 
     def search(self, db: Session, query: str, top_k: int = 10):
+        # 0. Validate Query (Gibberish Filter & Semantic Consistency)
+        if not self._validate_query_semantics(db, query):
+             print(f"Query '{query}' rejected: Semantically inconsistent.")
+             return {'noli': [], 'elfili': []}
+             
+        query_words = extract_words(query.lower())
+        valid_words = [w for w in query_words if w in self.vocabulary]
+        
+        # If no words from the query exist in our corpus, return empty results
+        if not valid_words:
+            print(f"Query '{query}' rejected: No words found in corpus.")
+            return {'noli': [], 'elfili': []}
+
         # 1. Generate Embedding
         query_embedding = self.model.encode(query, show_progress_bar=False)
         
@@ -61,12 +121,51 @@ class RizalEngine:
         query_analysis = self.query_analyzer.analyze_query_words(query)
         stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
         
+        # Coverage Check Preparation: Identify significant words and their embeddings
+        sig_items = [item for item in query_analysis if not item['is_stopword']]
+        sig_words = [item['word'].lower() for item in sig_items]
+        
+        if sig_words:
+            sig_vecs = self.model.encode(sig_words, show_progress_bar=False)
+            # Normalize sig vecs
+            norm_sig_vecs = []
+            for vec in sig_vecs:
+                n = np.linalg.norm(vec)
+                norm_sig_vecs.append(vec / n if n > 0 else vec)
+        else:
+            norm_sig_vecs = []
+
         for sent in candidates:
             # Normalize vectors to ensure dot product = cosine similarity
             v_query = query_embedding / np.linalg.norm(query_embedding)
             v_sent = np.array(sent.embedding)
             v_sent = v_sent / np.linalg.norm(v_sent)
             
+            # --- COVERAGE CHECK ---
+            # Ensure every significant query word is represented
+            fully_covered = True
+            sent_words_set = set(extract_words(sent.sentence_text.lower()))
+            
+            for i, sw in enumerate(sig_words):
+                # 1. Lexical Match (Exact)
+                if sw in sent_words_set:
+                    continue
+                
+                # 2. Semantic Match (Word vs Sentence Vector)
+                # If the sentence is highly relevant to the concept of the word
+                # Threshold: 0.30 - strict enough to imply relevance, loose enough for long sentences
+                word_sim = float(np.dot(norm_sig_vecs[i], v_sent))
+                if word_sim >= 0.30:
+                    continue
+                    
+                # If neither, the word is missing
+                fully_covered = False
+                break
+            
+            if not fully_covered:
+                continue
+            # ----------------------
+
             # Re-compute cosine similarity
             sem_score = float(np.dot(v_query, v_sent))
             
@@ -106,8 +205,27 @@ class RizalEngine:
                 results['elfili'].append(result_item)
         
         # Sort by final score
-        results['noli'] = sorted(results['noli'], key=lambda x: x['scores']['final'], reverse=True)[:top_k]
-        results['elfili'] = sorted(results['elfili'], key=lambda x: x['scores']['final'], reverse=True)[:top_k]
+        # Helper to deduplicate list of dicts by sentence_text
+        def deduplicate_results(result_list):
+            seen = set()
+            unique = []
+            for item in result_list:
+                text = item['sentence_text'].strip()
+                if text not in seen:
+                    seen.add(text)
+                    unique.append(item)
+            return unique
+
+        # Sort by final score
+        # Note: Deduplication should happen BEFORE or AFTER sorting? 
+        # If we sort first, we keep the highest scoring version of the duplicate.
+        # Although theoretically duplicates should have same score if context is same.
+        
+        noli_sorted = sorted(results['noli'], key=lambda x: x['scores']['final'], reverse=True)
+        results['noli'] = deduplicate_results(noli_sorted)[:top_k]
+        
+        elfili_sorted = sorted(results['elfili'], key=lambda x: x['scores']['final'], reverse=True)
+        results['elfili'] = deduplicate_results(elfili_sorted)[:top_k]
         
         return results
 
@@ -175,7 +293,9 @@ class RizalEngine:
             score -= penalty
         return max(0.0, min(1.0, score))
 
-    def _classify_themes(self, db: Session, sentence_embedding, sentence_text):
+
+
+    def _ensure_themes_loaded(self, db: Session):
         if not hasattr(self, 'theme_cache'):
             # Lazy load themes
             from app.models.database import Theme
@@ -190,7 +310,25 @@ class RizalEngine:
                 }
                 for t in themes
             ]
+
+    def _validate_query_semantics(self, db: Session, query: str) -> bool:
+        """
+        Validates the query using strict lexical checking.
+        Rejects queries if ANY word is not found in the vocabulary.
+        """
+        words = extract_words(query.lower())
+        if not words: return False
+
+        unknown_words = [w for w in words if w not in self.vocabulary]
         
+        if unknown_words:
+            print(f"Rejecting query '{query}': Unknown words found: {unknown_words}")
+            return False
+            
+        return True
+        
+    def _classify_themes(self, db: Session, sentence_embedding, sentence_text):
+        self._ensure_themes_loaded(db)
         matches = []
         sent_vec = np.array(sentence_embedding)
         norm_sent = np.linalg.norm(sent_vec)

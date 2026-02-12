@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Roboto, Crimson_Text } from "next/font/google";
+import { Playfair_Display, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const roboto = Roboto({
-  variable: "--font-roboto",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const crimson = Crimson_Text({
-  variable: "--font-crimson",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.variable} ${crimson.variable} antialiased bg-brand-cream text-brand-text`}
+        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text`}
       >
         <Providers>
           {children}
