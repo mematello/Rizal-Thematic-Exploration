@@ -45,11 +45,11 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Custom Brands - Minimalist Aesthetic */
-  --color-brand-cream: #F9F7F2;
-  /* Off-white background */
-  --color-brand-paper: #F2EFE9;
-  /* Slightly darker for cards */
+  /* Custom Brands - Clean White Aesthetic */
+  --color-brand-cream: #FFFFFF;
+  /* Pure white background */
+  --color-brand-paper: #F9FAFB;
+  /* Very light gray for cards */
   --color-brand-navy: #1B263B;
   /* Deep Navy Accents */
   --color-brand-gold: #C5A065;
@@ -64,6 +64,10 @@
   /* Muted Navy for Noli */
   --color-fili-accent: #8D2D2D;
   /* Muted Red for Fili */
+  --color-noli-gold: #D4AF37;
+  /* Gold for Noli highlights */
+  --color-fili-magenta: #A0522D;
+  /* Sienna for Fili highlights */
 }
 
 :root {
@@ -140,13 +144,10 @@
     @apply border-border outline-ring/50;
   }
 
-  /* Rich Texture Background */
+  /* Clean White Background */
   body {
     @apply bg-brand-cream text-brand-text font-body relative min-h-screen overflow-x-hidden;
     background-color: var(--color-brand-cream);
-    background-image:
-      radial-gradient(at 0% 0%, rgba(197, 160, 101, 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(27, 38, 59, 0.03) 0px, transparent 50%);
   }
 
   /* Noise overlay for texture */
