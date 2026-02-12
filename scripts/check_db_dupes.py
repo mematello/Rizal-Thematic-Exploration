@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import os
 
-load_dotenv('backend/.env')
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', 'backend', '.env'))
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 engine = create_engine(DATABASE_URL)
