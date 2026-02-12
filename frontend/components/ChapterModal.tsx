@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
 
 interface ChapterContent {
     sentence_index: number;
@@ -17,7 +17,8 @@ interface ChapterModalProps {
     book: string;
     content: ChapterContent[];
     isLoading: boolean;
-    highlightSentenceIndex?: number; // Optional: sentence to highlight
+    highlightSentenceIndex?: number;
+    onNavigate?: (book: string, chapter: number) => void; // Add navigation callback
 }
 
 export function ChapterModal({
@@ -29,29 +30,110 @@ export function ChapterModal({
     content,
     isLoading,
     highlightSentenceIndex,
+    onNavigate,
 }: ChapterModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const highlightRef = useRef<HTMLSpanElement>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [showCharacters, setShowCharacters] = useState(false);
+    const [showThemes, setShowThemes] = useState(false);
+    const [characterKeywords, setCharacterKeywords] = useState<string[]>([]);
+    const [themeKeywords, setThemeKeywords] = useState<string[]>([]);
+    const [themeSentences, setThemeSentences] = useState<{ [key: number]: string[] }>({});
+    const [showReference, setShowReference] = useState(false);
+    const [themeFullscreen, setThemeFullscreen] = useState(false);
+    const [selectedSentenceForTheme, setSelectedSentenceForTheme] = useState<number | null>(null);
+
+    // Fetch characters for this chapter
+    useEffect(() => {
+        if (isOpen && book && chapterNumber) {
+            // Comprehensive character name variations (Tagalog-friendly)
+            const commonCharacters = [
+                // Noli Me Tangere
+                "Ibarra", "Juan Ibarra", "Crisostomo Ibarra", "Juan Crisostomo",
+                "Crisóstomo Ibarra", "Juan Crisóstomo Ibarra", "Crisostomo", "Juan",
+                "Ibarra y Magsalin", "Juan Crisostomo Magsalin", "Crisostomo Magsalin",
+                "Maria Clara", "Clara", "Maria Clara Santos", "Maria Clara Alba",
+                "Maria Clara de los Santos", "Maria Clara de los Santos y Alba",
+                "Maria", "Clara de los Santos",
+                "Don Santiago", "Santiago", "Don Santiago de los Santos",
+                "Kapitan Tiago", "Tiago", "Santiago de los Santos",
+                "Pia", "Pia Alba",
+                "Padre Damaso", "Damaso Verdolagas", "Damaso", "Verdolagas",
+                "Padre Salvi", "Bernardo Salvi", "Salvi", "Padre Bernardo",
+                "Elias",
+                "Pilosopo Tasio", "Tasio", "Don Anastacio", "Anastacio",
+                "Dona Victorina", "Victorina", "Victorina de los Reyes",
+                "Victorina de Espadana", "Doña Victorina",
+                "Don Tiburcio", "Tiburcio", "Tiburcio de Espadana", "Don Tiburcio de Espadana",
+                "Sisa", "Narcisa", "Sisa Narcisa", "Narcisa Sisa",
+                "Basilio",
+                "Crispin", "Crispín",
+                "Don Rafael", "Rafael Ibarra", "Rafael",
+                "Don Saturnino", "Saturnino",
+                "Alperes",
+                "Donya Consolacion", "Consolacion", "Donya", "Donya Consolación",
+                "Teniente Guevarra", "Guevarra", "Lieutenant Guevarra",
+                "Nol Juan",
+                "Lucas",
+                "Albino",
+                // El Filibusterismo
+                "Simoun", "Simoun Ibarra",
+                "Isagani",
+                "Kabesang Tales", "Tales", "Kabe", "Ka-Tales",
+                "Paulita Gomez", "Paulita", "Gomez",
+                "Juanito Pelaez", "Juanito", "Pelaez",
+                "Juli",
+                "Padre Florentino", "Florentino", "Padre F",
+                "Don Custodio", "Custodio",
+                "Padre Camorra", "Camorra",
+                "Padre Irene", "Irene",
+                "Ben-Zayb", "Benzayb",
+                "Placido Penitente", "Placido", "Penitente",
+                "Father Fernandez", "Fernandez",
+                "Tandang Selo", "Selo", "Tandang",
+                "Quiroga",
+                "Hermana Penchang", "Penchang",
+                "Hermana Bali", "Bali",
+                "Father Millon", "Millon",
+                "Tadeo", "Leeds", "Tano", "Pepay", "Pecson"
+            ];
+            setCharacterKeywords(commonCharacters);
+
+            // Common themes to highlight
+            const commonThemes = [
+                "edukasyon", "education", "hustisya", "justice", "kalayaan", "freedom",
+                "pag-ibig", "love", "relihiyon", "religion", "kolonyal", "colonial",
+                "pang-aapi", "oppression", "reporma", "reform", "himagsikan", "revolution"
+            ];
+            setThemeKeywords(commonThemes);
+        }
+    }, [isOpen, book, chapterNumber]);
 
     // Close on escape key
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") {
+                if (isFullscreen) {
+                    setIsFullscreen(false);
+                } else {
+                    onClose();
+                }
+            }
         };
         if (isOpen) {
             window.addEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = "hidden"; // Prevent background scrolling
+            document.body.style.overflow = "hidden";
         }
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
             document.body.style.overflow = "unset";
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, isFullscreen, onClose]);
 
     // Scroll to highlighted sentence
     useEffect(() => {
         if (isOpen && !isLoading && highlightSentenceIndex !== undefined && highlightRef.current) {
-            // Small delay to ensure DOM is ready
             setTimeout(() => {
                 highlightRef.current?.scrollIntoView({
                     behavior: 'smooth',
@@ -61,18 +143,9 @@ export function ChapterModal({
         }
     }, [isOpen, isLoading, highlightSentenceIndex]);
 
-    // Debug logging
-    useEffect(() => {
-        if (content.length > 0) {
-            console.log('ChapterModal content loaded. Total sentences:', content.length);
-            console.log('Highlight target:', highlightSentenceIndex);
-            console.log('First 3 sentence indices:', content.slice(0, 3).map(s => s.sentence_index));
-        }
-    }, [content, highlightSentenceIndex]);
-
-    // Handle click outside
+    // Handle click outside (only when not fullscreen)
     const handleBackdropClick = (e: React.MouseEvent) => {
-        if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        if (!isFullscreen && modalRef.current && !modalRef.current.contains(e.target as Node)) {
             onClose();
         }
     };
@@ -81,17 +154,65 @@ export function ChapterModal({
     const accentColor = isNoli ? "text-noli-accent" : "text-fili-accent";
     const borderColor = isNoli ? "border-noli-accent" : "border-fili-accent";
 
+    const handlePrevChapter = () => {
+        if (chapterNumber > 1 && onNavigate) {
+            onNavigate(book, chapterNumber - 1);
+        }
+    };
+
+    const handleNextChapter = () => {
+        if (onNavigate) {
+            onNavigate(book, chapterNumber + 1);
+        }
+    };
+
+    // Helper function to highlight keywords in text
+    const highlightText = (text: string) => {
+        // Only highlight characters
+        if (!showCharacters) {
+            return text;
+        }
+
+        const keywords = characterKeywords;
+
+        if (keywords.length === 0) {
+            return text;
+        }
+
+        // Create regex pattern with STRICT WORD BOUNDARIES
+        // This prevents "Bali" from matching inside "baliw" or "balita"
+        const pattern = keywords.map(k => {
+            const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return `\\b${escaped}\\b`; // \b ensures complete word match only
+        }).join('|');
+        const regex = new RegExp(`(${pattern})`, 'gi');
+
+        const parts = text.split(regex);
+
+        return parts.map((part, index) => {
+            const isKeyword = keywords.some(k => k.toLowerCase() === part.toLowerCase());
+            if (isKeyword) {
+                return (
+                    <mark key={index} className="bg-yellow-200 font-semibold px-1 rounded">
+                        {part}
+                    </mark>
+                );
+            }
+            return part;
+        });
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+                <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-4 sm:p-6'}`}>
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleBackdropClick}
-                        className="absolute inset-0 bg-brand-navy/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm"
                     />
 
                     {/* Modal Container */}
@@ -101,66 +222,247 @@ export function ChapterModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="relative w-full max-w-3xl max-h-[85vh] flex flex-col bg-brand-paper shadow-2xl rounded-lg overflow-hidden"
+                        className={`relative ${isFullscreen ? 'w-full h-full' : 'w-full max-w-4xl max-h-[90vh]'} flex flex-col bg-brand-paper shadow-2xl ${isFullscreen ? 'rounded-none' : 'rounded-lg'} overflow-hidden`}
                     >
                         {/* Header */}
-                        <div className={`flex items-start justify-between p-6 border-b ${isNoli ? 'border-noli-gold/30' : 'border-fili-magenta/30'} bg-brand-cream`}>
-                            <div>
+                        <div className={`flex items-start justify-between p-4 md:p-6 border-b ${isNoli ? 'border-noli-gold/30' : 'border-fili-magenta/30'} bg-brand-cream`}>
+                            <div className="flex-1">
                                 <span className={`text-xs font-bold tracking-[0.2em] uppercase ${accentColor}`}>
                                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                                 </span>
-                                <h2 className="text-2xl md:text-3xl font-serif text-brand-navy mt-1">
+                                <h2 className="text-xl md:text-2xl font-serif text-brand-navy mt-1">
                                     Chapter {chapterNumber}
                                 </h2>
-                                <p className="text-brand-text/70 font-serif italic mt-1">
+                                <p className="text-brand-text/70 font-serif italic mt-1 text-sm">
                                     {title}
                                 </p>
                             </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setIsFullscreen(!isFullscreen)}
+                                    className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                    title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                                >
+                                    {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                                </button>
+                                <button
+                                    onClick={onClose}
+                                    className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 p-4 bg-brand-cream/50 border-b border-brand-gold/20">
                             <button
-                                onClick={onClose}
-                                className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                onClick={() => setShowCharacters(!showCharacters)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${showCharacters ? 'bg-brand-gold text-white' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
                             >
-                                <X size={24} />
+                                <Users size={16} />
+                                <span className="text-sm font-medium">Characters</span>
+                            </button>
+                            <button
+                                onClick={() => setShowThemes(!showThemes)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${showThemes ? 'bg-brand-gold text-white' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                            >
+                                <BookOpen size={16} />
+                                <span className="text-sm font-medium">Themes</span>
+                            </button>
+                            <button
+                                onClick={() => setShowReference(!showReference)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${showReference ? 'bg-brand-gold text-white' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                            >
+                                <BookOpen size={16} />
+                                <span className="text-sm font-medium">Reference</span>
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white/50 scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent">
+                        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-brand-paper scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent">
                             {isLoading ? (
                                 <div className="space-y-4 animate-pulse">
-                                    {[...Array(6)].map((_, i) => (
-                                        <div key={i} className="h-4 bg-gray-200 rounded w-full last:w-3/4" />
+                                    {[...Array(8)].map((_, i) => (
+                                        <div key={i} className="h-4 bg-brand-gold/10 rounded w-full last:w-3/4" />
                                     ))}
                                 </div>
                             ) : (
-                                <div className="prose prose-lg max-w-none font-serif text-brand-text leading-relaxed">
-                                    {content.map((sentence) => {
-                                        const isHighlighted = sentence.sentence_index === highlightSentenceIndex;
-                                        if (isHighlighted) {
-                                            console.log('Highlighting sentence index:', sentence.sentence_index, 'matches:', highlightSentenceIndex);
-                                        }
-                                        return (
-                                            <span
-                                                key={sentence.sentence_index}
-                                                ref={isHighlighted ? highlightRef : null}
-                                                className={`
-                                                    hover:bg-brand-gold/10 transition-all duration-300 rounded px-1
-                                                    ${isHighlighted ? 'bg-yellow-300 font-extrabold shadow-md border-2 border-brand-gold scale-[1.02] inline-block z-10 text-brand-navy px-2 transform transition-transform' : ''}
-                                                `}
-                                            >
-                                                {sentence.sentence_text}{" "}
-                                            </span>
-                                        );
-                                    })}
+                                <div className="max-w-3xl mx-auto">
+                                    <p className="font-serif text-brand-text leading-loose text-justify indent-8 text-base md:text-lg">
+                                        {content.map((sentence) => {
+                                            const isHighlighted = sentence.sentence_index === highlightSentenceIndex;
+                                            // Simulated theme count - in production, this would come from API
+                                            const themeCount = sentence.sentence_index % 3 === 0 ? 2 : sentence.sentence_index % 5 === 0 ? 3 : 0;
+
+                                            return (
+                                                <span
+                                                    key={sentence.sentence_index}
+                                                    ref={isHighlighted ? highlightRef : null}
+                                                    className={`
+                                                        hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative
+                                                        ${isHighlighted ? 'bg-yellow-200 font-bold shadow-sm border-b-2 border-brand-gold' : ''}
+                                                    `}
+                                                >
+                                                    {highlightText(sentence.sentence_text)}
+
+                                                    {/* Reference number (Wikipedia style) - all showing [0] for now */}
+                                                    {showReference && (
+                                                        <sup className="text-blue-600 cursor-help ml-0.5 font-bold text-xs">
+                                                            [0]
+                                                        </sup>
+                                                    )}
+
+                                                    {/* Theme circle indicator */}
+                                                    {showThemes && themeCount > 0 && (
+                                                        <span
+                                                            onClick={() => {
+                                                                setSelectedSentenceForTheme(sentence.sentence_index);
+                                                                setThemeFullscreen(true);
+                                                            }}
+                                                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs font-bold ml-1 cursor-pointer hover:scale-110 transition-transform shadow-md"
+                                                            title={`${themeCount} theme${themeCount > 1 ? 's' : ''} in this sentence`}
+                                                        >
+                                                            {themeCount}
+                                                        </span>
+                                                    )}
+                                                    {" "}
+                                                </span>
+                                            );
+                                        })}
+                                    </p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-4 border-t border-brand-gold/10 bg-brand-cream text-center text-xs text-brand-text-light font-sans uppercase tracking-widest">
-                            Rizal Thematic Exploration
+                        {/* Navigation Footer */}
+                        <div className="flex items-center justify-between p-4 border-t border-brand-gold/20 bg-brand-cream">
+                            <button
+                                onClick={handlePrevChapter}
+                                disabled={chapterNumber <= 1}
+                                className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/50 text-brand-text hover:bg-brand-gold/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft size={18} />
+                                <span className="text-sm font-medium">Previous</span>
+                            </button>
+                            <div className="text-xs text-brand-text-light font-sans uppercase tracking-widest">
+                                Rizal Thematic Exploration
+                            </div>
+                            <button
+                                onClick={handleNextChapter}
+                                className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/50 text-brand-text hover:bg-brand-gold/20 transition-all"
+                            >
+                                <span className="text-sm font-medium">Next</span>
+                                <ChevronRight size={18} />
+                            </button>
                         </div>
                     </motion.div>
+
+                    {/* Fullscreen Theme Explanation View */}
+                    {themeFullscreen && selectedSentenceForTheme !== null && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[60] bg-white flex flex-col"
+                        >
+                            {/* Header */}
+                            <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
+                                <div className="max-w-7xl mx-auto px-6">
+                                    <div className="text-center space-y-2">
+                                        <h2 className="text-2xl font-serif text-brand-navy font-bold">
+                                            {book === "noli" ? "Noli Me Tangere" : "El Filibusterismo"}
+                                        </h2>
+                                        <p className="text-lg text-brand-text">
+                                            Chapter {chapterNumber}
+                                        </p>
+                                        <p className="text-base text-brand-text-light italic">
+                                            {title}
+                                        </p>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex items-center justify-center gap-3 pt-4">
+                                            <button
+                                                onClick={() => setShowCharacters(!showCharacters)}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showCharacters ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
+                                            >
+                                                <Users size={14} />
+                                                Characters
+                                            </button>
+                                            <button
+                                                onClick={() => setShowThemes(!showThemes)}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showThemes ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
+                                            >
+                                                <BookOpen size={14} />
+                                                Themes
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Close Button */}
+                                    <button
+                                        onClick={() => {
+                                            setThemeFullscreen(false);
+                                            setSelectedSentenceForTheme(null);
+                                        }}
+                                        className="absolute top-6 right-6 p-2 hover:bg-black/5 rounded-full transition-colors"
+                                    >
+                                        <X size={24} className="text-brand-navy" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Content Area */}
+                            <div className="flex-1 overflow-hidden flex">
+                                {/* Left Side - Chapter Text */}
+                                <div className="flex-1 overflow-y-auto p-8">
+                                    <div className="max-w-3xl mx-auto">
+                                        <p className="font-serif text-brand-text leading-loose text-justify text-base">
+                                            {content.find(s => s.sentence_index === selectedSentenceForTheme)?.sentence_text}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Right Side - Theme Explanations */}
+                                <div className="w-96 border-l border-brand-gold/30 bg-brand-paper overflow-y-auto p-6">
+                                    <h3 className="text-lg font-serif font-bold text-brand-navy mb-4">
+                                        Themes in this Sentence
+                                    </h3>
+
+                                    {/* Sample Theme Cards */}
+                                    <div className="space-y-4">
+                                        <div className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm">
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                    1
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-serif font-bold text-brand-navy mb-1">Education & Enlightenment</h4>
+                                                    <p className="text-sm text-brand-text-light leading-relaxed">
+                                                        This sentence explores the theme of education as a path to social reform and national progress.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm">
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                    2
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-serif font-bold text-brand-navy mb-1">Social Justice</h4>
+                                                    <p className="text-sm text-brand-text-light leading-relaxed">
+                                                        Highlights the struggle for equality and fair treatment under colonial rule.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             )}
         </AnimatePresence>

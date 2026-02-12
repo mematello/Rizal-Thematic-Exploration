@@ -84,20 +84,25 @@ export default function Home() {
     }, 300);
   };
 
+  const handleNavigate = (book: string, chapter: number) => {
+    // Navigate to a different chapter
+    handleChapterSelect(book, chapter);
+  };
+
   return (
     <main className="min-h-screen bg-brand-cream pb-20">
       {/* Header Section */}
-      <header className="sticky top-0 z-40 bg-brand-cream/95 backdrop-blur-sm border-b border-brand-gold/10 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+      <header className="sticky top-0 z-40 bg-brand-cream/98 backdrop-blur-sm border-b border-brand-gold/20 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl md:text-4xl font-serif text-center text-brand-navy mb-6 tracking-wide"
+            className="text-xl md:text-2xl font-serif text-center text-brand-navy/70 mb-4 tracking-wide font-light"
           >
             Rizal Thematic Exploration
           </motion.h1>
 
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <SearchBar
               onSearch={handleSearch}
               variant="hero"
@@ -144,7 +149,7 @@ export default function Home() {
       </div>
 
       {/* Footer Decoration */}
-      <footer className="mt-20 py-10 text-center border-t border-brand-gold/20">
+      <footer className="mt-20 py-10 text-center border-t border-brand-gold/30">
         <p className="text-brand-text-light font-serif italic text-sm">
           &quot;To foretell the destiny of a nation, it is necessary to open the book that tells of her past.&quot;
         </p>
@@ -161,6 +166,7 @@ export default function Home() {
           content={chapterContent}
           isLoading={loadingContent}
           highlightSentenceIndex={highlightSentenceIndex}
+          onNavigate={handleNavigate}
         />
       )}
     </main>
