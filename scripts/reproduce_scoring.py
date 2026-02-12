@@ -1,9 +1,10 @@
 
 import sys
+import os
 import numpy as np
 
 # Add backend to path
-sys.path.append('backend')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 from app.core.analyzer import QueryAnalyzer, extract_words
 
 def verify_scoring():
