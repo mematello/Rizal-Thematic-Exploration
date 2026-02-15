@@ -31,7 +31,8 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     useEffect(() => {
         async function fetchChapters() {
             try {
-                const res = await fetch("http://localhost:8000/api/v1/chapters");
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const res = await fetch(`${apiUrl}/api/v1/chapters`);
                 if (!res.ok) throw new Error("Failed to fetch");
                 const data = await res.json();
                 setChapters(data);

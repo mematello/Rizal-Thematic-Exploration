@@ -5,6 +5,7 @@ from app.core.engine import get_engine, RizalEngine
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy import select
+import numpy as np
 
 router = APIRouter()
 
@@ -107,78 +108,124 @@ def get_themes(db: Session = Depends(get_db)):
         
     return results
 
-class CharacterAppearance(BaseModel):
+class CharacterChapterResponse(BaseModel):
     book: str
     chapter_number: int
     chapter_title: str
-    sentence_text: str
-    sentence_index: int
+    score: float = 0.0
+    preview_text: Optional[str] = None
 
+from sqlalchemy import or_
 
-from app.core.engine import get_engine, RizalEngine
-from sqlalchemy import select
-
-# ... imports ...
-
-@router.get("/characters/appearances", response_model=List[CharacterAppearance])
-def get_character_appearances(
-    name: str,
+@router.get("/characters/chapters", response_model=List[CharacterChapterResponse])
+def get_character_chapters(
+    name: str, # Can be comma-separated list of names/aliases
+    sort_by: str = "number", # "number" or "relevance"
     db: Session = Depends(get_db),
     engine: RizalEngine = Depends(get_engine)
 ):
     """
-    Find top 5 semantic matches for the character.
+    Get chapters where a character appears, sorted by number or relevance.
+    Accepts comma-separated names for aliases (e.g. "Maria Clara,Maria,Clara").
     """
-    # 1. Generate query embedding
-    query_embedding = engine.model.encode(name, show_progress_bar=False)
-    query_list = query_embedding.tolist()
-    
+    aliases = [n.strip() for n in name.split(',') if n.strip()]
+    primary_name = aliases[0] if aliases else name
 
-    # 2. Vector Search using Cosine Distance
-    # Fetch more candidates to allow for deduplication
-    sentences = db.scalars(
-        select(Sentence)
-        .order_by(Sentence.embedding.cosine_distance(query_list))
-        .limit(20)
-    ).all()
+    # 1. Identify relevant sentences
+    relevant_sentences = []
     
-    # Deduplicate by sentence_text
-    unique_sentences = []
-    seen_texts = set()
+    if sort_by == "relevance":
+        # Semantic search
+        # Use the primary name for the embedding query as it captures the essence best usually.
+        # Alternatively, we could average embeddings of all aliases, but primary name is usually sufficient for semantic context.
+        query_embedding = engine.model.encode(primary_name, show_progress_bar=False).tolist()
+        
+        # Fetch top matches
+        sentences = db.scalars(
+            select(Sentence)
+            .order_by(Sentence.embedding.cosine_distance(query_embedding))
+            .limit(500)
+        ).all()
+        
+        # Calculate scores
+        for s in sentences:
+            emb_vec = np.array(s.embedding)
+            q_vec = np.array(query_embedding)
+            score = float(np.dot(emb_vec, q_vec))
+            relevant_sentences.append((s, score))
+            
+    else: # sort_by == "number" or default
+        # Text search with OR logic for aliases
+        filters = [Sentence.sentence_text.ilike(f"%{alias}%") for alias in aliases]
+        
+        sentences = db.query(Sentence).filter(
+            or_(*filters)
+        ).all()
+        
+        for s in sentences:
+            relevant_sentences.append((s, 1.0)) # Dummy score
+
+    # 2. Group by Book + Chapter
+    chapter_map = {} # (book, chapter_num) -> {title, max_score, count, best_snippet}
     
-    for s in sentences:
-        # Normalize slightly to catch near-duplicates if needed, but exact string match is usually enough
-        text = s.sentence_text.strip()
-        if text not in seen_texts:
-            seen_texts.add(text)
-            unique_sentences.append(s)
-            if len(unique_sentences) == 5:
-                break
-    
-    return [
-        CharacterAppearance(
-            book=s.book,
-            chapter_number=s.chapter_number,
-            chapter_title=s.chapter_title or "",
-            sentence_text=s.sentence_text,
-            sentence_index=s.sentence_index
-        ) for s in unique_sentences
-    ]
+    for s, score in relevant_sentences:
+        key = (s.book, s.chapter_number)
+        if key not in chapter_map:
+            chapter_map[key] = {
+                'book': s.book,
+                'chapter_number': s.chapter_number,
+                'chapter_title': s.chapter_title or "",
+                'max_score': -1.0,
+                'preview_text': s.sentence_text
+            }
+        
+        # Update stats
+        if score > chapter_map[key]['max_score']:
+            chapter_map[key]['max_score'] = score
+            chapter_map[key]['preview_text'] = s.sentence_text # Update snippet to best match
+
+    # 3. Convert to list and sort
+    results = []
+    for info in chapter_map.values():
+        results.append(CharacterChapterResponse(
+            book=info['book'],
+            chapter_number=info['chapter_number'],
+            chapter_title=info['chapter_title'],
+            score=info['max_score'],
+            preview_text=info['preview_text']
+        ))
+        
+    if sort_by == "relevance":
+        results.sort(key=lambda x: x.score, reverse=True)
+    else:
+        # Sort by book (noli first), then chapter number
+        results.sort(key=lambda x: (0 if x.book == 'noli' else 1, x.chapter_number))
+        
+    return results
 
 # ... existing endpoints ...
+
+class ThemeMatch(BaseModel):
+    id: str
+    label: str
+    score: float
+    explanation: str
 
 class ChapterContentResponse(BaseModel):
     sentence_index: int
     sentence_text: str
+    themes: List[ThemeMatch] = []
 
 @router.get("/chapters/{book}/{chapter_number}", response_model=List[ChapterContentResponse])
 def get_chapter_content(
     book: str, 
     chapter_number: int, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    engine: RizalEngine = Depends(get_engine)
 ):
     """
     Fetch all sentences for a specific chapter, ordered by index.
+    Includes theme classification for each sentence.
     """
     sentences = db.query(Sentence).filter(
         Sentence.book == book,
@@ -195,10 +242,29 @@ def get_chapter_content(
         if s.sentence_index not in seen_indices:
             seen_indices.add(s.sentence_index)
             unique_sentences.append(s)
+    
+    # Process themes for each sentence
+    response_data = []
+    for s in unique_sentences:
+        # Classify themes using the engine
+        # Note: This might be slow for long chapters if not cached or optimized
+        # But for now, we follow the user's request to use the model embedding
+        themes = engine._classify_themes(db, s.embedding, s.sentence_text)
         
-    return [
-        ChapterContentResponse(
+        # Convert to Pydantic model format
+        theme_matches = [
+            ThemeMatch(
+                id=t['id'],
+                label=t['label'],
+                score=t['score'],
+                explanation=t['explanation']
+            ) for t in themes
+        ]
+        
+        response_data.append(ChapterContentResponse(
             sentence_index=s.sentence_index,
-            sentence_text=s.sentence_text
-        ) for s in unique_sentences
-    ]
+            sentence_text=s.sentence_text,
+            themes=theme_matches
+        ))
+        
+    return response_data
