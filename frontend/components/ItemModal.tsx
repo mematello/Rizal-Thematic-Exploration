@@ -1,16 +1,15 @@
-
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, BookOpen, Quote } from "lucide-react";
 
-interface Appearance {
+interface ChapterInfo {
     book: string;
     chapter_number: number;
     chapter_title: string;
-    sentence_text: string;
-    sentence_index: number;
+    score: number;
+    preview_text?: string;
 }
 
 interface ThemeContext {
@@ -27,12 +26,15 @@ interface ItemModalProps {
     subtitle?: string;
     type: "character" | "theme";
     // For Characters
-    appearances?: Appearance[];
+    // appearances?: Appearance[]; // Deprecated in favor of chapters
+    chapterAppearances?: ChapterInfo[];
     // For Themes
     themeContext?: ThemeContext;
     meaning?: string;
     isLoading: boolean;
     onNavigate?: (book: string, chapter: number, sentenceIndex?: number) => void;
+    onSort?: (mode: 'number' | 'relevance') => void;
+    sortBy?: 'number' | 'relevance';
 }
 
 export function ItemModal({
@@ -41,13 +43,17 @@ export function ItemModal({
     title,
     subtitle,
     type,
-    appearances,
+    // appearances,
+    chapterAppearances,
     themeContext,
     meaning,
     isLoading,
     onNavigate,
+    onSort,
+    sortBy
 }: ItemModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
+    const [novelFilter, setNovelFilter] = useState<'both' | 'noli' | 'fili'>('both');
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,6 +75,45 @@ export function ItemModal({
         }
     };
 
+    const filteredChapters = chapterAppearances?.filter(c => {
+        if (novelFilter === 'noli') return c.book === 'noli';
+        if (novelFilter === 'fili') return c.book === 'fili' || c.book === 'elfili';
+        return true;
+    });
+
+    const noliChapters = chapterAppearances?.filter(c => c.book === 'noli') || [];
+    const filiChapters = chapterAppearances?.filter(c => c.book === 'fili' || c.book === 'elfili') || [];
+
+    const renderChapter = (chapter: ChapterInfo, idx: number) => (
+        <div
+            key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
+            onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, undefined)}
+            className={`
+                group p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md bg-white
+                ${chapter.book === 'noli' ? 'border-noli-gold/30 hover:border-noli-gold' : 'border-fili-magenta/30 hover:border-fili-magenta'}
+            `}
+        >
+            <div className="flex items-center gap-2 mb-2">
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-gold/20 text-noli-gold' : 'bg-fili-magenta/20 text-fili-magenta'}`}>
+                    {chapter.book === 'noli' ? 'Noli' : 'Fili'}
+                </span>
+                <span className="text-sm font-serif font-bold text-brand-navy">
+                    {chapter.chapter_number}
+                </span>
+            </div>
+
+            <p className="text-xs text-brand-text-light font-serif line-clamp-2 mb-2 font-bold min-h-[2.5em]">
+                {chapter.chapter_title}
+            </p>
+
+            {chapter.preview_text && (
+                <p className="text-[10px] text-brand-text/60 italic line-clamp-3 border-t border-gray-100 pt-2 mt-2 leading-relaxed h-[4.5em]">
+                    "{chapter.preview_text}"
+                </p>
+            )}
+        </div>
+    );
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -87,10 +132,10 @@ export function ItemModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="relative w-full max-w-2xl max-h-[85vh] flex flex-col bg-brand-paper shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20"
+                        className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20`}
                     >
                         {/* Header */}
-                        <div className="flex items-start justify-between p-6 border-b border-brand-gold/10 bg-brand-cream">
+                        <div className="flex items-center justify-between p-6 border-b border-brand-gold/10 bg-brand-cream flex-wrap gap-4">
                             <div>
                                 <span className="text-xs font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
                                     {type === "character" ? "Character Profile" : "Thematic Insight"}
@@ -102,21 +147,56 @@ export function ItemModal({
                                     <p className="text-brand-text/70 font-serif italic mt-1">{subtitle}</p>
                                 )}
                             </div>
-                            <button
-                                onClick={onClose}
-                                className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
-                            >
-                                <X size={24} />
-                            </button>
+
+                            <div className="flex items-center gap-4">
+                                {type === "character" && (
+                                    <div className="flex bg-white rounded-md border border-brand-gold/20 p-0.5">
+                                        {(['noli', 'both', 'fili'] as const).map((filter) => (
+                                            <button
+                                                key={filter}
+                                                onClick={() => setNovelFilter(filter)}
+                                                className={`
+                                                    px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all
+                                                    ${novelFilter === filter
+                                                        ? 'bg-brand-gold text-white shadow-sm'
+                                                        : 'text-brand-text-light hover:bg-black/5'}
+                                                `}
+                                            >
+                                                {filter === 'both' ? 'Both' : filter === 'noli' ? 'Noli' : 'El Fili'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {type === "character" && onSort && (
+                                    <button
+                                        onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
+                                        className={`
+                                            px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all
+                                            ${sortBy === 'relevance'
+                                                ? 'bg-brand-gold text-white shadow-md'
+                                                : 'bg-white text-brand-text border border-brand-gold/20 hover:border-brand-gold'}
+                                        `}
+                                    >
+                                        {sortBy === 'relevance' ? 'Ranked' : 'Rank It'}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={onClose}
+                                    className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 overflow-y-auto p-6 bg-white/50 scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent">
                             {isLoading ? (
-                                <div className="space-y-4 animate-pulse">
-                                    <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                    <div className="h-10 bg-gray-200 rounded w-full" />
-                                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse">
+                                    {[...Array(8)].map((_, i) => (
+                                        <div key={i} className="h-40 bg-gray-200 rounded-lg" />
+                                    ))}
                                 </div>
                             ) : (
                                 <>
@@ -158,47 +238,67 @@ export function ItemModal({
                                         </div>
                                     )}
 
-                                    {/* Character View */}
-                                    {type === "character" && appearances && (
+                                    {/* Character View - Chapter Grid */}
+                                    {type === "character" && chapterAppearances && (
                                         <div className="space-y-6">
                                             <div className="flex items-center justify-between">
                                                 <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
-                                                    Notable Appearances ({appearances.length})
+                                                    {novelFilter === 'both'
+                                                        ? `Chapters (${noliChapters.length} Noli + ${filiChapters.length} Fili)`
+                                                        : `Chapters (${filteredChapters?.length})`
+                                                    }
                                                 </h4>
                                             </div>
 
-                                            <div className="space-y-4">
-                                                {appearances.length > 0 ? (
-                                                    appearances.map((app, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            onClick={() => {
-                                                                console.log('Character appearance clicked:', app.book, app.chapter_number, app.sentence_index);
-                                                                onNavigate?.(app.book, app.chapter_number, app.sentence_index);
-                                                            }}
-                                                            className="group hover:bg-white transition-colors p-4 rounded-lg border border-transparent hover:border-brand-gold/10 cursor-pointer"
-                                                        >
-                                                            <div className="flex flex-col gap-2">
-                                                                <div className="flex items-center gap-2 mb-1">
-                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${app.book === 'noli' ? 'bg-noli-gold/20 text-noli-gold' : 'bg-fili-magenta/20 text-fili-magenta'}`}>
-                                                                        {app.book === 'noli' ? 'Noli' : 'Fili'}
-                                                                    </span>
-                                                                    <span className="text-xs text-brand-text-light font-bold">
-                                                                        Chapter {app.chapter_number}
-                                                                    </span>
-                                                                </div>
-                                                                <p className="font-serif text-brand-text text-sm leading-relaxed group-hover:text-brand-navy transition-colors">
-                                                                    "{app.sentence_text}"
-                                                                </p>
+                                            {chapterAppearances.length > 0 ? (
+                                                novelFilter === 'both' ? (
+                                                    <div className="flex flex-col md:flex-row gap-6">
+                                                        {/* Noli Column (Left) */}
+                                                        <div className="flex-1">
+                                                            <h5 className="text-[10px] font-bold text-noli-gold uppercase tracking-widest mb-3 border-b border-noli-gold/20 pb-1">
+                                                                Noli Me Tangere
+                                                            </h5>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {noliChapters.length > 0 ? (
+                                                                    noliChapters.map((c, i) => renderChapter(c, i))
+                                                                ) : (
+                                                                    <div className="col-span-2 text-center text-xs text-gray-400 italic py-8 border border-dashed rounded-lg">
+                                                                        No appearances in Noli
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
-                                                    ))
+
+                                                        {/* Separator for mobile */}
+                                                        <div className="md:hidden h-px bg-brand-gold/20 my-2"></div>
+
+                                                        {/* Fili Column (Right) */}
+                                                        <div className="flex-1">
+                                                            <h5 className="text-[10px] font-bold text-fili-magenta uppercase tracking-widest mb-3 border-b border-fili-magenta/20 pb-1">
+                                                                El Filibusterismo
+                                                            </h5>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {filiChapters.length > 0 ? (
+                                                                    filiChapters.map((c, i) => renderChapter(c, i))
+                                                                ) : (
+                                                                    <div className="col-span-2 text-center text-xs text-gray-400 italic py-8 border border-dashed rounded-lg">
+                                                                        No appearances in Fili
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 ) : (
-                                                    <p className="text-brand-text-light italic text-center py-10">
-                                                        No specific sentences found for this character name.
-                                                    </p>
-                                                )}
-                                            </div>
+                                                    // Single Novel View - 4 Columns
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                        {filteredChapters?.map((c, i) => renderChapter(c, i))}
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <p className="text-brand-text-light italic text-center py-10 col-span-4">
+                                                    No chapters found for this character.
+                                                </p>
+                                            )}
                                         </div>
                                     )}
                                 </>

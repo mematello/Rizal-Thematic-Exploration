@@ -18,6 +18,7 @@ type Tab = "chapters" | "characters" | "themes";
 interface ChapterContent {
   sentence_index: number;
   sentence_text: string;
+  themes: any[]; // Using any[] for simplicity in page.tsx as it just passes data through
 }
 
 interface SelectedChapter {

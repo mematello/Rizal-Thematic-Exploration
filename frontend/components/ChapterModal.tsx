@@ -4,9 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
 
+interface ThemeMatch {
+    id: string;
+    label: string;
+    score: number;
+    explanation: string;
+}
+
 interface ChapterContent {
     sentence_index: number;
     sentence_text: string;
+    themes: ThemeMatch[];
 }
 
 interface ChapterModalProps {
@@ -38,8 +46,10 @@ export function ChapterModal({
     const [showCharacters, setShowCharacters] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
     const [characterKeywords, setCharacterKeywords] = useState<string[]>([]);
-    const [themeKeywords, setThemeKeywords] = useState<string[]>([]);
-    const [themeSentences, setThemeSentences] = useState<{ [key: number]: string[] }>({});
+
+    // We don't need themeKeywords anymore as we use backend data
+    // const [themeKeywords, setThemeKeywords] = useState<string[]>([]);
+
     const [showReference, setShowReference] = useState(false);
     const [themeFullscreen, setThemeFullscreen] = useState(false);
     const [selectedSentenceForTheme, setSelectedSentenceForTheme] = useState<number | null>(null);
@@ -99,14 +109,6 @@ export function ChapterModal({
                 "Tadeo", "Leeds", "Tano", "Pepay", "Pecson"
             ];
             setCharacterKeywords(commonCharacters);
-
-            // Common themes to highlight
-            const commonThemes = [
-                "edukasyon", "education", "hustisya", "justice", "kalayaan", "freedom",
-                "pag-ibig", "love", "relihiyon", "religion", "kolonyal", "colonial",
-                "pang-aapi", "oppression", "reporma", "reform", "himagsikan", "revolution"
-            ];
-            setThemeKeywords(commonThemes);
         }
     }, [isOpen, book, chapterNumber]);
 
@@ -202,6 +204,8 @@ export function ChapterModal({
         });
     };
 
+    const selectedSentence = content.find(s => s.sentence_index === selectedSentenceForTheme);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -292,18 +296,43 @@ export function ChapterModal({
                                     <p className="font-serif text-brand-text leading-loose text-justify indent-8 text-base md:text-lg">
                                         {content.map((sentence) => {
                                             const isHighlighted = sentence.sentence_index === highlightSentenceIndex;
-                                            // Simulated theme count - in production, this would come from API
-                                            const themeCount = sentence.sentence_index % 3 === 0 ? 2 : sentence.sentence_index % 5 === 0 ? 3 : 0;
+
+                                            // Ensure themes is an array (backward compatibility)
+                                            const themes = sentence.themes || [];
+                                            const themeCount = themes.length;
 
                                             return (
                                                 <span
                                                     key={sentence.sentence_index}
                                                     ref={isHighlighted ? highlightRef : null}
                                                     className={`
-                                                        hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative
+                                                        hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline
                                                         ${isHighlighted ? 'bg-yellow-200 font-bold shadow-sm border-b-2 border-brand-gold' : ''}
                                                     `}
                                                 >
+                                                    {showThemes && themeCount > 0 && (
+                                                        <span
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedSentenceForTheme(sentence.sentence_index);
+                                                                setThemeFullscreen(true);
+                                                            }}
+                                                            className={`
+                                                                inline-flex items-center justify-center 
+                                                                w-[12px] h-[12px] rounded-full shadow-sm
+                                                                cursor-pointer transition-transform mr-0.5 flex-shrink-0
+                                                                ${themeCount === 1
+                                                                    ? 'bg-emerald-500 hover:bg-emerald-600'
+                                                                    : 'bg-rose-500 hover:bg-rose-600'}
+                                                                text-white text-[8px] font-sans font-bold select-none leading-none z-10 p-0 indent-0
+                                                                transform -translate-y-[6px] align-middle
+                                                            `}
+                                                            title={`${themeCount} theme${themeCount > 1 ? 's' : ''} in this sentence`}
+                                                        >
+                                                            {themeCount}
+                                                        </span>
+                                                    )}
+
                                                     {highlightText(sentence.sentence_text)}
 
                                                     {/* Reference number (Wikipedia style) - all showing [0] for now */}
@@ -311,20 +340,6 @@ export function ChapterModal({
                                                         <sup className="text-blue-600 cursor-help ml-0.5 font-bold text-xs">
                                                             [0]
                                                         </sup>
-                                                    )}
-
-                                                    {/* Theme circle indicator */}
-                                                    {showThemes && themeCount > 0 && (
-                                                        <span
-                                                            onClick={() => {
-                                                                setSelectedSentenceForTheme(sentence.sentence_index);
-                                                                setThemeFullscreen(true);
-                                                            }}
-                                                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs font-bold ml-1 cursor-pointer hover:scale-110 transition-transform shadow-md"
-                                                            title={`${themeCount} theme${themeCount > 1 ? 's' : ''} in this sentence`}
-                                                        >
-                                                            {themeCount}
-                                                        </span>
                                                     )}
                                                     {" "}
                                                 </span>
@@ -359,7 +374,7 @@ export function ChapterModal({
                     </motion.div>
 
                     {/* Fullscreen Theme Explanation View */}
-                    {themeFullscreen && selectedSentenceForTheme !== null && (
+                    {themeFullscreen && selectedSentence && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -418,7 +433,7 @@ export function ChapterModal({
                                 <div className="flex-1 overflow-y-auto p-8">
                                     <div className="max-w-3xl mx-auto">
                                         <p className="font-serif text-brand-text leading-loose text-justify text-base">
-                                            {content.find(s => s.sentence_index === selectedSentenceForTheme)?.sentence_text}
+                                            {selectedSentence.sentence_text}
                                         </p>
                                     </div>
                                 </div>
@@ -429,35 +444,39 @@ export function ChapterModal({
                                         Themes in this Sentence
                                     </h3>
 
-                                    {/* Sample Theme Cards */}
+                                    {/* Theme Cards (Real Data) */}
                                     <div className="space-y-4">
-                                        <div className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm">
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                    1
+                                        {selectedSentence.themes && selectedSentence.themes.length > 0 ? (
+                                            selectedSentence.themes.map((theme, idx) => (
+                                                <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className={`
+                                                            w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0
+                                                            ${idx === 0 ? 'bg-gradient-to-br from-purple-500 to-pink-500' :
+                                                                idx === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
+                                                                    'bg-gradient-to-br from-amber-500 to-orange-500'}
+                                                        `}>
+                                                            {idx + 1}
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-serif font-bold text-brand-navy mb-1">
+                                                                {theme.label}
+                                                            </h4>
+                                                            <p className="text-sm text-brand-text-light leading-relaxed">
+                                                                {theme.explanation}
+                                                            </p>
+                                                            <div className="mt-2 text-xs text-brand-text-light/70 font-mono">
+                                                                Relevance Score: {Math.round(theme.score * 100)}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-serif font-bold text-brand-navy mb-1">Education & Enlightenment</h4>
-                                                    <p className="text-sm text-brand-text-light leading-relaxed">
-                                                        This sentence explores the theme of education as a path to social reform and national progress.
-                                                    </p>
-                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-4 text-center text-brand-text-light italic">
+                                                No themes found for this sentence.
                                             </div>
-                                        </div>
-
-                                        <div className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm">
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                    2
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-serif font-bold text-brand-navy mb-1">Social Justice</h4>
-                                                    <p className="text-sm text-brand-text-light leading-relaxed">
-                                                        Highlights the struggle for equality and fair treatment under colonial rule.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

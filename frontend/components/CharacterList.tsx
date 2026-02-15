@@ -12,6 +12,7 @@ interface Character {
     role: string;
     novel: "noli" | "fili" | "both";
     description: string;
+    aliases?: string[];
 }
 
 interface Appearance {
@@ -24,14 +25,14 @@ interface Appearance {
 
 
 const CHARACTERS: Character[] = [
-    { id: "1", name: "Crisostomo Ibarra", role: "Pangunahing Tauhan", novel: "noli", description: "Isang mayamang binata na nagbalik mula sa Europa upang magpatayo ng paaralan para sa kanyang mga kababayan." },
-    { id: "2", name: "Maria Clara", role: "Kasintahan", novel: "noli", description: "Ang kasintahan ni Ibarra at anak-anakan ni Kapitan Tiago; simbolo ng dalagang Pilipina." },
-    { id: "3", name: "Simoun", role: "Pangunahing Tauhan", novel: "fili", description: "Ang mayamang mag-aalahas na nagbabalat-kayo; siya si Ibarra na nagbalik upang maghimagsik." },
-    { id: "4", name: "Basilio", role: "Pangalawang Tauhan", novel: "both", description: "Ang anak ni Sisa na nagsikap mag-aral at naging isang manggagamot." },
-    { id: "5", name: "Padre Damaso", role: "Kontrabida", novel: "noli", description: "Ang dating kura ng San Diego at tunay na ama ni Maria Clara; mapagmataas at malupit." },
-    { id: "6", name: "Elias", role: "Bayani", novel: "noli", description: "Isang takas na naging kaibigan at tagapagligtas ni Ibarra; nagsakripisyo para sa bayan." },
-    { id: "7", name: "Kabesang Tales", role: "Biktima", novel: "fili", description: "Isang masipag na magsasaka na naging tulisan dahil sa pang-aagaw ng lupa ng mga prayle." },
-    { id: "8", name: "Isagani", role: "Idealista", novel: "fili", description: "Isang makatang mag-aaral at kasintahan ni Paulita Gomez; puno ng pangarap para sa bayan." },
+    { id: "1", name: "Crisostomo Ibarra", role: "Pangunahing Tauhan", novel: "noli", description: "Isang mayamang binata na nagbalik mula sa Europa upang magpatayo ng paaralan para sa kanyang mga kababayan.", aliases: ["Crisostomo Ibarra", "Ibarra", "Crisostomo", "Simoun"] },
+    { id: "2", name: "Maria Clara", role: "Kasintahan", novel: "noli", description: "Ang kasintahan ni Ibarra at anak-anakan ni Kapitan Tiago; simbolo ng dalagang Pilipina.", aliases: ["Maria Clara", "Maria", "Clara", "Sor Maria Clara"] },
+    { id: "3", name: "Simoun", role: "Pangunahing Tauhan", novel: "fili", description: "Ang mayamang mag-aalahas na nagbabalat-kayo; siya si Ibarra na nagbalik upang maghimagsik.", aliases: ["Simoun", "Crisostomo Ibarra", "Ibarra", "Crisostomo"] },
+    { id: "4", name: "Basilio", role: "Pangalawang Tauhan", novel: "both", description: "Ang anak ni Sisa na nagsikap mag-aral at naging isang manggagamot.", aliases: ["Basilio"] },
+    { id: "5", name: "Padre Damaso", role: "Kontrabida", novel: "noli", description: "Ang dating kura ng San Diego at tunay na ama ni Maria Clara; mapagmataas at malupit.", aliases: ["Padre Damaso", "Damaso"] },
+    { id: "6", name: "Elias", role: "Bayani", novel: "noli", description: "Isang takas na naging kaibigan at tagapagligtas ni Ibarra; nagsakripisyo para sa bayan.", aliases: ["Elias"] },
+    { id: "7", name: "Kabesang Tales", role: "Biktima", novel: "fili", description: "Isang masipag na magsasaka na naging tulisan dahil sa pang-aagaw ng lupa ng mga prayle.", aliases: ["Kabesang Tales", "Tales", "Kabesa"] },
+    { id: "8", name: "Isagani", role: "Idealista", novel: "fili", description: "Isang makatang mag-aaral at kasintahan ni Paulita Gomez; puno ng pangarap para sa bayan.", aliases: ["Isagani"] },
 ];
 
 
@@ -39,36 +40,57 @@ interface CharacterListProps {
     onChapterSelect?: (book: string, chapter: number, title?: string, sentenceIndex?: number) => void;
 }
 
+interface ChapterInfo {
+    book: string;
+    chapter_number: number;
+    chapter_title: string;
+    score: number;
+    preview_text?: string;
+}
+
 export function CharacterList({ onChapterSelect }: CharacterListProps) {
     const [selectedChar, setSelectedChar] = useState<Character | null>(null);
-    const [appearances, setAppearances] = useState<Appearance[]>([]);
+    const [chapterAppearances, setChapterAppearances] = useState<ChapterInfo[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sortBy, setSortBy] = useState<'number' | 'relevance'>('number');
+
+    const fetchChapters = async (char: Character, sort: 'number' | 'relevance') => {
+        setLoading(true);
+        try {
+            // Use aliases if available, otherwise fallback to name logic
+            let searchTerm = char.name;
+            if (char.aliases && char.aliases.length > 0) {
+                searchTerm = char.aliases.join(",");
+            } else {
+                // Fallbacks if no aliases defined (though we defined them above)
+                if (char.name === "Crisostomo Ibarra") searchTerm = "Ibarra";
+                else if (char.name === "Padre Damaso") searchTerm = "Damaso";
+            }
+
+            const res = await fetch(`http://localhost:8000/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
+            if (!res.ok) throw new Error("Failed to fetch chapters");
+            const data = await res.json();
+            setChapterAppearances(data);
+        } catch (error) {
+            console.error("Error fetching chapters:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCharClick = async (char: Character) => {
         setSelectedChar(char);
         setIsModalOpen(true);
-        setLoading(true);
-        setAppearances([]);
+        setChapterAppearances([]);
+        setSortBy('number'); // Default sort
+        await fetchChapters(char, 'number');
+    };
 
-        try {
-            // Search by name (flexible)
-            // For "Simoun", strict search is fine. For "Crisostomo Ibarra", maybe just "Ibarra" is better?
-            // Let's rely on the full name first as defined in the list. 
-            // The backend uses ILIKE %name%, so "Crisostomo Ibarra" might miss just "Ibarra".
-            // Optimization: Use a specific search term for some characters if needed.
-            let searchTerm = char.name;
-            if (char.name === "Crisostomo Ibarra") searchTerm = "Ibarra";
-            if (char.name === "Padre Damaso") searchTerm = "Damaso";
-
-            const res = await fetch(`http://localhost:8000/api/v1/characters/appearances?name=${encodeURIComponent(searchTerm)}`);
-            if (!res.ok) throw new Error("Failed to fetch appearances");
-            const data = await res.json();
-            setAppearances(data);
-        } catch (error) {
-            console.error("Error fetching appearances:", error);
-        } finally {
-            setLoading(false);
+    const handleSortChange = async (mode: 'number' | 'relevance') => {
+        if (selectedChar) {
+            setSortBy(mode);
+            await fetchChapters(selectedChar, mode);
         }
     };
 
@@ -76,7 +98,7 @@ export function CharacterList({ onChapterSelect }: CharacterListProps) {
         setIsModalOpen(false);
         setTimeout(() => {
             setSelectedChar(null);
-            setAppearances([]);
+            setChapterAppearances([]);
         }, 300);
     };
 
@@ -105,7 +127,7 @@ export function CharacterList({ onChapterSelect }: CharacterListProps) {
 
                         <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-navy/60 group-hover:text-brand-navy transition-colors">
                             <BookOpen size={12} />
-                            <span>View Appearances</span>
+                            <span>View Chapters</span>
                         </div>
                     </motion.div>
                 ))}
@@ -118,13 +140,14 @@ export function CharacterList({ onChapterSelect }: CharacterListProps) {
                     title={selectedChar.name}
                     subtitle={selectedChar.role}
                     type="character"
-                    appearances={appearances}
+                    chapterAppearances={chapterAppearances}
                     isLoading={loading}
                     onNavigate={(book, chapter, sentenceIndex) => {
-                        console.log('CharacterList onNavigate:', book, chapter, sentenceIndex);
                         handleClose();
                         onChapterSelect?.(book, chapter, undefined, sentenceIndex);
                     }}
+                    onSort={handleSortChange}
+                    sortBy={sortBy}
                 />
             )}
         </div>
