@@ -76,18 +76,27 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     return (
         <div className="w-full max-w-7xl mx-auto px-4 pb-20">
             <motion.div
-                layout
+                key={selectedNovel}
                 className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                initial="hidden"
+                animate="show"
+                variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                        opacity: 1,
+                        transition: {
+                            staggerChildren: 0.1
+                        }
+                    }
+                }}
             >
-                <AnimatePresence>
-                    {items.map((chapter) => (
-                        <ChapterCard
-                            key={`${chapter.book}-${chapter.chapter_number}`}
-                            chapter={chapter}
-                            onClick={() => onChapterSelect(chapter.book, chapter.chapter_number, chapter.chapter_title)}
-                        />
-                    ))}
-                </AnimatePresence>
+                {items.map((chapter) => (
+                    <ChapterCard
+                        key={`${chapter.book}-${chapter.chapter_number}`}
+                        chapter={chapter}
+                        onClick={() => onChapterSelect(chapter.book, chapter.chapter_number, chapter.chapter_title)}
+                    />
+                ))}
             </motion.div>
         </div>
     );
@@ -98,13 +107,12 @@ function ChapterCard({ chapter, onClick }: { chapter: Chapter; onClick: () => vo
 
     return (
         <motion.div
-            layout
             onClick={onClick}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            variants={{
+                hidden: { opacity: 0, y: 20 },
+                show: { opacity: 1, y: 0 }
+            }}
             whileHover={{ y: -8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className={cn(
                 "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",
                 "bg-brand-paper shadow-sm hover:shadow-xl transition-all duration-300",

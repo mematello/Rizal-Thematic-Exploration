@@ -175,6 +175,25 @@ export function ItemModal({
                                     </div>
                                 )}
 
+                                {type === "theme" && (
+                                    <div className="flex bg-white rounded-md border border-brand-gold/20 p-0.5">
+                                        {(['noli', 'both', 'fili'] as const).map((filter) => (
+                                            <button
+                                                key={filter}
+                                                onClick={() => setNovelFilter(filter)}
+                                                className={`
+                                                    px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider transition-all
+                                                    ${novelFilter === filter
+                                                        ? 'bg-brand-gold text-white shadow-sm'
+                                                        : 'text-brand-text-light hover:bg-black/5'}
+                                                `}
+                                            >
+                                                {filter === 'both' ? 'Both' : filter === 'noli' ? 'Noli' : 'El Fili'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {type === "character" && onSort && (
                                     <button
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
@@ -218,27 +237,39 @@ export function ItemModal({
                                             </div>
 
                                             {themeContext ? (
-                                                <div>
-                                                    <h4 className="font-bold text-brand-brown mb-4 uppercase tracking-wide text-xs flex items-center gap-2">
-                                                        <Quote size={14} /> Best Contextual Match
-                                                    </h4>
-                                                    <div
-                                                        onClick={() => onNavigate?.(themeContext.book, themeContext.chapter_number, undefined)}
-                                                        className="bg-white p-6 rounded-lg border-l-4 border-brand-gold shadow-sm cursor-pointer hover:bg-brand-gold/5 transition-colors"
-                                                    >
-                                                        <p className="font-serif text-lg text-brand-navy italic mb-4 leading-relaxed">
-                                                            "{themeContext.sentence_text}"
-                                                        </p>
-                                                        <div className="flex items-center justify-between text-xs text-brand-text-light font-sans border-t border-gray-100 pt-3">
-                                                            <span className="font-bold uppercase tracking-wider">
-                                                                {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}
-                                                            </span>
-                                                            <span className="group-hover:text-brand-gold transition-colors">
-                                                                Chapter {themeContext.chapter_number}: {themeContext.chapter_title} (Click to Read)
-                                                            </span>
+                                                // Filter logic: if novel is 'both', show match. If match book equals novel filter, show match.
+                                                // Since there is only ONE best match, filtering might hide it. 
+                                                // But user asked for the buttons to "apply it also".
+                                                (novelFilter === 'both' ||
+                                                    (novelFilter === 'noli' && themeContext.book === 'noli') ||
+                                                    (novelFilter === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
+                                                    <div>
+                                                        <h4 className="font-bold text-brand-brown mb-4 uppercase tracking-wide text-xs flex items-center gap-2">
+                                                            <Quote size={14} /> Best Contextual Match
+                                                        </h4>
+                                                        <div
+                                                            onClick={() => onNavigate?.(themeContext.book, themeContext.chapter_number, undefined)}
+                                                            className="bg-white p-6 rounded-lg border-l-4 border-brand-gold shadow-sm cursor-pointer hover:bg-brand-gold/5 transition-colors"
+                                                        >
+                                                            <p className="font-serif text-lg text-brand-navy italic mb-4 leading-relaxed">
+                                                                "{themeContext.sentence_text}"
+                                                            </p>
+                                                            <div className="flex items-center justify-between text-xs text-brand-text-light font-sans border-t border-gray-100 pt-3">
+                                                                <span className="font-bold uppercase tracking-wider">
+                                                                    {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}
+                                                                </span>
+                                                                <span className="group-hover:text-brand-gold transition-colors">
+                                                                    Chapter {themeContext.chapter_number}: {themeContext.chapter_title} (Click to Read)
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                ) : (
+                                                    <p className="text-brand-text-light italic">
+                                                        Best match is in {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}.
+                                                        Switch filter to view.
+                                                    </p>
+                                                )
                                             ) : (
                                                 <p className="text-brand-text-light italic">No context available.</p>
                                             )}
