@@ -137,12 +137,14 @@ export default function Home() {
             {activeTab === "characters" && (
               <CharacterList
                 onChapterSelect={handleChapterSelect}
+                selectedNovel={novel}
               />
             )}
 
             {activeTab === "themes" && (
               <ThemeList
                 onChapterSelect={handleChapterSelect}
+                selectedNovel={novel}
               />
             )}
           </motion.div>

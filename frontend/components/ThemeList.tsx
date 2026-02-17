@@ -25,9 +25,10 @@ interface Theme {
 
 interface ThemeListProps {
     onChapterSelect?: (book: string, chapter: number, title?: string, sentenceIndex?: number) => void;
+    selectedNovel: "noli" | "fili" | "both";
 }
 
-export function ThemeList({ onChapterSelect }: ThemeListProps) {
+export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
     const [themes, setThemes] = useState<Theme[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -81,9 +82,21 @@ export function ThemeList({ onChapterSelect }: ThemeListProps) {
                     }
                 }}
             >
-                {themes.map((theme, idx) => (
-                    <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
-                ))}
+                {themes
+                    .filter(theme => {
+                        // If both, show all. If specific novel, filter by best match or potential overlap logic.
+                        // Since themes are abstract, we mostly show all unless they are strictly tied to one book.
+                        // Assuming 'best_match' book is a good proxy for relevance.
+                        if (selectedNovel === 'both') return true;
+                        if (!theme.best_match) return true; // Show general themes
+
+                        // Normalize book names: backend uses 'elfili', frontend uses 'fili'
+                        const themeBook = theme.best_match.book === 'elfili' ? 'fili' : theme.best_match.book;
+                        return themeBook === selectedNovel;
+                    })
+                    .map((theme, idx) => (
+                        <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
+                    ))}
             </motion.div>
 
             {selectedTheme && (

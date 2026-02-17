@@ -89,25 +89,25 @@ export function ItemModal({
             key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
             onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, undefined)}
             className={`
-                group p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md bg-white
+                group p-6 rounded-lg border cursor-pointer transition-all hover:shadow-md bg-white
                 ${chapter.book === 'noli' ? 'border-noli-gold/30 hover:border-noli-gold' : 'border-fili-magenta/30 hover:border-fili-magenta'}
             `}
         >
-            <div className="flex items-center gap-2 mb-2">
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-gold/20 text-noli-gold' : 'bg-fili-magenta/20 text-fili-magenta'}`}>
+            <div className="flex items-center gap-2 mb-3">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-gold/20 text-noli-gold' : 'bg-fili-magenta/20 text-fili-magenta'}`}>
                     {chapter.book === 'noli' ? 'Noli' : 'Fili'}
                 </span>
-                <span className="text-sm font-serif font-bold text-brand-navy">
-                    {chapter.chapter_number}
+                <span className="text-xl font-serif font-bold text-brand-navy">
+                    Chapter {chapter.chapter_number}
                 </span>
             </div>
 
-            <p className="text-xs text-brand-text-light font-serif line-clamp-2 mb-2 font-bold min-h-[2.5em]">
+            <p className="text-sm text-brand-text-light font-serif line-clamp-2 mb-3 font-bold min-h-[2.5em]">
                 {chapter.chapter_title}
             </p>
 
             {chapter.preview_text && (
-                <p className="text-[10px] text-brand-text/60 italic line-clamp-3 border-t border-gray-100 pt-2 mt-2 leading-relaxed h-[4.5em]">
+                <p className="text-xs text-brand-text/60 italic line-clamp-4 border-t border-gray-100 pt-3 mt-2 leading-relaxed h-[5.5em]">
                     "{chapter.preview_text}"
                 </p>
             )}
@@ -156,7 +156,7 @@ export function ItemModal({
                                                 key={filter}
                                                 onClick={() => setNovelFilter(filter)}
                                                 className={`
-                                                    px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all
+                                                    px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider transition-all
                                                     ${novelFilter === filter
                                                         ? 'bg-brand-gold text-white shadow-sm'
                                                         : 'text-brand-text-light hover:bg-black/5'}
@@ -172,7 +172,7 @@ export function ItemModal({
                                     <button
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
-                                            px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all
+                                            px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all
                                             ${sortBy === 'relevance'
                                                 ? 'bg-brand-gold text-white shadow-md'
                                                 : 'bg-white text-brand-text border border-brand-gold/20 hover:border-brand-gold'}
