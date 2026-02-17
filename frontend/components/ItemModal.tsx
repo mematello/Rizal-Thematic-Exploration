@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { X, BookOpen, Quote } from "lucide-react";
+import { X, Quote } from "lucide-react";
+import { CharacterAvatar } from "@/components/CharacterAvatar";
 
 interface ChapterInfo {
     book: string;
@@ -147,6 +148,12 @@ export function ItemModal({
                                     <p className="text-brand-text/70 font-serif italic mt-1">{subtitle}</p>
                                 )}
                             </div>
+
+                            {type === "character" && (
+                                <div className="hidden sm:block ml-auto mr-4">
+                                    <CharacterAvatar name={title} size={64} />
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-4">
                                 {type === "character" && (
