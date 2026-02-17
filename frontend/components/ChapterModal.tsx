@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
+import { CHARACTERS } from "@/lib/characterData";
 
 interface ThemeMatch {
     id: string;
@@ -58,57 +59,12 @@ export function ChapterModal({
     useEffect(() => {
         if (isOpen && book && chapterNumber) {
             // Comprehensive character name variations (Tagalog-friendly)
-            const commonCharacters = [
-                // Noli Me Tangere
-                "Ibarra", "Juan Ibarra", "Crisostomo Ibarra", "Juan Crisostomo",
-                "Crisóstomo Ibarra", "Juan Crisóstomo Ibarra", "Crisostomo", "Juan",
-                "Ibarra y Magsalin", "Juan Crisostomo Magsalin", "Crisostomo Magsalin",
-                "Maria Clara", "Clara", "Maria Clara Santos", "Maria Clara Alba",
-                "Maria Clara de los Santos", "Maria Clara de los Santos y Alba",
-                "Maria", "Clara de los Santos",
-                "Don Santiago", "Santiago", "Don Santiago de los Santos",
-                "Kapitan Tiago", "Tiago", "Santiago de los Santos",
-                "Pia", "Pia Alba",
-                "Padre Damaso", "Damaso Verdolagas", "Damaso", "Verdolagas",
-                "Padre Salvi", "Bernardo Salvi", "Salvi", "Padre Bernardo",
-                "Elias",
-                "Pilosopo Tasio", "Tasio", "Don Anastacio", "Anastacio",
-                "Dona Victorina", "Victorina", "Victorina de los Reyes",
-                "Victorina de Espadana", "Doña Victorina",
-                "Don Tiburcio", "Tiburcio", "Tiburcio de Espadana", "Don Tiburcio de Espadana",
-                "Sisa", "Narcisa", "Sisa Narcisa", "Narcisa Sisa",
-                "Basilio",
-                "Crispin", "Crispín",
-                "Don Rafael", "Rafael Ibarra", "Rafael",
-                "Don Saturnino", "Saturnino",
-                "Alperes",
-                "Donya Consolacion", "Consolacion", "Donya", "Donya Consolación",
-                "Teniente Guevarra", "Guevarra", "Lieutenant Guevarra",
-                "Nol Juan",
-                "Lucas",
-                "Albino",
-                // El Filibusterismo
-                "Simoun", "Simoun Ibarra",
-                "Isagani",
-                "Kabesang Tales", "Tales", "Kabe", "Ka-Tales",
-                "Paulita Gomez", "Paulita", "Gomez",
-                "Juanito Pelaez", "Juanito", "Pelaez",
-                "Juli",
-                "Padre Florentino", "Florentino", "Padre F",
-                "Don Custodio", "Custodio",
-                "Padre Camorra", "Camorra",
-                "Padre Irene", "Irene",
-                "Ben-Zayb", "Benzayb",
-                "Placido Penitente", "Placido", "Penitente",
-                "Father Fernandez", "Fernandez",
-                "Tandang Selo", "Selo", "Tandang",
-                "Quiroga",
-                "Hermana Penchang", "Penchang",
-                "Hermana Bali", "Bali",
-                "Father Millon", "Millon",
-                "Tadeo", "Leeds", "Tano", "Pepay", "Pecson"
-            ];
-            setCharacterKeywords(commonCharacters);
+            // Comprehensive character name variations derived from shared data
+            const allKeywords = CHARACTERS.flatMap(c => [c.name, ...(c.aliases || [])]);
+            // Filter unique and sort by length descending for greedy matching
+            const uniqueKeywords = Array.from(new Set(allKeywords)).sort((a, b) => b.length - a.length);
+
+            setCharacterKeywords(uniqueKeywords);
         }
     }, [isOpen, book, chapterNumber]);
 

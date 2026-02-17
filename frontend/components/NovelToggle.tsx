@@ -46,17 +46,31 @@ function ToggleButton({
             onClick={onClick}
             className={cn(
                 "relative px-6 py-2 text-sm font-serif font-medium transition-colors duration-300 rounded-full z-10",
-                isActive ? "text-brand-cream" : "text-brand-text hover:text-brand-gold"
+                isActive
+                    ? (label === "El Filibusterismo" ? "text-brand-navy" : "text-brand-cream")
+                    : "text-brand-text hover:text-brand-gold"
             )}
         >
             {isActive && (
                 <motion.div
                     layoutId="activeNovel"
-                    className="absolute inset-0 bg-brand-navy rounded-full -z-10"
+                    className={cn(
+                        "absolute inset-0 rounded-full -z-10",
+                        label === "El Filibusterismo"
+                            ? "bg-brand-gold"
+                            : label === "Both"
+                                ? "bg-gradient-to-r from-brand-navy from-50% to-brand-gold to-50%"
+                                : "bg-brand-navy"
+                    )}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
             )}
-            {label}
+            <span className={cn(
+                "relative z-10",
+                isActive && label === "Both" && "drop-shadow-md"
+            )}>
+                {label}
+            </span>
         </button>
     );
 }
