@@ -4,7 +4,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { ItemModal } from "@/components/ItemModal";
+<<<<<<< Updated upstream
 import { CharacterAvatar } from "@/components/CharacterAvatar";
+=======
+>>>>>>> Stashed changes
 import { CHARACTERS, Character } from "@/lib/characterData";
 
 interface Appearance {
@@ -204,11 +207,17 @@ function CharacterCard({ char, onClick }: { char: Character; onClick: () => void
             transition={{ duration: 0.2 }}
             className="bg-brand-paper p-6 rounded-sm border border-brand-gold/20 hover:border-brand-navy/30 cursor-pointer group flex flex-col items-center text-center transition-colors"
         >
+<<<<<<< Updated upstream
             <CharacterAvatar
                 name={char.name}
                 className="mb-4 group-hover:border-brand-gold transition-colors"
                 size={80}
             />
+=======
+            <div className="w-20 h-20 bg-brand-cream rounded-full flex items-center justify-center mb-4 border-2 border-brand-gold/10 group-hover:border-brand-gold transition-colors">
+                <User size={32} className="text-brand-navy opacity-80" />
+            </div>
+>>>>>>> Stashed changes
 
             <h3 className="text-xl font-serif text-brand-navy font-bold">{char.name}</h3>
             <span className="text-xs uppercase tracking-widest text-brand-gold mt-1 mb-3">{char.role}</span>
