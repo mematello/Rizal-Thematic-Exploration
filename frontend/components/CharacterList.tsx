@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { BookOpen } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BookOpen, X } from "lucide-react";
 import { ItemModal } from "@/components/ItemModal";
-<<<<<<< Updated upstream
 import { CharacterAvatar } from "@/components/CharacterAvatar";
-=======
->>>>>>> Stashed changes
 import { CHARACTERS, Character } from "@/lib/characterData";
 
 interface Appearance {
@@ -38,20 +35,19 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sortBy, setSortBy] = useState<'number' | 'relevance'>('number');
+    const [zoomedCharName, setZoomedCharName] = useState<string | null>(null);
     // Removed local novelFilter state
 
     const fetchChapters = async (char: Character, sort: 'number' | 'relevance') => {
         setLoading(true);
         try {
             // Use aliases if available, otherwise fallback to name logic
-            let searchTerm = char.name;
+            // Combine name and aliases for search
+            const searchTerms = [char.name];
             if (char.aliases && char.aliases.length > 0) {
-                searchTerm = char.aliases.join(",");
-            } else {
-                // Fallbacks if no aliases defined (though we defined them above)
-                if (char.name === "Crisostomo Ibarra") searchTerm = "Ibarra";
-                else if (char.name === "Padre Damaso") searchTerm = "Damaso";
+                searchTerms.push(...char.aliases);
             }
+            const searchTerm = searchTerms.join(",");
 
             const res = await fetch(`http://localhost:8000/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
             if (!res.ok) throw new Error("Failed to fetch chapters");
@@ -106,19 +102,22 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                             animate="show"
                             variants={{
                                 hidden: { opacity: 0 },
-                                show: {
-                                    opacity: 1,
-                                    transition: { staggerChildren: 0.1 }
-                                }
+                                show: { opacity: 1 }
                             }}
                         >
                             {filteredCharacters
                                 .filter(c => c.novel === 'noli' || c.novel === 'both')
-                                .map((char) => (
+                                .map((char, idx) => (
                                     <CharacterCard
                                         key={`noli-${char.id}`}
                                         char={char}
+                                        index={idx}
+                                        columns={2}
                                         onClick={() => handleCharClick(char)}
+                                        onAvatarClick={(e) => {
+                                            e.stopPropagation();
+                                            setZoomedCharName(char.name);
+                                        }}
                                     />
                                 ))}
                         </motion.div>
@@ -132,19 +131,22 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                             animate="show"
                             variants={{
                                 hidden: { opacity: 0 },
-                                show: {
-                                    opacity: 1,
-                                    transition: { staggerChildren: 0.1 }
-                                }
+                                show: { opacity: 1 }
                             }}
                         >
                             {filteredCharacters
                                 .filter(c => c.novel === 'fili' || c.novel === 'both')
-                                .map((char) => (
+                                .map((char, idx) => (
                                     <CharacterCard
                                         key={`fili-${char.id}`}
                                         char={char}
+                                        index={idx}
+                                        columns={2}
                                         onClick={() => handleCharClick(char)}
+                                        onAvatarClick={(e) => {
+                                            e.stopPropagation();
+                                            setZoomedCharName(char.name);
+                                        }}
                                     />
                                 ))}
                         </motion.div>
@@ -158,17 +160,20 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                     animate="show"
                     variants={{
                         hidden: { opacity: 0 },
-                        show: {
-                            opacity: 1,
-                            transition: { staggerChildren: 0.1 }
-                        }
+                        show: { opacity: 1 }
                     }}
                 >
-                    {filteredCharacters.map((char) => (
+                    {filteredCharacters.map((char, idx) => (
                         <CharacterCard
                             key={char.id}
                             char={char}
+                            index={idx}
+                            columns={4}
                             onClick={() => handleCharClick(char)}
+                            onAvatarClick={(e) => {
+                                e.stopPropagation();
+                                setZoomedCharName(char.name);
+                            }}
                         />
                     ))}
                 </motion.div>
@@ -183,6 +188,7 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                     type="character"
                     chapterAppearances={chapterAppearances}
                     isLoading={loading}
+                    selectedNovel={selectedNovel}
                     onNavigate={(book, chapter, sentenceIndex) => {
                         handleClose();
                         onChapterSelect?.(book, chapter, undefined, sentenceIndex);
@@ -191,33 +197,74 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                     sortBy={sortBy}
                 />
             )}
+
+            {/* Lightbox Overlay for Character List */}
+            <AnimatePresence>
+                {zoomedCharName && (
+                    <motion.div
+                        key="list-lightbox-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+                        onClick={() => setZoomedCharName(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <CharacterAvatar
+                                name={zoomedCharName}
+                                size={400}
+                                className="shadow-2xl border-4 border-brand-gold/50"
+                                priority={true}
+                            />
+                            <button
+                                onClick={() => setZoomedCharName(null)}
+                                className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors"
+                            >
+                                <X size={32} />
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
 
-function CharacterCard({ char, onClick }: { char: Character; onClick: () => void }) {
+function CharacterCard({ char, onClick, onAvatarClick, index, columns = 4 }: { char: Character; onClick: () => void; onAvatarClick: (e: React.MouseEvent) => void; index: number; columns?: number }) {
     return (
         <motion.div
             onClick={onClick}
+            custom={index}
             variants={{
                 hidden: { opacity: 0, y: 20 },
-                show: { opacity: 1, y: 0 }
+                show: (i: number) => ({
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                        delay: (i % columns) * 0.1,
+                        duration: 0.3
+                    }
+                })
             }}
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
             className="bg-brand-paper p-6 rounded-sm border border-brand-gold/20 hover:border-brand-navy/30 cursor-pointer group flex flex-col items-center text-center transition-colors"
         >
-<<<<<<< Updated upstream
-            <CharacterAvatar
-                name={char.name}
-                className="mb-4 group-hover:border-brand-gold transition-colors"
-                size={80}
-            />
-=======
-            <div className="w-20 h-20 bg-brand-cream rounded-full flex items-center justify-center mb-4 border-2 border-brand-gold/10 group-hover:border-brand-gold transition-colors">
-                <User size={32} className="text-brand-navy opacity-80" />
+            {/* Avatar wrapper to handle click separately */}
+            <div onClick={onAvatarClick} className="relative z-10 transition-transform duration-300 hover:scale-110 hover:shadow-lg rounded-full mb-4">
+                <CharacterAvatar
+                    name={char.name}
+                    className="group-hover:border-brand-gold transition-colors"
+                    size={80}
+                />
             </div>
->>>>>>> Stashed changes
 
             <h3 className="text-xl font-serif text-brand-navy font-bold">{char.name}</h3>
             <span className="text-xs uppercase tracking-widest text-brand-gold mt-1 mb-3">{char.role}</span>
@@ -229,6 +276,6 @@ function CharacterCard({ char, onClick }: { char: Character; onClick: () => void
                 <BookOpen size={12} />
                 <span>View Chapters</span>
             </div>
-        </motion.div>
+        </motion.div >
     );
 }

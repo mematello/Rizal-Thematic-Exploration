@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ChevronDown, BookOpen } from "lucide-react";
 
 type Novel = "noli" | "fili" | "both";
 
@@ -11,66 +13,80 @@ interface NovelToggleProps {
 }
 
 export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
-    return (
-        <div className="flex items-center justify-center p-1 bg-brand-paper rounded-full shadow-sm border border-brand-gold/20 w-fit mx-auto my-6">
-            <ToggleButton
-                label="Noli Me Tangere"
-                isActive={selected === "noli"}
-                onClick={() => onSelect("noli")}
-            />
-            <ToggleButton
-                label="Both"
-                isActive={selected === "both"}
-                onClick={() => onSelect("both")}
-            />
-            <ToggleButton
-                label="El Filibusterismo"
-                isActive={selected === "fili"}
-                onClick={() => onSelect("fili")}
-            />
-        </div>
-    );
-}
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-function ToggleButton({
-    label,
-    isActive,
-    onClick,
-}: {
-    label: string;
-    isActive: boolean;
-    onClick: () => void;
-}) {
+    const getLabel = (novel: Novel) => {
+        switch (novel) {
+            case "noli": return "Noli Me Tangere";
+            case "fili": return "El Filibusterismo";
+            case "both": return "Both Novels";
+        }
+    };
+
+    const toggleOpen = () => setIsOpen(!isOpen);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const options: Novel[] = ["noli", "fili", "both"];
+
     return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "relative px-6 py-2 text-sm font-serif font-medium transition-colors duration-300 rounded-full z-10",
-                isActive
-                    ? (label === "El Filibusterismo" ? "text-brand-navy" : "text-brand-cream")
-                    : "text-brand-text hover:text-brand-gold"
-            )}
-        >
-            {isActive && (
-                <motion.div
-                    layoutId="activeNovel"
-                    className={cn(
-                        "absolute inset-0 rounded-full -z-10",
-                        label === "El Filibusterismo"
-                            ? "bg-brand-gold"
-                            : label === "Both"
-                                ? "bg-gradient-to-r from-brand-navy from-50% to-brand-gold to-50%"
-                                : "bg-brand-navy"
-                    )}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        <div className="relative z-50" ref={containerRef}>
+            <button
+                onClick={toggleOpen}
+                className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 shadow-sm",
+                    "bg-brand-paper hover:bg-white text-brand-navy font-serif font-medium",
+                    "border-brand-gold/30 hover:border-brand-gold"
+                )}
+            >
+                <BookOpen size={16} className="text-brand-gold" />
+                <span>{getLabel(selected)}</span>
+                <ChevronDown
+                    size={16}
+                    className={cn("text-brand-navy/60 transition-transform duration-300", isOpen && "rotate-180")}
                 />
-            )}
-            <span className={cn(
-                "relative z-10",
-                isActive && label === "Both" && "drop-shadow-md"
-            )}>
-                {label}
-            </span>
-        </button>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-brand-gold/20 overflow-hidden"
+                    >
+                        <div className="py-1">
+                            {options.map((option) => (
+                                <button
+                                    key={option}
+                                    onClick={() => {
+                                        onSelect(option);
+                                        setIsOpen(false);
+                                    }}
+                                    className={cn(
+                                        "w-full text-left px-4 py-2 text-sm font-serif transition-colors",
+                                        selected === option
+                                            ? "bg-brand-gold/10 text-brand-navy font-bold"
+                                            : "text-brand-text hover:bg-brand-cream hover:text-brand-navy"
+                                    )}
+                                >
+                                    {getLabel(option)}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

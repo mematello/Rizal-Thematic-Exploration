@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 
@@ -73,6 +73,8 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
         return <div className="text-center py-20 text-brand-gold font-serif animate-pulse">Loading Chronicles...</div>;
     }
 
+    const COLS = 4; // matches lg:grid-cols-4
+
     return (
         <div className="w-full max-w-7xl mx-auto px-4 pb-20">
             <motion.div
@@ -80,20 +82,12 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
                 className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
                 initial="hidden"
                 animate="show"
-                variants={{
-                    hidden: { opacity: 0 },
-                    show: {
-                        opacity: 1,
-                        transition: {
-                            staggerChildren: 0.1
-                        }
-                    }
-                }}
             >
-                {items.map((chapter) => (
+                {items.map((chapter, idx) => (
                     <ChapterCard
                         key={`${chapter.book}-${chapter.chapter_number}`}
                         chapter={chapter}
+                        colIndex={idx % COLS}
                         onClick={() => onChapterSelect(chapter.book, chapter.chapter_number, chapter.chapter_title)}
                     />
                 ))}
@@ -102,16 +96,15 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     );
 }
 
-function ChapterCard({ chapter, onClick }: { chapter: Chapter; onClick: () => void }) {
+function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick: () => void; colIndex: number }) {
     const isNoli = chapter.book === "noli";
 
     return (
         <motion.div
             onClick={onClick}
-            variants={{
-                hidden: { opacity: 0, y: 20 },
-                show: { opacity: 1, y: 0 }
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: colIndex * 0.1 }}
             whileHover={{ y: -8 }}
             className={cn(
                 "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",

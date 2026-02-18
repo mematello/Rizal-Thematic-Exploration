@@ -11,6 +11,7 @@ interface ChapterInfo {
     chapter_title: string;
     score: number;
     preview_text?: string;
+    sentence_index?: number;
 }
 
 interface ThemeContext {
@@ -36,6 +37,7 @@ interface ItemModalProps {
     onNavigate?: (book: string, chapter: number, sentenceIndex?: number) => void;
     onSort?: (mode: 'number' | 'relevance') => void;
     sortBy?: 'number' | 'relevance';
+    selectedNovel: 'noli' | 'fili' | 'both';
 }
 
 export function ItemModal({
@@ -51,10 +53,12 @@ export function ItemModal({
     isLoading,
     onNavigate,
     onSort,
-    sortBy
+    sortBy,
+    selectedNovel
 }: ItemModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
-    const [novelFilter, setNovelFilter] = useState<'both' | 'noli' | 'fili'>('both');
+    const [isAvatarZoomed, setIsAvatarZoomed] = useState(false);
+    // Removed internal novelFilter state in favor of selectedNovel prop
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -77,8 +81,8 @@ export function ItemModal({
     };
 
     const filteredChapters = chapterAppearances?.filter(c => {
-        if (novelFilter === 'noli') return c.book === 'noli';
-        if (novelFilter === 'fili') return c.book === 'fili' || c.book === 'elfili';
+        if (selectedNovel === 'noli') return c.book === 'noli';
+        if (selectedNovel === 'fili') return c.book === 'fili' || c.book === 'elfili';
         return true;
     });
 
@@ -88,7 +92,7 @@ export function ItemModal({
     const renderChapter = (chapter: ChapterInfo, idx: number) => (
         <div
             key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
-            onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, undefined)}
+            onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
             className={`
                 group p-6 rounded-lg border cursor-pointer transition-all hover:shadow-md bg-white
                 ${chapter.book === 'noli' ? 'border-noli-gold/30 hover:border-noli-gold' : 'border-fili-magenta/30 hover:border-fili-magenta'}
@@ -115,10 +119,18 @@ export function ItemModal({
         </div>
     );
 
+    const getNovelLabel = (novel: 'noli' | 'fili' | 'both') => {
+        switch (novel) {
+            case 'noli': return 'Noli Me Tangere';
+            case 'fili': return 'El Filibusterismo';
+            case 'both': return 'Both Novels';
+        }
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" key="modal-content">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -137,68 +149,48 @@ export function ItemModal({
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-brand-gold/10 bg-brand-cream flex-wrap gap-4">
-                            <div>
-                                <span className="text-xs font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
-                                    {type === "character" ? "Character Profile" : "Thematic Insight"}
-                                </span>
-                                <h2 className="text-2xl md:text-3xl font-serif text-brand-navy">
-                                    {title}
-                                </h2>
-                                {subtitle && (
-                                    <p className="text-brand-text/70 font-serif italic mt-1">{subtitle}</p>
+                            <div className="flex items-center gap-6 flex-1 min-w-0">
+                                {type === "character" && (
+                                    <div className="hidden sm:block shrink-0">
+                                        <CharacterAvatar
+                                            name={title}
+                                            size={100}
+                                            className="shadow-md border-2 border-brand-gold/20"
+                                            onClick={() => setIsAvatarZoomed(true)}
+                                        />
+                                    </div>
                                 )}
+
+                                <div className="min-w-0">
+                                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
+                                        {type === "character" ? "Character Profile" : "Thematic Insight"}
+                                    </span>
+                                    <h2 className="text-2xl md:text-4xl font-serif text-brand-navy font-bold truncate">
+                                        {title}
+                                    </h2>
+                                    {subtitle && (
+                                        <p className="text-brand-text/70 font-serif italic mt-1 text-lg">{subtitle}</p>
+                                    )}
+                                </div>
                             </div>
 
-                            {type === "character" && (
-                                <div className="hidden sm:block ml-auto mr-4">
-                                    <CharacterAvatar name={title} size={64} />
+                            <div className="flex items-center gap-4 shrink-0">
+                                {/* Static Novel Label */}
+                                <div className={`
+                                    px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                                    flex items-center gap-2 border shadow-sm whitespace-nowrap
+                                    ${selectedNovel === 'noli' ? 'bg-noli-gold/10 text-noli-gold border-noli-gold/20' :
+                                        selectedNovel === 'fili' ? 'bg-fili-magenta/10 text-fili-magenta border-fili-magenta/20' :
+                                            'bg-brand-navy/5 text-brand-navy border-brand-navy/10'}
+                                `}>
+                                    Currently Viewing: {getNovelLabel(selectedNovel)}
                                 </div>
-                            )}
-
-                            <div className="flex items-center gap-4">
-                                {type === "character" && (
-                                    <div className="flex bg-white rounded-md border border-brand-gold/20 p-0.5">
-                                        {(['noli', 'both', 'fili'] as const).map((filter) => (
-                                            <button
-                                                key={filter}
-                                                onClick={() => setNovelFilter(filter)}
-                                                className={`
-                                                    px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider transition-all
-                                                    ${novelFilter === filter
-                                                        ? 'bg-brand-gold text-white shadow-sm'
-                                                        : 'text-brand-text-light hover:bg-black/5'}
-                                                `}
-                                            >
-                                                {filter === 'both' ? 'Both' : filter === 'noli' ? 'Noli' : 'El Fili'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {type === "theme" && (
-                                    <div className="flex bg-white rounded-md border border-brand-gold/20 p-0.5">
-                                        {(['noli', 'both', 'fili'] as const).map((filter) => (
-                                            <button
-                                                key={filter}
-                                                onClick={() => setNovelFilter(filter)}
-                                                className={`
-                                                    px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider transition-all
-                                                    ${novelFilter === filter
-                                                        ? 'bg-brand-gold text-white shadow-sm'
-                                                        : 'text-brand-text-light hover:bg-black/5'}
-                                                `}
-                                            >
-                                                {filter === 'both' ? 'Both' : filter === 'noli' ? 'Noli' : 'El Fili'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
 
                                 {type === "character" && onSort && (
                                     <button
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
-                                            px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all
+                                            px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap
                                             ${sortBy === 'relevance'
                                                 ? 'bg-brand-gold text-white shadow-md'
                                                 : 'bg-white text-brand-text border border-brand-gold/20 hover:border-brand-gold'}
@@ -240,9 +232,9 @@ export function ItemModal({
                                                 // Filter logic: if novel is 'both', show match. If match book equals novel filter, show match.
                                                 // Since there is only ONE best match, filtering might hide it. 
                                                 // But user asked for the buttons to "apply it also".
-                                                (novelFilter === 'both' ||
-                                                    (novelFilter === 'noli' && themeContext.book === 'noli') ||
-                                                    (novelFilter === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
+                                                (selectedNovel === 'both' ||
+                                                    (selectedNovel === 'noli' && themeContext.book === 'noli') ||
+                                                    (selectedNovel === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
                                                     <div>
                                                         <h4 className="font-bold text-brand-brown mb-4 uppercase tracking-wide text-xs flex items-center gap-2">
                                                             <Quote size={14} /> Best Contextual Match
@@ -267,7 +259,7 @@ export function ItemModal({
                                                 ) : (
                                                     <p className="text-brand-text-light italic">
                                                         Best match is in {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}.
-                                                        Switch filter to view.
+                                                        Switch story selection on main page to view.
                                                     </p>
                                                 )
                                             ) : (
@@ -281,7 +273,7 @@ export function ItemModal({
                                         <div className="space-y-6">
                                             <div className="flex items-center justify-between">
                                                 <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
-                                                    {novelFilter === 'both'
+                                                    {selectedNovel === 'both'
                                                         ? `Chapters (${noliChapters.length} Noli + ${filiChapters.length} Fili)`
                                                         : `Chapters (${filteredChapters?.length})`
                                                     }
@@ -289,7 +281,7 @@ export function ItemModal({
                                             </div>
 
                                             {chapterAppearances.length > 0 ? (
-                                                novelFilter === 'both' ? (
+                                                selectedNovel === 'both' ? (
                                                     <div className="flex flex-col md:flex-row gap-6">
                                                         {/* Noli Column (Left) */}
                                                         <div className="flex-1">
@@ -344,6 +336,40 @@ export function ItemModal({
                         </div>
                     </motion.div>
                 </div>
+            )}
+
+            {/* Avatar Lightbox Overlay */}
+            {isAvatarZoomed && (
+                <motion.div
+                    key="lightbox-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+                    onClick={() => setIsAvatarZoomed(false)}
+                >
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        className="relative"
+                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image itself
+                    >
+                        <CharacterAvatar
+                            name={title}
+                            size={400}
+                            className="shadow-2xl border-4 border-brand-gold/50"
+                            priority={true}
+                        />
+                        <button
+                            onClick={() => setIsAvatarZoomed(false)}
+                            className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors"
+                        >
+                            <X size={32} />
+                        </button>
+                    </motion.div>
+                </motion.div>
             )}
         </AnimatePresence>
     );
