@@ -114,6 +114,7 @@ class CharacterChapterResponse(BaseModel):
     chapter_title: str
     score: float = 0.0
     preview_text: Optional[str] = None
+    sentence_index: Optional[int] = None
 
 from sqlalchemy import or_
 
@@ -166,7 +167,7 @@ def get_character_chapters(
             relevant_sentences.append((s, 1.0)) # Dummy score
 
     # 2. Group by Book + Chapter
-    chapter_map = {} # (book, chapter_num) -> {title, max_score, count, best_snippet}
+    chapter_map = {} # (book, chapter_num) -> {title, max_score, count, best_snippet, sentence_index}
     
     for s, score in relevant_sentences:
         key = (s.book, s.chapter_number)
@@ -176,13 +177,15 @@ def get_character_chapters(
                 'chapter_number': s.chapter_number,
                 'chapter_title': s.chapter_title or "",
                 'max_score': -1.0,
-                'preview_text': s.sentence_text
+                'preview_text': s.sentence_text,
+                'sentence_index': s.sentence_index
             }
         
         # Update stats
         if score > chapter_map[key]['max_score']:
             chapter_map[key]['max_score'] = score
             chapter_map[key]['preview_text'] = s.sentence_text # Update snippet to best match
+            chapter_map[key]['sentence_index'] = s.sentence_index # Update index to best match
 
     # 3. Convert to list and sort
     results = []
@@ -192,7 +195,8 @@ def get_character_chapters(
             chapter_number=info['chapter_number'],
             chapter_title=info['chapter_title'],
             score=info['max_score'],
-            preview_text=info['preview_text']
+            preview_text=info['preview_text'],
+            sentence_index=info['sentence_index']
         ))
         
     if sort_by == "relevance":

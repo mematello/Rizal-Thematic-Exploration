@@ -9,9 +9,10 @@ interface CharacterAvatarProps {
     className?: string; // For container styling
     size?: number; // Pixel size for the image/icon
     priority?: boolean;
+    onClick?: () => void;
 }
 
-export function CharacterAvatar({ name, className = "", size = 80, priority = false }: CharacterAvatarProps) {
+export function CharacterAvatar({ name, className = "", size = 80, priority = false, onClick }: CharacterAvatarProps) {
     const [src, setSrc] = useState<string>("");
     const [hasError, setHasError] = useState(false);
 
@@ -41,7 +42,8 @@ export function CharacterAvatar({ name, className = "", size = 80, priority = fa
 
     return (
         <div
-            className={`relative overflow-hidden rounded-full bg-brand-cream border-2 border-brand-gold/10 ${className}`}
+            onClick={onClick}
+            className={`relative overflow-hidden rounded-full bg-brand-cream border-2 border-brand-gold/10 ${onClick ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''} ${className}`}
             style={{ width: size, height: size }}
         >
             <Image

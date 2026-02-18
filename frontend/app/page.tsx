@@ -44,7 +44,7 @@ export default function Home() {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
+      router.push(`/search?q=${encodeURIComponent(query)}&novel=${novel}`);
     }
   };
 
@@ -94,22 +94,33 @@ export default function Home() {
     <main className="min-h-screen bg-brand-cream pb-20">
       {/* Header Section */}
       <header className="sticky top-0 z-40 bg-brand-cream/98 backdrop-blur-sm border-b border-brand-gold/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xl md:text-2xl font-serif text-center text-brand-navy/70 mb-4 tracking-wide font-light"
-          >
-            Rizal Thematic Exploration
-          </motion.h1>
+        <div className="max-w-7xl mx-auto px-4 py-4 relative">
+          <div className="flex justify-center items-center relative mb-4">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xl md:text-2xl font-serif text-center text-brand-navy/70 tracking-wide font-light"
+            >
+              Rizal Thematic Exploration
+            </motion.h1>
 
-          <div className="flex flex-col gap-4">
+            {/* Absolute positioning for desktop, might overlap on very small screens so we can adjust if needed */}
+            <div className="absolute right-0 top-0 hidden md:block">
+              <NovelToggle selected={novel} onSelect={setNovel} />
+            </div>
+          </div>
+
+          {/* Mobile view for Novel Toggle - centered below title if screen is small */}
+          <div className="block md:hidden mb-4 flex justify-center">
+            <NovelToggle selected={novel} onSelect={setNovel} />
+          </div>
+
+          <div className="max-w-2xl mx-auto">
             <SearchBar
               onSearch={handleSearch}
               variant="hero"
               placeholder={`Search within ${novel === 'both' ? 'both novels' : novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
             />
-            <NovelToggle selected={novel} onSelect={setNovel} />
           </div>
         </div>
       </header>

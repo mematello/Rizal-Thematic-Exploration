@@ -1,9 +1,9 @@
 import { ScoreVisualizerProps } from "../types";
 
-export function ScoreVisualizer({ semantic, lexical }: ScoreVisualizerProps) {
+export function ScoreVisualizer({ semantic, lexical, compact = false }: ScoreVisualizerProps & { compact?: boolean }) {
     return (
         <div
-            className="mt-4 pt-3 border-t border-brand-brown/10 space-y-2"
+            className={compact ? "flex items-center gap-4" : "mt-4 pt-3 border-t border-brand-brown/10 space-y-2"}
             aria-label={`Semantic match ${semantic}%, Lexical match ${lexical}%`}
         >
             {/* Semantic Score */}

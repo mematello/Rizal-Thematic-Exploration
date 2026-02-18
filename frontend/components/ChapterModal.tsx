@@ -112,14 +112,32 @@ export function ChapterModal({
     const accentColor = isNoli ? "text-noli-accent" : "text-fili-accent";
     const borderColor = isNoli ? "border-noli-accent" : "border-fili-accent";
 
+    // Standard chapter counts
+    const NOLI_CHAPTERS = 64;
+    const FILI_CHAPTERS = 39;
+
     const handlePrevChapter = () => {
-        if (chapterNumber > 1 && onNavigate) {
+        if (!onNavigate) return;
+
+        const maxChapters = isNoli ? NOLI_CHAPTERS : FILI_CHAPTERS;
+
+        if (chapterNumber <= 1) {
+            // Loop to last chapter
+            onNavigate(book, maxChapters);
+        } else {
             onNavigate(book, chapterNumber - 1);
         }
     };
 
     const handleNextChapter = () => {
-        if (onNavigate) {
+        if (!onNavigate) return;
+
+        const maxChapters = isNoli ? NOLI_CHAPTERS : FILI_CHAPTERS;
+
+        if (chapterNumber >= maxChapters) {
+            // Loop to first chapter
+            onNavigate(book, 1);
+        } else {
             onNavigate(book, chapterNumber + 1);
         }
     };
@@ -310,8 +328,7 @@ export function ChapterModal({
                         <div className="flex items-center justify-between p-4 border-t border-brand-gold/20 bg-brand-cream">
                             <button
                                 onClick={handlePrevChapter}
-                                disabled={chapterNumber <= 1}
-                                className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/50 text-brand-text hover:bg-brand-gold/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/50 text-brand-text hover:bg-brand-gold/20 transition-all"
                             >
                                 <ChevronLeft size={18} />
                                 <span className="text-sm font-medium">Previous</span>
