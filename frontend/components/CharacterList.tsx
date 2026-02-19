@@ -49,7 +49,8 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
             }
             const searchTerm = searchTerms.join(",");
 
-            const res = await fetch(`http://localhost:8000/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
             if (!res.ok) throw new Error("Failed to fetch chapters");
             const data = await res.json();
             setChapterAppearances(data);
@@ -253,9 +254,9 @@ function CharacterCard({ char, onClick, onAvatarClick, index, columns = 4 }: { c
                     }
                 })
             }}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             transition={{ duration: 0.2 }}
-            className="bg-brand-paper p-6 rounded-sm border border-brand-gold/20 hover:border-brand-navy/30 cursor-pointer group flex flex-col items-center text-center transition-colors"
+            className="bg-brand-paper p-6 rounded-sm border border-brand-gold/10 hover:border-brand-gold/40 cursor-pointer group flex flex-col items-center text-center transition-all duration-300"
         >
             {/* Avatar wrapper to handle click separately */}
             <div onClick={onAvatarClick} className="relative z-10 transition-transform duration-300 hover:scale-110 hover:shadow-lg rounded-full mb-4">
@@ -267,14 +268,14 @@ function CharacterCard({ char, onClick, onAvatarClick, index, columns = 4 }: { c
             </div>
 
             <h3 className="text-xl font-serif text-brand-navy font-bold">{char.name}</h3>
-            <span className="text-xs uppercase tracking-widest text-brand-gold mt-1 mb-3">{char.role}</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-brand-gold font-bold mt-1 mb-3">{char.role}</span>
             <p className="text-sm text-brand-text-light font-body line-clamp-3 leading-relaxed">
                 {char.description}
             </p>
 
-            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-navy/60 group-hover:text-brand-navy transition-colors">
+            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-navy/40 group-hover:text-brand-gold transition-colors uppercase tracking-widest">
                 <BookOpen size={12} />
-                <span>View Chapters</span>
+                <span>Mga Kabanata</span>
             </div>
         </motion.div >
     );

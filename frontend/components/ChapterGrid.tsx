@@ -31,7 +31,7 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     useEffect(() => {
         async function fetchChapters() {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const res = await fetch(`${apiUrl}/api/v1/chapters`);
                 if (!res.ok) throw new Error("Failed to fetch");
                 const data = await res.json();
@@ -70,7 +70,7 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     const items = getFilteredChapters();
 
     if (loading) {
-        return <div className="text-center py-20 text-brand-gold font-serif animate-pulse">Loading Chronicles...</div>;
+        return <div className="text-center py-20 text-brand-gold font-serif animate-pulse">Nagkakargang mga Tala...</div>;
     }
 
     const COLS = 4; // matches lg:grid-cols-4
@@ -105,18 +105,17 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut", delay: colIndex * 0.1 }}
-            whileHover={{ y: -8 }}
+            whileHover={{ y: -8, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             className={cn(
                 "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",
-                "bg-brand-paper shadow-sm hover:shadow-xl transition-all duration-300",
-                "border border-transparent",
-                isNoli ? "hover:border-noli-accent/20" : "hover:border-fili-accent/20"
+                "bg-brand-paper shadow-sm transition-all duration-300",
+                "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm"
             )}
         >
             {/* Decorative Background Number */}
             <span className={cn(
                 "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
-                isNoli ? "text-noli-accent" : "text-fili-accent"
+                "text-brand-navy"
             )}>
                 {chapter.chapter_number}
             </span>
@@ -135,7 +134,7 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                 </span>
                 <h3 className="text-2xl font-serif text-brand-navy mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight">
-                    Chapter {chapter.chapter_number}
+                    Kabanata {chapter.chapter_number}
                 </h3>
                 <p className="text-sm font-serif text-brand-text/60 mt-2 italic line-clamp-2">
                     {chapter.chapter_title}
@@ -143,7 +142,7 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
             </div>
 
             <div className="flex items-center text-xs font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300">
-                <span className="mr-2">READ CHAPTER</span>
+                <span className="mr-2">BASAHIN ANG KABANATA</span>
                 <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

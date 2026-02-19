@@ -39,7 +39,8 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
     useEffect(() => {
         async function fetchThemes() {
             try {
-                const res = await fetch("http://localhost:8000/api/v1/themes");
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                const res = await fetch(`${baseUrl}/api/v1/themes`);
                 if (!res.ok) throw new Error("Failed to fetch");
                 const data = await res.json();
                 setThemes(data);
@@ -151,6 +152,7 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
                     meaning={selectedTheme.meaning}
                     themeContext={selectedTheme.best_match || undefined}
                     isLoading={false} // Data is already loaded
+                    selectedNovel={selectedNovel} // Pass the prop
                     onNavigate={(book, chapter, sentenceIndex) => {
                         console.log('Theme context clicked:', book, chapter, sentenceIndex);
                         handleClose();
@@ -174,7 +176,7 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             }}
             whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             onClick={onClick}
-            className="bg-brand-paper p-8 rounded-sm relative overflow-hidden group border border-transparent hover:border-brand-gold/20 transition-all duration-300 cursor-pointer"
+            className="bg-brand-paper p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
         >
             {/* Background Icon */}
             <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
@@ -184,12 +186,10 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             <div className="relative z-10">
                 <div className="flex items-center space-x-2 mb-4">
                     <span className={cn(
-                        "text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-sm bg-opacity-5", // Reduced opacity
-                        isNoli
-                            ? "bg-brand-navy text-brand-navy"
-                            : "bg-brand-gold text-brand-gold"
+                        "text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-sm",
+                        "bg-brand-gold/10 text-brand-gold"
                     )}>
-                        Theme
+                        Paksa
                     </span>
                 </div>
 
@@ -197,14 +197,14 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
                     {theme.tagalog_title}
                 </h3>
 
-                <div className="w-12 h-1 bg-brand-gold/30 mb-4 group-hover:w-full transition-all duration-500 ease-out" />
+                <div className="w-12 h-0.5 bg-brand-gold/30 mb-4 group-hover:w-full transition-all duration-500 ease-out" />
 
                 <p className="text-brand-text-light font-body leading-relaxed text-sm line-clamp-3">
                     {theme.meaning}
                 </p>
 
-                <div className="mt-4 text-xs font-bold text-brand-navy/40 uppercase tracking-widest group-hover:text-brand-navy transition-colors">
-                    Click to view context
+                <div className="mt-4 text-[10px] font-bold text-brand-navy/40 uppercase tracking-[0.2em] group-hover:text-brand-navy transition-colors">
+                    Tingnan ang Konteksto
                 </div>
             </div>
         </motion.div>

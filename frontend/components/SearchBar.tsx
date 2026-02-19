@@ -78,8 +78,8 @@ export function SearchBar({
                         }
                     }}
                     placeholder={placeholder}
-                    className="w-full py-3 pl-4 pr-12 bg-transparent border-b-2 border-brand-gold/50 text-brand-text font-serif text-lg placeholder:text-brand-text-light/50 focus:outline-none focus:border-brand-navy transition-colors duration-300"
-                    aria-label="Search Rizal's novels"
+                    className="w-full py-3 bg-transparent border-b-2 border-brand-gold/20 text-brand-text font-serif text-xl placeholder:text-brand-text-light/30 focus:outline-none focus:border-brand-gold transition-all duration-500"
+                    aria-label="Manaliksik sa mga nobela ni Rizal"
                 />
 
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-2">
@@ -93,9 +93,9 @@ export function SearchBar({
                     )}
 
                     {isLoading ? (
-                        <Loader2 className="animate-spin text-brand-gold" size={20} />
+                        <Loader2 className="animate-spin text-brand-gold" size={24} />
                     ) : (
-                        <Search className="text-brand-gold group-focus-within:text-brand-navy transition-colors duration-300" size={20} />
+                        <Search className="text-brand-gold/50 group-focus-within:text-brand-gold transition-colors duration-500" size={24} />
                     )}
                 </div>
             </div>

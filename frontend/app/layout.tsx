@@ -29,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text`}
+        suppressHydrationWarning
       >
         <Providers>
           {children}

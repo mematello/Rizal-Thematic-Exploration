@@ -43,16 +43,16 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
             <button
                 onClick={toggleOpen}
                 className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 shadow-sm",
-                    "bg-brand-paper hover:bg-white text-brand-navy font-serif font-medium",
-                    "border-brand-gold/30 hover:border-brand-gold"
+                    "flex items-center gap-2 px-4 py-2 rounded-sm border transition-all duration-500 shadow-sm",
+                    "bg-brand-paper hover:bg-white text-brand-navy font-serif font-bold text-xs uppercase tracking-widest",
+                    "border-brand-gold/10 hover:border-brand-gold/30"
                 )}
             >
                 <BookOpen size={16} className="text-brand-gold" />
                 <span>{getLabel(selected)}</span>
                 <ChevronDown
                     size={16}
-                    className={cn("text-brand-navy/60 transition-transform duration-300", isOpen && "rotate-180")}
+                    className={cn("text-brand-navy/30 transition-transform duration-500", isOpen && "rotate-180")}
                 />
             </button>
 
