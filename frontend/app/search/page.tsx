@@ -47,7 +47,7 @@ function SearchContent() {
         setHighlightSentenceIndex(sentenceIndex);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
             const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}`);
             if (!res.ok) throw new Error("Failed to fetch chapter content");
             const data = await res.json();
@@ -66,6 +66,10 @@ function SearchContent() {
             setSelectedChapter(null);
             setChapterContent([]);
         }, 300);
+    };
+
+    const handleNavigate = (book: string, chapter: number) => {
+        handleChapterOpen(book, chapter, 0); // Open new chapter, reset highlight
     };
 
     const results = data?.results;
@@ -239,6 +243,7 @@ function SearchContent() {
                     content={chapterContent}
                     isLoading={loadingContent}
                     highlightSentenceIndex={highlightSentenceIndex}
+                    onNavigate={handleNavigate}
                 />
             )}
         </div>

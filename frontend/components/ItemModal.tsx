@@ -94,16 +94,16 @@ export function ItemModal({
             key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
             onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
             className={`
-                group p-6 rounded-lg border cursor-pointer transition-all hover:shadow-md bg-white
-                ${chapter.book === 'noli' ? 'border-noli-gold/30 hover:border-noli-gold' : 'border-fili-magenta/30 hover:border-fili-magenta'}
+                group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white
+                ${chapter.book === 'noli' ? 'border-noli-accent/10 hover:border-noli-accent' : 'border-fili-accent/10 hover:border-fili-accent'}
             `}
         >
             <div className="flex items-center gap-2 mb-3">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-gold/20 text-noli-gold' : 'bg-fili-magenta/20 text-fili-magenta'}`}>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
                     {chapter.book === 'noli' ? 'Noli' : 'Fili'}
                 </span>
                 <span className="text-xl font-serif font-bold text-brand-navy">
-                    Chapter {chapter.chapter_number}
+                    Kabanata {chapter.chapter_number}
                 </span>
             </div>
 
@@ -112,7 +112,7 @@ export function ItemModal({
             </p>
 
             {chapter.preview_text && (
-                <p className="text-xs text-brand-text/60 italic line-clamp-4 border-t border-gray-100 pt-3 mt-2 leading-relaxed h-[5.5em]">
+                <p className="text-xs text-brand-text/60 italic line-clamp-4 border-t border-brand-gold/5 pt-3 mt-2 leading-relaxed h-[5.5em]">
                     "{chapter.preview_text}"
                 </p>
             )}
@@ -162,10 +162,10 @@ export function ItemModal({
                                 )}
 
                                 <div className="min-w-0">
-                                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
-                                        {type === "character" ? "Character Profile" : "Thematic Insight"}
+                                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
+                                        {type === "character" ? "Profil ng Tauhan" : "Thematikong Insight"}
                                     </span>
-                                    <h2 className="text-2xl md:text-4xl font-serif text-brand-navy font-bold truncate">
+                                    <h2 className="text-2xl md:text-4xl font-serif text-brand-navy font-bold truncate tracking-tight">
                                         {title}
                                     </h2>
                                     {subtitle && (
@@ -177,26 +177,27 @@ export function ItemModal({
                             <div className="flex items-center gap-4 shrink-0">
                                 {/* Static Novel Label */}
                                 <div className={`
-                                    px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                                    px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.15em]
                                     flex items-center gap-2 border shadow-sm whitespace-nowrap
-                                    ${selectedNovel === 'noli' ? 'bg-noli-gold/10 text-noli-gold border-noli-gold/20' :
-                                        selectedNovel === 'fili' ? 'bg-fili-magenta/10 text-fili-magenta border-fili-magenta/20' :
+                                    ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent border-noli-accent/20' :
+                                        selectedNovel === 'fili' ? 'bg-fili-accent/10 text-fili-accent border-fili-accent/20' :
                                             'bg-brand-navy/5 text-brand-navy border-brand-navy/10'}
                                 `}>
-                                    Currently Viewing: {getNovelLabel(selectedNovel)}
+                                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                                    {getNovelLabel(selectedNovel)}
                                 </div>
 
                                 {type === "character" && onSort && (
                                     <button
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
-                                            px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap
+                                            px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border
                                             ${sortBy === 'relevance'
-                                                ? 'bg-brand-gold text-white shadow-md'
-                                                : 'bg-white text-brand-text border border-brand-gold/20 hover:border-brand-gold'}
+                                                ? 'bg-brand-gold text-white border-brand-gold'
+                                                : 'bg-white text-brand-text border-brand-gold/20 hover:border-brand-gold'}
                                         `}
                                     >
-                                        {sortBy === 'relevance' ? 'Ranked' : 'Rank It'}
+                                        {sortBy === 'relevance' ? 'NAKA-RANK' : 'I-RANK'}
                                     </button>
                                 )}
                                 <button

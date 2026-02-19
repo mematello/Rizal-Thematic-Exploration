@@ -11,6 +11,7 @@ import { CharacterList } from "@/components/CharacterList";
 import { ThemeList } from "@/components/ThemeList";
 import { ChapterModal } from "@/components/ChapterModal";
 import { motion, AnimatePresence } from "framer-motion";
+import { HeroSection } from "@/components/HeroSection";
 
 type Novel = "noli" | "fili" | "both";
 type Tab = "chapters" | "characters" | "themes";
@@ -60,7 +61,8 @@ export default function Home() {
     console.log('handleChapterSelect - sentenceIndex:', sentenceIndex);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/chapters/${book}/${chapter}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}`);
       if (!res.ok) throw new Error("Failed to fetch chapter content");
       const data = await res.json();
       setChapterContent(data);
@@ -91,39 +93,42 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-cream pb-20">
+    <main className="min-h-screen bg-brand-cream pb-20 transition-colors duration-500 ease-in-out" data-novel={novel}>
       {/* Header Section */}
-      <header className="sticky top-0 z-40 bg-brand-cream/98 backdrop-blur-sm border-b border-brand-gold/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 py-4 relative">
-          <div className="flex justify-center items-center relative mb-4">
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-xl md:text-2xl font-serif text-center text-brand-navy/70 tracking-wide font-light"
-            >
-              Rizal Thematic Exploration
-            </motion.h1>
+      <header className="sticky top-0 z-40 bg-brand-cream/98 backdrop-blur-md border-b border-brand-gold/10 shadow-sm transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 py-3 relative">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Minimal Title/Logo for Sticky Header */}
+            <div className="flex items-center justify-between flex-1">
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-lg font-serif font-black text-brand-gold tracking-tighter"
+              >
+                RIZAL<span className="text-brand-navy font-light ml-1">EXPLORER</span>
+              </motion.h1>
 
-            {/* Absolute positioning for desktop, might overlap on very small screens so we can adjust if needed */}
-            <div className="absolute right-0 top-0 hidden md:block">
+              <div className="block md:hidden">
+                <NovelToggle selected={novel} onSelect={setNovel} />
+              </div>
+            </div>
+
+            <div className="flex-1 max-w-2xl mx-auto w-full">
+              <SearchBar
+                onSearch={handleSearch}
+                variant="hero"
+                placeholder={`Magsaliksik sa ${novel === 'both' ? 'dalawang nobela' : novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
+              />
+            </div>
+
+            <div className="hidden md:block">
               <NovelToggle selected={novel} onSelect={setNovel} />
             </div>
           </div>
-
-          {/* Mobile view for Novel Toggle - centered below title if screen is small */}
-          <div className="block md:hidden mb-4 flex justify-center">
-            <NovelToggle selected={novel} onSelect={setNovel} />
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            <SearchBar
-              onSearch={handleSearch}
-              variant="hero"
-              placeholder={`Search within ${novel === 'both' ? 'both novels' : novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
-            />
-          </div>
         </div>
       </header>
+
+      <HeroSection />
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 mt-8">
