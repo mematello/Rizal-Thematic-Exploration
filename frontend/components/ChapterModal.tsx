@@ -79,6 +79,57 @@ export function ChapterModal({
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const bottomSentinelRef = useRef<HTMLDivElement>(null);
     const topSentinelRef = useRef<HTMLDivElement>(null);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+    // State for tracking active chapter in fullscreen
+    const [activeChapterInView, setActiveChapterInView] = useState<number>(chapterNumber);
+    const initialFullscreenRef = useRef(false);
+
+    // Sync active chapter with prop when NOT in fullscreen (background sync)
+    useEffect(() => {
+        if (!isFullscreen) {
+            setActiveChapterInView(chapterNumber);
+        }
+    }, [chapterNumber, isFullscreen]);
+
+    // Precise Scroll Spy Logic for Fullscreen
+    useEffect(() => {
+        if (!isFullscreen || loadedChapters.length === 0) return;
+
+        const observers: IntersectionObserver[] = [];
+
+        loadedChapters.forEach((chap) => {
+            const element = document.getElementById(`chapter-view-${chap.chapterNumber}`);
+            if (element) {
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            // Update only if the element is intersecting the "spy zone"
+                            // Spy zone: Top 40% of the viewport (0px to -60%)
+                            if (entry.isIntersecting) {
+                                setActiveChapterInView(chap.chapterNumber);
+                            }
+                        });
+                    },
+                    {
+                        // Threshold 0 means "as soon as one pixel is visible"
+                        // RootMargin creates a "line" or "zone" effectively
+                        // "-10% 0px -60% 0px" means:
+                        // Top margin: -10% (triggers when element is near top)
+                        // Bottom margin: -60% (ignores bottom part of screen)
+                        rootMargin: "-10% 0px -60% 0px",
+                        threshold: 0
+                    }
+                );
+                observer.observe(element);
+                observers.push(observer);
+            }
+        });
+
+        return () => {
+            observers.forEach(obs => obs.disconnect());
+        };
+    }, [isFullscreen, loadedChapters]);
 
     // Fetch metadata once
     useEffect(() => {
@@ -113,6 +164,14 @@ export function ChapterModal({
                 content: content || [],
                 isLoading: false
             }]);
+
+            // Allow time for render, then scroll to the chapter to hide top sentinel
+            setTimeout(() => {
+                const element = document.getElementById(`chapter-view-${chapterNumber}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'auto', block: 'start' });
+                }
+            }, 100);
         }
     }, [isFullscreen, chapterNumber, title, content]);
 
@@ -238,17 +297,39 @@ export function ChapterModal({
         if (prevNum < 1) return;
 
         setIsLoadingMore(true);
+
+        // 1. Capture current scroll state
+        const container = scrollAreaRef.current;
+        const prevScrollHeight = container?.scrollHeight || 0;
+        const prevScrollTop = container?.scrollTop || 0;
+
         const content = await fetchSpecificChapter(prevNum);
+
         setLoadedChapters(prev => [{
             chapterNumber: prevNum,
             title: chapterMetadata[prevNum] || `Kabanata ${prevNum}`,
             content,
             isLoading: false
         }, ...prev]);
-        setIsLoadingMore(false);
+
+        // 2. Adjust scroll position after render to anchor the view
+        // Using requestAnimationFrame to ensure the DOM has updated with new chapters
+        requestAnimationFrame(() => {
+            if (container) {
+                const newScrollHeight = container.scrollHeight;
+                const heightDiff = newScrollHeight - prevScrollHeight;
+                // Add the height of the new content to the scroll position to keep the current view stabilized
+                container.scrollTop = prevScrollTop + heightDiff;
+
+                // Delay clearing the loading state to ensure sentinel isn't triggered immediately
+                setTimeout(() => setIsLoadingMore(false), 200);
+            } else {
+                setIsLoadingMore(false);
+            }
+        });
     };
 
-    // Intersection Observer for infinite scroll
+    // Intersection Observer for infinite scroll (Top/Bottom)
     useEffect(() => {
         if (!isFullscreen) return;
 
@@ -258,22 +339,29 @@ export function ChapterModal({
             }
         }, { threshold: 0.1 });
 
-        const topObserver = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadPrevChapter();
+        // Delay top observer to prevent immediate "prev" loading on init
+        let topObserver: IntersectionObserver | null = null;
+
+        const timer = setTimeout(() => {
+            topObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    loadPrevChapter();
+                }
+            }, { threshold: 0.1 });
+
+            if (topSentinelRef.current) {
+                topObserver.observe(topSentinelRef.current);
             }
-        }, { threshold: 0.1 });
+        }, 1000); // 1-second delay before enabling "previous" loading
 
         if (bottomSentinelRef.current) {
             bottomObserver.observe(bottomSentinelRef.current);
         }
-        if (topSentinelRef.current) {
-            topObserver.observe(topSentinelRef.current);
-        }
 
         return () => {
             bottomObserver.disconnect();
-            topObserver.disconnect();
+            if (topObserver) topObserver.disconnect();
+            clearTimeout(timer);
         };
     }, [isFullscreen, loadedChapters, isLoadingMore]);
 
@@ -372,6 +460,9 @@ export function ChapterModal({
 
     const selectedSentence = content.find(s => s.sentence_index === selectedSentenceForTheme);
 
+    // Get metadata for the active chapter
+    const activeChapterTitle = chapterMetadata[activeChapterInView] || title;
+
     return (
         <>
             <AnimatePresence>
@@ -393,200 +484,257 @@ export function ChapterModal({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className={`relative ${isFullscreen ? 'w-full h-full' : 'w-full max-w-4xl max-h-[90vh]'} flex flex-col bg-brand-paper shadow-2xl ${isFullscreen ? 'rounded-none' : 'rounded-lg'} overflow-hidden`}
+                            className={`relative ${isFullscreen ? 'w-full h-full bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[90vh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}
                         >
-                            {/* Header */}
-                            <div className={`flex items-start justify-between p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream`}>
-                                <div className="flex-1">
-                                    <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>
-                                        {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
-                                    </span>
-                                    <h2 className="text-xl md:text-2xl font-serif text-brand-navy mt-1 font-bold">
-                                        Kabanata {chapterNumber}
-                                    </h2>
-                                    <p className="text-brand-text/70 font-serif italic mt-1 text-sm">
-                                        {title}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setIsFullscreen(!isFullscreen)}
-                                        className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
-                                        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                                    >
-                                        {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                                    </button>
-                                    <button
-                                        onClick={onClose}
-                                        className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
-                                    >
-                                        <X size={24} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 p-4 bg-brand-cream/50 border-b border-brand-gold/10 overflow-x-auto no-scrollbar">
-                                <button
-                                    onClick={() => setShowCharacters(!showCharacters)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                >
-                                    <Users size={16} />
-                                    <span className="text-sm font-bold uppercase tracking-widest">Tauhan</span>
-                                </button>
-                                <button
-                                    onClick={() => setShowThemes(!showThemes)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showThemes ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                >
-                                    <BookOpen size={16} />
-                                    <span className="text-sm font-bold uppercase tracking-widest">Paksa</span>
-                                </button>
-                                <button
-                                    onClick={() => setShowReference(!showReference)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                >
-                                    <BookOpen size={16} />
-                                    <span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span>
-                                </button>
-                            </div>
-
-                            {/* Content */}
-                            <div className={`flex-1 overflow-y-auto bg-brand-paper scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent ${isFullscreen ? 'p-0' : 'p-6 md:p-14'}`}>
-                                {isLoading && !isFullscreen ? (
-                                    <div className="space-y-4 animate-pulse p-6 md:p-14">
-                                        {[...Array(8)].map((_, i) => (
-                                            <div key={i} className="h-4 bg-brand-gold/10 rounded w-full last:w-3/4" />
-                                        ))}
+                            {/* Standard Header (Non-Fullscreen) */}
+                            {!isFullscreen && (
+                                <div className={`flex items-start justify-between p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream`}>
+                                    <div className="flex-1">
+                                        <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>
+                                            {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                        </span>
+                                        <h2 className="text-xl md:text-2xl font-serif text-brand-navy mt-1 font-bold">
+                                            Kabanata {chapterNumber}
+                                        </h2>
+                                        <p className="text-brand-text/70 font-serif italic mt-1 text-sm">
+                                            {title}
+                                        </p>
                                     </div>
-                                ) : (
-                                    <div className={`${isFullscreen ? 'max-w-4xl mx-auto px-6 py-20' : 'max-w-3xl mx-auto'}`}>
-                                        {/* Top Sentinel for Intersection Observer */}
-                                        {isFullscreen && (
-                                            <div ref={topSentinelRef} className="h-20 flex items-center justify-center">
-                                                {isLoadingMore && (
-                                                    <div className="animate-pulse text-brand-gold font-serif italic text-lg">
-                                                        Kinakarga ang nakaraang kabanata...
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => setIsFullscreen(!isFullscreen)}
+                                            className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                            title="Enter fullscreen"
+                                        >
+                                            <Maximize2 size={20} />
+                                        </button>
+                                        <button
+                                            onClick={onClose}
+                                            className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                        >
+                                            <X size={24} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
-                                        {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap, chapIdx) => (
-                                            <motion.div
-                                                key={`${chap.chapterNumber}-${chapIdx}`}
-                                                initial={isFullscreen ? { opacity: 0, y: 30 } : {}}
-                                                animate={isFullscreen ? { opacity: 1, y: 0 } : {}}
-                                                transition={{ duration: 1, ease: "easeOut" }}
-                                                className={isFullscreen ? "mb-32" : ""}
+                            {/* Standard Actions (Non-Fullscreen) */}
+                            {!isFullscreen && (
+                                <div className="flex gap-2 p-4 bg-brand-cream/50 border-b border-brand-gold/10 overflow-x-auto no-scrollbar">
+                                    <button
+                                        onClick={() => setShowCharacters(!showCharacters)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                    >
+                                        <Users size={16} />
+                                        <span className="text-sm font-bold uppercase tracking-widest">Tauhan</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setShowThemes(!showThemes)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showThemes ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                    >
+                                        <BookOpen size={16} />
+                                        <span className="text-sm font-bold uppercase tracking-widest">Paksa</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setShowReference(!showReference)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                    >
+                                        <BookOpen size={16} />
+                                        <span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span>
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Fullscreen Layout Container */}
+                            <div className={`flex w-full min-h-0 flex-1 ${isFullscreen ? 'flex-row' : 'flex-col'}`}>
+
+                                {/* Fullscreen Sidebar / Info Panel */}
+                                {isFullscreen && (
+                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 bg-[#F5F2EB]/50 p-12 relative">
+                                        {/* Close/Minimize Controls */}
+                                        <div className="absolute top-6 left-6 flex gap-2">
+                                            <button
+                                                onClick={() => setIsFullscreen(false)}
+                                                className="p-2 hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors"
+                                                title="Exit fullscreen"
                                             >
-                                                {/* Fullscreen Header (Title Page Style) */}
-                                                {isFullscreen && (
-                                                    <div className="flex flex-col items-center text-center mb-16 pt-10 border-b border-brand-gold/5 pb-16">
-                                                        <span className={`text-xs font-bold tracking-[0.4em] uppercase mb-6 ${accentColor}`}>
-                                                            {book === "noli" ? "Noli Me Tangere" : "El Filibusterismo"}
-                                                        </span>
-                                                        <h1 className="text-5xl md:text-7xl font-serif text-brand-navy font-black mb-6">
-                                                            Kabanata {chap.chapterNumber}
-                                                        </h1>
-                                                        <p className="text-2xl md:text-3xl font-serif italic text-brand-text/60 max-w-2xl leading-relaxed">
-                                                            {chap.title}
-                                                        </p>
-                                                        <div className="w-24 h-px bg-brand-gold/30 mt-12" />
-                                                    </div>
-                                                )}
+                                                <Minimize2 size={20} />
+                                            </button>
+                                            <button
+                                                onClick={onClose}
+                                                className="p-2 hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors"
+                                                title="Close"
+                                            >
+                                                <X size={20} />
+                                            </button>
+                                        </div>
 
-                                                <div className="font-serif text-brand-text leading-[2.2] text-justify space-y-8">
-                                                    {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
-                                                        // Simple paragraph grouping logic (every 5-7 sentences or based on content)
-                                                        // For now, let's keep it as is but style it as a block
-                                                        if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) {
-                                                            paragraphs.push([sentence]);
-                                                        } else {
-                                                            paragraphs[paragraphs.length - 1].push(sentence);
-                                                        }
-                                                        return paragraphs;
-                                                    }, []).map((para, paraIdx) => (
-                                                        <p key={paraIdx} className="text-lg md:text-2xl first-letter:text-4xl first-letter:font-serif first-letter:mr-1 first-letter:float-left first-letter:leading-none indent-8">
-                                                            {para.map((sentence) => {
-                                                                const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
-                                                                const themes = sentence.themes || [];
-                                                                const themeCount = themes.length;
-
-                                                                return (
-                                                                    <span
-                                                                        key={sentence.sentence_index}
-                                                                        ref={isHighlighted ? highlightRef : null}
-                                                                        className={`
-                                                                        hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline
-                                                                        ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}
-                                                                    `}
-                                                                    >
-                                                                        {showThemes && themeCount > 0 && (
-                                                                            <span
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    setSelectedSentenceForTheme(sentence.sentence_index);
-                                                                                    setThemeFullscreen(true);
-                                                                                }}
-                                                                                className={`
-                                                                                inline-flex items-center justify-center 
-                                                                                w-[14px] h-[14px] rounded-full shadow-sm
-                                                                                cursor-pointer transition-transform mr-1 flex-shrink-0
-                                                                                ${themeCount === 1
-                                                                                        ? 'bg-brand-gold hover:bg-brand-gold/80'
-                                                                                        : 'bg-brand-navy hover:bg-brand-navy/80'}
-                                                                                text-white text-[8px] font-sans font-bold select-none leading-none z-10 p-0 indent-0
-                                                                                transform -translate-y-[8px] align-middle
-                                                                            `}
-                                                                                title={`${themeCount} paksa sa pangungusap na ito`}
-                                                                            >
-                                                                                {themeCount}
-                                                                            </span>
-                                                                        )}
-
-                                                                        {highlightText(sentence.sentence_text)}
-
-                                                                        {showReference && (
-                                                                            <sup className="text-brand-gold cursor-help ml-0.5 font-bold text-xs">
-                                                                                [0]
-                                                                            </sup>
-                                                                        )}
-                                                                        {" "}
-                                                                    </span>
-                                                                );
-                                                            })}
-                                                        </p>
-                                                    ))}
-                                                </div>
-
-                                                {/* Soft Divider between chapters in fullscreen */}
-                                                {isFullscreen && chapIdx < loadedChapters.length - 1 && (
-                                                    <div className="flex items-center justify-center py-24">
-                                                        <div className="flex gap-4">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-brand-gold/20" />
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-brand-gold/40" />
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-brand-gold/20" />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </motion.div>
-                                        ))}
-
-                                        {/* Bottom Sentinel for Intersection Observer */}
-                                        {isFullscreen && (
-                                            <div ref={bottomSentinelRef} className="h-20 flex items-center justify-center">
-                                                {isLoadingMore && (
-                                                    <div className="animate-pulse text-brand-gold font-serif italic text-lg">
-                                                        Dinatlo ang susunod na kabanata...
-                                                    </div>
-                                                )}
+                                        <div className="flex flex-col space-y-8">
+                                            <div>
+                                                <span className={`text-xs font-bold tracking-[0.3em] uppercase ${accentColor} block mb-4`}>
+                                                    {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                                </span>
+                                                <h1 className="text-4xl font-serif text-brand-navy font-black leading-tight">
+                                                    Kabanata {activeChapterInView}
+                                                </h1>
+                                                <div className="w-12 h-1 bg-brand-gold/30 my-6" />
+                                                <p className="text-xl font-serif italic text-brand-text/70 leading-relaxed">
+                                                    {activeChapterTitle}
+                                                </p>
                                             </div>
-                                        )}
+
+                                            {/* Menu Links */}
+                                            <div className="space-y-4 pt-4 border-t border-brand-gold/10">
+                                                <button
+                                                    onClick={() => setShowCharacters(!showCharacters)}
+                                                    className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showCharacters ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}
+                                                >
+                                                    Tauhan
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowThemes(!showThemes)}
+                                                    className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showThemes ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}
+                                                >
+                                                    Paksa
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowReference(!showReference)}
+                                                    className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showReference ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}
+                                                >
+                                                    Sanggunian
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
+
+                                {/* Main Content Scroll Area */}
+                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative ${isFullscreen ? '' : 'p-6 md:p-14'}`}>
+                                    {/* Mobile/Tablet Fullscreen Header Overlay (since sidebar hidden) */}
+                                    {isFullscreen && (
+                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 backdrop-blur border-b border-brand-gold/10 p-4 flex justify-between items-center">
+                                            <div>
+                                                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50">
+                                                    Kabanata {activeChapterInView}
+                                                </span>
+                                                <div className="text-sm font-serif font-bold text-brand-navy truncate max-w-[200px]">
+                                                    {activeChapterTitle}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => setIsFullscreen(false)} className="p-2"><Minimize2 size={18} /></button>
+                                                <button onClick={onClose} className="p-2"><X size={18} /></button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {isLoading && !isFullscreen ? (
+                                        <div className="space-y-4 animate-pulse p-6 md:p-14">
+                                            {[...Array(8)].map((_, i) => (
+                                                <div key={i} className="h-4 bg-brand-gold/10 rounded w-full last:w-3/4" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className={`${isFullscreen ? 'max-w-3xl mx-auto px-8 py-20' : 'max-w-3xl mx-auto'}`}>
+                                            {/* Top Sentinel */}
+                                            {isFullscreen && (
+                                                <div ref={topSentinelRef} className="h-40 flex items-center justify-center">
+                                                    {isLoadingMore && <div className="animate-pulse text-brand-gold font-serif italic text-sm">Kinakarga ang nakaraang kabanata...</div>}
+                                                </div>
+                                            )}
+
+                                            {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
+                                                <motion.div
+                                                    key={`${chap.chapterNumber}`}
+                                                    id={`chapter-view-${chap.chapterNumber}`} // ID for scroll spy
+                                                    className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}
+                                                >
+                                                    {/* Fullscreen Chapter Title (Keep as Separator) */}
+                                                    {isFullscreen && (
+                                                        <div className="mb-12 text-center opacity-80">
+                                                            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 block mb-2">Kabanata {chap.chapterNumber}</span>
+                                                            <h2 className="text-3xl font-serif font-bold text-brand-navy">{chap.title}</h2>
+                                                            <div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" />
+                                                        </div>
+                                                    )}
+
+                                                    <div className="font-serif text-brand-text leading-[2.2] text-justify space-y-8 text-lg md:text-xl">
+                                                        {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
+                                                            if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) {
+                                                                paragraphs.push([sentence]);
+                                                            } else {
+                                                                paragraphs[paragraphs.length - 1].push(sentence);
+                                                            }
+                                                            return paragraphs;
+                                                        }, []).map((para, paraIdx) => (
+                                                            <p key={paraIdx} className="first-letter:text-3xl first-letter:font-serif first-letter:mr-1 first-letter:float-left first-letter:leading-none indent-8">
+                                                                {para.map((sentence) => {
+                                                                    const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
+                                                                    const themes = sentence.themes || [];
+                                                                    const themeCount = themes.length;
+
+                                                                    return (
+                                                                        <span
+                                                                            key={sentence.sentence_index}
+                                                                            ref={isHighlighted ? highlightRef : null}
+                                                                            className={`
+                                                                            hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline
+                                                                            ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}
+                                                                        `}
+                                                                        >
+
+                                                                            {highlightText(sentence.sentence_text)}
+
+                                                                            {showThemes && themeCount > 0 && (
+                                                                                <span
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        setSelectedSentenceForTheme(sentence.sentence_index);
+                                                                                        setThemeFullscreen(true);
+                                                                                    }}
+                                                                                    className={`
+                                                                                    inline-flex items-center justify-center 
+                                                                                    w-[14px] h-[14px] rounded-full shadow-sm
+                                                                                    cursor-pointer transition-transform ml-1 flex-shrink-0
+                                                                                    ${themeCount === 1
+                                                                                            ? 'bg-brand-gold hover:bg-brand-gold/80'
+                                                                                            : 'bg-brand-navy hover:bg-brand-navy/80'}
+                                                                                    text-white text-[8px] font-sans font-bold select-none leading-none z-10 p-0 indent-0
+                                                                                    transform -translate-y-[6px] align-middle
+                                                                                `}
+                                                                                    title={`${themeCount} paksa sa pangungusap na ito`}
+                                                                                >
+                                                                                    {themeCount}
+                                                                                </span>
+                                                                            )}
+
+                                                                            {showReference && (
+                                                                                <sup className="text-brand-gold cursor-help ml-0.5 font-bold text-xs">
+                                                                                    [0]
+                                                                                </sup>
+                                                                            )}
+                                                                            {" "}
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+
+                                            {/* Bottom Sentinel */}
+                                            {isFullscreen && (
+                                                <div ref={bottomSentinelRef} className="h-40 flex items-center justify-center">
+                                                    {isLoadingMore && <div className="animate-pulse text-brand-gold font-serif italic text-sm">Dinatlo ang susunod na kabanata...</div>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Navigation Footer */}
+                            {/* Navigation Footer (Non-Fullscreen) */}
                             {!isFullscreen && (
                                 <div className="flex items-center justify-between p-4 border-t border-brand-gold/10 bg-brand-cream">
                                     <button
