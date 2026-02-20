@@ -93,9 +93,18 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-cream pb-20 transition-colors duration-500 ease-in-out" data-novel={novel}>
+    <main
+      className={`min-h-screen pb-20 transition-colors duration-700 ease-in-out ${novel === 'fili' ? 'bg-[#F2F0ED]' : 'bg-brand-cream' // Slightly darker stone/warm grey for Fili
+        }`}
+      data-novel={novel}
+    >
       {/* Header Section */}
-      <header className="sticky top-0 z-40 bg-brand-cream/98 backdrop-blur-md border-b border-brand-gold/10 shadow-sm transition-all duration-300">
+      <header
+        className={`sticky top-0 z-40 backdrop-blur-md border-b shadow-sm transition-all duration-500 ${novel === 'fili'
+          ? 'bg-[#F2F0ED]/95 border-brand-navy/5'
+          : 'bg-brand-cream/98 border-brand-gold/10'
+          }`}
+      >
         <div className="max-w-7xl mx-auto px-4 py-3 relative">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             {/* Minimal Title/Logo for Sticky Header */}
@@ -128,7 +137,7 @@ export default function Home() {
         </div>
       </header>
 
-      <HeroSection />
+      <HeroSection novel={novel} />
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 mt-8">
