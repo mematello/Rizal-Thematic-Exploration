@@ -100,9 +100,9 @@ export default function Home() {
     >
       {/* Header Section */}
       <header
-        className={`sticky top-0 z-40 backdrop-blur-md border-b shadow-sm transition-all duration-500 ${novel === 'fili'
-          ? 'bg-[#F2F0ED]/95 border-brand-navy/5'
-          : 'bg-brand-cream/98 border-brand-gold/10'
+        className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-500 ${novel === 'fili'
+          ? 'bg-[#EAE3D5]/85 border-brand-navy/10'
+          : 'bg-[#F5F1E9]/85 border-brand-gold/20'
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3 relative">
@@ -114,7 +114,7 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 className="text-lg font-serif font-black text-brand-gold tracking-tighter"
               >
-                RIZAL<span className="text-brand-navy font-light ml-1">EXPLORER</span>
+                RIZAL<span className="text-brand-navy font-bold ml-1">EXPLORER</span>
               </motion.h1>
 
               <div className="block md:hidden">

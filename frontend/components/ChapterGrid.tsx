@@ -105,10 +105,10 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut", delay: colIndex * 0.1 }}
-            whileHover={{ y: -8, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
+            whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)" }}
             className={cn(
                 "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",
-                "bg-brand-paper shadow-sm transition-all duration-300",
+                "bg-white/70 backdrop-blur-md shadow-sm transition-all duration-500",
                 "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm"
             )}
         >
