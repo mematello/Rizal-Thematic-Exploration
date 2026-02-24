@@ -101,7 +101,7 @@ export function SearchBar({
             </div>
 
             {isOpen && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-brand-paper rounded-sm shadow-lg border border-brand-gold/20 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white/80 backdrop-blur-xl rounded-sm shadow-lg border border-brand-gold/20 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
                     {suggestions.map((item, idx) => (
                         <button
                             key={idx}

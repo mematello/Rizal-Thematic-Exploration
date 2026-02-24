@@ -43,8 +43,8 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
             <button
                 onClick={toggleOpen}
                 className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-sm border transition-all duration-500 shadow-sm",
-                    "bg-brand-paper hover:bg-white text-brand-navy font-serif font-bold text-xs uppercase tracking-widest",
+                    "flex items-center gap-2 px-4 py-2 rounded-sm border transition-all duration-500 shadow-sm backdrop-blur-md",
+                    "bg-white/60 hover:bg-white/90 text-brand-navy font-serif font-bold text-xs uppercase tracking-widest",
                     "border-brand-gold/10 hover:border-brand-gold/30"
                 )}
             >

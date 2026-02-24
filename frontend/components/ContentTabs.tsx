@@ -27,7 +27,7 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
                         "relative text-lg font-serif tracking-[0.05em] transition-all duration-500 pb-2 uppercase text-xs font-bold",
                         activeTab === tab.id
                             ? "text-brand-navy"
-                            : "text-brand-text-light/60 hover:text-brand-navy"
+                            : "text-brand-text/50 hover:text-brand-navy"
                     )}
                 >
                     {tab.label}

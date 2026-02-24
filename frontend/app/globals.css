@@ -19,6 +19,12 @@
 
     --color-noli-accent: var(--theme-noli);
     --color-fili-accent: var(--theme-fili);
+
+    /* Background Images */
+    --image-bg-neutral: url('/images/backgrounds/Textured.jpg');
+    --image-bg-noli: url('/images/backgrounds/download%20(1).jpg');
+    --image-bg-fili: url('/images/backgrounds/download%20(2).jpg');
+    --image-bg-alt: url('/images/backgrounds/download%20(3).jpg');
 }
 
 :root {
@@ -30,35 +36,43 @@
     --transition-speed: 0.5s;
     --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Default (Both) */
-    --theme-bg: #FCFAF7;
+    /* Default (Both) - Unified Rizal Theme */
+    --theme-bg: #F5F1E9;
     --theme-card: #FFFFFF;
     --theme-primary: #1B263B;
     --theme-accent: #C5A065;
+    --theme-accent-hover: #AF8B52;
     --theme-text: #2C2C2C;
     --theme-text-muted: #5A5A5A;
-    --theme-noli: #2E4057;
+    --theme-noli: #C5A065;
     --theme-fili: #8D2D2D;
+
+    /* Utility Colors */
+    --theme-border: rgba(197, 160, 101, 0.2);
+    --theme-overlay: rgba(25, 20, 15, 0.6);
 }
 
 [data-novel="noli"] {
-    --theme-bg: #FCFAF7;
-    /* Warm awakening light */
-    --theme-card: #FAF9F5;
+    --theme-bg: #F7F3EB;
+    /* Airy & Awakening */
+    --theme-card: rgba(255, 255, 255, 0.9);
     --theme-primary: #1B263B;
     --theme-accent: #C5A065;
     --theme-text: #2C2C2C;
     --theme-noli: #C5A065;
+    --theme-border: rgba(197, 160, 101, 0.15);
 }
 
 [data-novel="fili"] {
-    --theme-bg: #F1EFEC;
-    /* Refined dusk */
-    --theme-card: #EAE7E2;
+    --theme-bg: #EAE3D5;
+    /* Moody & Revolutionary */
+    --theme-card: rgba(255, 255, 255, 0.85);
     --theme-primary: #2C1810;
     --theme-accent: #8D2D2D;
+    --theme-accent-hover: #722424;
     --theme-text: #1A1A1A;
     --theme-fili: #8D2D2D;
+    --theme-border: rgba(141, 45, 45, 0.15);
 }
 
 
@@ -84,7 +98,23 @@
         height: 100%;
         pointer-events: none;
         z-index: -1;
-        opacity: 0.4;
+        opacity: 0.15;
+        background-image: var(--image-bg-neutral);
+        background-size: cover;
+        background-position: center;
+        filter: sepia(0.2) contrast(0.9);
+    }
+
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.3;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
         mix-blend-mode: overlay;
     }
