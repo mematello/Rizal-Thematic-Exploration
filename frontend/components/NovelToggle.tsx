@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChevronDown, BookOpen } from "lucide-react";
 
-type Novel = "noli" | "fili" | "both";
+type Novel = "noli" | "fili";
 
 interface NovelToggleProps {
     selected: Novel;
@@ -20,7 +20,6 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
         switch (novel) {
             case "noli": return "Noli Me Tangere";
             case "fili": return "El Filibusterismo";
-            case "both": return "Both Novels";
         }
     };
 
@@ -36,7 +35,7 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const options: Novel[] = ["noli", "fili", "both"];
+    const options: Novel[] = ["noli", "fili"];
 
     return (
         <div className="relative z-50" ref={containerRef}>
