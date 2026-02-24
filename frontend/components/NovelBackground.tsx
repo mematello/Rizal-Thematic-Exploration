@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 interface NovelBackgroundProps {
-    novel: "noli" | "fili" | "both";
+    novel: "noli" | "fili";
 }
 
 export function NovelBackground({ novel }: NovelBackgroundProps) {
@@ -25,12 +25,12 @@ export function NovelBackground({ novel }: NovelBackgroundProps) {
                 className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center transition-all duration-1000"
                 initial={false}
                 animate={{
-                    opacity: novel === "both" ? 0.3 : 0.7,
+                    opacity: 0.7,
                     scale: 1.05,
                     filter: "blur(4px) brightness(0.9) contrast(1.1)",
                 }}
                 style={{
-                    backgroundImage: novel === "noli" ? "var(--image-bg-noli)" : novel === "fili" ? "var(--image-bg-fili)" : "var(--image-bg-neutral)",
+                    backgroundImage: novel === "noli" ? "var(--image-bg-noli)" : "var(--image-bg-fili)",
                 }}
             />
 

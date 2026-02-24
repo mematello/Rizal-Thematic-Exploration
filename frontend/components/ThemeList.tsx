@@ -25,7 +25,7 @@ interface Theme {
 
 interface ThemeListProps {
     onChapterSelect?: (book: string, chapter: number, title?: string, sentenceIndex?: number) => void;
-    selectedNovel: "noli" | "fili" | "both";
+    selectedNovel: "noli" | "fili";
 }
 
 export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
@@ -69,79 +69,29 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
 
     return (
         <div className="max-w-7xl mx-auto px-4 pb-20">
-            {selectedNovel === 'both' ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Noli Side */}
-                    <div className="space-y-4">
-                        <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                            initial="hidden"
-                            animate="show"
-                            variants={{
-                                hidden: { opacity: 0 },
-                                show: {
-                                    opacity: 1,
-                                    transition: { staggerChildren: 0.1 }
-                                }
-                            }}
-                        >
-                            {themes
-                                .filter(t => !t.best_match || t.best_match.book === 'noli')
-                                .map((theme, idx) => (
-                                    <ThemeCard key={`noli-${idx}`} theme={theme} onClick={() => handleThemeClick(theme)} />
-                                ))}
-                        </motion.div>
-                    </div>
-
-                    {/* Fili Side */}
-                    <div className="space-y-4">
-                        <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                            initial="hidden"
-                            animate="show"
-                            variants={{
-                                hidden: { opacity: 0 },
-                                show: {
-                                    opacity: 1,
-                                    transition: { staggerChildren: 0.1 }
-                                }
-                            }}
-                        >
-                            {themes
-                                .filter(t => t.best_match?.book === 'elfili' || t.best_match?.book === 'fili')
-                                .map((theme, idx) => (
-                                    <ThemeCard key={`fili-${idx}`} theme={theme} onClick={() => handleThemeClick(theme)} />
-                                ))}
-                        </motion.div>
-                    </div>
-                </div>
-            ) : (
-                <motion.div
-                    key={selectedNovel}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                    initial="hidden"
-                    animate="show"
-                    variants={{
-                        hidden: { opacity: 0 },
-                        show: {
-                            opacity: 1,
-                            transition: {
-                                staggerChildren: 0.1
-                            }
-                        }
-                    }}
-                >
-                    {themes
-                        .filter(theme => {
-                            if (!theme.best_match) return true;
-                            const themeBook = theme.best_match.book === 'elfili' ? 'fili' : theme.best_match.book;
-                            return themeBook === selectedNovel;
-                        })
-                        .map((theme, idx) => (
-                            <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
-                        ))}
-                </motion.div>
-            )}
+            <motion.div
+                key={selectedNovel}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                initial="hidden"
+                animate="show"
+                variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.1 }
+                    }
+                }}
+            >
+                {themes
+                    .filter(theme => {
+                        if (!theme.best_match) return true;
+                        const themeBook = theme.best_match.book === 'elfili' ? 'fili' : theme.best_match.book;
+                        return themeBook === selectedNovel;
+                    })
+                    .map((theme, idx) => (
+                        <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
+                    ))}
+            </motion.div>
 
             {selectedTheme && (
                 <ItemModal

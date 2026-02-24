@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-type Novel = "noli" | "fili" | "both";
+type Novel = "noli" | "fili";
 
 interface Chapter {
     book: string;
@@ -52,19 +52,7 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
         const fili = chapters.filter(c => c.book === "elfili").sort((a, b) => a.chapter_number - b.chapter_number);
 
         if (selectedNovel === "noli") return noli;
-        if (selectedNovel === "fili") return fili;
-
-        // Interleave for "Both"
-        const combined: Chapter[] = [];
-        const maxLen = Math.max(noli.length, fili.length);
-
-        for (let i = 0; i < maxLen; i += 2) {
-            if (i < noli.length) combined.push(noli[i]);
-            if (i + 1 < noli.length) combined.push(noli[i + 1]);
-            if (i < fili.length) combined.push(fili[i]);
-            if (i + 1 < fili.length) combined.push(fili[i + 1]);
-        }
-        return combined;
+        return fili;
     };
 
     const items = getFilteredChapters();

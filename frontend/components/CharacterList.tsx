@@ -18,7 +18,7 @@ interface Appearance {
 
 interface CharacterListProps {
     onChapterSelect?: (book: string, chapter: number, title?: string, sentenceIndex?: number) => void;
-    selectedNovel: "noli" | "fili" | "both";
+    selectedNovel: "noli" | "fili";
 }
 
 interface ChapterInfo {
@@ -85,100 +85,35 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
     };
 
     const filteredCharacters = CHARACTERS.filter(char => {
-        if (selectedNovel === 'both') return true;
         return char.novel === selectedNovel || char.novel === 'both';
     });
 
     return (
         <div className="max-w-7xl mx-auto px-4 pb-20">
-            {/* Filter Buttons Removed - using global filter */}
-
-            {selectedNovel === 'both' ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Noli Side */}
-                    <div className="space-y-4">
-                        <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                            initial="hidden"
-                            animate="show"
-                            variants={{
-                                hidden: { opacity: 0 },
-                                show: { opacity: 1 }
-                            }}
-                        >
-                            {filteredCharacters
-                                .filter(c => c.novel === 'noli' || c.novel === 'both')
-                                .map((char, idx) => (
-                                    <CharacterCard
-                                        key={`noli-${char.id}`}
-                                        char={char}
-                                        index={idx}
-                                        columns={2}
-                                        onClick={() => handleCharClick(char)}
-                                        onAvatarClick={(e) => {
-                                            e.stopPropagation();
-                                            setZoomedCharName(char.name);
-                                        }}
-                                    />
-                                ))}
-                        </motion.div>
-                    </div>
-
-                    {/* Fili Side */}
-                    <div className="space-y-4">
-                        <motion.div
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                            initial="hidden"
-                            animate="show"
-                            variants={{
-                                hidden: { opacity: 0 },
-                                show: { opacity: 1 }
-                            }}
-                        >
-                            {filteredCharacters
-                                .filter(c => c.novel === 'fili' || c.novel === 'both')
-                                .map((char, idx) => (
-                                    <CharacterCard
-                                        key={`fili-${char.id}`}
-                                        char={char}
-                                        index={idx}
-                                        columns={2}
-                                        onClick={() => handleCharClick(char)}
-                                        onAvatarClick={(e) => {
-                                            e.stopPropagation();
-                                            setZoomedCharName(char.name);
-                                        }}
-                                    />
-                                ))}
-                        </motion.div>
-                    </div>
-                </div>
-            ) : (
-                <motion.div
-                    key={selectedNovel}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                    initial="hidden"
-                    animate="show"
-                    variants={{
-                        hidden: { opacity: 0 },
-                        show: { opacity: 1 }
-                    }}
-                >
-                    {filteredCharacters.map((char, idx) => (
-                        <CharacterCard
-                            key={char.id}
-                            char={char}
-                            index={idx}
-                            columns={4}
-                            onClick={() => handleCharClick(char)}
-                            onAvatarClick={(e) => {
-                                e.stopPropagation();
-                                setZoomedCharName(char.name);
-                            }}
-                        />
-                    ))}
-                </motion.div>
-            )}
+            <motion.div
+                key={selectedNovel}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                initial="hidden"
+                animate="show"
+                variants={{
+                    hidden: { opacity: 0 },
+                    show: { opacity: 1 }
+                }}
+            >
+                {filteredCharacters.map((char, idx) => (
+                    <CharacterCard
+                        key={char.id}
+                        char={char}
+                        index={idx}
+                        columns={4}
+                        onClick={() => handleCharClick(char)}
+                        onAvatarClick={(e) => {
+                            e.stopPropagation();
+                            setZoomedCharName(char.name);
+                        }}
+                    />
+                ))}
+            </motion.div>
 
             {selectedChar && (
                 <ItemModal

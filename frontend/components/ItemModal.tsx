@@ -37,7 +37,7 @@ interface ItemModalProps {
     onNavigate?: (book: string, chapter: number, sentenceIndex?: number) => void;
     onSort?: (mode: 'number' | 'relevance') => void;
     sortBy?: 'number' | 'relevance';
-    selectedNovel: 'noli' | 'fili' | 'both';
+    selectedNovel: 'noli' | 'fili';
 }
 
 export function ItemModal({
@@ -82,12 +82,9 @@ export function ItemModal({
 
     const filteredChapters = chapterAppearances?.filter(c => {
         if (selectedNovel === 'noli') return c.book === 'noli';
-        if (selectedNovel === 'fili') return c.book === 'fili' || c.book === 'elfili';
-        return true;
+        return c.book === 'fili' || c.book === 'elfili';
     });
 
-    const noliChapters = chapterAppearances?.filter(c => c.book === 'noli') || [];
-    const filiChapters = chapterAppearances?.filter(c => c.book === 'fili' || c.book === 'elfili') || [];
 
     const renderChapter = (chapter: ChapterInfo, idx: number) => (
         <div
@@ -119,11 +116,10 @@ export function ItemModal({
         </div>
     );
 
-    const getNovelLabel = (novel: 'noli' | 'fili' | 'both') => {
+    const getNovelLabel = (novel: 'noli' | 'fili') => {
         switch (novel) {
             case 'noli': return 'Noli Me Tangere';
             case 'fili': return 'El Filibusterismo';
-            case 'both': return 'Both Novels';
         }
     };
 
@@ -180,8 +176,7 @@ export function ItemModal({
                                     px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.15em]
                                     flex items-center gap-2 border shadow-sm whitespace-nowrap
                                     ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent border-noli-accent/20' :
-                                        selectedNovel === 'fili' ? 'bg-fili-accent/10 text-fili-accent border-fili-accent/20' :
-                                            'bg-brand-navy/5 text-brand-navy border-brand-navy/10'}
+                                        'bg-fili-accent/10 text-fili-accent border-fili-accent/20'}
                                 `}>
                                     <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                                     {getNovelLabel(selectedNovel)}
@@ -230,10 +225,7 @@ export function ItemModal({
                                             </div>
 
                                             {themeContext ? (
-                                                // Filter logic: if novel is 'both', show match. If match book equals novel filter, show match.
-                                                // Since there is only ONE best match, filtering might hide it. 
-                                                // But user asked for the buttons to "apply it also".
-                                                (selectedNovel === 'both' ||
+                                                (
                                                     (selectedNovel === 'noli' && themeContext.book === 'noli') ||
                                                     (selectedNovel === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
                                                     <div>
@@ -274,57 +266,15 @@ export function ItemModal({
                                         <div className="space-y-6">
                                             <div className="flex items-center justify-between">
                                                 <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
-                                                    {selectedNovel === 'both'
-                                                        ? `Chapters (${noliChapters.length} Noli + ${filiChapters.length} Fili)`
-                                                        : `Chapters (${filteredChapters?.length})`
-                                                    }
+                                                    {`Chapters (${filteredChapters?.length})`}
                                                 </h4>
                                             </div>
 
                                             {chapterAppearances.length > 0 ? (
-                                                selectedNovel === 'both' ? (
-                                                    <div className="flex flex-col md:flex-row gap-6">
-                                                        {/* Noli Column (Left) */}
-                                                        <div className="flex-1">
-                                                            <h5 className="text-[10px] font-bold text-noli-gold uppercase tracking-widest mb-3 border-b border-noli-gold/20 pb-1">
-                                                                Noli Me Tangere
-                                                            </h5>
-                                                            <div className="grid grid-cols-2 gap-3">
-                                                                {noliChapters.length > 0 ? (
-                                                                    noliChapters.map((c, i) => renderChapter(c, i))
-                                                                ) : (
-                                                                    <div className="col-span-2 text-center text-xs text-gray-400 italic py-8 border border-dashed rounded-lg">
-                                                                        No appearances in Noli
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Separator for mobile */}
-                                                        <div className="md:hidden h-px bg-brand-gold/20 my-2"></div>
-
-                                                        {/* Fili Column (Right) */}
-                                                        <div className="flex-1">
-                                                            <h5 className="text-[10px] font-bold text-fili-magenta uppercase tracking-widest mb-3 border-b border-fili-magenta/20 pb-1">
-                                                                El Filibusterismo
-                                                            </h5>
-                                                            <div className="grid grid-cols-2 gap-3">
-                                                                {filiChapters.length > 0 ? (
-                                                                    filiChapters.map((c, i) => renderChapter(c, i))
-                                                                ) : (
-                                                                    <div className="col-span-2 text-center text-xs text-gray-400 italic py-8 border border-dashed rounded-lg">
-                                                                        No appearances in Fili
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    // Single Novel View - 4 Columns
-                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                        {filteredChapters?.map((c, i) => renderChapter(c, i))}
-                                                    </div>
-                                                )
+                                                // Single Novel View - 4 Columns
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                    {filteredChapters?.map((c, i) => renderChapter(c, i))}
+                                                </div>
                                             ) : (
                                                 <p className="text-brand-text-light italic text-center py-10 col-span-4">
                                                     No chapters found for this character.

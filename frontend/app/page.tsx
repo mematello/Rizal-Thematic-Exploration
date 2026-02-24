@@ -13,7 +13,7 @@ import { ChapterModal } from "@/components/ChapterModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
 
-type Novel = "noli" | "fili" | "both";
+type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
 
 interface ChapterContent {
@@ -126,7 +126,7 @@ export default function Home() {
               <SearchBar
                 onSearch={handleSearch}
                 variant="hero"
-                placeholder={`Magsaliksik sa ${novel === 'both' ? 'dalawang nobela' : novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
+                placeholder={`Magsaliksik sa ${novel === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}...`}
               />
             </div>
 
