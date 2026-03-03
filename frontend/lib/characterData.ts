@@ -1,0 +1,58 @@
+export interface Character {
+    id: string;
+    name: string;
+    role: string;
+    novel: "noli" | "fili" | "both";
+    description: string;
+    aliases?: string[];
+}
+
+export const CHARACTERS: Character[] = [
+    // Noli Me Tangere
+    { id: "1", name: "Crisostomo Ibarra", role: "Protagonist", novel: "noli", description: "Isang mayamang binata na nagbalik mula sa Europa upang magpatayo ng paaralan para sa kanyang mga kababayan.", aliases: ["Juan Crisostomo Ibarra y Magsalin", "Ibarra", "Juan Ibarra", "Crisostomo Ibarra", "Juan Crisostomo", "Crisostomo", "Juan", "Ibarra y Magsalin", "Juan Crisostomo Magsalin", "Crisostomo Magsalin", "Crisostomo Ibarra Y Magsalin", "Ibarra Y Magsalin"] },
+    { id: "2", name: "Maria Clara", role: "Protagonist", novel: "noli", description: "Kasintahan ni Ibarra at anak-anakan ni Kapitan Tiago; simbolo ng babaeng Pilipina.", aliases: ["Maria Clara de los Santos y Alba", "Maria Clara", "Clara", "Maria Clara Santos", "Maria Clara Alba", "Maria Clara de los Santos", "Maria", "Clara de los Santos"] },
+    { id: "3", name: "Kapitan Tiago", role: "Influential Figure", novel: "noli", description: "Isang mayamang asendero at maimpluwensyang pigura sa San Diego.", aliases: ["Don Santiago de los Santos", "Don Santiago", "Santiago", "Kapitan Tiago", "Tiago", "Santiago de los Santos"] },
+    { id: "4", name: "Pia Alba", role: "Mother", novel: "noli", description: "Ina ni Maria Clara na namatay sa panganganak.", aliases: ["Pia Alba", "Pia"] },
+    { id: "5", name: "Padre Damaso", role: "Antagonist", novel: "noli", description: "Ang dating kura ng San Diego at tunay na ama ni Maria Clara; mapagmataas at malupit.", aliases: ["Padre Damaso Verdolagas", "Padre Damaso", "Damaso Verdolagas", "Damaso", "Verdolagas"] },
+    { id: "6", name: "Padre Salvi", role: "Curate", novel: "noli", description: "Ang kura na pumalit kay Padre Damaso; lihim na nagnanasa kay Maria Clara.", aliases: ["Padre Bernardo Salvi", "Padre Salvi", "Bernardo Salvi", "Salvi", "Padre Bernardo"] },
+    { id: "7", name: "Elias", role: "Revolutionary", novel: "noli", description: "Isang takas na naging kaibigan at tagapagligtas ni Ibarra; nag-alay ng buhay para sa bayan.", aliases: ["Elias"] },
+    { id: "8", name: "Pilosopo Tasio", role: "Wise Old Man", novel: "noli", description: "Isang matalinong matanda na madalas ituring na baliw ng mga walang pinag-aralan.", aliases: ["Pilosopo Tasio", "Tasio", "Don Anastacio", "Anastacio"] },
+    { id: "9", name: "Dona Victorina", role: "Social Climber", novel: "both", description: "Isang babaeng nagpupumilit na maging mas Kastila pa kaysa sa mga Kastila.", aliases: ["Dona Victorina de los Reyes de Espadana", "Dona Victorina", "Victorina", "Victorina de los Reyes", "Victorina de Espadana", "Doña Victorina"] },
+    { id: "10", name: "Don Tiburcio", role: "Husband", novel: "noli", description: "Ang sunud-sunurang asawa ni Dona Victorina.", aliases: ["Don Tiburcio de Espadana", "Don Tiburcio", "Tiburcio", "Tiburcio de Espadana"] },
+    { id: "11", name: "Sisa", role: "Mother", novel: "noli", description: "Isang inang sawimpalad na nabaliw sa paghahanap sa kanyang mga anak.", aliases: ["Sisa", "Narcisa", "Sisa Narcisa", "Narcisa Sisa"] },
+    { id: "12", name: "Basilio", role: "Son/Student", novel: "both", description: "Anak ni Sisa na nag-aral nang mabuti upang maging doktor.", aliases: ["Basilio"] },
+    { id: "13", name: "Crispin", role: "Son", novel: "noli", description: "Nakababatang kapatid ni Basilio, na pinagbintangan magnakaw.", aliases: ["Crispin", "Crispin"] },
+    { id: "14", name: "Don Rafael Ibarra", role: "Father", novel: "noli", description: "Ama ni Crisostomo Ibarra na namatay sa bilangguan.", aliases: ["Don Rafael Ibarra", "Don Rafael", "Rafael Ibarra", "Rafael"] },
+    { id: "15", name: "Don Saturnino", role: "Ancestor", novel: "noli", description: "Ninuno ni Ibarra.", aliases: ["Don Saturnino", "Saturnino"] },
+    { id: "16", name: "Alperes", role: "Official", novel: "noli", description: "Pinuno ng Guardia Civil.", aliases: ["Alperes"] },
+    { id: "17", name: "Donya Consolacion", role: "Wife", novel: "noli", description: "Ang malupit na asawa ng Alperes.", aliases: ["Donya Consolacion", "Consolacion", "Donya"] },
+    { id: "18", name: "Teniente Guevarra", role: "Official", novel: "noli", description: "Isang tapat na tenyente ng Guardia Civil.", aliases: ["Teniente Guevarra", "Guevarra", "Lieutenant Guevarra"] },
+    { id: "19", name: "Nol Juan", role: "Foreman", novel: "noli", description: "Tagapamahala sa pagpapatayo ng paaralan ni Ibarra.", aliases: ["Nol Juan", "Juan"] },
+    { id: "20", name: "Lucas", role: "Conspirator", novel: "noli", description: "Isang lalaking kasabwat sa plano laban kay Ibarra.", aliases: ["Lucas"] },
+    { id: "21", name: "Albino", role: "Seminarian", novel: "noli", description: "Isang dating seminarista.", aliases: ["Albino"] },
+
+    // El Filibusterismo
+    { id: "22", name: "Simoun", role: "Protagonist", novel: "fili", description: "Ang mayamang mag-aalahas na siyang nagbabalik na Ibarra.", aliases: ["Simoun", "Simoun Ibarra", "Crisostomo Ibarra", "Crisostomo", "Ibarra", "Juan Crisostomo Ibarra", "Juan Ibarra"] },
+    { id: "23", name: "Isagani", role: "Student/Idealist", novel: "fili", description: "Isang makata at mag-aaral na may dakilang pagmamahal sa bayan.", aliases: ["Isagani"] },
+    { id: "24", name: "Kabesang Tales", role: "Victim/Rebel", novel: "fili", description: "Isang masipag na magsasaka na naging tulisan dahil sa kawalan ng katarungan.", aliases: ["Kabesang Tales", "Tales", "Kabe", "Ka-Tales"] },
+    { id: "25", name: "Paulita Gomez", role: "Student's Love", novel: "fili", description: "Isang mayamang tagapagmana at kasintahan ni Isagani.", aliases: ["Paulita Gomez", "Paulita", "Gomez"] },
+    { id: "26", name: "Juanito Pelaez", role: "Student", novel: "fili", description: "Isang kuba na mag-aaral at karibal ni Isagani.", aliases: ["Juanito Pelaez", "Juanito", "Pelaez"] },
+    { id: "27", name: "Juli", role: "Daughter", novel: "fili", description: "Anak ni Kabesang Tales at kasintahan ni Basilio.", aliases: ["Juli"] },
+    { id: "28", name: "Padre Florentino", role: "Priest", novel: "fili", description: "Isang makabayang paring Pilipino.", aliases: ["Padre Florentino", "Florentino", "Padre F"] },
+    { id: "29", name: "Don Custodio", role: "Official", novel: "fili", description: "Isang opisyal ng gobyerno na kilala bilang 'Buena Tinta'.", aliases: ["Don Custodio", "Custodio"] },
+    { id: "30", name: "Padre Camorra", role: "Priest", novel: "fili", description: "Isang mapagnasang prayle.", aliases: ["Padre Camorra", "Camorra"] },
+    { id: "31", name: "Padre Irene", role: "Priest", novel: "fili", description: "Tagapamahala ng huling habilin ni Kapitan Tiago at kaalyado ng mga mag-aaral.", aliases: ["Padre Irene", "Irene"] },
+    { id: "32", name: "Ben-Zayb", role: "Journalist", novel: "fili", description: "Isang mamamahayag na bumabaluktot sa katotohanan.", aliases: ["Ben-Zayb", "Benzayb"] },
+    { id: "33", name: "Placido Penitente", role: "Student", novel: "fili", description: "Isang mag-aaral na nawalan ng gana sa pamantasan.", aliases: ["Placido Penitente", "Placido", "Penitente"] },
+    { id: "34", name: "Father Fernandez", role: "Priest", novel: "fili", description: "Isang Dominikanong propesor na sumusubok umunawa sa mga mag-aaral.", aliases: ["Father Fernandez", "Fernandez"] },
+    { id: "35", name: "Tandang Selo", role: "Grandfather", novel: "fili", description: "Ama ni Kabesang Tales.", aliases: ["Tandang Selo", "Selo", "Tandang"] },
+    { id: "36", name: "Quiroga", role: "Merchant", novel: "fili", description: "Isang Tsinong mangangalakal na nagnanais maging konsul.", aliases: ["Quiroga"] },
+    { id: "37", name: "Hermana Penchang", role: "Devotee", novel: "fili", description: "Ang madasaling amo ni Juli.", aliases: ["Hermana Penchang", "Penchang"] },
+    { id: "38", name: "Hermana Bali", role: "Gambler", novel: "fili", description: "Isang sugarol na nagpapayo kay Juli.", aliases: ["Hermana Bali", "Bali"] },
+    { id: "39", name: "Father Millon", role: "Professor", novel: "fili", description: "Propesor sa Pisika.", aliases: ["Father Millon", "Millon"] },
+    { id: "40", name: "Tadeo", role: "Student", novel: "fili", description: "Isang mag-aaral na natutuwa kapag walang klase.", aliases: ["Tadeo"] },
+    { id: "41", name: "Mr. Leeds", role: "Showman", novel: "fili", description: "Isang Amerikanong nagtatanghal.", aliases: ["Leeds"] },
+    { id: "42", name: "Tano", role: "Son/Guard", novel: "fili", description: "Anak ni Kabesang Tales na naging guwardiya.", aliases: ["Tano"] },
+    { id: "43", name: "Pepay", role: "Dancer", novel: "fili", description: "Isang mananayaw at kalaguyo ni Don Custodio.", aliases: ["Pepay"] },
+    { id: "44", name: "Pecson", role: "Student", novel: "fili", description: "Isang mapag-alinlangang mag-aaral.", aliases: ["Pecson"] },
+];
