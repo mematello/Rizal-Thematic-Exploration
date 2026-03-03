@@ -12,6 +12,7 @@ import { ThemeList } from "@/components/ThemeList";
 import { ChapterModal } from "@/components/ChapterModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
+import { ChapterSidebar } from "@/components/ChapterSidebar";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -153,10 +154,17 @@ export default function Home() {
             className="min-h-[50vh]"
           >
             {activeTab === "chapters" && (
-              <ChapterGrid
-                selectedNovel={novel}
-                onChapterSelect={handleChapterSelect}
-              />
+              <div className="mt-6 flex gap-6">
+                {/* Sticky sidebar navigation for Kabanata 1–64 (Noli only) */}
+                <ChapterSidebar novel={novel} />
+
+                <div className="flex-1">
+                  <ChapterGrid
+                    selectedNovel={novel}
+                    onChapterSelect={handleChapterSelect}
+                  />
+                </div>
+              </div>
             )}
 
             {activeTab === "characters" && (

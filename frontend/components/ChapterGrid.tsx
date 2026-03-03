@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 
@@ -64,7 +64,7 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     const COLS = 4; // matches lg:grid-cols-4
 
     return (
-        <div className="w-full max-w-7xl mx-auto px-4 pb-20">
+        <div className="w-full pb-20">
             <motion.div
                 key={selectedNovel}
                 className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
@@ -89,6 +89,7 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
 
     return (
         <motion.div
+            id={`kabanata-${chapter.chapter_number}`}
             onClick={onClick}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

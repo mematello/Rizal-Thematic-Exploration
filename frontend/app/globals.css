@@ -77,6 +77,10 @@
 
 
 @layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
     * {
         @apply border-brand-gold/5;
     }
