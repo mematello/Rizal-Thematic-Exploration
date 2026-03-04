@@ -47,15 +47,22 @@ class ChapterResponse(BaseModel):
 
 
 @router.get("/chapters", response_model=List[ChapterResponse])
-def get_chapters(db: Session = Depends(get_db)):
+def get_chapters(
+    mode: Optional[str] = "buod",
+    db: Session = Depends(get_db)
+):
     """
-    Fetch unique chapters from the sentences table.
+    Fetch unique chapters from the sentences table for the given mode.
     """
+    source_type = "summary" if mode == "buod" else "full"
+    
     # We query for distinct book, chapter_number, and chapter_title
     chapters = db.query(
         Sentence.book, 
         Sentence.chapter_number, 
         Sentence.chapter_title
+    ).filter(
+        Sentence.source_type == source_type
     ).distinct(
         Sentence.book, 
         Sentence.chapter_number
@@ -159,9 +166,7 @@ def get_character_chapters(
     
     if sort_by == "relevance":
         # Semantic search
-        # Use the primary name for the embedding query as it captures the essence best usually.
-        # Alternatively, we could average embeddings of all aliases, but primary name is usually sufficient for semantic context.
-        query_embedding = engine.model.encode(primary_name, show_progress_bar=False).tolist()
+        query_embedding = engine.base_model.encode(primary_name, show_progress_bar=False).tolist()
         
         # Fetch top matches
         sentences = db.scalars(
@@ -229,18 +234,63 @@ def get_character_chapters(
         
     return results
 
-# ... existing endpoints ...
-
 class ThemeMatch(BaseModel):
     id: str
     label: str
     score: float
-    explanation: str
+    explanation: Optional[str] = ""
 
 class ChapterContentResponse(BaseModel):
     sentence_index: int
     sentence_text: str
     themes: List[ThemeMatch] = []
+
+class ReferenceRequest(BaseModel):
+    sentence_text: str
+    book: str
+    target_mode: str  # 'buod' or 'full'
+
+@router.post("/chapters/reference")
+def get_sentence_reference(
+    request: ReferenceRequest,
+    db: Session = Depends(get_db),
+    engine: RizalEngine = Depends(get_engine)
+):
+    """
+    Find the most similar sentence in the other mode (summary vs full).
+    """
+    target_source_type = "summary" if request.target_mode == "buod" else "full"
+    
+    # Map book name
+    db_book = request.book
+    if request.target_mode == "full":
+        if request.book.lower() == "noli": db_book = "Noli Me Tangere"
+        elif request.book.lower() in ["elfili", "fili"]: db_book = "El Filibusterismo"
+    else:
+        if request.book.lower() == "noli": db_book = "noli"
+        elif request.book.lower() in ["elfili", "fili"]: db_book = "elfili"
+
+    # Encode the source sentence
+    query_embedding = engine.base_model.encode(request.sentence_text, show_progress_bar=False).tolist()
+    
+    # Find the most similar sentence in the target book and source_type
+    closest_sentence = db.query(Sentence).filter(
+        Sentence.book == db_book,
+        Sentence.source_type == target_source_type
+    ).order_by(
+        Sentence.embedding.cosine_distance(query_embedding)
+    ).first()
+    
+    if not closest_sentence:
+        raise HTTPException(status_code=404, detail="No reference found in the target version.")
+        
+    return {
+        "sentence_text": closest_sentence.sentence_text,
+        "chapter_number": closest_sentence.chapter_number,
+        "chapter_title": closest_sentence.chapter_title,
+        "book": request.book,
+        "mode": request.target_mode
+    }
 
 @router.get("/chapters/{book}/{chapter_number}", response_model=List[ChapterContentResponse])
 def get_chapter_content(
@@ -254,33 +304,41 @@ def get_chapter_content(
     Fetch all sentences for a specific chapter, ordered by index.
     Includes theme classification for each sentence.
     """
+    # Mapping book names for consistency
+    db_book = book
     if mode == "full":
-        df = get_csv_data(book)
-        if df is None:
-            raise HTTPException(status_code=404, detail="Full version not available for this chapter.")
-            
-        chapter_df = df[df['chapter_number'] == chapter_number]
-        if chapter_df.empty:
-            raise HTTPException(status_code=404, detail="Full version not available for this chapter.")
-            
-        chapter_df = chapter_df.sort_values('sentence_number')
-        
-        response_data = []
-        for _, row in chapter_df.iterrows():
-            response_data.append(ChapterContentResponse(
-                sentence_index=row['sentence_number'],
-                sentence_text=row['sentence_text'],
-                themes=[]
-            ))
-        return response_data
+        if book.lower() == "noli": db_book = "Noli Me Tangere"
+        elif book.lower() in ["elfili", "fili"]: db_book = "El Filibusterismo"
+    else:
+        if book.lower() == "noli": db_book = "noli"
+        elif book.lower() in ["elfili", "fili"]: db_book = "elfili"
+
+    source_type = "summary" if mode == "buod" else "full"
 
     sentences = db.query(Sentence).filter(
-        Sentence.book == book,
-        Sentence.chapter_number == chapter_number
+        Sentence.book == db_book,
+        Sentence.chapter_number == chapter_number,
+        Sentence.source_type == source_type
     ).order_by(Sentence.sentence_index).all()
     
     if not sentences:
-        raise HTTPException(status_code=404, detail="Chapter not found")
+        # Fallback for full version if not in DB but maybe in CSV
+        if mode == "full":
+            df = get_csv_data(book)
+            if df is not None:
+                chapter_df = df[df['chapter_number'] == chapter_number]
+                if not chapter_df.empty:
+                    chapter_df = chapter_df.sort_values('sentence_number')
+                    response_data = []
+                    for _, row in chapter_df.iterrows():
+                        response_data.append(ChapterContentResponse(
+                            sentence_index=row['sentence_number'],
+                            sentence_text=row['sentence_text'],
+                            themes=[]
+                        ))
+                    return response_data
+        
+        raise HTTPException(status_code=404, detail=f"Chapter {chapter_number} not found for {book} in {mode} mode")
     
     # Deduplicate by sentence_index (keep first occurrence)
     seen_indices = set()
@@ -294,8 +352,6 @@ def get_chapter_content(
     response_data = []
     for s in unique_sentences:
         # Classify themes using the engine
-        # Note: This might be slow for long chapters if not cached or optimized
-        # But for now, we follow the user's request to use the model embedding
         themes = engine._classify_themes(db, s.embedding, s.sentence_text)
         
         # Convert to Pydantic model format
@@ -304,7 +360,7 @@ def get_chapter_content(
                 id=t['id'],
                 label=t['label'],
                 score=t['score'],
-                explanation=t['explanation']
+                explanation=t.get('explanation', "")
             ) for t in themes
         ]
         

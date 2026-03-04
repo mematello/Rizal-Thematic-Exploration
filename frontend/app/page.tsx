@@ -73,6 +73,7 @@ export default function Home() {
       const data = await res.json();
       setChapterContent(data);
 
+
       // If we didn't have a title, maybe we can find it in the response? 
       // The sentence objects don't always carry the chapter title in a unified way (they do in DB, but let's see).
       // Actually checking content.py, currently ChapterContentResponse only has index and text.
