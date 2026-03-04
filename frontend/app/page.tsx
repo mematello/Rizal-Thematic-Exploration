@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
 import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
+import { useNovelBackground } from "@/hooks/useNovelBackground";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -95,11 +96,13 @@ export default function Home() {
     handleChapterSelect(book, chapter);
   };
 
+  const backgroundStyle = useNovelBackground(novel);
+
   return (
     <main
-      className={`min-h-screen pb-20 transition-colors duration-700 ease-in-out ${novel === 'fili' ? 'bg-[#F2F0ED]' : 'bg-brand-cream' // Slightly darker stone/warm grey for Fili
-        }`}
+      className={`min-h-screen pb-20 transition-colors duration-700 ease-in-out`}
       data-novel={novel}
+      style={backgroundStyle}
     >
       {/* Header Section */}
       <header

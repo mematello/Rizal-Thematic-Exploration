@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, BarChart2 } from "lucide-react";
 import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
+import { useNovelBackground } from "@/hooks/useNovelBackground";
 
 interface ChapterContent {
     sentence_index: number;
@@ -95,8 +96,13 @@ function SearchContent() {
     const col1 = singleNovelResults.slice(0, midpoint);
     const col2 = singleNovelResults.slice(midpoint);
 
+    const backgroundStyle = useNovelBackground(novelFilter);
+
     return (
-        <div className="min-h-screen bg-brand-cream flex flex-col">
+        <div
+            className="min-h-screen flex flex-col"
+            style={backgroundStyle}
+        >
             {/* Sticky Header */}
             <header className="bg-brand-cream/98 border-b border-brand-gold/20 sticky top-0 z-40 backdrop-blur-sm">
                 <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
