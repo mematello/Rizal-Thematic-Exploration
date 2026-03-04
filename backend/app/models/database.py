@@ -18,6 +18,7 @@ class Sentence(Base):
     chapter_title = Column(String(255))
     sentence_index = Column(Integer)
     sentence_text = Column(Text)
+    source_type = Column(String(20), default="summary")
     embedding = Column(Vector(768))
 
 class Theme(Base):
