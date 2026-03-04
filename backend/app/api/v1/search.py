@@ -15,6 +15,7 @@ def get_db():
 @router.get("/search")
 async def search_novels(
     q: str = Query(..., min_length=1, description="Search query"),
+    source_type: str = Query("summary", description="Search in summary or full version"),
     db: Session = Depends(get_db),
     engine: RizalEngine = Depends(get_engine)
 ):
@@ -23,7 +24,10 @@ async def search_novels(
     Returns ranked results using hybrid semantic + lexical search.
     """
     try:
-        results = engine.search(db, q)
+        # Map frontend mode to backend source_type
+        db_source_type = "summary" if source_type == "buod" else source_type
+        
+        results = engine.search(db, q, source_type=db_source_type)
         return {"results": results}
     except Exception as e:
         print(f"Search error: {e}")
