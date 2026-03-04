@@ -10,6 +10,7 @@ import { useRizalSearch } from "@/hooks/useRizalSearch";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, BarChart2 } from "lucide-react";
 import { Suspense } from "react";
+import { useModeStore } from "@/store/modeStore";
 
 interface ChapterContent {
     sentence_index: number;
@@ -25,6 +26,7 @@ function SearchContent() {
     const novelFilter = novelParam || 'both';
 
     const [showScores, setShowScores] = useState(false);
+    const { mode } = useModeStore();
 
     // Chapter modal state
     const [selectedChapter, setSelectedChapter] = useState<{ book: string; chapter: number; title: string } | null>(null);
@@ -48,7 +50,7 @@ function SearchContent() {
 
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}`);
+            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
             if (!res.ok) throw new Error("Failed to fetch chapter content");
             const data = await res.json();
             setChapterContent(data);
@@ -128,16 +130,32 @@ function SearchContent() {
                         )}
                     </div>
 
-                    <button
-                        onClick={() => setShowScores(!showScores)}
-                        className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all ${showScores
-                            ? 'bg-brand-navy text-white border-brand-navy'
-                            : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy'
-                            }`}
-                    >
-                        <BarChart2 size={12} />
-                        {showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-8">
+                            <button
+                                onClick={() => useModeStore.getState().setMode('buod')}
+                                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                            >
+                                Buod
+                            </button>
+                            <button
+                                onClick={() => useModeStore.getState().setMode('full')}
+                                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                            >
+                                Buong Kwento
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setShowScores(!showScores)}
+                            className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all h-8 ${showScores
+                                ? 'bg-brand-navy text-white border-brand-navy'
+                                : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy'
+                                }`}
+                        >
+                            <BarChart2 size={12} />
+                            <span className="hidden sm:inline">{showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
