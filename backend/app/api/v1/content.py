@@ -6,6 +6,28 @@ from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy import select
 import numpy as np
+import pandas as pd
+from pathlib import Path
+
+# Cache for CSV data
+_csv_cache = {}
+
+def get_csv_data(book: str) -> Optional[pd.DataFrame]:
+    if book in _csv_cache:
+        return _csv_cache[book]
+    
+    file_name = "fullversion_noli.csv" if book == "noli" else "fullversion_elfili.csv"
+    # Root dir relative to backend/app/api/v1/content.py
+    base_dir = Path(__file__).resolve().parent.parent.parent.parent.parent
+    file_path = base_dir / "csvFiles" / file_name
+    
+    if not file_path.exists():
+        return None
+        
+    df = pd.read_csv(file_path)
+    _csv_cache[book] = df
+    return df
+
 
 router = APIRouter()
 
@@ -224,6 +246,7 @@ class ChapterContentResponse(BaseModel):
 def get_chapter_content(
     book: str, 
     chapter_number: int, 
+    mode: Optional[str] = "buod",
     db: Session = Depends(get_db),
     engine: RizalEngine = Depends(get_engine)
 ):
@@ -231,6 +254,26 @@ def get_chapter_content(
     Fetch all sentences for a specific chapter, ordered by index.
     Includes theme classification for each sentence.
     """
+    if mode == "full":
+        df = get_csv_data(book)
+        if df is None:
+            raise HTTPException(status_code=404, detail="Full version not available for this chapter.")
+            
+        chapter_df = df[df['chapter_number'] == chapter_number]
+        if chapter_df.empty:
+            raise HTTPException(status_code=404, detail="Full version not available for this chapter.")
+            
+        chapter_df = chapter_df.sort_values('sentence_number')
+        
+        response_data = []
+        for _, row in chapter_df.iterrows():
+            response_data.append(ChapterContentResponse(
+                sentence_index=row['sentence_number'],
+                sentence_text=row['sentence_text'],
+                themes=[]
+            ))
+        return response_data
+
     sentences = db.query(Sentence).filter(
         Sentence.book == book,
         Sentence.chapter_number == chapter_number
