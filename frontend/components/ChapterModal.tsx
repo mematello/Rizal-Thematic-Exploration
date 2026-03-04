@@ -88,14 +88,15 @@ export function ChapterModal({
     const [isRefLoading, setIsRefLoading] = useState(false);
     const [refError, setRefError] = useState<string | null>(null);
 
-    const handleReferenceClick = async (sentenceText: string) => {
+    const handleReferenceClick = async (sentenceText: string, targetChapter: number) => {
         setIsRefLoading(true);
         setRefError(null);
         setSelectedReference(null);
 
         try {
             const targetMode = mode === 'buod' ? 'full' : 'buod';
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
             const res = await fetch(`${apiUrl}/api/v1/chapters/reference`, {
                 method: 'POST',
@@ -103,6 +104,7 @@ export function ChapterModal({
                 body: JSON.stringify({
                     sentence_text: sentenceText,
                     book: book,
+                    chapter_number: targetChapter,
                     target_mode: targetMode
                 })
             });
@@ -558,7 +560,7 @@ export function ChapterModal({
                                                                                 <span onClick={(e) => { e.stopPropagation(); setSelectedSentenceForTheme(sentence.sentence_index); setThemeFullscreen(true); }} className={`inline-flex items-center justify-center w-[14px] h-[14px] rounded-full shadow-sm cursor-pointer transition-transform ml-1 ${themeCount === 1 ? 'bg-brand-gold hover:bg-brand-gold/80' : 'bg-brand-navy hover:bg-brand-navy/80'} text-white text-[8px] font-sans font-bold select-none leading-none z-10 transform -translate-y-[6px] align-middle`}>{themeCount}</span>
                                                                             )}
                                                                             {showReference && (
-                                                                                <sup onClick={(e) => { e.stopPropagation(); setSelectedSentenceForRef(sentence.sentence_index); setRefFullscreen(true); handleReferenceClick(sentence.sentence_text); }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
+                                                                                <sup onClick={(e) => { e.stopPropagation(); setSelectedSentenceForRef(sentence.sentence_index); setRefFullscreen(true); handleReferenceClick(sentence.sentence_text, chap.chapterNumber); }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
                                                                             )}
                                                                             {" "}
                                                                         </span>
