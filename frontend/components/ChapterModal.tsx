@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
 import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
+import { useModeStore } from "@/store/modeStore";
 
 interface ThemeMatch {
     id: string;
@@ -55,6 +56,10 @@ export function ChapterModal({
     const [showCharacters, setShowCharacters] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
     const [characterKeywords, setCharacterKeywords] = useState<string[]>([]);
+    const { mode } = useModeStore();
+    const [modeError, setModeError] = useState<string | null>(null);
+    const modeSwitchInProgress = useRef(false);
+    const prevModeRef = useRef(mode);
 
     // Inline character modal state
     const [selectedChar, setSelectedChar] = useState<Character | null>(null);
@@ -175,6 +180,70 @@ export function ChapterModal({
         }
     }, [isFullscreen, chapterNumber, title, content]);
 
+    // Real-time mode fetching
+    useEffect(() => {
+        if (!isOpen || !book || !chapterNumber) return;
+
+        // Skip initial mount logic since `content` is populated by `page.tsx` on first open.
+        // We only want to react to subsequent mode changes.
+        if (prevModeRef.current === mode) return;
+
+        let isMounted = true;
+        const abortController = new AbortController();
+
+        const fetchNewModeData = async () => {
+            if (modeSwitchInProgress.current) return;
+            modeSwitchInProgress.current = true;
+            setModeError(null);
+
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+                // If we are in fullscreen, we might need to fetch all loaded chapters.
+                // For now, let's just fetch the active chapter in view or the opened one to keep it simple and robust.
+                const targetChapter = isFullscreen ? activeChapterInView : chapterNumber;
+
+                const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${targetChapter}?mode=${mode}`, { signal: abortController.signal });
+
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        throw new Error(`Ang "Buong Kwento" ay hindi pa handa para sa Kabanata ${targetChapter}.`);
+                    }
+                    throw new Error("Failed to fetch chapter content for the new mode");
+                }
+
+                const data = await res.json();
+
+                if (isMounted) {
+                    // Update loaded chapters with the new data
+                    setLoadedChapters(prev => prev.map(chap =>
+                        chap.chapterNumber === targetChapter ? { ...chap, content: data, isLoading: false } : chap
+                    ));
+                }
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+                console.error("Mode switch fetch error:", err);
+                if (isMounted) {
+                    setModeError(err.message || 'Error occurred while switching modes.');
+                    // If it failed, we technically shouldn't revert the global mode, 
+                    // we just show the error and let them optionally click back.
+                }
+            } finally {
+                if (isMounted) {
+                    modeSwitchInProgress.current = false;
+                    prevModeRef.current = mode; // Only update ref after a successful fetch cycle
+                }
+            }
+        };
+
+        fetchNewModeData();
+
+        return () => {
+            isMounted = false;
+            abortController.abort();
+        };
+    }, [mode, isOpen, book, chapterNumber, activeChapterInView, isFullscreen]);
+
     // Fetch characters for this chapter
     useEffect(() => {
         if (isOpen && book && chapterNumber) {
@@ -258,15 +327,21 @@ export function ChapterModal({
         }
     };
 
-    const fetchSpecificChapter = async (num: number): Promise<ChapterContent[]> => {
+    const fetchSpecificChapter = async (num: number, overrideMode?: 'buod' | 'full', signal?: AbortSignal): Promise<ChapterContent[]> => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${num}`);
-            if (!res.ok) throw new Error("Failed");
+            const targetMode = overrideMode || mode;
+            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${num}?mode=${targetMode}`, { signal });
+            if (!res.ok) {
+                if (res.status === 404 && targetMode === 'full') {
+                    throw new Error("Full version not available for this chapter.");
+                }
+                throw new Error("Failed");
+            }
             return await res.json();
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            return [];
+            throw err;
         }
     };
 
@@ -520,28 +595,30 @@ export function ChapterModal({
 
                             {/* Standard Actions (Non-Fullscreen) */}
                             {!isFullscreen && (
-                                <div className="flex gap-2 p-4 bg-brand-cream/50 border-b border-brand-gold/10 overflow-x-auto no-scrollbar">
-                                    <button
-                                        onClick={() => setShowCharacters(!showCharacters)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                    >
-                                        <Users size={16} />
-                                        <span className="text-sm font-bold uppercase tracking-widest">Tauhan</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setShowThemes(!showThemes)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showThemes ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                    >
-                                        <BookOpen size={16} />
-                                        <span className="text-sm font-bold uppercase tracking-widest">Paksa</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setShowReference(!showReference)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
-                                    >
-                                        <BookOpen size={16} />
-                                        <span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span>
-                                    </button>
+                                <div className="flex flex-col sm:flex-row gap-4 p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
+                                    <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full">
+                                        <button
+                                            onClick={() => setShowCharacters(!showCharacters)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                        >
+                                            <Users size={16} />
+                                            <span className="text-sm font-bold uppercase tracking-widest">Tauhan</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setShowThemes(!showThemes)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showThemes ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                        >
+                                            <BookOpen size={16} />
+                                            <span className="text-sm font-bold uppercase tracking-widest">Paksa</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setShowReference(!showReference)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}
+                                        >
+                                            <BookOpen size={16} />
+                                            <span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span>
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
@@ -597,12 +674,6 @@ export function ChapterModal({
                                                 >
                                                     Paksa
                                                 </button>
-                                                <button
-                                                    onClick={() => setShowReference(!showReference)}
-                                                    className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showReference ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}
-                                                >
-                                                    Sanggunian
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -635,11 +706,18 @@ export function ChapterModal({
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className={`${isFullscreen ? 'max-w-3xl mx-auto px-8 py-20' : 'max-w-3xl mx-auto'}`}>
+                                        <div className={`${isFullscreen ? 'max-w-3xl mx-auto px-8 py-20' : 'max-w-3xl mx-auto mt-4'}`}>
                                             {/* Top Sentinel */}
                                             {isFullscreen && (
                                                 <div ref={topSentinelRef} className="h-40 flex items-center justify-center">
                                                     {isLoadingMore && <div className="animate-pulse text-brand-gold font-serif italic text-sm">Kinakarga ang nakaraang kabanata...</div>}
+                                                </div>
+                                            )}
+
+                                            {modeError && (
+                                                <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-md text-red-800 flex items-center justify-between">
+                                                    <span className="text-sm">{modeError}</span>
+                                                    <button onClick={() => setModeError(null)} className="text-sm font-bold underline hover:no-underline ml-4 whitespace-nowrap">Dismiss</button>
                                                 </div>
                                             )}
 
@@ -667,7 +745,7 @@ export function ChapterModal({
                                                             }
                                                             return paragraphs;
                                                         }, []).map((para, paraIdx) => (
-                                                            <p key={paraIdx} className="first-letter:text-3xl first-letter:font-serif first-letter:mr-1 first-letter:float-left first-letter:leading-none indent-8">
+                                                            <p key={`${paraIdx}-${showCharacters}-${showThemes}-${showReference}-${highlightSentenceIndex}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
                                                                     const themes = sentence.themes || [];
@@ -732,169 +810,174 @@ export function ChapterModal({
                                         </div>
                                     )}
                                 </div>
-                            </div>
+                            </div >
 
                             {/* Navigation Footer (Non-Fullscreen) */}
-                            {!isFullscreen && (
-                                <div className="flex items-center justify-between p-4 border-t border-brand-gold/10 bg-brand-cream">
-                                    <button
-                                        onClick={handlePrevChapter}
-                                        className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"
-                                    >
-                                        <ChevronLeft size={18} />
-                                        <span className="text-xs font-bold uppercase tracking-widest">Nakaraan</span>
-                                    </button>
-                                    <div className="hidden sm:block text-[10px] text-brand-accent/60 font-serif uppercase tracking-[0.3em] font-bold">
-                                        Leksikal at Semantikong Pag-aaral
+                            {
+                                !isFullscreen && (
+                                    <div className="flex items-center justify-between p-4 border-t border-brand-gold/10 bg-brand-cream">
+                                        <button
+                                            onClick={handlePrevChapter}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"
+                                        >
+                                            <ChevronLeft size={18} />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Nakaraan</span>
+                                        </button>
+                                        <div className="hidden sm:block text-[10px] text-brand-accent/60 font-serif uppercase tracking-[0.3em] font-bold">
+                                            Leksikal at Semantikong Pag-aaral
+                                        </div>
+                                        <button
+                                            onClick={handleNextChapter}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"
+                                        >
+                                            <span className="text-xs font-bold uppercase tracking-widest">Susunod</span>
+                                            <ChevronRight size={18} />
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={handleNextChapter}
-                                        className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"
-                                    >
-                                        <span className="text-xs font-bold uppercase tracking-widest">Susunod</span>
-                                        <ChevronRight size={18} />
-                                    </button>
-                                </div>
-                            )}
-                        </motion.div>
+                                )
+                            }
+                        </motion.div >
 
                         {/* Fullscreen Theme Explanation View */}
-                        {themeFullscreen && selectedSentence && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-[60] bg-white flex flex-col"
-                            >
-                                {/* Header */}
-                                <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
-                                    <div className="max-w-7xl mx-auto px-6">
-                                        <div className="text-center space-y-2">
-                                            <h2 className="text-2xl font-serif text-brand-navy font-bold">
-                                                {book === "noli" ? "Noli Me Tangere" : "El Filibusterismo"}
-                                            </h2>
-                                            <p className="text-lg text-brand-text">
-                                                Chapter {chapterNumber}
-                                            </p>
-                                            <p className="text-base text-brand-text-light italic">
-                                                {title}
-                                            </p>
+                        {
+                            themeFullscreen && selectedSentence && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-[60] bg-white flex flex-col"
+                                >
+                                    {/* Header */}
+                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
+                                        <div className="max-w-7xl mx-auto px-6">
+                                            <div className="text-center space-y-2">
+                                                <h2 className="text-2xl font-serif text-brand-navy font-bold">
+                                                    {book === "noli" ? "Noli Me Tangere" : "El Filibusterismo"}
+                                                </h2>
+                                                <p className="text-lg text-brand-text">
+                                                    Chapter {chapterNumber}
+                                                </p>
+                                                <p className="text-base text-brand-text-light italic">
+                                                    {title}
+                                                </p>
 
-                                            {/* Action Buttons */}
-                                            <div className="flex items-center justify-center gap-3 pt-4">
-                                                <button
-                                                    onClick={() => setShowCharacters(!showCharacters)}
-                                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showCharacters ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
-                                                >
-                                                    <Users size={14} />
-                                                    Characters
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowThemes(!showThemes)}
-                                                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showThemes ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
-                                                >
-                                                    <BookOpen size={14} />
-                                                    Themes
-                                                </button>
+                                                {/* Action Buttons */}
+                                                <div className="flex items-center justify-center gap-3 pt-4">
+                                                    <button
+                                                        onClick={() => setShowCharacters(!showCharacters)}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showCharacters ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
+                                                    >
+                                                        <Users size={14} />
+                                                        Characters
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowThemes(!showThemes)}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all text-sm ${showThemes ? 'bg-brand-gold text-white' : 'bg-white text-brand-text hover:bg-brand-gold/20'}`}
+                                                    >
+                                                        <BookOpen size={14} />
+                                                        Themes
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Close Button */}
+                                            <button
+                                                onClick={() => {
+                                                    setThemeFullscreen(false);
+                                                    setSelectedSentenceForTheme(null);
+                                                }}
+                                                className="absolute top-6 right-6 p-2 hover:bg-black/5 rounded-full transition-colors"
+                                            >
+                                                <X size={24} className="text-brand-navy" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Content Area */}
+                                    <div className="flex-1 overflow-hidden flex">
+                                        {/* Left Side - Chapter Text */}
+                                        <div className="flex-1 overflow-y-auto p-8">
+                                            <div className="max-w-3xl mx-auto">
+                                                <p className="font-serif text-brand-text leading-loose text-justify text-base">
+                                                    {selectedSentence.sentence_text}
+                                                </p>
                                             </div>
                                         </div>
 
-                                        {/* Close Button */}
-                                        <button
-                                            onClick={() => {
-                                                setThemeFullscreen(false);
-                                                setSelectedSentenceForTheme(null);
-                                            }}
-                                            className="absolute top-6 right-6 p-2 hover:bg-black/5 rounded-full transition-colors"
-                                        >
-                                            <X size={24} className="text-brand-navy" />
-                                        </button>
-                                    </div>
-                                </div>
+                                        {/* Right Side - Theme Explanations */}
+                                        <div className="w-96 border-l border-brand-gold/30 bg-brand-paper overflow-y-auto p-6">
+                                            <h3 className="text-lg font-serif font-bold text-brand-navy mb-4">
+                                                Themes in this Sentence
+                                            </h3>
 
-                                {/* Content Area */}
-                                <div className="flex-1 overflow-hidden flex">
-                                    {/* Left Side - Chapter Text */}
-                                    <div className="flex-1 overflow-y-auto p-8">
-                                        <div className="max-w-3xl mx-auto">
-                                            <p className="font-serif text-brand-text leading-loose text-justify text-base">
-                                                {selectedSentence.sentence_text}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Side - Theme Explanations */}
-                                    <div className="w-96 border-l border-brand-gold/30 bg-brand-paper overflow-y-auto p-6">
-                                        <h3 className="text-lg font-serif font-bold text-brand-navy mb-4">
-                                            Themes in this Sentence
-                                        </h3>
-
-                                        {/* Theme Cards (Real Data) */}
-                                        <div className="space-y-4">
-                                            {selectedSentence.themes && selectedSentence.themes.length > 0 ? (
-                                                selectedSentence.themes.map((theme, idx) => (
-                                                    <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow">
-                                                        <div className="flex items-start gap-3">
-                                                            <div className={`
+                                            {/* Theme Cards (Real Data) */}
+                                            <div className="space-y-4">
+                                                {selectedSentence.themes && selectedSentence.themes.length > 0 ? (
+                                                    selectedSentence.themes.map((theme, idx) => (
+                                                        <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow">
+                                                            <div className="flex items-start gap-3">
+                                                                <div className={`
                                                             w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0
                                                             ${idx === 0 ? 'bg-gradient-to-br from-purple-500 to-pink-500' :
-                                                                    idx === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
-                                                                        'bg-gradient-to-br from-amber-500 to-orange-500'}
+                                                                        idx === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
+                                                                            'bg-gradient-to-br from-amber-500 to-orange-500'}
                                                         `}>
-                                                                {idx + 1}
-                                                            </div>
-                                                            <div>
-                                                                <h4 className="font-serif font-bold text-brand-navy mb-1">
-                                                                    {theme.label}
-                                                                </h4>
-                                                                <p className="text-sm text-brand-text-light leading-relaxed">
-                                                                    {theme.explanation}
-                                                                </p>
-                                                                <div className="mt-2 text-xs text-brand-text-light/70 font-mono">
-                                                                    Relevance Score: {Math.round(theme.score * 100)}%
+                                                                    {idx + 1}
+                                                                </div>
+                                                                <div>
+                                                                    <h4 className="font-serif font-bold text-brand-navy mb-1">
+                                                                        {theme.label}
+                                                                    </h4>
+                                                                    <p className="text-sm text-brand-text-light leading-relaxed">
+                                                                        {theme.explanation}
+                                                                    </p>
+                                                                    <div className="mt-2 text-xs text-brand-text-light/70 font-mono">
+                                                                        Relevance Score: {Math.round(theme.score * 100)}%
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="p-4 text-center text-brand-text-light italic">
+                                                        No themes found for this sentence.
                                                     </div>
-                                                ))
-                                            ) : (
-                                                <div className="p-4 text-center text-brand-text-light italic">
-                                                    No themes found for this sentence.
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        )}
+                                </motion.div>
+                            )}
                     </div>
                 )}
             </AnimatePresence>
 
             {/* Inline Character Profile Modal – opens when a highlighted name is clicked */}
-            {selectedChar && (
-                <ItemModal
-                    isOpen={isCharModalOpen}
-                    onClose={handleCharModalClose}
-                    title={selectedChar.name}
-                    subtitle={selectedChar.role}
-                    type="character"
-                    chapterAppearances={charAppearances}
-                    isLoading={charLoading}
-                    selectedNovel={book === 'noli' ? 'noli' : 'fili'}
-                    onNavigate={(navBook, navChapter) => {
-                        handleCharModalClose();
-                        onNavigate?.(navBook, navChapter);
-                    }}
-                    onSort={async (mode) => {
-                        if (selectedChar) {
-                            setCharSortBy(mode);
-                            await fetchCharAppearances(selectedChar, mode);
-                        }
-                    }}
-                    sortBy={charSortBy}
-                />
-            )}
+            {
+                selectedChar && (
+                    <ItemModal
+                        isOpen={isCharModalOpen}
+                        onClose={handleCharModalClose}
+                        title={selectedChar.name}
+                        subtitle={selectedChar.role}
+                        type="character"
+                        chapterAppearances={charAppearances}
+                        isLoading={charLoading}
+                        selectedNovel={book === 'noli' ? 'noli' : 'fili'}
+                        onNavigate={(navBook, navChapter) => {
+                            handleCharModalClose();
+                            onNavigate?.(navBook, navChapter);
+                        }}
+                        onSort={async (mode) => {
+                            if (selectedChar) {
+                                setCharSortBy(mode);
+                                await fetchCharAppearances(selectedChar, mode);
+                            }
+                        }}
+                        sortBy={charSortBy}
+                    />
+                )
+            }
         </>
     );
 }

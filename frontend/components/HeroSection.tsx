@@ -7,6 +7,10 @@ interface HeroSectionProps {
     novel: "noli" | "fili" | "both";
 }
 
+interface HeroSectionProps {
+    novel: "noli" | "fili" | "both";
+}
+
 const stats = [
     { label: "Lexical model usage", value: 40, color: "bg-[#C5A065]" },
     { label: "Semantic model usage", value: 30, color: "bg-brand-navy" },
@@ -116,7 +120,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
     return (
         <section className="relative w-full py-14 md:py-28 overflow-hidden">
             {/* Novel-themed illustrated background with dynamic mode */}
-            <NovelBackground novel={novel} />
+            <NovelBackground novel={novel === "both" ? "noli" : novel} />
 
             {/* Subtle vignette overlay to blend edges */}
             <div
