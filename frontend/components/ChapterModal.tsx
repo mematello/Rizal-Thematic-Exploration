@@ -745,7 +745,7 @@ export function ChapterModal({
                                                             }
                                                             return paragraphs;
                                                         }, []).map((para, paraIdx) => (
-                                                            <p key={paraIdx} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
+                                                            <p key={`${paraIdx}-${showCharacters}-${showThemes}-${showReference}-${highlightSentenceIndex}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
                                                                     const themes = sentence.themes || [];
