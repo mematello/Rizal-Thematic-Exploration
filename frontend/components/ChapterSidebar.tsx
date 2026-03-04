@@ -217,7 +217,8 @@ export function ChapterSidebar({ novel }: ChapterSidebarProps) {
 
       {/* Desktop / large screens – sticky sidebar */}
       <aside className="hidden lg:block w-56 shrink-0">
-        <div className="sticky top-1/2 -translate-y-1/2 space-y-3">
+        {/* Stick to a fixed offset below the header/hero so it never overlaps the top image */}
+        <div className="sticky top-40 space-y-3">
           <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-brand-text/40">
             {label}
           </p>
