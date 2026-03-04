@@ -257,6 +257,7 @@ class ChapterContentResponse(BaseModel):
 class ReferenceRequest(BaseModel):
     sentence_text: str
     book: str
+    chapter_number: int
     target_mode: str  # 'buod' or 'full'
 
 @router.post("/chapters/reference")
@@ -266,7 +267,7 @@ def get_sentence_reference(
     engine: RizalEngine = Depends(get_engine)
 ):
     """
-    Find the most similar sentence in the other mode (summary vs full).
+    Find the most similar sentence in the other mode (summary vs full) WITHIN THE SAME CHAPTER.
     """
     target_source_type = "summary" if request.target_mode == "buod" else "full"
     
@@ -282,10 +283,11 @@ def get_sentence_reference(
     # Encode the source sentence
     query_embedding = engine.base_model.encode(request.sentence_text, show_progress_bar=False).tolist()
     
-    # Find the most similar sentence in the target book and source_type
+    # Find the most similar sentence in the target book, source_type, AND SAME CHAPTER
     closest_sentence = db.query(Sentence).filter(
         Sentence.book == db_book,
-        Sentence.source_type == target_source_type
+        Sentence.source_type == target_source_type,
+        Sentence.chapter_number == request.chapter_number
     ).order_by(
         Sentence.embedding.cosine_distance(query_embedding)
     ).first()
