@@ -98,7 +98,8 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
             className={cn(
                 "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",
                 "bg-white/70 backdrop-blur-md shadow-sm transition-all duration-500",
-                "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm"
+                "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm",
+                "scroll-mt-40"
             )}
         >
             {/* Decorative Background Number */}
