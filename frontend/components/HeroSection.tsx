@@ -158,31 +158,61 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.15 }}
                     >
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
-                            Tuklasin ang{" "}
-                            <span
-                                className="relative inline-block transition-opacity duration-1000"
-                                style={{
-                                    background: "linear-gradient(135deg, #C5A065 0%, #9B7A42 60%, #C5A065 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    backgroundClip: "text",
-                                    opacity: isFili ? 0.6 : 1, // Dim Noli when Fili active
-                                }}
-                            >
-                                Noli Me Tangere
-                            </span>
-                            <br />
-                            <span
-                                className="text-3xl md:text-4xl lg:text-5xl font-light italic transition-colors duration-1000"
-                                style={{
-                                    color: isFili ? "#8D2D2D" : "rgba(141,45,45,0.7)", // Bright crimson when active
-                                    textShadow: isFili ? "0 0 20px rgba(141,45,45,0.2)" : "none",
-                                }}
-                            >
-                                at El Filibusterismo
-                            </span>
-                        </h2>
+                        {novel === "noli" && (
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                                Tuklasin ang{" "}
+                                <span
+                                    className="relative inline-block"
+                                    style={{
+                                        background: "linear-gradient(135deg, #C5A065 0%, #9B7A42 60%, #C5A065 100%)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                        backgroundClip: "text",
+                                    }}
+                                >
+                                    Noli Me Tangere
+                                </span>
+                            </h2>
+                        )}
+                        {novel === "fili" && (
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                                Tuklasin ang{" "}
+                                <span
+                                    className="relative inline-block italic"
+                                    style={{
+                                        color: "#8D2D2D",
+                                        textShadow: "0 0 20px rgba(141,45,45,0.2)",
+                                    }}
+                                >
+                                    El Filibusterismo
+                                </span>
+                            </h2>
+                        )}
+                        {novel === "both" && (
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                                Tuklasin ang{" "}
+                                <span
+                                    className="relative inline-block"
+                                    style={{
+                                        background: "linear-gradient(135deg, #C5A065 0%, #9B7A42 60%, #C5A065 100%)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                        backgroundClip: "text",
+                                    }}
+                                >
+                                    Noli Me Tangere
+                                </span>
+                                <br />
+                                <span
+                                    className="text-3xl md:text-4xl lg:text-5xl font-light italic"
+                                    style={{
+                                        color: "rgba(141,45,45,0.7)",
+                                    }}
+                                >
+                                    at El Filibusterismo
+                                </span>
+                            </h2>
+                        )}
                     </motion.div>
 
                     {/* Thin gold rule */}
