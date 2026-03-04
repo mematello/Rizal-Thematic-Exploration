@@ -6,6 +6,7 @@ import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen, Bo
 import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
+import { useNovelBackground } from "@/hooks/useNovelBackground";
 
 interface ThemeMatch {
     id: string;
@@ -107,6 +108,8 @@ export function ChapterModal({
         selectedText: string;
     } | null>(null);
     const [bookmarkSaveFeedback, setBookmarkSaveFeedback] = useState(false);
+
+    const backgroundStyle = useNovelBackground(book);
 
     // Sync active chapter with prop when NOT in fullscreen (background sync)
     useEffect(() => {
@@ -710,7 +713,8 @@ export function ChapterModal({
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className={`relative ${isFullscreen ? 'w-full h-full bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[90vh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}
+                            className={`relative ${isFullscreen ? 'w-full h-full' : 'w-full max-w-4xl max-h-[90vh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}
+                            style={isFullscreen ? backgroundStyle : undefined}
                         >
                             {/* Standard Header (Non-Fullscreen) */}
                             {!isFullscreen && (
@@ -868,7 +872,7 @@ export function ChapterModal({
                                 )}
 
                                 {/* Main Content Scroll Area */}
-                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative ${isFullscreen ? '' : 'p-6 md:p-14'}`}>
+                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent relative ${isFullscreen ? 'bg-transparent' : 'bg-brand-paper p-6 md:p-14'}`}>
                                     {/* Mobile/Tablet Fullscreen Header Overlay (since sidebar hidden) */}
                                     {isFullscreen && (
                                         <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 backdrop-blur border-b border-brand-gold/10 p-4 flex justify-between items-center">
