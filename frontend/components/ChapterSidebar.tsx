@@ -26,7 +26,7 @@ export function ChapterSidebar({ novel }: ChapterSidebarProps) {
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const label =
-    novel === "noli" ? "Noli · Kabanata 1–64" : "Fili · Kabanata 1–39";
+    novel === "noli" ? "Noli · Kabanata 1–64" : "El Fili · Kabanata 1–39";
 
   const handleClick = (start: number) => {
     setActiveSectionStart(start);
