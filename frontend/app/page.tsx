@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NovelToggle } from "@/components/NovelToggle";
 import { ContentTabs } from "@/components/ContentTabs";
@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
 import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
+import { ArrowUp } from "lucide-react";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -44,6 +45,7 @@ export default function Home() {
   const [chapterContent, setChapterContent] = useState<ChapterContent[]>([]);
   const [loadingContent, setLoadingContent] = useState(false);
   const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -93,6 +95,22 @@ export default function Home() {
   const handleNavigate = (book: string, chapter: number) => {
     // Navigate to a different chapter
     handleChapterSelect(book, chapter);
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === "undefined") return;
+      setShowBackToTop(window.scrollY > 480);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -213,6 +231,19 @@ export default function Home() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Back to top button */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-4 md:bottom-8 md:right-10 z-40 inline-flex items-center gap-2 rounded-full bg-brand-navy text-white px-4 py-2 shadow-lg shadow-black/20 hover:shadow-xl hover:bg-brand-navy/90 transition-all text-xs md:text-sm tracking-[0.18em] uppercase font-semibold"
+          aria-label="Bumalik sa itaas"
+        >
+          <ArrowUp className="h-4 w-4" />
+          <span className="hidden sm:inline">Sa Itaas</span>
+        </button>
+      )}
 
       {/* Footer Decoration */}
       <footer className="mt-20 py-10 text-center border-t border-brand-gold/30">

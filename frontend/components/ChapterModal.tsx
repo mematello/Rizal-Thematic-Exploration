@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
+import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen, Bookmark } from "lucide-react";
 import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
@@ -18,6 +18,15 @@ interface ChapterContent {
     sentence_index: number;
     sentence_text: string;
     themes: ThemeMatch[];
+}
+
+interface BookmarkEntry {
+    id: string;
+    book: string;
+    chapterNumber: number;
+    sentenceIndex: number;
+    selectedText: string;
+    createdAt: number;
 }
 
 interface ChapterModalProps {
@@ -89,6 +98,15 @@ export function ChapterModal({
     // State for tracking active chapter in fullscreen
     const [activeChapterInView, setActiveChapterInView] = useState<number>(chapterNumber);
     const initialFullscreenRef = useRef(false);
+    const [bookmarks, setBookmarks] = useState<BookmarkEntry[]>([]);
+    const [showBookmarksPanel, setShowBookmarksPanel] = useState(false);
+    const [selectionToolbar, setSelectionToolbar] = useState<{
+        top: number;
+        left: number;
+        sentence: ChapterContent;
+        selectedText: string;
+    } | null>(null);
+    const [bookmarkSaveFeedback, setBookmarkSaveFeedback] = useState(false);
 
     // Sync active chapter with prop when NOT in fullscreen (background sync)
     useEffect(() => {
@@ -96,6 +114,119 @@ export function ChapterModal({
             setActiveChapterInView(chapterNumber);
         }
     }, [chapterNumber, isFullscreen]);
+
+    // --- Bookmark helpers (saves highlighted word only) ---
+    const STORAGE_KEY = "rizalBookmarks-v2";
+
+    const loadAllBookmarks = (): BookmarkEntry[] => {
+        if (typeof window === "undefined") return [];
+        try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed)
+                ? parsed.filter((b: any) => b.id && b.selectedText != null)
+                : [];
+        } catch {
+            return [];
+        }
+    };
+
+    const saveBookmarksForChapter = (chapterBookmarks: BookmarkEntry[]) => {
+        if (typeof window === "undefined") return;
+        const all = loadAllBookmarks().filter(
+            (b) => !(b.book === book && b.chapterNumber === chapterNumber)
+        );
+        const merged = [...all, ...chapterBookmarks];
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        setBookmarks(chapterBookmarks);
+    };
+
+    const addBookmark = (selectedText: string, sentenceIndex: number) => {
+        const trimmed = selectedText.trim();
+        if (!trimmed) return;
+        const next: BookmarkEntry = {
+            id: `bm-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            book,
+            chapterNumber,
+            sentenceIndex,
+            selectedText: trimmed,
+            createdAt: Date.now(),
+        };
+        saveBookmarksForChapter([...bookmarks, next]);
+    };
+
+    const removeBookmark = (id: string) => {
+        saveBookmarksForChapter(bookmarks.filter((b) => b.id !== id));
+    };
+
+    // Load bookmarks for the currently open chapter
+    useEffect(() => {
+        if (!isOpen) return;
+        const all = loadAllBookmarks();
+        setBookmarks(
+            all.filter((b) => b.book === book && b.chapterNumber === chapterNumber)
+        );
+    }, [isOpen, book, chapterNumber]);
+
+    // Text selection: show "Bookmark" toolbar above highlighted text
+    useEffect(() => {
+        if (!isOpen || isFullscreen) return;
+
+        const handleSelection = () => {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.rangeCount) {
+                setSelectionToolbar(null);
+                return;
+            }
+            const range = sel.getRangeAt(0);
+            // Ensure selection is inside our modal content
+            if (!modalRef.current?.contains(range.commonAncestorContainer)) {
+                setSelectionToolbar(null);
+                return;
+            }
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) {
+                setSelectionToolbar(null);
+                return;
+            }
+            // Find sentence containing the selection (anchor node)
+            let node: Node | null = range.startContainer;
+            while (node && node !== modalRef.current) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const el = node as Element;
+                    const id = el.getAttribute?.("id");
+                    if (id?.startsWith("sentence-")) {
+                        const idx = parseInt(id.replace("sentence-", ""), 10);
+                        const sentence = content.find((s) => s.sentence_index === idx);
+                        const selectedText = range.toString().trim();
+                        if (sentence && selectedText) {
+                            setSelectionToolbar({
+                                top: rect.top - 36,
+                                left: rect.left + rect.width / 2,
+                                sentence,
+                                selectedText,
+                            });
+                            return;
+                        }
+                    }
+                }
+                node = node.parentNode;
+            }
+            setSelectionToolbar(null);
+        };
+
+        const handleMouseUp = () => {
+            setTimeout(handleSelection, 10);
+        };
+        document.addEventListener("mouseup", handleMouseUp);
+        document.addEventListener("selectionchange", handleSelection);
+
+        return () => {
+            document.removeEventListener("mouseup", handleMouseUp);
+            document.removeEventListener("selectionchange", handleSelection);
+        };
+    }, [isOpen, isFullscreen, content]);
 
     // Precise Scroll Spy Logic for Fullscreen
     useEffect(() => {
@@ -552,6 +683,26 @@ export function ChapterModal({
                             className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm"
                         />
 
+                        {/* Wrapper for modal + external bookmark icon */}
+                        <div className={`relative ${isFullscreen ? 'w-full h-full' : ''}`}>
+                            {/* Bookmark icon – outside the box, hanging at top-left corner (non-fullscreen) */}
+                            {!isFullscreen && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowBookmarksPanel(!showBookmarksPanel)}
+                                    className={`absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-lg transition-all ${
+                                        showBookmarksPanel
+                                            ? 'bg-brand-gold text-white border-brand-gold'
+                                            : bookmarks.length > 0
+                                                ? 'bg-white text-brand-gold border-brand-gold/50 hover:bg-brand-gold/10'
+                                                : 'bg-white text-brand-text/50 border-brand-gold/30 hover:bg-brand-gold/10 hover:text-brand-navy'
+                                    }`}
+                                    title="Ipakita ang mga bookmark"
+                                >
+                                    <Bookmark size={16} className={bookmarks.length > 0 ? 'fill-current' : 'fill-none'} />
+                                </button>
+                            )}
+
                         {/* Modal Container */}
                         <motion.div
                             ref={modalRef}
@@ -679,6 +830,43 @@ export function ChapterModal({
                                     </div>
                                 )}
 
+                                {/* Selection toolbar: "Bookmark" above highlighted text */}
+                                {selectionToolbar && !isFullscreen && (
+                                    <div
+                                        className="fixed z-[54] -translate-x-1/2 -translate-y-full"
+                                        style={{
+                                            top: selectionToolbar.top,
+                                            left: selectionToolbar.left,
+                                        }}
+                                    >
+                                        {bookmarkSaveFeedback ? (
+                                            <div className="rounded-md bg-green-600 text-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+                                                <span>✓</span>
+                                                <span>Na-bookmark!</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    addBookmark(
+                                                        selectionToolbar.selectedText,
+                                                        selectionToolbar.sentence.sentence_index
+                                                    );
+                                                    window.getSelection()?.removeAllRanges();
+                                                    setBookmarkSaveFeedback(true);
+                                                    setTimeout(() => {
+                                                        setBookmarkSaveFeedback(false);
+                                                        setSelectionToolbar(null);
+                                                    }, 1500);
+                                                }}
+                                                className="rounded-md bg-brand-navy text-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg hover:bg-brand-navy/90 transition-colors"
+                                            >
+                                                Bookmark
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Main Content Scroll Area */}
                                 <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative ${isFullscreen ? '' : 'p-6 md:p-14'}`}>
                                     {/* Mobile/Tablet Fullscreen Header Overlay (since sidebar hidden) */}
@@ -756,9 +944,10 @@ export function ChapterModal({
                                                                             key={sentence.sentence_index}
                                                                             ref={isHighlighted ? highlightRef : null}
                                                                             className={`
-                                                                            hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline
-                                                                            ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}
-                                                                        `}
+                                                                                hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline
+                                                                                ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}
+                                                                            `}
+                                                                            id={`sentence-${sentence.sentence_index}`}
                                                                         >
 
                                                                             {highlightText(sentence.sentence_text)}
@@ -836,7 +1025,85 @@ export function ChapterModal({
                                     </div>
                                 )
                             }
-                        </motion.div >
+                        </motion.div>
+
+                            {/* Bookmarks popup – separate overlay when icon is clicked */}
+                            {showBookmarksPanel && !isFullscreen && (
+                                <>
+                                    <div
+                                        className="fixed inset-0 z-[55]"
+                                        aria-hidden="true"
+                                        onClick={() => setShowBookmarksPanel(false)}
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="fixed left-8 top-24 z-[56] w-80 max-w-[calc(100vw-4rem)] rounded-2xl bg-white shadow-xl border border-brand-gold/20 overflow-hidden"
+                                    >
+                                        <div className="flex items-center justify-between px-4 py-3 border-b border-brand-gold/10 bg-brand-cream/80">
+                                            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.28em] text-brand-text/60">
+                                                <Bookmark size={14} className="text-brand-gold" />
+                                                <span>Bookmarks</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowBookmarksPanel(false)}
+                                                className="p-1 rounded-full hover:bg-black/5 text-brand-text/50"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                        <div className="max-h-64 overflow-y-auto p-3 space-y-1">
+                                            {bookmarks.length === 0 ? (
+                                                <p className="text-sm text-brand-text/50 italic py-4 text-center">
+                                                    Walang bookmark. I-highlight ang salita at i-click ang Bookmark para mag-save.
+                                                </p>
+                                            ) : (
+                                                bookmarks
+                                                    .slice()
+                                                    .sort((a, b) => a.sentenceIndex - b.sentenceIndex || a.createdAt - b.createdAt)
+                                                    .map((b) => {
+                                                        const words = b.selectedText.split(/\s+/);
+                                                        const display = words.length > 5 ? `${words.slice(0, 5).join(" ")}......` : b.selectedText;
+                                                        return (
+                                                        <div
+                                                            key={b.id}
+                                                            className="group flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand-gold/10 transition-colors"
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const el = document.getElementById(`sentence-${b.sentenceIndex}`);
+                                                                    if (el) {
+                                                                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                    }
+                                                                    setShowBookmarksPanel(false);
+                                                                }}
+                                                                className="flex-1 text-left text-sm leading-snug text-brand-text/80 hover:text-brand-navy truncate"
+                                                                title={b.selectedText}
+                                                            >
+                                                                {display}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    removeBookmark(b.id);
+                                                                }}
+                                                                className="shrink-0 text-xs font-medium text-brand-text/50 hover:text-red-600 transition-colors px-2 py-1"
+                                                                title="Alisin ang bookmark"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </div>
+                                                        );
+                                                    })
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                </>
+                            )}
+                        </div>
 
                         {/* Fullscreen Theme Explanation View */}
                         {
