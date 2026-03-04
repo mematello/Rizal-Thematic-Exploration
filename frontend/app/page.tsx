@@ -67,7 +67,8 @@ export default function Home() {
     console.log('handleChapterSelect - sentenceIndex:', sentenceIndex);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
       const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
       if (!res.ok) throw new Error("Failed to fetch chapter content");
       const data = await res.json();

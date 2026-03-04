@@ -6,6 +6,7 @@ import { BookOpen, X } from "lucide-react";
 import { ItemModal } from "@/components/ItemModal";
 import { CharacterAvatar } from "@/components/CharacterAvatar";
 import { CHARACTERS, Character } from "@/lib/characterData";
+import { useModeStore } from "@/store/modeStore";
 
 interface Appearance {
     book: string;
@@ -38,6 +39,8 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
     const [zoomedCharName, setZoomedCharName] = useState<string | null>(null);
     // Removed local novelFilter state
 
+    const { mode } = useModeStore();
+
     const fetchChapters = async (char: Character, sort: 'number' | 'relevance') => {
         setLoading(true);
         try {
@@ -49,8 +52,9 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
             }
             const searchTerm = searchTerms.join(",");
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+            const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}&mode=${mode}`);
             if (!res.ok) throw new Error("Failed to fetch chapters");
             const data = await res.json();
             setChapterAppearances(data);

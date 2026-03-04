@@ -425,7 +425,7 @@ export function ChapterModal({
         try {
             const searchTerm = [char.name, ...(char.aliases || [])].join(",");
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}`);
+            const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}&mode=${mode}`);
             if (res.ok) setCharAppearances(await res.json());
         } catch (err) {}
         setCharLoading(false);

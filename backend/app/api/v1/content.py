@@ -151,6 +151,7 @@ from sqlalchemy import or_
 def get_character_chapters(
     name: str, # Can be comma-separated list of names/aliases
     sort_by: str = "number", # "number" or "relevance"
+    mode: Optional[str] = "buod",
     db: Session = Depends(get_db),
     engine: RizalEngine = Depends(get_engine)
 ):
@@ -160,6 +161,8 @@ def get_character_chapters(
     """
     aliases = [n.strip() for n in name.split(',') if n.strip()]
     primary_name = aliases[0] if aliases else name
+    
+    source_type = "summary" if mode == "buod" else "full"
 
     # 1. Identify relevant sentences
     relevant_sentences = []
@@ -168,12 +171,12 @@ def get_character_chapters(
         # Semantic search
         query_embedding = engine.base_model.encode(primary_name, show_progress_bar=False).tolist()
         
-        # Fetch top matches
-        sentences = db.scalars(
-            select(Sentence)
-            .order_by(Sentence.embedding.cosine_distance(query_embedding))
-            .limit(500)
-        ).all()
+        # Fetch top matches filtered by source_type
+        sentences = db.query(Sentence).filter(
+            Sentence.source_type == source_type
+        ).order_by(
+            Sentence.embedding.cosine_distance(query_embedding)
+        ).limit(500).all()
         
         # Calculate scores
         for s in sentences:
@@ -183,10 +186,11 @@ def get_character_chapters(
             relevant_sentences.append((s, score))
             
     else: # sort_by == "number" or default
-        # Text search with OR logic for aliases
+        # Text search with OR logic for aliases and filter by source_type
         filters = [Sentence.sentence_text.ilike(f"%{alias}%") for alias in aliases]
         
         sentences = db.query(Sentence).filter(
+            Sentence.source_type == source_type,
             or_(*filters)
         ).all()
         
@@ -197,10 +201,15 @@ def get_character_chapters(
     chapter_map = {} # (book, chapter_num) -> {title, max_score, count, best_snippet, sentence_index}
     
     for s, score in relevant_sentences:
-        key = (s.book, s.chapter_number)
+        # Standardize book name for UI response (noli/elfili)
+        ui_book = s.book
+        if 'noli' in s.book.lower(): ui_book = 'noli'
+        elif 'fili' in s.book.lower(): ui_book = 'elfili'
+
+        key = (ui_book, s.chapter_number)
         if key not in chapter_map:
             chapter_map[key] = {
-                'book': s.book,
+                'book': ui_book,
                 'chapter_number': s.chapter_number,
                 'chapter_title': s.chapter_title or "",
                 'max_score': -1.0,
