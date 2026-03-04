@@ -14,11 +14,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
 import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
-<<<<<<< HEAD
 import { ArrowUp } from "lucide-react";
-=======
 import { useNovelBackground } from "@/hooks/useNovelBackground";
->>>>>>> cd6de07e550051a4eca86c6b9a52be3cdff61ca1
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -101,7 +98,6 @@ export default function Home() {
     handleChapterSelect(book, chapter);
   };
 
-<<<<<<< HEAD
   useEffect(() => {
     const handleScroll = () => {
       if (typeof window === "undefined") return;
@@ -117,9 +113,7 @@ export default function Home() {
     if (typeof window === "undefined") return;
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-=======
   const backgroundStyle = useNovelBackground(novel);
->>>>>>> cd6de07e550051a4eca86c6b9a52be3cdff61ca1
 
   return (
     <main
