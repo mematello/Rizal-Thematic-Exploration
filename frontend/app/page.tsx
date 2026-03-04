@@ -12,6 +12,7 @@ import { ThemeList } from "@/components/ThemeList";
 import { ChapterModal } from "@/components/ChapterModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
+import { useModeStore } from "@/store/modeStore";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -34,6 +35,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("chapters");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchQuery, setSearchQuery] = useState("");
+  const { mode } = useModeStore();
 
   // Modal State lifted from ChapterGrid
   const [selectedChapter, setSelectedChapter] = useState<SelectedChapter | null>(null);
@@ -62,7 +64,7 @@ export default function Home() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}`);
+      const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
       if (!res.ok) throw new Error("Failed to fetch chapter content");
       const data = await res.json();
       setChapterContent(data);
@@ -117,7 +119,21 @@ export default function Home() {
                 RIZAL<span className="text-brand-navy font-bold ml-1">EXPLORER</span>
               </motion.h1>
 
-              <div className="block md:hidden">
+              <div className="flex md:hidden items-center gap-2">
+                <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-9">
+                  <button
+                    onClick={() => useModeStore.getState().setMode('buod')}
+                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  >
+                    Buod
+                  </button>
+                  <button
+                    onClick={() => useModeStore.getState().setMode('full')}
+                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  >
+                    Buong Kwento
+                  </button>
+                </div>
                 <NovelToggle selected={novel} onSelect={setNovel} />
               </div>
             </div>
@@ -130,7 +146,21 @@ export default function Home() {
               />
             </div>
 
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-3">
+              <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-10">
+                <button
+                  onClick={() => useModeStore.getState().setMode('buod')}
+                  className={`px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                >
+                  Buod
+                </button>
+                <button
+                  onClick={() => useModeStore.getState().setMode('full')}
+                  className={`px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                >
+                  Buong Kwento
+                </button>
+              </div>
               <NovelToggle selected={novel} onSelect={setNovel} />
             </div>
           </div>
