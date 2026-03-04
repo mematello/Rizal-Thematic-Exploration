@@ -1,45 +1,19 @@
-========================================
-          RIZAL PROJECT SETUP
-========================================
+RIZAL EXPLORER SETUP
 
-📌 FIRST-TIME SETUP
-------------------
+1. START INFRASTRUCTURE (Docker)
+docker-compose up -d
 
-1️⃣ Start Docker containers (Postgres + Redis)
-   Terminal at project root:
-   docker-compose up -d
+2. SETUP BACKEND
+cd backend
+poetry install
+poetry run python scripts/seed_db.py
+poetry run python scripts/seed_full_db.py
+poetry run python scripts/migrate_source_type.py
+poetry run uvicorn app.main:app --reload
 
-2️⃣ Backend setup
-   cd backend
-   poetry install
-   poetry run python scripts/seed_db.py
-   poetry run uvicorn app.main:app --reload
+3. SETUP FRONTEND
+cd frontend
+npm install
+npm run dev
 
-3️⃣ Frontend setup
-   Open a new terminal at project root:
-   cd frontend
-   npm install
-   npm run dev
-
-Frontend will be available at:
-http://localhost:5173
-
-========================================
-
-📌 SUBSEQUENT RUNS (AFTER RESTART)
----------------------------------
-
-1️⃣ Start Docker containers (if not running)
-   docker-compose up -d
-
-2️⃣ Start backend
-   cd backend
-   poetry run uvicorn app.main:app --reload
-
-3️⃣ Start frontend
-   cd frontend
-   npm run dev
-
-✅ No need to seed DB again unless you want to reset it.
-
-========================================
+🚀 Access the app at: http://localhost:3000 (or as shown in terminal)
