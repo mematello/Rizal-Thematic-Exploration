@@ -1,33 +1,50 @@
-RIZAL EXPLORER - SETUP COMMANDS
+RIZAL EXPLORER - SETUP & STARTUP GUIDE
 
-1️⃣ FIRST-TIME STARTUP
---------------------
-docker-compose up -d
+------------------------------------------------------------------
+OPTION 1: NEW STARTUP STEPS (First-Time Setup)
+------------------------------------------------------------------
+Use these steps if you are setting up the project for the first time or on a new machine.
 
-# Backend
-cd backend
-poetry install
-poetry run python scripts/seed_db.py
-poetry run python scripts/seed_full_db.py
-poetry run python scripts/migrate_source_type.py
-poetry run uvicorn app.main:app --reload
+1. Start Database Services:
+   docker-compose up -d
 
-# Frontend (New Terminal)
-cd frontend
-npm install
-npm run dev
+2. Backend Setup:
+   cd backend
+   poetry install
+   
+   # Seed Summary Data (Noli & Fili)
+   poetry run python scripts/seed_db.py
+   
+   # Seed Full Version Data (Deep Mapping)
+   poetry run python scripts/seed_full_db.py
+   
+   # Apply Latest Schema Migrations
+   poetry run python scripts/migrate_source_type.py
+   
+   # Start Backend Server
+   poetry run uvicorn app.main:app --reload
 
+3. Frontend Setup (New Terminal):
+   cd frontend
+   npm install
+   npm run dev
 
-2️⃣ SUBSEQUENT STARTUP
---------------------
-docker-compose up -d
+------------------------------------------------------------------
+OPTION 2: SUBSEQUENT STARTUP STEPS (Everyday Use)
+------------------------------------------------------------------
+Use these steps for daily development after the initial setup is complete.
 
-# Backend
-cd backend
-poetry run uvicorn app.main:app --reload
+1. Ensure Services are Running:
+   docker-compose up -d
 
-# Frontend (New Terminal)
-cd frontend
-npm run dev
+2. Start Backend:
+   cd backend
+   poetry run uvicorn app.main:app --reload
 
-🚀 URL: http://localhost:3000
+3. Start Frontend (New Terminal):
+   cd frontend
+   npm run dev
+
+------------------------------------------------------------------
+🚀 ACCESS THE APPLICATION: http://localhost:3000
+------------------------------------------------------------------
