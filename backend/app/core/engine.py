@@ -177,36 +177,36 @@ class RizalEngine:
         query_expansion_text = ""
         theme_tokens = set()
         
+        # Always attempt to expand query using Themes (both single and multi-word)
+        self._ensure_themes_loaded(db)
+        # Use base model for initial concept embedding
+        query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        
+        expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
+        if expanded_text:
+            if os.getenv("DEBUG_SEARCH"):
+                print(f"[DEBUG] Expanding query '{query}' with: {expanded_text[:50]}...")
+            
+            # Re-embed with expansion
+            # We combine query + expansion to form a "Concept Vector"
+            combined_text = f"{query} {expanded_text}"
+            query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
+            theme_tokens = extracted_tokens
+        else:
+            query_embedding_base = query_vec_initial
+            
         if is_single_word:
-            # Attempt to expand single-word query using Themes
-            self._ensure_themes_loaded(db)
-            query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
-            
-            expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
-            if expanded_text:
-                if os.getenv("DEBUG_SEARCH"):
-                    print(f"[DEBUG] Expanding query '{query}' with: {expanded_text[:50]}...")
-                
-                # Re-embed with expansion
-                # We combine query + expansion to form a "Concept Vector"
-                combined_text = f"{query} {expanded_text}"
-                query_embedding = self.base_model.encode(combined_text, show_progress_bar=False)
-                theme_tokens = extracted_tokens
-            else:
-                query_embedding = query_vec_initial
-            
+            query_embedding = query_embedding_base
             dapt_query_embedding = None 
         else:
             # Dynamic Mix for multi-word
-            base_emb = self.base_model.encode(query, show_progress_bar=False)
-            
             # Use structured info + DAPT for adaptive mix
             structured_info = self.parser.structured_string(query)
             combined_query = f"{query} [SEP] {structured_info}"
             dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
             
-            # Hybrid selection embedding
-            query_embedding = (base_emb + dapt_query_embedding) / 2
+            # Hybrid selection embedding (mix base concept with DAPT syntax)
+            query_embedding = (query_embedding_base + dapt_query_embedding) / 2
 
         query_list = query_embedding.tolist()
 
@@ -219,13 +219,16 @@ class RizalEngine:
 
         lex_word = sig_words[0] if sig_words else query_words[0]
         for key, book_name in books.items():
-            lex_results = db.scalars(
-                select(Sentence)
-                .filter(Sentence.book == book_name)
-                .filter(Sentence.source_type == source_type)
-                .filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
-                .limit(top_k * 20)
-            ).all()
+            stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+            
+            if not is_single_word and sig_words:
+                # Require all significant words to appear for a true lexical phrase match
+                for w in sig_words:
+                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+            else:
+                stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+                
+            lex_results = db.scalars(stmt.limit(top_k * 20)).all()
             
             seen = set([c.id for c in candidates])
             for c in lex_results:
@@ -239,7 +242,11 @@ class RizalEngine:
         self.word_sim_cache = {} # Cache for dynamic semantic validation
 
         # Stage B: Semantic Fallback
-        if not candidates:
+        # Run fallback if we have very few lexical candidates overall (e.g. one book had none)
+        # or if it's a multi-word query that might need semantic padding due to strict lexical limits.
+        needs_fallback = len(candidates) < top_k * 2
+        
+        if needs_fallback:
             # --- In-Domain Gate ---
             
             # 1. Blocklist Check
@@ -278,11 +285,9 @@ class RizalEngine:
                     }
 
             result_mode = "semantic_fallback"
-            query_token = query_words[0] if query_words else ""
             
-            # Use dynamically extracted theme tokens + explicit synonyms if we had them (but we don't hardcode)
-            # We trust the Theme expansion to provide the "synonyms"
-            valid_tokens = set([query_token]) | theme_tokens
+            # Build valid tokens using significant query words (no stopwords) + theme tokens
+            valid_tokens = set(sig_words) | theme_tokens
             
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Valid tokens for validation: {list(valid_tokens)[:10]}")
@@ -368,10 +373,10 @@ class RizalEngine:
                             break
                 
                 # Check 2: Dynamic Semantic Validation (for strong synonyms missing from themes)
-                # Only run if Theme check failed and query is single word
-                # STRICTER: Only allow dynamic validation if the query itself is in the corpus vocabulary
+                # STRICTER: Only allow dynamic validation if at least one significant query word is in the corpus vocabulary.
                 # This prevents OOV modern terms (like 'tiktok') from using this loose check.
-                if not has_validation and is_single_word and query_token in self.vocabulary:
+                vocab_check_passed = any(w in self.vocabulary for w in sig_words)
+                if not has_validation and vocab_check_passed:
                     sent_words = set(extract_words(text_lower))
                     # Filter short words
                     cand_words = [w for w in sent_words if len(w) > 4]
