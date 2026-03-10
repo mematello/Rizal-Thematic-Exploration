@@ -37,6 +37,7 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sortBy, setSortBy] = useState<'number' | 'relevance'>('number');
     const [zoomedCharName, setZoomedCharName] = useState<string | null>(null);
+    const [zoomedDescriptionChar, setZoomedDescriptionChar] = useState<Character | null>(null);
     // Removed local novelFilter state
 
     const { mode } = useModeStore();
@@ -115,6 +116,10 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                             e.stopPropagation();
                             setZoomedCharName(char.name);
                         }}
+                        onDescriptionClick={(e) => {
+                            e.stopPropagation();
+                            setZoomedDescriptionChar(char);
+                        }}
                     />
                 ))}
             </motion.div>
@@ -173,11 +178,61 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Description Modal Overlay */}
+            <AnimatePresence>
+                {zoomedDescriptionChar && (
+                    <motion.div
+                        key="description-lightbox-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+                        onClick={() => setZoomedDescriptionChar(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative bg-brand-paper p-8 md:p-12 rounded-lg max-w-2xl w-full border border-brand-gold/20 shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setZoomedDescriptionChar(null)}
+                                className="absolute top-4 right-4 text-brand-navy/50 hover:text-brand-navy transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                            
+                            <div className="flex flex-col items-center text-center">
+                                <CharacterAvatar
+                                    name={zoomedDescriptionChar.name}
+                                    size={120}
+                                    className="mb-6 shadow-lg border-2 border-brand-gold/30"
+                                />
+                                <h2 className="text-3xl md:text-4xl font-serif text-brand-navy font-bold mb-2">
+                                    {zoomedDescriptionChar.name}
+                                </h2>
+                                <span className="text-sm uppercase tracking-[0.2em] text-brand-gold font-bold mb-8">
+                                    {zoomedDescriptionChar.role}
+                                </span>
+                                
+                                <div className="w-full h-px bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent mb-8" />
+                                
+                                {/* Empty section for future detailed character biography */}
+                                <div className="min-h-[200px] w-full flex items-center justify-center text-brand-navy/30">
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
 
-function CharacterCard({ char, onClick, onAvatarClick, index, columns = 4 }: { char: Character; onClick: () => void; onAvatarClick: (e: React.MouseEvent) => void; index: number; columns?: number }) {
+function CharacterCard({ char, onClick, onAvatarClick, onDescriptionClick, index, columns = 4 }: { char: Character; onClick: () => void; onAvatarClick: (e: React.MouseEvent) => void; onDescriptionClick: (e: React.MouseEvent) => void; index: number; columns?: number }) {
     return (
         <motion.div
             onClick={onClick}
@@ -208,11 +263,29 @@ function CharacterCard({ char, onClick, onAvatarClick, index, columns = 4 }: { c
 
             <h3 className="text-xl font-serif text-brand-navy font-bold">{char.name}</h3>
             <span className="text-[10px] uppercase tracking-[0.2em] text-brand-gold font-bold mt-1 mb-3">{char.role}</span>
-            <p className="text-sm text-brand-text-light font-body line-clamp-3 leading-relaxed">
-                {char.description}
-            </p>
+            <motion.div
+                role="button"
+                tabIndex={0}
+                onClick={onDescriptionClick}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onDescriptionClick(e as unknown as React.MouseEvent);
+                    }
+                }}
+                whileHover={{ scale: 1.08, boxShadow: "0 16px 30px -18px rgba(0,0,0,0.25)" }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.18 }}
+                className="mt-2 mb-4 p-3 rounded-lg hover:bg-brand-gold/5 transition-all duration-300 cursor-pointer relative z-10 box-border group/desc focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-paper"
+                aria-label={`View details for ${char.name}`}
+            >
+                <p className="text-sm text-brand-text-light font-body line-clamp-3 leading-relaxed relative z-10 group-hover/desc:text-brand-navy transition-colors">
+                    {char.description}
+                </p>
+                <div className="absolute inset-0 bg-white/50 opacity-0 group-hover/desc:opacity-100 rounded-lg -z-10 transition-opacity blur-md" />
+            </motion.div>
 
-            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-navy/40 group-hover:text-brand-gold transition-colors uppercase tracking-widest">
+            <div className="mt-auto flex items-center gap-2 text-xs font-bold text-brand-navy/40 group-hover:text-brand-gold transition-colors uppercase tracking-widest pt-2">
                 <BookOpen size={12} />
                 <span>Mga Kabanata</span>
             </div>
