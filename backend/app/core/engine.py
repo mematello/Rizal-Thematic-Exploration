@@ -46,6 +46,94 @@ class RizalEngine:
         self.NEIGHBOR_RELEVANCE_THRESHOLD = 0.40
         
         self.vocabulary = self._load_vocabulary()
+        
+        # Hardcoded blocklist for modern terms that might trigger semantic matches
+        self.MODERN_TERMS = {
+            "tiktok", "bitcoin", "wifi", "internet", "facebook", "instagram", 
+            "twitter", "covid", "virus", "computer", "phone", "laptop", 
+            "social media", "vlog", "online", "download", "app", "mobile"
+        }
+
+    def _expand_query_with_themes(self, query_vec):
+        """
+        Finds the most relevant Themes for a query vector and returns 
+        (expanded_text, set_of_valid_tokens).
+        """
+        if self.theme_matrix is None:
+            return "", set()
+
+        # Normalize query vector
+        query_norm = np.linalg.norm(query_vec)
+        if query_norm > 0:
+            query_vec = query_vec / query_norm
+        else:
+            return "", set()
+            
+        # Compute cosine similarity with all themes
+        scores = np.dot(self.theme_matrix, query_vec)
+        
+        # Get top 3 matching themes
+        top_indices = np.argsort(scores)[-3:][::-1]
+        
+        candidates = set()
+        best_title = ""
+        target_theme_key = ""
+        
+        for i, idx in enumerate(top_indices):
+            score = scores[idx]
+            if score < 0.45: continue
+            
+            theme = self.theme_cache[idx]
+            if i == 0: 
+                best_title = theme['tagalog_title']
+                target_theme_key = best_title.strip().lower()
+            
+            # Extract keywords from the meaning
+            meaning_words = extract_words(theme['meaning'].lower())
+            candidates.update(meaning_words)
+
+        if not candidates or not target_theme_key:
+            return "", set()
+            
+        # Filter candidates based on Specificity
+        # P(Theme | Word) = Count(Word in Theme) / Count(Word in All Themes)
+        
+        final_tokens = []
+        
+        for w in candidates:
+            if len(w) <= 3: continue
+            
+            # Global DF check (still useful for super common words)
+            df = self.theme_word_df.get(w, 0)
+            if df < 1: continue 
+            
+            # Specificity calculation
+            theme_counts = self.word_theme_map.get(w, {})
+            count_in_target = theme_counts.get(target_theme_key, 0)
+            
+            if count_in_target == 0: continue
+            
+            # Specificity score
+            specificity = count_in_target / df
+            
+            # Specificity threshold
+            # word must be primarily associated with this theme
+            # Lowered to 0.30 to capture terms like "paaralan" which might appear in related themes (Reform, Town)
+            # but still filter generic terms like "indio" (low specificity)
+            if specificity >= 0.30: 
+                final_tokens.append(w)
+        
+        # Sort by specificity (descending)
+        final_tokens.sort(key=lambda w: self.word_theme_map.get(w, {}).get(target_theme_key, 0) / self.theme_word_df.get(w, 1), reverse=True)
+        top_tokens = final_tokens[:12]
+        
+        if not top_tokens:
+            return "", set()
+
+        # Construct expansion text
+        expansion_text = f"{best_title} {' '.join(top_tokens)}"
+        
+        return expansion_text, set(top_tokens)
 
     def _load_vocabulary(self):
         vocab = set()
@@ -69,14 +157,13 @@ class RizalEngine:
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary"):
         if not self._validate_query_semantics(db, query):
-             return {'noli': [], 'elfili': []}
+             return {
+                 'results': {'noli': [], 'elfili': []},
+                 'metadata': {'result_mode': 'none', 'reason': 'invalid_query'}
+             }
              
         query_words = extract_words(query.lower())
-        valid_words = [w for w in query_words if w in self.vocabulary]
         
-        if not valid_words:
-            return {'noli': [], 'elfili': []}
-
         # Query Analysis for dynamic behavior
         query_analysis = self.query_analyzer.analyze_query_words(query)
         stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
@@ -87,9 +174,27 @@ class RizalEngine:
         is_single_word = len(sig_words) < 2
         
         # 1. Embedding Generation
+        query_expansion_text = ""
+        theme_tokens = set()
+        
         if is_single_word:
-            # PURELY Base XLM for single word
-            query_embedding = self.base_model.encode(query, show_progress_bar=False)
+            # Attempt to expand single-word query using Themes
+            self._ensure_themes_loaded(db)
+            query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+            
+            expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
+            if expanded_text:
+                if os.getenv("DEBUG_SEARCH"):
+                    print(f"[DEBUG] Expanding query '{query}' with: {expanded_text[:50]}...")
+                
+                # Re-embed with expansion
+                # We combine query + expansion to form a "Concept Vector"
+                combined_text = f"{query} {expanded_text}"
+                query_embedding = self.base_model.encode(combined_text, show_progress_bar=False)
+                theme_tokens = extracted_tokens
+            else:
+                query_embedding = query_vec_initial
+            
             dapt_query_embedding = None 
         else:
             # Dynamic Mix for multi-word
@@ -105,16 +210,15 @@ class RizalEngine:
 
         query_list = query_embedding.tolist()
 
-        # 2. Candidate Selection
+        # 2. Candidate Selection (Stage A: Lexical First)
         candidates = []
         books = {
             'noli': 'Noli Me Tangere' if source_type == 'full' else 'noli',
             'elfili': 'El Filibusterismo' if source_type == 'full' else 'elfili'
         }
 
+        lex_word = sig_words[0] if sig_words else query_words[0]
         for key, book_name in books.items():
-            # A. Lexical (Exact word match)
-            lex_word = sig_words[0] if sig_words else query_words[0]
             lex_results = db.scalars(
                 select(Sentence)
                 .filter(Sentence.book == book_name)
@@ -123,8 +227,67 @@ class RizalEngine:
                 .limit(top_k * 20)
             ).all()
             
-            # B. Semantic (Vector) - Only if not strictly seeking literal
-            if not is_single_word:
+            seen = set([c.id for c in candidates])
+            for c in lex_results:
+                if c.id not in seen:
+                    candidates.append(c)
+                    seen.add(c.id)
+
+        result_mode = "lexical"
+        reason = "matches_found"
+        valid_tokens = []
+        self.word_sim_cache = {} # Cache for dynamic semantic validation
+
+        # Stage B: Semantic Fallback
+        if not candidates:
+            # --- In-Domain Gate ---
+            
+            # 1. Blocklist Check
+            if any(term in query.lower() for term in self.MODERN_TERMS):
+                 return {
+                        'results': {'noli': [], 'elfili': []},
+                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                    }
+
+            # 2. Similarity Gate
+            # Check if query is anchorable to any theme in the corpus
+            self._ensure_themes_loaded(db)
+            if self.theme_matrix is not None:
+                # Reuse query_list (embedding)
+                q_vec = np.array(query_list)
+                q_norm = np.linalg.norm(q_vec)
+                if q_norm > 0:
+                    q_vec = q_vec / q_norm
+                    
+                # Compute sim with all themes
+                theme_scores = np.dot(self.theme_matrix, q_vec)
+                max_theme_score = float(np.max(theme_scores))
+                
+                # Gate Threshold
+                query_tokens = extract_words(query.lower())
+                is_oov = any(token not in self.vocabulary for token in query_tokens)
+                threshold = 0.50 if is_oov else 0.40
+                
+                if os.getenv("DEBUG_SEARCH"):
+                    print(f"[DEBUG] Theme Anchor Score: {max_theme_score:.3f} | Threshold: {threshold:.2f} | OOV: {is_oov}")
+                
+                if max_theme_score < threshold:
+                    return {
+                        'results': {'noli': [], 'elfili': []},
+                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                    }
+
+            result_mode = "semantic_fallback"
+            query_token = query_words[0] if query_words else ""
+            
+            # Use dynamically extracted theme tokens + explicit synonyms if we had them (but we don't hardcode)
+            # We trust the Theme expansion to provide the "synonyms"
+            valid_tokens = set([query_token]) | theme_tokens
+            
+            if os.getenv("DEBUG_SEARCH"):
+                print(f"[DEBUG] Valid tokens for validation: {list(valid_tokens)[:10]}")
+
+            for key, book_name in books.items():
                 sem_results = db.scalars(
                     select(Sentence)
                     .filter(Sentence.book == book_name)
@@ -132,14 +295,19 @@ class RizalEngine:
                     .order_by(Sentence.embedding.cosine_distance(query_list))
                     .limit(top_k * 15)
                 ).all()
-            else:
-                sem_results = []
-            
-            seen = set()
-            for c in list(lex_results) + list(sem_results):
-                if c.id not in seen:
-                    candidates.append(c)
-                    seen.add(c.id)
+                
+                # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
+                seen = set([c.id for c in candidates])
+                for c in sem_results:
+                    if c.id not in seen:
+                        candidates.append(c)
+                        seen.add(c.id)
+
+            if os.getenv("DEBUG_SEARCH"):
+                print(f"[DEBUG] Raw semantic candidates retrieved: {len(candidates)}")
+                
+            if not candidates:
+                reason = "no_match"
 
         # 3. Hybrid Re-ranking
         results = {'noli': [], 'elfili': []}
@@ -157,8 +325,8 @@ class RizalEngine:
             # Lexical Score Calculation
             lex_score = self._compute_lexical_score(query, sent.sentence_text, query_analysis, stopword_ratio)
             
-            # STRICT FILTER: For single words, must have lexical match
-            if is_single_word and lex_score < 0.1:
+            # STRICT FILTER: For single words in lexical mode, must have lexical match
+            if is_single_word and result_mode == "lexical" and lex_score < 0.1:
                 continue
 
             # Semantic scores
@@ -171,6 +339,95 @@ class RizalEngine:
                 sem_score = max(sem_score_base, sem_score_dapt)
             else:
                 sem_score = sem_score_base
+
+            # Semantic Fallback Guardrails
+            if result_mode == "semantic_fallback":
+                # 1. Penalize very short sentences or exclamations
+                word_count = len(sent.sentence_text.split())
+                is_exclamation = "!" in sent.sentence_text and word_count < 8
+                
+                if word_count < 5 or is_exclamation:
+                    sem_score *= 0.5
+                
+                # Lexical/Synonym Validation
+                text_lower = sent.sentence_text.lower()
+                has_validation = False
+                matched_token = None
+                
+                # Check 1: Theme-based tokens
+                for token in valid_tokens:
+                    if len(token) >= 5:
+                        if token in text_lower:
+                            has_validation = True
+                            matched_token = token
+                            break
+                    else:
+                        if re.search(r'\b' + re.escape(token) + r'[a-z]*', text_lower):
+                            has_validation = True
+                            matched_token = token
+                            break
+                
+                # Check 2: Dynamic Semantic Validation (for strong synonyms missing from themes)
+                # Only run if Theme check failed and query is single word
+                # STRICTER: Only allow dynamic validation if the query itself is in the corpus vocabulary
+                # This prevents OOV modern terms (like 'tiktok') from using this loose check.
+                if not has_validation and is_single_word and query_token in self.vocabulary:
+                    sent_words = set(extract_words(text_lower))
+                    # Filter short words
+                    cand_words = [w for w in sent_words if len(w) > 4]
+                    
+                    for w in cand_words:
+                        if w in valid_tokens: continue # Already checked
+                        
+                        # Vocabulary Guard: Only allow words that exist in the corpus vocabulary
+                        if w not in self.vocabulary:
+                            continue
+
+                        # Check cache
+                        if w not in self.word_sim_cache:
+                            # Compute similarity on the fly
+                            w_vec = self.base_model.encode(w, show_progress_bar=False)
+                            w_vec = w_vec / np.linalg.norm(w_vec)
+                            
+                            # query_embedding is already the (possibly expanded) concept vector
+                            # But for this strict check, we want similarity to the ORIGINAL query word
+                            # to avoid drift.
+                            # We need the original query vector here.
+                            # Let's re-encode strictly the query word if not available, 
+                            # or just use the base query part.
+                            # Actually, using the expanded vector is okay, but using the raw word is safer for "synonym" check.
+                            q_raw_vec = self.base_model.encode(query, show_progress_bar=False)
+                            q_raw_vec = q_raw_vec / np.linalg.norm(q_raw_vec)
+                            
+                            sim = float(np.dot(q_raw_vec, w_vec))
+                            self.word_sim_cache[w] = sim
+                        
+                        if self.word_sim_cache[w] > 0.54: # Threshold for strong synonymy (e.g. instruccion=0.56)
+                            has_validation = True
+                            matched_token = f"{w} (dynamic)"
+                            # Add to valid_tokens to speed up future checks
+                            valid_tokens.add(w) 
+                            break
+                
+                if os.getenv("DEBUG_SEARCH"):
+                    print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
+
+                if sem_score < 0.30:
+                    continue
+                
+                if not has_validation:
+                    if os.getenv("DEBUG_SEARCH"):
+                        print(f"  [DEBUG] Filtered by Validation: ID: {sent.id} | Context: {text_lower[:50]}...")
+                    reason = "validation_failed"
+                    continue
+                else:
+                    # Semantic Reranking Boost
+                    # If it passes validation (contains a concept keyword), we trust it more
+                    sem_score += 0.1
+                    lex_score = max(lex_score, 0.5) # Ensure it survives the lexical mix
+                    
+                    if os.getenv("DEBUG_SEARCH"):
+                        print(f"  [DEBUG] Passed Validation: ID: {sent.id} | Trigger Token: {matched_token} | Boosted Sem: {sem_score:.3f}")
 
             # Coverage & Noise Penalty
             sent_words_set = set(extract_words(sent.sentence_text.lower()))
@@ -196,30 +453,35 @@ class RizalEngine:
                 
                 coverage_ratio = coverage_count / len(sig_words)
                 
-                # STRICT FILTER for short queries (2-3 words):
-                # Must have 100% coverage (at least semantically)
-                if len(sig_words) >= 2 and coverage_ratio < 1.0:
-                    sem_score = 0.0
-                    lex_score = 0.0
-                elif coverage_ratio < 1.0:
-                    # General penalty for partial coverage
-                    penalty = 1.0 - coverage_ratio
-                    sem_score *= (1.0 - (penalty * 0.95))
-                    lex_score *= (1.0 - (penalty * 0.98))
-                
-                # Heavy penalty if missing lexical matches for core words in short queries
-                if len(sig_words) >= 2 and lexical_matches < len(sig_words):
-                    # If one of the core words is not literal, it must be a VERY strong semantic match
-                    sem_score *= 0.5
-                    lex_score *= 0.3
-                
-                # Heavy penalty if NO lexical matches exist for any core word
-                if lexical_matches == 0 and len(sig_words) > 0:
-                    sem_score *= 0.1
-                    lex_score *= 0.05
+                if result_mode != "semantic_fallback":
+                    # STRICT FILTER for short queries (2-3 words):
+                    # Must have 100% coverage (at least semantically)
+                    if len(sig_words) >= 2 and coverage_ratio < 1.0:
+                        sem_score = 0.0
+                        lex_score = 0.0
+                    elif coverage_ratio < 1.0:
+                        # General penalty for partial coverage
+                        penalty = 1.0 - coverage_ratio
+                        sem_score *= (1.0 - (penalty * 0.95))
+                        lex_score *= (1.0 - (penalty * 0.98))
+                    
+                    # Heavy penalty if missing lexical matches for core words in short queries
+                    if len(sig_words) >= 2 and lexical_matches < len(sig_words):
+                        # If one of the core words is not literal, it must be a VERY strong semantic match
+                        sem_score *= 0.5
+                        lex_score *= 0.3
+                    
+                    # Heavy penalty if NO lexical matches exist for any core word
+                    if lexical_matches == 0 and len(sig_words) > 0:
+                        sem_score *= 0.1
+                        lex_score *= 0.05
             
             # Stopword dominance check
-            match_sig = any(w in sent_words_set for w in sig_words)
+            if result_mode == "semantic_fallback":
+                match_sig = True  # We already did strict synonym validation
+            else:
+                match_sig = any(w in sent_words_set for w in sig_words)
+                
             if not match_sig and sig_words:
                 sem_score *= 0.2
                 lex_score *= 0.05
@@ -229,9 +491,14 @@ class RizalEngine:
             query_sig_len = len(sig_words)
             
             if is_single_word:
-                # Pure lexical focus
-                lam_lex, lam_sem = 1.0, 0.0
-                final_score = (lex_score * 0.95) + (sem_score * 0.05)
+                if result_mode == "semantic_fallback":
+                    # Allow semantic score to drive the final score since lexical failed
+                    lam_lex, lam_sem = 0.2, 0.8
+                    final_score = (lex_score * lam_lex) + (sem_score * lam_sem)
+                else:
+                    # Pure lexical focus
+                    lam_lex, lam_sem = 1.0, 0.0
+                    final_score = (lex_score * 0.95) + (sem_score * 0.05)
             else:
                 lam_lex, lam_sem = self._compute_dynamic_weights(text_len, query_sig_len)
                 final_score = self._calculate_clear_score(sem_score, lex_score, lam_lex, lam_sem, text_len)
@@ -241,6 +508,7 @@ class RizalEngine:
             
             # Increased noise floor for multi-word queries to prune unrelated results
             min_threshold = 0.45 if not is_single_word else 0.05
+            
             if final_score < min_threshold: continue
 
             context_text = self._expand_context(db, sent)
@@ -266,7 +534,7 @@ class RizalEngine:
         def finalize(lst, label):
             lst.sort(key=lambda x: x['scores']['final'], reverse=True)
             if lst:
-                print(f"DEBUG: Top score for {label}: {lst[0]['scores']['final']}%")
+                pass
             seen_text = set()
             unique = []
             for itm in lst:
@@ -278,7 +546,25 @@ class RizalEngine:
 
         results['noli'] = finalize(results['noli'], 'noli')
         results['elfili'] = finalize(results['elfili'], 'elfili')
-        return results
+        
+        if reason == "matches_found" and not (results['noli'] or results['elfili']):
+            reason = "filtered_by_ranker"
+        elif reason == "validation_failed" and (results['noli'] or results['elfili']):
+            reason = "validation_passed"
+        elif not (results['noli'] or results['elfili']):
+            if result_mode == "semantic_fallback" and reason == "matches_found":
+                reason = "below_threshold"
+
+        if os.getenv("DEBUG_SEARCH"):
+            print(f"[DEBUG] Final Results -> Noli: {len(results['noli'])}, Fili: {len(results['elfili'])}")
+
+        return {
+            "results": results,
+            "metadata": {
+                "result_mode": result_mode,
+                "reason": reason
+            }
+        }
 
     def _compute_lexical_score(self, query, sentence_text, query_analysis, stopword_ratio):
         query_lower = query.lower().strip()
@@ -347,6 +633,11 @@ class RizalEngine:
             self.theme_cache = []
             self.theme_matrix = []
             
+            # For IDF and Specificity calculation
+            word_doc_freq = {}
+            word_theme_map = {} # word -> {theme_title: count}
+            total_themes = 0
+            
             for t in themes:
                 if t.embedding is not None and len(t.embedding) > 0:
                     emb = np.array(t.embedding)
@@ -358,17 +649,32 @@ class RizalEngine:
                             'meaning_len': len(t.meaning.split())
                         })
                         self.theme_matrix.append(emb)
+                        
+                        # Count distinct words in this theme for IDF and Specificity
+                        words = set(extract_words(t.meaning.lower()))
+                        title_key = t.tagalog_title.strip().lower()
+                        
+                        for w in words:
+                            word_doc_freq[w] = word_doc_freq.get(w, 0) + 1
+                            
+                            if w not in word_theme_map:
+                                word_theme_map[w] = {}
+                            word_theme_map[w][title_key] = word_theme_map[w].get(title_key, 0) + 1
+                            
+                        total_themes += 1
             
             if self.theme_matrix:
                 self.theme_matrix = np.array(self.theme_matrix)
             else:
                 self.theme_matrix = None
+                
+            self.theme_word_df = word_doc_freq
+            self.word_theme_map = word_theme_map
+            self.total_themes = total_themes
 
     def _validate_query_semantics(self, db: Session, query: str) -> bool:
         words = extract_words(query.lower())
-        if not words: return False
-        unknown_words = [w for w in words if w not in self.vocabulary]
-        return len(unknown_words) == 0
+        return len(words) > 0
         
     def _classify_themes(self, db: Session, sentence_embedding, sentence_text):
         self._ensure_themes_loaded(db)
