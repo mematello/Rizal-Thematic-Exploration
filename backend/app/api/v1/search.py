@@ -27,8 +27,10 @@ async def search_novels(
         # Map frontend mode to backend source_type
         db_source_type = "summary" if source_type == "buod" else source_type
         
-        results = engine.search(db, q, source_type=db_source_type)
-        return {"results": results}
+        search_res = engine.search(db, q, source_type=db_source_type)
+        if isinstance(search_res, dict) and "metadata" in search_res:
+             return search_res
+        return {"results": search_res}
     except Exception as e:
         print(f"Search error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

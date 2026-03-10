@@ -8,8 +8,10 @@ interface SearchResponse {
         fili: ResultCardProps[];
     };
     metadata: {
-        totalTime: number;
-        queryAnalysis: any;
+        totalTime?: number;
+        queryAnalysis?: any;
+        result_mode?: string;
+        reason?: string;
     };
 }
 
@@ -45,15 +47,17 @@ async function fetchSearchResults(query: string, mode: 'buod' | 'full'): Promise
             fili: transformResults(data.results.elfili || [], 'fili')
         },
         metadata: {
-            totalTime: 0,
-            queryAnalysis: null
+            totalTime: data.metadata?.totalTime || 0,
+            queryAnalysis: data.metadata?.queryAnalysis || null,
+            result_mode: data.metadata?.result_mode || "lexical",
+            reason: data.metadata?.reason || ""
         }
     };
 }
 
 export function useRizalSearch(query: string) {
     const { mode } = useModeStore();
-    
+
     return useQuery({
         queryKey: ['search', query, mode],
         queryFn: () => fetchSearchResults(query, mode),

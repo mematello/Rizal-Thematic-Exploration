@@ -190,6 +190,16 @@ function SearchContent() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                         >
+                            {/* Metadata Context Banner */}
+                            {data?.metadata?.result_mode === "semantic_fallback" && totalResults > 0 && (
+                                <div className="mb-6 mx-auto w-full bg-brand-gold/10 border border-brand-gold/30 rounded-lg p-3 text-center transition-all animate-in fade-in slide-in-from-top-4">
+                                    <p className="text-sm font-serif text-brand-navy">
+                                        <span className="font-bold mr-2">i</span>
+                                        Walang eksaktong tugma na nahanap para sa <b>&ldquo;{initialQuery}&rdquo;</b>—nagpapakita ng mga kaugnay na talata.
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Both novels: Noli left, Fili right */}
                             {novelFilter === 'both' && (
                                 <div className="grid md:grid-cols-2 gap-6">
