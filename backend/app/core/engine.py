@@ -49,9 +49,21 @@ class RizalEngine:
         
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
-            "tiktok", "bitcoin", "wifi", "internet", "facebook", "instagram", 
-            "twitter", "covid", "virus", "computer", "phone", "laptop", 
-            "social media", "vlog", "online", "download", "app", "mobile"
+            'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
+            'cellphone', 'internet', 'wifi', 'computer', 'laptop', 'online',
+            'covid', 'pandemic', 'app', 'website', 'netflix', 'youtube'
+        }
+        
+        self.LOW_INFO_WORDS = {
+            "hindi", "lahat", "walang", "ang", "mga", "ng", "sa", "at", "ay", "ito", "iyan", "iyon", 
+            "niya", "nila", "mo", "ko", "siya", "sila", "tayo", "kami", "kayo", "namin", "ano", "sino", 
+            "bakit", "paano", "kailan", "saan", "may", "wala", "din", "rin", "pa", "na", "ba", "nga", 
+            "kaya", "pati", "para", "upang", "dahil", "isang", "kanilang", "kanyang", "naging", 
+            "masyado", "marami", "siyang", "akong", "aking", "iyong", "ating", "inyong", "kanila", 
+            "kanya", "ganyan", "ganito", "ganoon", "naman", "daw", "raw", "muli", "hanggang", "lamang",
+            "kaya", "sana", "kapag", "kung", "habang", "kahit", "agad", "tuwing", "tiyak", "ilang",
+            "katulad", "mukhang", "lalong", "panahong", "talagang", "bagay", "katwiran", "marahil",
+            "upang", "gayon", "ngunit", "datapwat", "subalit", "bagaman", "palibhasa", "sapagkat"
         }
 
     def _expand_query_with_themes(self, query_vec):
@@ -287,7 +299,16 @@ class RizalEngine:
             result_mode = "semantic_fallback"
             
             # Build valid tokens using significant query words (no stopwords) + theme tokens
-            valid_tokens = set(sig_words) | theme_tokens
+            raw_valid_tokens = set(sig_words) | theme_tokens
+            valid_tokens = {t for t in raw_valid_tokens if t.lower() not in self.LOW_INFO_WORDS}
+            
+            # Pre-compute vectors for each individual significant word to avoid phrase-inflation drift
+            sig_word_vecs = []
+            for sw in sig_words:
+                vec = self.base_model.encode(sw, show_progress_bar=False)
+                if np.linalg.norm(vec) > 0:
+                    vec = vec / np.linalg.norm(vec)
+                sig_word_vecs.append((sw, vec))
             
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Valid tokens for validation: {list(valid_tokens)[:10]}")
@@ -378,8 +399,8 @@ class RizalEngine:
                 vocab_check_passed = any(w in self.vocabulary for w in sig_words)
                 if not has_validation and vocab_check_passed:
                     sent_words = set(extract_words(text_lower))
-                    # Filter short words
-                    cand_words = [w for w in sent_words if len(w) > 4]
+                    # Filter short words and low-info words immediately
+                    cand_words = [w for w in sent_words if len(w) > 4 and w not in self.LOW_INFO_WORDS]
                     
                     for w in cand_words:
                         if w in valid_tokens: continue # Already checked
@@ -392,22 +413,25 @@ class RizalEngine:
                         if w not in self.word_sim_cache:
                             # Compute similarity on the fly
                             w_vec = self.base_model.encode(w, show_progress_bar=False)
-                            w_vec = w_vec / np.linalg.norm(w_vec)
+                            if np.linalg.norm(w_vec) > 0:
+                                w_vec = w_vec / np.linalg.norm(w_vec)
                             
-                            # query_embedding is already the (possibly expanded) concept vector
-                            # But for this strict check, we want similarity to the ORIGINAL query word
-                            # to avoid drift.
-                            # We need the original query vector here.
-                            # Let's re-encode strictly the query word if not available, 
-                            # or just use the base query part.
-                            # Actually, using the expanded vector is okay, but using the raw word is safer for "synonym" check.
-                            q_raw_vec = self.base_model.encode(query, show_progress_bar=False)
-                            q_raw_vec = q_raw_vec / np.linalg.norm(q_raw_vec)
-                            
-                            sim = float(np.dot(q_raw_vec, w_vec))
-                            self.word_sim_cache[w] = sim
+                            # Use max similarity against any individual significant word
+                            max_sim = 0.0
+                            if sig_word_vecs:
+                                for _, s_vec in sig_word_vecs:
+                                    sim = float(np.dot(s_vec, w_vec))
+                                    if sim > max_sim:
+                                        max_sim = sim
+                            else:
+                                # Fallback for edge cases where sig_words is empty
+                                q_vec = self.base_model.encode(query, show_progress_bar=False)
+                                if np.linalg.norm(q_vec) > 0: q_vec = q_vec / np.linalg.norm(q_vec)
+                                max_sim = float(np.dot(q_vec, w_vec))
+                                
+                            self.word_sim_cache[w] = max_sim
                         
-                        if self.word_sim_cache[w] > 0.54: # Threshold for strong synonymy (e.g. instruccion=0.56)
+                        if self.word_sim_cache[w] > 0.55: # Strict single-word synonym threshold
                             has_validation = True
                             matched_token = f"{w} (dynamic)"
                             # Add to valid_tokens to speed up future checks
