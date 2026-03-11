@@ -12,12 +12,21 @@ from app.core.engine import get_engine
 def print_result(rank, result_dict, mode):
     print("-" * 60)
     word_count = len(result_dict['sentence_text'].split())
-    print(f"Rank {rank} | ID: {result_dict['id']} | Length: {word_count} words")
+    init_rank = result_dict['scores'].get('initial_rank', 'N/A')
+    print(f"Final Rank {rank} | Initial Rank: {init_rank} | ID: {result_dict['id']} | Length: {word_count} words")
     print(f"Chapter: {result_dict['chapter_title']}")
     print(f"Text: {result_dict['sentence_text']}")
-    print(f"Scores -> Final: {result_dict['scores'].get('final', 0)}, " 
-          f"Semantic: {result_dict['scores'].get('semantic', 0)}, "
-          f"Lexical: {result_dict['scores'].get('lexical', 0)}")
+    
+    rerank_score = result_dict['scores'].get('rerank')
+    if rerank_score is not None:
+        print(f"Scores -> Reranker: {rerank_score}, "
+              f"Pipeline Final: {result_dict['scores'].get('final', 0)}, " 
+              f"Semantic: {result_dict['scores'].get('semantic', 0)}, "
+              f"Lexical: {result_dict['scores'].get('lexical', 0)}")
+    else:
+        print(f"Scores -> Final: {result_dict['scores'].get('final', 0)}, " 
+              f"Semantic: {result_dict['scores'].get('semantic', 0)}, "
+              f"Lexical: {result_dict['scores'].get('lexical', 0)}")
     
     if result_dict.get('themes'):
         print(f"Themes: {[t['label'] for t in result_dict['themes']]}")
