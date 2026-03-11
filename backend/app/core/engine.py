@@ -562,8 +562,6 @@ class RizalEngine:
         
         def finalize(lst, label):
             lst.sort(key=lambda x: x['scores']['final'], reverse=True)
-            if lst:
-                pass
             seen_text = set()
             unique = []
             for itm in lst:
@@ -571,10 +569,17 @@ class RizalEngine:
                 if txt not in seen_text:
                     seen_text.add(txt)
                     unique.append(itm)
-            return unique[:top_k]
+            if result_mode == "semantic_fallback":
+                return unique[:20] # Take top 20 candidates for reranking
+            else:
+                return unique[:top_k]
 
-        results['noli'] = finalize(results['noli'], 'noli')
-        results['elfili'] = finalize(results['elfili'], 'elfili')
+        if result_mode == "semantic_fallback":
+            results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'))[:top_k]
+            results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'))[:top_k]
+        else:
+            results['noli'] = finalize(results['noli'], 'noli')
+            results['elfili'] = finalize(results['elfili'], 'elfili')
         
         if reason == "matches_found" and not (results['noli'] or results['elfili']):
             reason = "filtered_by_ranker"
@@ -647,6 +652,35 @@ class RizalEngine:
             l_sem = 1.0 - l_lex
             
         return l_lex, l_sem
+
+    def _rerank_candidates(self, query: str, candidates: list) -> list:
+        if not candidates:
+            return []
+            
+        # compute embedding for the full query
+        query_emb = self.base_model.encode(query, show_progress_bar=False)
+        query_norm = np.linalg.norm(query_emb)
+        if query_norm > 0:
+            query_emb = query_emb / query_norm
+            
+        for i, cand in enumerate(candidates):
+            text = cand['sentence_text']
+            # compute embedding for each candidate passage
+            text_emb = self.base_model.encode(text, show_progress_bar=False)
+            text_norm = np.linalg.norm(text_emb)
+            if text_norm > 0:
+                text_emb = text_emb / text_norm
+                
+            # compute cosine similarity
+            rerank_score = float(np.dot(query_emb, text_emb))
+            
+            # Record scores for debugging
+            cand['scores']['rerank'] = round(rerank_score * 100)
+            cand['scores']['initial_rank'] = i + 1
+            
+        # rerank candidates based on this score
+        candidates.sort(key=lambda x: x['scores']['rerank'], reverse=True)
+        return candidates
 
     def _calculate_clear_score(self, sem, lex, lam_lex, lam_sem, length):
         score = (lam_sem * sem) + (lam_lex * lex)
