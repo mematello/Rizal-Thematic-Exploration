@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { ResultCard } from "@/components/ResultCard";
 import { SkeletonLoader } from "@/components/SkeletonLoader";
 import { ChapterModal } from "@/components/ChapterModal";
+import { SuggestionsCard } from "@/components/SuggestionsCard";
 import { useRizalSearch } from "@/hooks/useRizalSearch";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, BarChart2 } from "lucide-react";
@@ -260,6 +261,11 @@ function SearchContent() {
                                         </div>
                                     </div>
                                 </>
+                            )}
+
+                            {/* Kaugnay na Paghahanap (Suggestions) */}
+                            {data?.metadata?.suggestions && data.metadata.suggestions.length > 0 && (
+                                <SuggestionsCard suggestions={data.metadata.suggestions} />
                             )}
                         </motion.div>
                     </AnimatePresence>

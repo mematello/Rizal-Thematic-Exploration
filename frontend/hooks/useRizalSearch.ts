@@ -12,6 +12,7 @@ interface SearchResponse {
         queryAnalysis?: any;
         result_mode?: string;
         reason?: string;
+        suggestions?: string[];
     };
 }
 
@@ -50,7 +51,8 @@ async function fetchSearchResults(query: string, mode: 'buod' | 'full'): Promise
             totalTime: data.metadata?.totalTime || 0,
             queryAnalysis: data.metadata?.queryAnalysis || null,
             result_mode: data.metadata?.result_mode || "lexical",
-            reason: data.metadata?.reason || ""
+            reason: data.metadata?.reason || "",
+            suggestions: data.metadata?.suggestions || []
         }
     };
 }
