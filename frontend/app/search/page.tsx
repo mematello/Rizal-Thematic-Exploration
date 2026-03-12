@@ -265,7 +265,10 @@ function SearchContent() {
 
                             {/* Kaugnay na Paghahanap (Suggestions) */}
                             {data?.metadata?.suggestions && data.metadata.suggestions.length > 0 && (
-                                <SuggestionsCard suggestions={data.metadata.suggestions} />
+                                <SuggestionsCard 
+                                    suggestions={data.metadata.suggestions} 
+                                    onSuggestionClick={handleSearch}
+                                />
                             )}
                         </motion.div>
                     </AnimatePresence>

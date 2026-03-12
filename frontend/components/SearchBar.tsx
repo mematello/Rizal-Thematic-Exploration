@@ -26,6 +26,10 @@ export function SearchBar({
     ];
 
     useEffect(() => {
+        setQuery(defaultValue);
+    }, [defaultValue]);
+
+    useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
