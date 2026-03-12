@@ -4,16 +4,21 @@ import { motion } from "framer-motion";
 
 interface SuggestionsCardProps {
     suggestions: string[];
+    onSuggestionClick?: (query: string) => void;
 }
 
-export const SuggestionsCard = ({ suggestions }: SuggestionsCardProps) => {
+export const SuggestionsCard = ({ suggestions, onSuggestionClick }: SuggestionsCardProps) => {
     const router = useRouter();
 
     if (!suggestions || suggestions.length === 0) return null;
 
     const handleSuggestionClick = (query: string) => {
-        const encodedQuery = encodeURIComponent(query);
-        router.push(`/search?q=${encodedQuery}`);
+        if (onSuggestionClick) {
+            onSuggestionClick(query);
+        } else {
+            const encodedQuery = encodeURIComponent(query);
+            router.push(`/search?q=${encodedQuery}`);
+        }
     };
 
     return (
