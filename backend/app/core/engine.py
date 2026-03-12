@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.core.analyzer import QueryAnalyzer, extract_words
 from app.models.database import Sentence
 from app.core.tagalog_parser import TagalogRoleParser
+from app.services.suggestions import DynamicSuggestionGenerator
 
 settings = get_settings()
 
@@ -592,11 +593,35 @@ class RizalEngine:
         if os.getenv("DEBUG_SEARCH"):
             print(f"[DEBUG] Final Results -> Noli: {len(results['noli'])}, Fili: {len(results['elfili'])}")
 
+        # 4. Generate Dynamic Search Suggestions ("Kaugnay na Paghahanap")
+        matched_theme_string = ""
+        anchor_score = 0.0
+        
+        if getattr(self, 'theme_matrix', None) is not None and getattr(self, 'theme_cache', None):
+            q_vec = np.array(query_vec_initial)
+            q_norm = np.linalg.norm(q_vec)
+            if q_norm > 0:
+                q_vec = q_vec / q_norm
+                scores = np.dot(self.theme_matrix, q_vec)
+                max_score = float(np.max(scores))
+                if max_score > 0:
+                    best_idx = int(np.argmax(scores))
+                    anchor_score = max_score
+                    matched_theme_string = self.theme_cache[best_idx].get('tagalog_title', '').lower()
+
+        theme_metadata = {
+            "matched_themes": [matched_theme_string] if matched_theme_string else [],
+            "anchor_score": anchor_score
+        }
+        top_combined = sorted(results['noli'] + results['elfili'], key=lambda x: x['scores']['final'], reverse=True)[:5]
+        suggestions = DynamicSuggestionGenerator.generate_suggestions(query, top_combined, theme_metadata)
+
         return {
             "results": results,
             "metadata": {
                 "result_mode": result_mode,
-                "reason": reason
+                "reason": reason,
+                "suggestions": suggestions
             }
         }
 
