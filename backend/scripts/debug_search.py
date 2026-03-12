@@ -53,6 +53,11 @@ def main():
         print(f"\n--- METADATA ---")
         print(f"Result Mode: {meta.get('result_mode')}")
         print(f"Reason: {meta.get('reason')}")
+        suggestions = meta.get("suggestions", [])
+        if suggestions:
+            print("\n--- KAUGNAY NA PAGHAHANAP ---")
+            for i, sug in enumerate(suggestions, 1):
+                print(f" {i}. {sug}")
         print(f"----------------\n")
         
         book_key = args.book
