@@ -363,7 +363,7 @@ def get_chapter_content(
     response_data = []
     for s in unique_sentences:
         # Classify themes using the engine
-        themes = engine._classify_themes(db, s.embedding, s.sentence_text)
+        themes = engine._classify_themes(db, s, "")
         
         # Convert to Pydantic model format
         theme_matches = [

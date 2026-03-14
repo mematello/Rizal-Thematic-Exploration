@@ -67,6 +67,18 @@ class RizalEngine:
             "upang", "gayon", "ngunit", "datapwat", "subalit", "bagaman", "palibhasa", "sapagkat"
         }
 
+    
+    def _get_passage_context(self, db: Session, center: Sentence, window: int = 8) -> str:
+        range_start, range_end = center.sentence_index - window, center.sentence_index + window
+        candidates = db.scalars(select(Sentence).filter(
+            Sentence.book == center.book, 
+            Sentence.chapter_number == center.chapter_number, 
+            Sentence.source_type == center.source_type,
+            Sentence.sentence_index >= range_start, 
+            Sentence.sentence_index <= range_end
+        ).order_by(Sentence.sentence_index)).all()
+        return " ".join([s.sentence_text for s in candidates])
+
     def _expand_query_with_themes(self, query_vec):
         """
         Finds the most relevant Themes for a query vector and returns 
@@ -554,7 +566,7 @@ class RizalEngine:
                     'final': round(final_score * 100)
                 }
             }
-            result_item['themes'] = self._classify_themes(db, sent.embedding, sent.sentence_text)
+            result_item['themes'] = self._classify_themes(db, sent, query)
             
             if 'noli' in sent.book.lower():
                 results['noli'].append(result_item)
@@ -764,30 +776,122 @@ class RizalEngine:
         words = extract_words(query.lower())
         return len(words) > 0
         
-    def _classify_themes(self, db: Session, sentence_embedding, sentence_text):
+    
+    def _generate_hybrid_theme_pool(self, query: str, target_pool_size: int = 5) -> list[int]:
+        pool_indices = set()
+        q_lower = query.lower()
+        
+        lexical_aliases = {
+            "kalayaan": ["Kalayaan at Pagmamahal sa Bayan"],
+            "bayan": ["Kalayaan at Pagmamahal sa Bayan"],
+            "edukasyon": ["Edukasyon", "Edukasyon at Kalayaan"],
+            "paaralan": ["Edukasyon"],
+            "simbahan": ["Katiwalian", "Kolonyal na Kaisipan at Paghahangad Umasenso", "Kapangyarihan at Kawalang-Katarungan"],
+            "prayle": ["Katiwalian", "Ipokrasya at Pang-aaping Kolonyal"],
+            "pang-aapi": ["Kawalang-Katarungan at Katarungan", "Kapangyarihan at Kawalang-Katarungan", "Pang-aapi sa Kababaihan"],
+            "kababaihan": ["Pang-aapi sa Kababaihan"],
+            "pag-ibig": ["Pag-ibig, Kadalisayan, at Katapatan"]
+        }
+        
+        q_emb_raw = self.base_model.encode(query, show_progress_bar=False)
+        if isinstance(q_emb_raw, list): q_emb_raw = np.array(q_emb_raw)
+        
+        q_norm = np.linalg.norm(q_emb_raw)
+        query_vec = q_emb_raw / q_norm if q_norm > 0 else q_emb_raw
+        
+        q_sims = np.dot(self.theme_matrix, query_vec)
+        ranked_indices = np.argsort(q_sims)[::-1]
+        
+        for i, theme in enumerate(self.theme_cache):
+            title_tag = theme['tagalog_title']
+            title_lower = title_tag.lower()
+            if q_lower in lexical_aliases:
+                if title_tag in lexical_aliases[q_lower]:
+                    pool_indices.add(i)
+            elif title_lower == q_lower or q_lower in title_lower.split():
+                 pool_indices.add(i)
+                    
+        for idx in ranked_indices:
+            if len(pool_indices) >= target_pool_size:
+                break
+            pool_indices.add(idx)
+            
+        return list(pool_indices) if len(pool_indices) > 0 else list(range(len(self.theme_cache)))
+
+    def _classify_themes(self, db: Session, center_sent: Sentence, query: str = ""):
         self._ensure_themes_loaded(db)
-        if self.theme_matrix is None or sentence_embedding is None:
+        if self.theme_matrix is None or center_sent.embedding is None:
             return []
             
-        sent_vec = np.array(sentence_embedding)
+        q_type = self._determine_query_type(query) if query else "Abstract Phrase"
+        pool_indices = self._generate_hybrid_theme_pool(query, target_pool_size=5) if query else list(range(len(self.theme_cache)))
+            
+        import json
+        emb_data = center_sent.embedding
+        if isinstance(emb_data, str):
+            try:
+                emb_data = json.loads(emb_data)
+            except:
+                return []
+        sent_vec = np.array(emb_data, dtype=float)
+        if len(sent_vec.shape) > 1:
+            sent_vec = sent_vec.flatten()
         sent_norm = np.linalg.norm(sent_vec)
-        if sent_norm > 0: 
-            sent_vec = sent_vec / sent_norm
-        else:
-            return []
+        if sent_norm > 0: sent_vec = sent_vec / sent_norm
+        else: return []
 
-        # Vectorized dot product for all themes
-        sem_sims = np.dot(self.theme_matrix, sent_vec)
+        passage_text = self._get_passage_context(db, center_sent, window=8)
+        p_emb_raw = self.base_model.encode(passage_text, show_progress_bar=False)
+        if isinstance(p_emb_raw, list): p_emb_raw = np.array(p_emb_raw)
+        p_norm = np.linalg.norm(p_emb_raw)
+        passage_emb = p_emb_raw / p_norm if p_norm > 0 else p_emb_raw
+        
+        sent_sims = np.dot(self.theme_matrix, sent_vec)
+        pass_sims = np.dot(self.theme_matrix, passage_emb)
         
         candidates = []
-        for i, theme in enumerate(self.theme_cache):
-            sem_sim = max(0.0, min(1.0, float(sem_sims[i])))
-            lex_score = self._compute_simple_lexical(sentence_text, theme['meaning'])
-            theme_score = (0.5 * sem_sim) + (0.5 * lex_score)
-            candidates.append({'id': str(theme['id']), 'label': theme['tagalog_title'], 'score': theme_score})
-        
+        for tidx in pool_indices:
+            theme = self.theme_cache[tidx]
+            meaning = theme.get('meaning', '')
+            
+            s_score = max(0.0, float(sent_sims[tidx]))
+            p_score = max(0.0, float(pass_sims[tidx]))
+            lex_score = self._compute_simple_lexical(passage_text, meaning)
+            sent_lex = self._compute_simple_lexical(center_sent.sentence_text, meaning)
+            
+            final_s_score = (0.5 * s_score) + (0.5 * sent_lex)
+            final_p_score = (0.5 * p_score) + (0.5 * lex_score)
+            
+            score = 0
+            if q_type == "Character": score = final_p_score
+            elif q_type == "Theme Keyword": score = (0.7 * final_s_score) + (0.3 * final_p_score)
+            else: score = (0.4 * final_s_score) + (0.6 * final_p_score)
+                
+            candidates.append({'id': str(theme['id']), 'label': theme['tagalog_title'], 'score': score})
+            
         candidates.sort(key=lambda x: x['score'], reverse=True)
-        return candidates[:1]
+        
+        # UI DISPLAY THRESHOLD (Phase 36 Approval)
+        if candidates:
+            best_theme = candidates[0]
+            
+            # Explicit Override Rule: If query explicitly contains the theme keyword,
+            # bypass the threshold suppression to avoid confusing UX.
+            literal_override = False
+            if query and q_type == "Theme Keyword":
+                query_words = set([w.lower().strip() for w in query.split()])
+                # Split theme label into words. e.g "Edukasyon at Pag-aaral" -> "Edukasyon", "Pag", "aaral"
+                theme_words = set([w.lower().strip(' ,.!?"\'') for w in best_theme['label'].split()])
+                
+                # Check for direct word overlap
+                if len(query_words.intersection(theme_words)) > 0:
+                    literal_override = True
+
+            # Standard threshold is 0.55 unless explicitly matched directly by string
+            if best_theme['score'] >= 0.55 or literal_override:
+                return [best_theme]
+            
+        return []
 
     def batch_classify_themes(self, db: Session, sentences):
         """
@@ -805,6 +909,8 @@ class RizalEngine:
         for s in sentences:
             if s.embedding is not None:
                 sent_vec = np.array(s.embedding)
+                if len(sent_vec.shape) > 1:
+                    sent_vec = sent_vec.flatten()
                 norm = np.linalg.norm(sent_vec)
                 if norm > 0:
                     sent_embeddings.append(sent_vec / norm)
@@ -850,6 +956,16 @@ class RizalEngine:
             results.append(candidates[:1])
             
         return results
+
+    
+    def _determine_query_type(self, query: str) -> str:
+        chars = ["elias", "maria clara", "ibarra", "simoun", "crisostomo", "padre", "sisa", "basilio", "crispin"]
+        if query.lower() in chars or any(c in query.lower() for c in chars):
+            return "Character"
+        exact_themes = ["edukasyon", "kalayaan", "simbahan", "bayan", "prayle", "paaralan", "pag-ibig"]
+        if query.lower() in exact_themes:
+            return "Theme Keyword"
+        return "Abstract Phrase"
 
     def _compute_simple_lexical(self, text1, text2):
         w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))
