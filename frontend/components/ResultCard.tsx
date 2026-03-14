@@ -91,7 +91,14 @@ export function ResultCard({
             {/* Action Row */}
             <div className="px-5 py-2.5 border-t border-brand-gold/10 flex items-center gap-2 bg-brand-cream/30">
                 <button
-                    onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+                    onClick={(e) => { 
+                        e.stopPropagation(); 
+                        console.log(`[ResultCard ${id}] "Ipakita ang Konteksto" clicked.`);
+                        console.log(`[ResultCard ${id}] Before state change - isExpanded:`, isExpanded);
+                        console.log(`[ResultCard ${id}] themes prop:`, themes);
+                        console.log(`[ResultCard ${id}] hasThemes derived:`, hasThemes);
+                        setIsExpanded(!isExpanded); 
+                    }}
                     className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all ${novelTheme.btnBorder}`}
                     aria-expanded={isExpanded}
                 >
