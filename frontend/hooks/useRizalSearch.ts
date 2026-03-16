@@ -38,6 +38,7 @@ async function fetchSearchResults(query: string, mode: 'buod' | 'full'): Promise
             contextHtml: item.context_text,
             scores: item.scores,
             themes: item.themes,
+            conceptMatchType: item.concept_match_type,
             confidenceBadge: item.scores?.final > 85
         }));
     };

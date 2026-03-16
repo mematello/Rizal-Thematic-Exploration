@@ -93,9 +93,18 @@ function SearchContent() {
 
     // For single-novel mode, split results into 2 columns
     const singleNovelResults = novelFilter === 'noli' ? filteredNoli : novelFilter === 'fili' ? filteredFili : [];
-    const midpoint = Math.ceil(singleNovelResults.length / 2);
-    const col1 = singleNovelResults.slice(0, midpoint);
-    const col2 = singleNovelResults.slice(midpoint);
+    const deriveColumns = (arr: any[]) => [arr.slice(0, Math.ceil(arr.length / 2)), arr.slice(Math.ceil(arr.length / 2))];
+    const [col1, col2] = deriveColumns(singleNovelResults);
+    
+    // Concept Coverage Grouping
+    const isMultiConceptSingle = singleNovelResults.some(r => r.conceptMatchType);
+    const strongMatches = singleNovelResults.filter(r => r.conceptMatchType === 'strong');
+    const partialMatches = singleNovelResults.filter(r => r.conceptMatchType === 'partial');
+    const [strongCol1, strongCol2] = deriveColumns(strongMatches);
+    const [partialCol1, partialCol2] = deriveColumns(partialMatches);
+    
+    const isNoliMultiConcept = filteredNoli.some(r => r.conceptMatchType);
+    const isFiliMultiConcept = filteredFili.some(r => r.conceptMatchType);
 
     const backgroundStyle = useNovelBackground(novelFilter);
 
@@ -210,11 +219,19 @@ function SearchContent() {
                                             <span className="bg-noli-gold/15 text-noli-gold text-xs px-2 py-0.5 rounded-full font-bold">{filteredNoli.length}</span>
                                         </div>
                                         <div className="space-y-4">
-                                            {filteredNoli.map((result, i) => (
-                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                    <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                </motion.div>
-                                            ))}
+                                            {filteredNoli.map((result, i, arr) => {
+                                                const isFirstStrong = isNoliMultiConcept && result.conceptMatchType === 'strong' && (i === 0 || arr[i - 1].conceptMatchType !== 'strong');
+                                                const isFirstPartial = isNoliMultiConcept && result.conceptMatchType === 'partial' && (i === 0 || arr[i - 1].conceptMatchType !== 'partial');
+                                                return (
+                                                    <div key={result.id}>
+                                                        {isFirstStrong && <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-3 mt-1">Tugmang Konsepto</h4>}
+                                                        {isFirstPartial && <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-3 mt-6">Bahagyang Tugma (Fallback)</h4>}
+                                                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                            <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        </motion.div>
+                                                    </div>
+                                                );
+                                            })}
                                             {filteredNoli.length === 0 && <p className="text-center py-10 text-brand-text/40 italic font-serif text-sm">Walang resulta sa Noli.</p>}
                                         </div>
                                     </section>
@@ -224,11 +241,19 @@ function SearchContent() {
                                             <span className="bg-fili-magenta/15 text-fili-magenta text-xs px-2 py-0.5 rounded-full font-bold">{filteredFili.length}</span>
                                         </div>
                                         <div className="space-y-4">
-                                            {filteredFili.map((result, i) => (
-                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                    <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                </motion.div>
-                                            ))}
+                                            {filteredFili.map((result, i, arr) => {
+                                                const isFirstStrong = isFiliMultiConcept && result.conceptMatchType === 'strong' && (i === 0 || arr[i - 1].conceptMatchType !== 'strong');
+                                                const isFirstPartial = isFiliMultiConcept && result.conceptMatchType === 'partial' && (i === 0 || arr[i - 1].conceptMatchType !== 'partial');
+                                                return (
+                                                    <div key={result.id}>
+                                                        {isFirstStrong && <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-3 mt-1">Tugmang Konsepto</h4>}
+                                                        {isFirstPartial && <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-3 mt-6">Bahagyang Tugma (Fallback)</h4>}
+                                                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                            <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        </motion.div>
+                                                    </div>
+                                                );
+                                            })}
                                             {filteredFili.length === 0 && <p className="text-center py-10 text-brand-text/40 italic font-serif text-sm">Walang resulta sa Fili.</p>}
                                         </div>
                                     </section>
@@ -242,24 +267,47 @@ function SearchContent() {
                                         <span className="font-serif font-bold text-brand-navy text-sm uppercase tracking-wider">{novelLabel}</span>
                                         <span className="bg-brand-gold/15 text-brand-gold text-xs px-2 py-0.5 rounded-full font-bold">{singleNovelResults.length}</span>
                                     </div>
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {/* Column 1 */}
-                                        <div className="space-y-4">
-                                            {col1.map((result, i) => (
-                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                </motion.div>
-                                            ))}
+                                    {isMultiConceptSingle ? (
+                                        <div className="space-y-8">
+                                            {strongMatches.length > 0 && (
+                                                <section>
+                                                    <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-4 px-1">Tugmang Konsepto</h4>
+                                                    <div className="grid md:grid-cols-2 gap-4">
+                                                        <div className="space-y-4">{strongCol1.map((r, i) => <motion.div key={r.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}><ResultCard {...r} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} /></motion.div>)}</div>
+                                                        <div className="space-y-4">{strongCol2.map((r, i) => <motion.div key={r.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + strongCol1.length) * 0.04 }}><ResultCard {...r} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} /></motion.div>)}</div>
+                                                    </div>
+                                                </section>
+                                            )}
+                                            {partialMatches.length > 0 && (
+                                                <section>
+                                                    <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-navy/60 mb-4 px-1">Bahagyang Tugma (Fallback)</h4>
+                                                    <div className="grid md:grid-cols-2 gap-4">
+                                                        <div className="space-y-4">{partialCol1.map((r, i) => <motion.div key={r.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}><ResultCard {...r} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} /></motion.div>)}</div>
+                                                        <div className="space-y-4">{partialCol2.map((r, i) => <motion.div key={r.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + partialCol1.length) * 0.04 }}><ResultCard {...r} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} /></motion.div>)}</div>
+                                                    </div>
+                                                </section>
+                                            )}
                                         </div>
-                                        {/* Column 2 */}
-                                        <div className="space-y-4">
-                                            {col2.map((result, i) => (
-                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + midpoint) * 0.04 }}>
-                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                </motion.div>
-                                            ))}
+                                    ) : (
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            {/* Column 1 */}
+                                            <div className="space-y-4">
+                                                {col1.map((result, i) => (
+                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                            {/* Column 2 */}
+                                            <div className="space-y-4">
+                                                {col2.map((result, i) => (
+                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + col1.length) * 0.04 }}>
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                    </motion.div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </>
                             )}
 

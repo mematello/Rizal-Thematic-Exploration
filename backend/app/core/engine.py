@@ -495,6 +495,7 @@ class RizalEngine:
                             coverage_count += 1
                 
                 coverage_ratio = coverage_count / len(sig_words)
+                is_strong_match = coverage_ratio >= 1.0
                 
                 if result_mode != "semantic_fallback":
                     # STRICT FILTER for short queries (2-3 words):
@@ -522,6 +523,19 @@ class RizalEngine:
             # Stopword dominance check
             if result_mode == "semantic_fallback":
                 match_sig = True  # We already did strict synonym validation
+                if not is_single_word and sig_words:
+                    # Semantic fallback candidates must independently be assessed for strong concept match
+                    coverage_count = 0
+                    threshold = 0.55 if source_type == 'summary' else 0.60
+                    sent_text_lower = sent.sentence_text.lower()
+                    for i, sw in enumerate(sig_words):
+                        if sw in sent_words_set or sw in sent_text_lower:
+                            coverage_count += 1
+                        else:
+                            word_sim = float(np.dot(norm_sig_vecs[i], v_sent))
+                            if word_sim >= threshold:
+                                coverage_count += 1
+                    is_strong_match = (coverage_count / len(sig_words)) >= 1.0
             else:
                 match_sig = any(w in sent_words_set for w in sig_words)
                 
@@ -567,6 +581,9 @@ class RizalEngine:
                     'final': round(final_score * 100)
                 }
             }
+            if not is_single_word:
+                result_item['concept_match_type'] = 'strong' if is_strong_match else 'partial'
+                
             result_item['themes'] = self._classify_themes(db, sent, query)
             
             if 'noli' in sent.book.lower():
@@ -575,7 +592,11 @@ class RizalEngine:
                 results['elfili'].append(result_item)
         
         def finalize(lst, label):
-            lst.sort(key=lambda x: x['scores']['final'], reverse=True)
+            if not is_single_word:
+                lst.sort(key=lambda x: (1 if x.get('concept_match_type') == 'strong' else 0, x['scores']['final']), reverse=True)
+            else:
+                lst.sort(key=lambda x: x['scores']['final'], reverse=True)
+                
             seen_text = set()
             unique = []
             for itm in lst:
@@ -720,7 +741,11 @@ class RizalEngine:
             cand['scores']['initial_rank'] = i + 1
             
         # rerank candidates based on this score
-        candidates.sort(key=lambda x: x['scores']['rerank'], reverse=True)
+        if len(candidates) > 0 and 'concept_match_type' in candidates[0]:
+            candidates.sort(key=lambda x: (1 if x.get('concept_match_type') == 'strong' else 0, x['scores']['rerank']), reverse=True)
+        else:
+            candidates.sort(key=lambda x: x['scores']['rerank'], reverse=True)
+            
         return candidates
 
     def _calculate_clear_score(self, sem, lex, lam_lex, lam_sem, length):
