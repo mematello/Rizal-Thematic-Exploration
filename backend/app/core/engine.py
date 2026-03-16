@@ -58,6 +58,7 @@ class RizalEngine:
         self.LOW_INFO_WORDS = {
             "hindi", "lahat", "walang", "ang", "mga", "ng", "sa", "at", "ay", "ito", "iyan", "iyon", 
             "niya", "nila", "mo", "ko", "siya", "sila", "tayo", "kami", "kayo", "namin", "ano", "sino", 
+            "ni", "si", "sina", "nina", "kay", "kina",
             "bakit", "paano", "kailan", "saan", "may", "wala", "din", "rin", "pa", "na", "ba", "nga", 
             "kaya", "pati", "para", "upang", "dahil", "isang", "kanilang", "kanyang", "naging", 
             "masyado", "marami", "siyang", "akong", "aking", "iyong", "ating", "inyong", "kanila", 
@@ -645,8 +646,7 @@ class RizalEngine:
         if query_lower == sentence_lower: return 1.0
         
         query_pattern = r'\b' + re.escape(query_lower) + r'\b'
-        if re.search(query_pattern, sentence_lower):
-            return min(1.0, 0.5 + (len(query_lower) / len(sentence_lower)))
+        exact_phrase_match = re.search(query_pattern, sentence_lower)
 
         matched_weight = 0.0
         total_weight = sum(item['semantic_weight'] for item in query_analysis)
@@ -664,9 +664,13 @@ class RizalEngine:
         density = match_count / max(1, len(sentence_words))
         score = (coverage * 0.8) + (density * 0.2)
 
-        
         if stopword_ratio > self.HIGH_STOPWORD_RATIO:
             score *= (1.0 - (stopword_ratio - self.HIGH_STOPWORD_RATIO) * self.STOPWORD_PENALTY_FACTOR)
+            
+        if exact_phrase_match:
+            exact_bonus = min(1.0, 0.90 + (len(query_lower) / max(1, len(sentence_lower))))
+            return max(score, exact_bonus)
+
         return score
 
     def _compute_dynamic_weights(self, text_length, query_length):
