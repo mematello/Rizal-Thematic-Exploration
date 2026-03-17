@@ -603,6 +603,7 @@ class RizalEngine:
 
             result_item = {
                 'id': sent.id,
+                'sentence_index': sent.sentence_index,
                 'chapter_number': sent.chapter_number,
                 'chapter_title': sent.chapter_title,
                 'sentence_text': sent.sentence_text,
