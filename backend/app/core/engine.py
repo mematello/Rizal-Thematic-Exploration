@@ -637,8 +637,24 @@ class RizalEngine:
                 return unique[:top_k]
 
         if result_mode == "semantic_fallback":
-            results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'), query_vec=query_embedding)[:top_k]
-            results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'), query_vec=query_embedding)[:top_k]
+            results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'), query_vec=query_embedding)
+            results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'), query_vec=query_embedding)
+            
+            # Lexical-Priority Reservation: ensure real lexical hits surface before semantic supplements
+            for book_key in ['noli', 'elfili']:
+                pool = results[book_key]
+                # Partition into true lexical matches (word actually appears in text) vs semantic-only
+                lex_reserved = []
+                sem_only = []
+                for item in pool:
+                    text_lower = item['sentence_text'].lower()
+                    has_real_lexical = any(sw in text_lower for sw in sig_words) if sig_words else False
+                    if has_real_lexical:
+                        lex_reserved.append(item)
+                    else:
+                        sem_only.append(item)
+                # Merge: lexical hits first (sorted by their rerank score), then semantic supplements
+                results[book_key] = (lex_reserved + sem_only)[:top_k]
         else:
             results['noli'] = finalize(results['noli'], 'noli')
             results['elfili'] = finalize(results['elfili'], 'elfili')
