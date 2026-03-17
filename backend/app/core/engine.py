@@ -535,8 +535,8 @@ class RizalEngine:
                         word_sim = float(np.dot(norm_sig_vecs[i], v_sent))
                         if word_sim >= threshold:
                             coverage_count += 1
-                
                 coverage_ratio = coverage_count / len(sig_words)
+                is_strong_match = coverage_ratio >= 1.0
                 
                 if result_mode != "semantic_fallback":
                     # STRICT FILTER for short queries (2-3 words):
@@ -615,6 +615,8 @@ class RizalEngine:
                     'precision': round(precision_score * 100)
                 }
             }
+            if not is_single_word:
+                result_item['concept_match_type'] = 'strong' if is_strong_match else 'partial'
             
             if 'noli' in sent.book.lower():
                 results['noli'].append(result_item)
