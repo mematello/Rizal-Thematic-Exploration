@@ -69,7 +69,7 @@ class RizalEngine:
         }
 
     
-    def _get_passage_context(self, db: Session, center: Sentence, window: int = 8) -> str:
+    def _get_passage_context_with_embedding(self, db: Session, center: Sentence, window: int = 8):
         range_start, range_end = center.sentence_index - window, center.sentence_index + window
         candidates = db.scalars(select(Sentence).filter(
             Sentence.book == center.book, 
@@ -78,7 +78,21 @@ class RizalEngine:
             Sentence.sentence_index >= range_start, 
             Sentence.sentence_index <= range_end
         ).order_by(Sentence.sentence_index)).all()
-        return " ".join([s.sentence_text for s in candidates])
+        
+        text = " ".join([s.sentence_text for s in candidates])
+        
+        # Average embeddings
+        embs = [np.array(s.embedding) for s in candidates if s.embedding is not None]
+        if embs:
+            avg_emb = np.mean(embs, axis=0)
+        else:
+            avg_emb = None
+            
+        return text, avg_emb
+
+    def _get_passage_context(self, db: Session, center: Sentence, window: int = 8) -> str:
+        text, _ = self._get_passage_context_with_embedding(db, center, window)
+        return text
 
     def _expand_query_with_themes(self, query_vec):
         """
@@ -208,6 +222,14 @@ class RizalEngine:
         # Use base model for initial concept embedding
         query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
         
+        # --- CWPR: Component Decomposition ---
+        components = self._get_query_components(query)
+        component_vecs = []
+        for comp in components:
+            cv = self.base_model.encode(comp, show_progress_bar=False)
+            cv = cv / np.linalg.norm(cv) if np.linalg.norm(cv) > 0 else cv
+            component_vecs.append(cv)
+
         expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
         if expanded_text:
             if os.getenv("DEBUG_SEARCH"):
@@ -261,6 +283,26 @@ class RizalEngine:
                 if c.id not in seen:
                     candidates.append(c)
                     seen.add(c.id)
+
+        # --- Stage A-2: Multi-Anchor Semantic Retrieval ---
+        # If multi-word, fetch neighbors for each component to ensure we don't miss 
+        # sentences strong in one part but weak in overall holistic embedding.
+        if not is_single_word and components:
+            for i, comp_vec in enumerate(component_vecs):
+                for key, book_name in books.items():
+                    comp_results = db.scalars(
+                        select(Sentence)
+                        .filter(Sentence.book == book_name)
+                        .filter(Sentence.source_type == source_type)
+                        .order_by(Sentence.embedding.cosine_distance(comp_vec.tolist()))
+                        .limit(20) # Small targeted pool per component
+                    ).all()
+                    
+                    seen = set([c.id for c in candidates])
+                    for c in comp_results:
+                        if c.id not in seen:
+                            candidates.append(c)
+                            seen.add(c.id)
 
         result_mode = "lexical"
         reason = "matches_found"
@@ -546,28 +588,33 @@ class RizalEngine:
                 lam_lex, lam_sem = self._compute_dynamic_weights(text_len, query_sig_len)
                 final_score = self._calculate_clear_score(sem_score, lex_score, lam_lex, lam_sem, text_len)
             
-            # Safety clamp and noise floor
+            # safety clamp
             final_score = max(0.0, min(1.0, final_score))
             
+            # --- CWPR: Precision Scoring ---
+            precision_score = 0.0
+            if not is_single_word and components:
+                precision_score = self._calculate_precision_score(sent.sentence_text, np.array(sent.embedding), components, component_vecs)
+
             # Increased noise floor for multi-word queries to prune unrelated results
             min_threshold = 0.45 if not is_single_word else 0.05
             
-            if final_score < min_threshold: continue
+            if final_score < min_threshold and precision_score < 0.60: continue
 
-            context_text = self._expand_context(db, sent)
             result_item = {
                 'id': sent.id,
                 'chapter_number': sent.chapter_number,
                 'chapter_title': sent.chapter_title,
                 'sentence_text': sent.sentence_text,
-                'context_text': context_text,
+                'embedding': sent.embedding,
+                'sent_obj': sent,
                 'scores': {
                     'semantic': round(sem_score * 100),
                     'lexical': round(lex_score * 100),
-                    'final': round(final_score * 100)
+                    'final': round(final_score * 100),
+                    'precision': round(precision_score * 100)
                 }
             }
-            result_item['themes'] = self._classify_themes(db, sent, query)
             
             if 'noli' in sent.book.lower():
                 results['noli'].append(result_item)
@@ -575,7 +622,8 @@ class RizalEngine:
                 results['elfili'].append(result_item)
         
         def finalize(lst, label):
-            lst.sort(key=lambda x: x['scores']['final'], reverse=True)
+            # Sort by final score primarily, but use precision as a tie-breaker or boost
+            lst.sort(key=lambda x: (x['scores']['final'] + x['scores'].get('precision', 0) * 0.5), reverse=True)
             seen_text = set()
             unique = []
             for itm in lst:
@@ -589,11 +637,37 @@ class RizalEngine:
                 return unique[:top_k]
 
         if result_mode == "semantic_fallback":
-            results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'))[:top_k]
-            results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'))[:top_k]
+            results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'), query_vec=query_embedding)[:top_k]
+            results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'), query_vec=query_embedding)[:top_k]
         else:
             results['noli'] = finalize(results['noli'], 'noli')
             results['elfili'] = finalize(results['elfili'], 'elfili')
+            
+        # 4. Post-processing: Add context, themes, and identify PRECISE matches
+        precise_matches = []
+        for book_key in ['noli', 'elfili']:
+            final_list = []
+            for item in results[book_key]:
+                sent = item.pop('sent_obj')
+                # Remove embedding early to prevent serialization issues in precise_matches
+                item.pop('embedding', None)
+                
+                # Add context
+                item['context_text'] = self._expand_context(db, sent)
+                # Add themes (using pre-computed query embedding)
+                item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
+                
+                # Check for Precision Threshold (Tumpak na Tugma)
+                if not is_single_word and item['scores'].get('precision', 0) >= 70:
+                    # Add match details
+                    item['component_matches'] = self._get_component_matches(item['sentence_text'], components)
+                    precise_matches.append({**item, "book": "Noli" if book_key == "noli" else "Fili"})
+                
+                final_list.append(item)
+            results[book_key] = final_list
+        
+        # Sort precise matches by precision score
+        precise_matches.sort(key=lambda x: x['scores']['precision'], reverse=True)
         
         if reason == "matches_found" and not (results['noli'] or results['elfili']):
             reason = "filtered_by_ranker"
@@ -604,9 +678,9 @@ class RizalEngine:
                 reason = "below_threshold"
 
         if os.getenv("DEBUG_SEARCH"):
-            print(f"[DEBUG] Final Results -> Noli: {len(results['noli'])}, Fili: {len(results['elfili'])}")
+            print(f"[DEBUG] Final Results -> Noli: {len(results['noli'])}, Fili: {len(results['elfili'])}, Precise: {len(precise_matches)}")
 
-        # 4. Generate Dynamic Search Suggestions ("Kaugnay na Paghahanap")
+        # 5. Generate Dynamic Search Suggestions ("Kaugnay na Paghahanap")
         matched_theme_string = ""
         anchor_score = 0.0
         
@@ -631,10 +705,12 @@ class RizalEngine:
 
         return {
             "results": results,
+            "precise_matches": precise_matches[:5], # Return top 5 precise matches
             "metadata": {
                 "result_mode": result_mode,
                 "reason": reason,
-                "suggestions": suggestions
+                "suggestions": suggestions,
+                "components": components if not is_single_word else []
             }
         }
 
@@ -694,20 +770,29 @@ class RizalEngine:
             
         return l_lex, l_sem
 
-    def _rerank_candidates(self, query: str, candidates: list) -> list:
+    def _rerank_candidates(self, query: str, candidates: list, query_vec: np.ndarray = None) -> list:
         if not candidates:
             return []
             
-        # compute embedding for the full query
-        query_emb = self.base_model.encode(query, show_progress_bar=False)
+        # use pre-computed query embedding if available
+        if query_vec is None:
+            query_emb = self.base_model.encode(query, show_progress_bar=False)
+        else:
+            query_emb = query_vec
+            
         query_norm = np.linalg.norm(query_emb)
         if query_norm > 0:
             query_emb = query_emb / query_norm
             
         for i, cand in enumerate(candidates):
-            text = cand['sentence_text']
-            # compute embedding for each candidate passage
-            text_emb = self.base_model.encode(text, show_progress_bar=False)
+            # Use stored embedding if available in the candidate (might need to pass it)
+            if 'embedding' in cand and cand['embedding'] is not None:
+                text_emb = np.array(cand['embedding'])
+            else:
+                # Fallback to encoding if not available (should be avoided)
+                text = cand['sentence_text']
+                text_emb = self.base_model.encode(text, show_progress_bar=False)
+            
             text_norm = np.linalg.norm(text_emb)
             if text_norm > 0:
                 text_emb = text_emb / text_norm
@@ -722,6 +807,78 @@ class RizalEngine:
         # rerank candidates based on this score
         candidates.sort(key=lambda x: x['scores']['rerank'], reverse=True)
         return candidates
+
+    def _get_query_components(self, query: str) -> list:
+        """Decomposes query into significant conceptual components."""
+        analysis = self.query_analyzer.analyze_query_words(query)
+        # Filter for significant words (non-stopwords with high weight)
+        sig_words = [item['word'] for item in analysis if not item['is_stopword'] or item['semantic_weight'] > 0.5]
+        
+        # Also leverage the Role Parser for semantic grouping
+        parsed = self.parser.parse_sentence(query)
+        roles = []
+        for role_name in ['event', 'agent', 'patient', 'oblique']:
+            if parsed.get(role_name):
+                # Join multi-word roles (e.g., "Maria Clara")
+                roles.append(" ".join(parsed[role_name]))
+        
+        # Merge and deduplicate while preserving order of significance
+        seen = set()
+        components = []
+        for c in roles + sig_words:
+            c_low = c.lower()
+            if c_low not in seen and len(c_low) > 1:
+                components.append(c)
+                seen.add(c_low)
+        return components
+
+    def _calculate_precision_score(self, sentence_text: str, sentence_embedding: np.ndarray, 
+                                  components: list, component_vecs: list) -> float:
+        """
+        Calculates a 'Soft-AND' precision score using the Geometric Mean of component similarities.
+        Ensures results respect all parts of the query.
+        """
+        if not components:
+            return 0.0
+            
+        scores = []
+        sent_text_lower = sentence_text.lower()
+        
+        # Normalize sentence embedding
+        v_sent = sentence_embedding / np.linalg.norm(sentence_embedding) if np.linalg.norm(sentence_embedding) > 0 else sentence_embedding
+        
+        for i, comp in enumerate(components):
+            # 1. Lexical Check (Fuzzy/Substring)
+            lex_score = 0.0
+            comp_words = extract_words(comp.lower())
+            if any(w in sent_text_lower for w in comp_words):
+                lex_score = 1.0
+            
+            # 2. Semantic Check
+            v_comp = component_vecs[i]
+            sem_score = max(0.0, float(np.dot(v_comp, v_sent)))
+            
+            # Combine: If lexical matches, boost; otherwise rely on semantic
+            combined = max(lex_score * 0.8, sem_score)
+            scores.append(combined)
+        
+        # Geometric Mean: Penalizes if ANY component is missing (near-zero)
+        # Using a small epsilon to avoid log(0)
+        eps = 1e-9
+        gmean = np.exp(np.mean(np.log(np.array(scores) + eps)))
+        return float(gmean)
+
+    def _get_component_matches(self, sentence_text: str, components: list) -> list:
+        """Identifies which components are explicitly or semantically present."""
+        matches = []
+        text_lower = sentence_text.lower()
+        for comp in components:
+            comp_words = extract_words(comp.lower())
+            if any(w in text_lower for w in comp_words):
+                matches.append({"component": comp, "type": "lexical"})
+            else:
+                matches.append({"component": comp, "type": "semantic"})
+        return matches
 
     def _calculate_clear_score(self, sem, lex, lam_lex, lam_sem, length):
         score = (lam_sem * sem) + (lam_lex * lex)
@@ -781,7 +938,7 @@ class RizalEngine:
         return len(words) > 0
         
     
-    def _generate_hybrid_theme_pool(self, query: str, target_pool_size: int = 5) -> list[int]:
+    def _generate_hybrid_theme_pool(self, query: str, target_pool_size: int = 5, query_vec: np.ndarray = None) -> list[int]:
         pool_indices = set()
         q_lower = query.lower()
         
@@ -797,11 +954,15 @@ class RizalEngine:
             "pag-ibig": ["Pag-ibig, Kadalisayan, at Katapatan"]
         }
         
-        q_emb_raw = self.base_model.encode(query, show_progress_bar=False)
-        if isinstance(q_emb_raw, list): q_emb_raw = np.array(q_emb_raw)
-        
-        q_norm = np.linalg.norm(q_emb_raw)
-        query_vec = q_emb_raw / q_norm if q_norm > 0 else q_emb_raw
+        if query_vec is None:
+            q_emb_raw = self.base_model.encode(query, show_progress_bar=False)
+            if isinstance(q_emb_raw, list): q_emb_raw = np.array(q_emb_raw)
+            q_norm = np.linalg.norm(q_emb_raw)
+            query_vec = q_emb_raw / q_norm if q_norm > 0 else q_emb_raw
+        elif len(query_vec.shape) > 1:
+            query_vec = query_vec.flatten()
+            q_norm = np.linalg.norm(query_vec)
+            if q_norm > 0: query_vec = query_vec / q_norm
         
         q_sims = np.dot(self.theme_matrix, query_vec)
         ranked_indices = np.argsort(q_sims)[::-1]
@@ -822,13 +983,13 @@ class RizalEngine:
             
         return list(pool_indices) if len(pool_indices) > 0 else list(range(len(self.theme_cache)))
 
-    def _classify_themes(self, db: Session, center_sent: Sentence, query: str = ""):
+    def _classify_themes(self, db: Session, center_sent: Sentence, query: str = "", query_vec: np.ndarray = None):
         self._ensure_themes_loaded(db)
         if self.theme_matrix is None or center_sent.embedding is None:
             return []
             
         q_type = self._determine_query_type(query) if query else "Abstract Phrase"
-        pool_indices = self._generate_hybrid_theme_pool(query, target_pool_size=5) if query else list(range(len(self.theme_cache)))
+        pool_indices = self._generate_hybrid_theme_pool(query, target_pool_size=5, query_vec=query_vec) if query else list(range(len(self.theme_cache)))
             
         import json
         emb_data = center_sent.embedding
@@ -844,11 +1005,17 @@ class RizalEngine:
         if sent_norm > 0: sent_vec = sent_vec / sent_norm
         else: return []
 
-        passage_text = self._get_passage_context(db, center_sent, window=8)
-        p_emb_raw = self.base_model.encode(passage_text, show_progress_bar=False)
-        if isinstance(p_emb_raw, list): p_emb_raw = np.array(p_emb_raw)
-        p_norm = np.linalg.norm(p_emb_raw)
-        passage_emb = p_emb_raw / p_norm if p_norm > 0 else p_emb_raw
+        passage_text, passage_emb = self._get_passage_context_with_embedding(db, center_sent, window=8)
+        
+        if passage_emb is None:
+            # Fallback only if no embeddings found in passage
+            p_emb_raw = self.base_model.encode(passage_text, show_progress_bar=False)
+            if isinstance(p_emb_raw, list): p_emb_raw = np.array(p_emb_raw)
+            p_norm = np.linalg.norm(p_emb_raw)
+            passage_emb = p_emb_raw / p_norm if p_norm > 0 else p_emb_raw
+        else:
+            p_norm = np.linalg.norm(passage_emb)
+            if p_norm > 0: passage_emb = passage_emb / p_norm
         
         sent_sims = np.dot(self.theme_matrix, sent_vec)
         pass_sims = np.dot(self.theme_matrix, passage_emb)
