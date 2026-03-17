@@ -500,7 +500,9 @@ class RizalEngine:
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
 
-                if sem_score < 0.30:
+                # Hard semantic threshold — but bypass for confirmed lexical matches
+                has_query_word = any(sw in text_lower for sw in sig_words) if sig_words else False
+                if sem_score < 0.30 and not has_query_word:
                     continue
                 
                 if not has_validation:
@@ -632,7 +634,19 @@ class RizalEngine:
                     seen_text.add(txt)
                     unique.append(itm)
             if result_mode == "semantic_fallback":
-                return unique[:20] # Take top 20 candidates for reranking
+                # Lexical-priority reservation: ensure real lexical matches survive truncation
+                lex_hits = []
+                sem_only = []
+                for itm in unique:
+                    txt_lower = itm['sentence_text'].lower()
+                    has_real_lex = any(sw in txt_lower for sw in sig_words) if sig_words else False
+                    if has_real_lex:
+                        lex_hits.append(itm)
+                    else:
+                        sem_only.append(itm)
+                # Lexical hits first, then fill remaining slots from semantic pool
+                merged = lex_hits + sem_only
+                return merged[:20]  # Take top 20 candidates for reranking
             else:
                 return unique[:top_k]
 
@@ -640,10 +654,9 @@ class RizalEngine:
             results['noli'] = self._rerank_candidates(query, finalize(results['noli'], 'noli'), query_vec=query_embedding)
             results['elfili'] = self._rerank_candidates(query, finalize(results['elfili'], 'elfili'), query_vec=query_embedding)
             
-            # Lexical-Priority Reservation: ensure real lexical hits surface before semantic supplements
+            # Post-rerank lexical-priority reservation: re-apply after reranking to ensure lex hits stay at top
             for book_key in ['noli', 'elfili']:
                 pool = results[book_key]
-                # Partition into true lexical matches (word actually appears in text) vs semantic-only
                 lex_reserved = []
                 sem_only = []
                 for item in pool:
@@ -653,7 +666,6 @@ class RizalEngine:
                         lex_reserved.append(item)
                     else:
                         sem_only.append(item)
-                # Merge: lexical hits first (sorted by their rerank score), then semantic supplements
                 results[book_key] = (lex_reserved + sem_only)[:top_k]
         else:
             results['noli'] = finalize(results['noli'], 'noli')
