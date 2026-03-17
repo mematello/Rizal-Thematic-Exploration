@@ -539,13 +539,8 @@ class RizalEngine:
                 is_strong_match = coverage_ratio >= 1.0
                 
                 if result_mode != "semantic_fallback":
-                    # STRICT FILTER for short queries (2-3 words):
-                    # Must have 100% coverage (at least semantically)
-                    if len(sig_words) >= 2 and coverage_ratio < 1.0:
-                        sem_score = 0.0
-                        lex_score = 0.0
-                    elif coverage_ratio < 1.0:
-                        # General penalty for partial coverage
+                    # General penalty for partial coverage
+                    if coverage_ratio < 1.0:
                         penalty = 1.0 - coverage_ratio
                         sem_score *= (1.0 - (penalty * 0.95))
                         lex_score *= (1.0 - (penalty * 0.98))

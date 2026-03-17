@@ -279,13 +279,29 @@ function SearchContent() {
                                                                 )}
                                                             </div>
                                                         ) : (
-                                                            <div className="space-y-4">
-                                                                <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
-                                                                {partialNoli.map((result, i) => (
-                                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                        <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                                    </motion.div>
-                                                                ))}
+                                                            <div className="space-y-6">
+                                                                <div className="space-y-3">
+                                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
+                                                                    <div className="bg-green-50/50 border border-green-100 rounded-md p-4 text-center">
+                                                                        <p className="text-sm text-green-800/80 font-serif">Walang nakitang sipi na tumutugma sa lahat ng konsepto sa iyong paghahanap.</p>
+                                                                        <p className="text-xs text-green-700/60 mt-1">I-click ang &ldquo;Ipakita ang iba pang kaugnay na resulta&rdquo; upang makita ang mga bahagyang tugma.</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="space-y-4">
+                                                                    <button onClick={() => setShowFallbackNoli(!showFallbackNoli)} className="w-full py-2 text-xs font-bold uppercase tracking-wider text-brand-navy/60 bg-brand-navy/5 rounded-md hover:bg-brand-navy/10 transition-colors">
+                                                                        {showFallbackNoli ? "Itago ang mga bahagyang tugma" : "Ipakita ang iba pang kaugnay na resulta"}
+                                                                    </button>
+                                                                    {showFallbackNoli && (
+                                                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 overflow-hidden">
+                                                                            <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
+                                                                            {partialNoli.map((result, i) => (
+                                                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                                                    <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                </motion.div>
+                                                                            ))}
+                                                                        </motion.div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -339,13 +355,29 @@ function SearchContent() {
                                                                 )}
                                                             </div>
                                                         ) : (
-                                                            <div className="space-y-4">
-                                                                <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
-                                                                {partialFili.map((result, i) => (
-                                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                        <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                                    </motion.div>
-                                                                ))}
+                                                            <div className="space-y-6">
+                                                                <div className="space-y-3">
+                                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
+                                                                    <div className="bg-green-50/50 border border-green-100 rounded-md p-4 text-center">
+                                                                        <p className="text-sm text-green-800/80 font-serif">Walang nakitang sipi na tumutugma sa lahat ng konsepto sa iyong paghahanap.</p>
+                                                                        <p className="text-xs text-green-700/60 mt-1">I-click ang &ldquo;Ipakita ang iba pang kaugnay na resulta&rdquo; upang makita ang mga bahagyang tugma.</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="space-y-4">
+                                                                    <button onClick={() => setShowFallbackFili(!showFallbackFili)} className="w-full py-2 text-xs font-bold uppercase tracking-wider text-brand-navy/60 bg-brand-navy/5 rounded-md hover:bg-brand-navy/10 transition-colors">
+                                                                        {showFallbackFili ? "Itago ang mga bahagyang tugma" : "Ipakita ang iba pang kaugnay na resulta"}
+                                                                    </button>
+                                                                    {showFallbackFili && (
+                                                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 overflow-hidden">
+                                                                            <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
+                                                                            {partialFili.map((result, i) => (
+                                                                                <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                                                    <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                </motion.div>
+                                                                            ))}
+                                                                        </motion.div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -441,23 +473,42 @@ function SearchContent() {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="space-y-4">
-                                                            <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
-                                                            <div className="grid md:grid-cols-2 gap-4">
-                                                                <div className="space-y-4">
-                                                                    {partialCol1.map((result, i) => (
-                                                                        <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                            <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                                        </motion.div>
-                                                                    ))}
+                                                        <div className="space-y-6">
+                                                            <div className="space-y-3">
+                                                                <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
+                                                                <div className="bg-green-50/50 border border-green-100 rounded-md p-4 text-center">
+                                                                    <p className="text-sm text-green-800/80 font-serif">Walang nakitang sipi na tumutugma sa lahat ng konsepto sa iyong paghahanap.</p>
+                                                                    <p className="text-xs text-green-700/60 mt-1">I-click ang &ldquo;Ipakita ang iba pang kaugnay na resulta&rdquo; upang makita ang mga bahagyang tugma.</p>
                                                                 </div>
-                                                                <div className="space-y-4">
-                                                                    {partialCol2.map((result, i) => (
-                                                                        <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                            <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
-                                                                        </motion.div>
-                                                                    ))}
-                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-4">
+                                                                <button 
+                                                                    onClick={() => setShowFallbackSingle(!showFallbackSingle)}
+                                                                    className="w-full py-3 text-xs font-bold uppercase tracking-wider text-brand-navy/60 bg-brand-navy/5 rounded-md hover:bg-brand-navy/10 transition-colors"
+                                                                >
+                                                                    {showFallbackSingle ? "Itago ang mga bahagyang tugma" : "Ipakita ang iba pang kaugnay na resulta"}
+                                                                </button>
+                                                                {showFallbackSingle && (
+                                                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 overflow-hidden">
+                                                                        <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
+                                                                        <div className="grid md:grid-cols-2 gap-4">
+                                                                            <div className="space-y-4">
+                                                                                {partialCol1.map((result, i) => (
+                                                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    </motion.div>
+                                                                                ))}
+                                                                            </div>
+                                                                            <div className="space-y-4">
+                                                                                {partialCol2.map((result, i) => (
+                                                                                    <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    </motion.div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     )}
