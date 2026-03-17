@@ -309,6 +309,9 @@ class RizalEngine:
         valid_tokens = []
         self.word_sim_cache = {} # Cache for dynamic semantic validation
 
+        # Track whether any lexical candidates were found BEFORE the fallback gate
+        has_lexical_hits = len(candidates) > 0
+
         # Stage B: Semantic Fallback
         # Run fallback if we have very few lexical candidates overall (e.g. one book had none)
         # or if it's a multi-word query that might need semantic padding due to strict lexical limits.
@@ -706,6 +709,7 @@ class RizalEngine:
             "metadata": {
                 "result_mode": result_mode,
                 "reason": reason,
+                "has_lexical_hits": has_lexical_hits,
                 "suggestions": suggestions,
                 "components": components if not is_single_word else []
             }
