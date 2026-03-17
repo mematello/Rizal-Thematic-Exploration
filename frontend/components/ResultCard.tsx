@@ -23,6 +23,7 @@ export function ResultCard({
     themes = [],
     showScores = false,
     onChapterOpen,
+    sentenceIndex: sentenceIndexProp,
 }: ResultCardExtendedProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -46,7 +47,7 @@ export function ResultCard({
     }[novel];
 
     const hasThemes = themes.length > 0;
-    const sentenceIndex = parseInt(id, 10);
+    const sentenceIndex = sentenceIndexProp ?? 0;
 
     return (
         <article

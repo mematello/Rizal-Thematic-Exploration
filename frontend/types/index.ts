@@ -14,6 +14,7 @@ export interface SearchBarProps {
 
 export interface ResultCardProps {
     id: string;
+    sentenceIndex?: number;
     novel: 'noli' | 'fili';
     chapter: number;
     chapterTitle: string;
