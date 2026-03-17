@@ -37,6 +37,7 @@ async function fetchSearchResults(query: string, mode: 'buod' | 'full'): Promise
             passageHtml: item.sentence_text,
             contextHtml: item.context_text,
             scores: item.scores,
+            conceptMatchType: item.concept_match_type,
             themes: item.themes,
             confidenceBadge: item.scores?.final > 85
         }));

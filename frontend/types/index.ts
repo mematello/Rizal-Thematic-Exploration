@@ -24,6 +24,7 @@ export interface ResultCardProps {
         lexical: number;
         final: number;
     };
+    conceptMatchType?: 'strong' | 'partial';
     confidenceBadge?: boolean;
     themes?: {
         id: string;
