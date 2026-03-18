@@ -47,11 +47,56 @@ export default function Home() {
   const [loadingContent, setLoadingContent] = useState(false);
   const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [highlightChapterNumber, setHighlightChapterNumber] = useState<number | undefined>(undefined);
+  const [highlightChapterQuery, setHighlightChapterQuery] = useState<string | undefined>(undefined);
+  const [pendingScrollChapter, setPendingScrollChapter] = useState<number | undefined>(undefined);
 
-  const handleSearch = (query: string) => {
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const tryRedirectToChapterOnHome = async (query: string) => {
+    const q = normalize(query);
+    if (!q) return false;
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const res = await fetch(`${apiUrl}/api/v1/chapters`, { cache: "no-store" });
+      if (!res.ok) return false;
+      const data = (await res.json()) as { book: string; chapter_number: number; chapter_title: string }[];
+
+      // Case-insensitive + whitespace-normalized exact title match
+      const match = data.find((c) => normalize(c.chapter_title) === q);
+      if (!match) return false;
+
+      const targetNovel: Novel = match.book === "elfili" ? "fili" : "noli";
+      setNovel(targetNovel);
+      setActiveTab("chapters");
+
+      setHighlightChapterNumber(match.chapter_number);
+      setHighlightChapterQuery(query);
+      setPendingScrollChapter(match.chapter_number);
+
+      window.setTimeout(() => {
+        setHighlightChapterNumber(undefined);
+        setHighlightChapterQuery(undefined);
+      }, 2600);
+
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query)}&novel=${novel}`);
+      const redirected = await tryRedirectToChapterOnHome(query);
+      if (!redirected) {
+        router.push(`/search?q=${encodeURIComponent(query)}&novel=${novel}`);
+      }
     }
   };
 
@@ -110,6 +155,21 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (activeTab !== "chapters") return;
+    if (!pendingScrollChapter) return;
+
+    const id = `kabanata-${pendingScrollChapter}`;
+    const tick = window.setTimeout(() => {
+      const el = document.getElementById(id);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setPendingScrollChapter(undefined);
+    }, 120);
+
+    return () => window.clearTimeout(tick);
+  }, [activeTab, novel, pendingScrollChapter]);
 
   const scrollToTop = () => {
     if (typeof window === "undefined") return;
@@ -214,6 +274,8 @@ export default function Home() {
                   <ChapterGrid
                     selectedNovel={novel}
                     onChapterSelect={handleChapterSelect}
+                    highlightChapterNumber={highlightChapterNumber}
+                    highlightQuery={highlightChapterQuery}
                   />
                 </div>
               </div>
