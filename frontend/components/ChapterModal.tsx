@@ -723,9 +723,12 @@ export function ChapterModal({
                                                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0 ${idx % 3 === 0 ? 'bg-brand-navy' : idx % 3 === 1 ? 'bg-brand-gold' : 'bg-brand-brown'}`}>{idx + 1}</div>
                                                         <div className="flex-1">
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <h4 className="font-serif font-bold text-brand-navy text-sm">{theme.label}</h4>
+                                                                <h4 className="font-serif font-bold text-brand-navy text-base">{theme.label}</h4>
                                                                 <span className="text-[10px] bg-brand-cream px-1.5 py-0.5 rounded text-brand-text-light font-mono">{(theme.confidence * 100).toFixed(0)}%</span>
                                                             </div>
+                                                            {theme.evidence && (
+                                                                <p className="text-sm text-brand-text/70 italic mt-2 leading-relaxed">&quot;{theme.evidence}&quot;</p>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
