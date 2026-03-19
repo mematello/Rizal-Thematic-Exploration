@@ -19,6 +19,7 @@ class Sentence(Base):
     sentence_index = Column(Integer)
     sentence_text = Column(Text)
     source_type = Column(String(20), default="summary")
+    passage_id = Column(Integer, index=True, nullable=True)
     embedding = Column(Vector(768))
 
 class Theme(Base):

@@ -8,6 +8,10 @@ from sqlalchemy import select
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import pickle
+import math
+import json
+import re
 
 # Cache for CSV data
 _csv_cache = {}
@@ -250,6 +254,7 @@ class ThemeMatch(BaseModel):
     explanation: Optional[str] = ""
 
 class ChapterContentResponse(BaseModel):
+    id: int
     sentence_index: int
     sentence_text: str
     themes: List[ThemeMatch] = []
@@ -343,6 +348,7 @@ def get_chapter_content(
                     response_data = []
                     for _, row in chapter_df.iterrows():
                         response_data.append(ChapterContentResponse(
+                            id=0, # Fallback ID for CSV data
                             sentence_index=row['sentence_number'],
                             sentence_text=row['sentence_text'],
                             themes=[]
@@ -376,9 +382,312 @@ def get_chapter_content(
         ]
         
         response_data.append(ChapterContentResponse(
+            id=s.id,
             sentence_index=s.sentence_index,
             sentence_text=s.sentence_text,
             themes=theme_matches
         ))
         
     return response_data
+
+class ThemeResult(BaseModel):
+    label: str
+    confidence: float
+
+class PaksaResponse(BaseModel):
+    has_theme: bool
+    passage_ids: List[int] = []
+    themes: List[ThemeResult] = []
+
+@router.get("/sentences/{id}/paksa", response_model=PaksaResponse)
+def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
+    sentence = db.query(Sentence).filter(Sentence.id == id).first()
+    if not sentence:
+        raise HTTPException(status_code=404, detail="Sentence not found")
+        
+    # Load theme bank
+    backend_data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
+    theme_bank_path = backend_data_dir / "theme_bank.pkl"
+    if not theme_bank_path.exists():
+        return PaksaResponse(has_theme=False)
+        
+    with open(theme_bank_path, 'rb') as f:
+        theme_bank = pickle.load(f)
+        
+    # Fetch passage
+    if sentence.source_type == 'summary':
+        passage_sentences = [sentence]
+    else:
+        if sentence.passage_id is None:
+            passage_sentences = [sentence]
+        else:
+            passage_sentences = db.query(Sentence).filter(
+                Sentence.book == sentence.book,
+                Sentence.chapter_number == sentence.chapter_number,
+                Sentence.source_type == 'full',
+                Sentence.passage_id == sentence.passage_id
+            ).order_by(Sentence.sentence_index).all()
+            
+    # Compute Significance-Weighted Consensus Embedding
+    weighted_embeddings = []
+    total_weight = 0.0
+    for s in passage_sentences:
+        if not s.embedding: continue
+        word_count = len(str(s.sentence_text).split())
+        weight = math.log(word_count + 1)
+        weighted_embeddings.append(np.array(s.embedding) * weight)
+        total_weight += weight
+        
+    if total_weight == 0:
+        return PaksaResponse(has_theme=False)
+        
+    consensus = np.sum(weighted_embeddings, axis=0) / total_weight
+    consensus = consensus / (np.linalg.norm(consensus) + 1e-9)
+    
+    T_theme = 0.65
+    T_override = 0.85
+    
+    # Multi-Example Theme Scoring
+    theme_scores = {}
+    for theme_name, examples in theme_bank.items():
+        scores = [float(np.dot(consensus, np.array(ex))) for ex in examples]
+        scores.sort(reverse=True)
+        top_3_avg = np.mean(scores[:3]) if len(scores) >= 3 else np.mean(scores)
+        theme_scores[theme_name] = top_3_avg
+        
+    earned_themes = {t: s for t, s in theme_scores.items() if s >= T_theme}
+    
+    # Stability Check (for full text passages)
+    if sentence.source_type == 'full' and len(passage_sentences) > 1 and earned_themes:
+        sentence_top_themes = []
+        for s in passage_sentences:
+            if not s.embedding: continue
+            s_emb = np.array(s.embedding)
+            s_scores = {}
+            for t_name, examples in theme_bank.items():
+                s_s = [float(np.dot(s_emb, np.array(ex))) for ex in examples]
+                s_s.sort(reverse=True)
+                s_scores[t_name] = np.mean(s_s[:3]) if len(s_s) >= 3 else np.mean(s_s)
+            
+            top_3 = sorted(s_scores.keys(), key=lambda k: s_scores[k], reverse=True)[:3]
+            sentence_top_themes.append(set(top_3))
+            
+        if sentence_top_themes:
+            intersection = sentence_top_themes[0].intersection(*sentence_top_themes[1:])
+            union = sentence_top_themes[0].union(*sentence_top_themes[1:])
+            jaccard = len(intersection) / len(union) if len(union) > 0 else 0
+            
+            if jaccard <= 0.6:
+                earned_themes = {} # Stability failed
+                
+    # Sharp Sentence Override
+    if sentence.embedding:
+        s_emb = np.array(sentence.embedding)
+        for t_name, examples in theme_bank.items():
+            s_s = [float(np.dot(s_emb, np.array(ex))) for ex in examples]
+            s_s.sort(reverse=True)
+            s_score = np.mean(s_s[:3]) if len(s_s) >= 3 else float(np.mean(s_s))
+            if s_score >= T_override:
+                earned_themes[t_name] = max(earned_themes.get(t_name, 0.0), s_score)
+                
+    if not earned_themes:
+        return PaksaResponse(has_theme=False)
+        
+    sorted_themes = sorted([{"label": k, "confidence": float(v)} for k, v in earned_themes.items()], 
+                          key=lambda x: x["confidence"], reverse=True)
+                          
+    return PaksaResponse(
+        has_theme=True,
+        passage_ids=[s.id for s in passage_sentences],
+        themes=sorted_themes
+    )
+
+class SanggunianResponse(BaseModel):
+    has_reference: bool
+    passage_ids: List[int] = []
+    reference_text: str = ""
+    alignment_status: str = ""
+    score: float = 0.0
+    matched_characters: List[str] = []
+
+@router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
+def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
+    sentence = db.query(Sentence).filter(Sentence.id == id).first()
+    if not sentence:
+        raise HTTPException(status_code=404, detail="Sentence not found")
+        
+    if sentence.source_type == 'full':
+        passage_sentences = []
+        if sentence.passage_id is not None:
+            passage_sentences = db.query(Sentence).filter(
+                Sentence.book == sentence.book,
+                Sentence.chapter_number == sentence.chapter_number,
+                Sentence.source_type == 'full',
+                Sentence.passage_id == sentence.passage_id
+            ).order_by(Sentence.sentence_index).all()
+        else:
+            passage_sentences = [sentence]
+            
+        return SanggunianResponse(
+            has_reference=True,
+            passage_ids=[s.id for s in passage_sentences],
+            reference_text=" ".join([str(s.sentence_text) for s in passage_sentences]),
+            alignment_status="precise",
+            score=1.0,
+            matched_characters=[]
+        )
+        
+    search_chapter = sentence.chapter_number
+    search_book_noli = sentence.book.lower() in ('noli', 'noli me tangere')
+    if search_book_noli and search_chapter == 64:
+        search_chapter = 63
+        
+    full_book = "Noli Me Tangere" if search_book_noli else "El Filibusterismo"
+    
+    backend_data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
+    char_aliases_path = backend_data_dir / "character_aliases.json"
+    character_aliases = []
+    if char_aliases_path.exists():
+        with open(char_aliases_path, 'r', encoding='utf-8') as f:
+            character_aliases = json.load(f)
+            
+    buod_chars_found = []
+    if sentence.sentence_text:
+        text_lower = sentence.sentence_text.lower()
+        for c in character_aliases:
+            aliases = c.get('aliases', [])
+            if c.get('name'):
+                aliases.append(c.get('name'))
+            for alias in aliases:
+                if not alias: continue
+                if re.search(r'\b' + re.escape(alias.lower()) + r'\b', text_lower):
+                    buod_chars_found.append(c)
+                    break
+                
+    def search_in_chapter(chap_num):
+        full_sentences = db.query(Sentence).filter(
+            Sentence.book == full_book,
+            Sentence.chapter_number == chap_num,
+            Sentence.source_type == 'full'
+        ).order_by(Sentence.sentence_index).all()
+        
+        buod_sentences = db.query(Sentence).filter(
+            Sentence.book == sentence.book,
+            Sentence.chapter_number == sentence.chapter_number,
+            Sentence.source_type == 'summary'
+        ).order_by(Sentence.sentence_index).all()
+        
+        if not full_sentences or not buod_sentences: return None
+        
+        total_full = len(full_sentences)
+        total_buod = len(buod_sentences)
+        
+        chapter_ratio = total_full / total_buod
+        dynamic_buffer = chapter_ratio * 2
+        
+        buod_idx_in_chap = 0
+        for i, bs in enumerate(buod_sentences):
+            if bs.id == sentence.id:
+                buod_idx_in_chap = i
+                break
+                
+        position_ratio = buod_idx_in_chap / total_buod
+        search_center = position_ratio * total_full
+        
+        candidates = []
+        for i, fs in enumerate(full_sentences):
+            if (search_center - dynamic_buffer) <= i <= (search_center + dynamic_buffer):
+                candidates.append(fs)
+                
+        if not candidates:
+            return None
+            
+        filtered_candidates = []
+        if buod_chars_found:
+            for fs in candidates:
+                fs_matched_chars = []
+                if not fs.sentence_text: continue
+                fs_text_lower = fs.sentence_text.lower()
+                for c in buod_chars_found:
+                    aliases = c.get('aliases', [])
+                    if c.get('name'): aliases.append(c.get('name'))
+                    for alias in aliases:
+                        if alias and re.search(r'\b' + re.escape(alias.lower()) + r'\b', fs_text_lower):
+                            fs_matched_chars.append(c.get('name'))
+                            break
+                if fs_matched_chars:
+                    filtered_candidates.append((fs, list(set(fs_matched_chars))))
+            if not filtered_candidates:
+                return None
+        else:
+            filtered_candidates = [(fs, []) for fs in candidates]
+            
+        best_fs = None
+        best_score = -1.0
+        best_chars = []
+        
+        if not sentence.embedding or not sentence.sentence_text:
+            return None
+            
+        buod_emb = np.array(sentence.embedding)
+        buod_words = set(re.findall(r'\w+', sentence.sentence_text.lower()))
+        
+        for fs, fs_chars in filtered_candidates:
+            if not fs.embedding or not fs.sentence_text: continue
+            fs_emb = np.array(fs.embedding)
+            
+            semantic_score = np.dot(buod_emb, fs_emb) / (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb) + 1e-9)
+            
+            fs_words = set(re.findall(r'\w+', fs.sentence_text.lower()))
+            overlap = len(buod_words.intersection(fs_words))
+            lexical_score = overlap / max(len(buod_words), 1)
+            
+            if fs_chars:
+                lexical_score *= 2.0
+                
+            final_score = float(0.55 * lexical_score + 0.45 * semantic_score)
+            if final_score > best_score:
+                best_score = final_score
+                best_fs = fs
+                best_chars = fs_chars
+                
+        T_fallback = 0.45
+        if best_score < T_fallback:
+            return None
+            
+        return best_fs, best_score, best_chars
+        
+    res = search_in_chapter(search_chapter)
+    alignment = "precise"
+    
+    if not res:
+        res = search_in_chapter(search_chapter - 1)
+        if res: alignment = "expanded"
+        if not res:
+            res = search_in_chapter(search_chapter + 1)
+            if res: alignment = "expanded"
+            
+    if not res:
+        return SanggunianResponse(has_reference=False)
+        
+    best_fs, best_score, best_chars = res
+    
+    passage_sentences = []
+    if best_fs.passage_id is not None:
+        passage_sentences = db.query(Sentence).filter(
+            Sentence.book == best_fs.book,
+            Sentence.chapter_number == best_fs.chapter_number,
+            Sentence.source_type == 'full',
+            Sentence.passage_id == best_fs.passage_id
+        ).order_by(Sentence.sentence_index).all()
+    else:
+        passage_sentences = [best_fs]
+        
+    return SanggunianResponse(
+        has_reference=True,
+        passage_ids=[s.id for s in passage_sentences],
+        reference_text=" ".join([str(s.sentence_text) for s in passage_sentences]),
+        alignment_status=alignment,
+        score=best_score,
+        matched_characters=best_chars
+    )
