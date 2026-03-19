@@ -15,6 +15,7 @@ interface ThemeMatch {
 }
 
 interface ChapterContent {
+    id: number;
     sentence_index: number;
     sentence_text: string;
     themes: ThemeMatch[];
@@ -84,9 +85,17 @@ export function ChapterModal({
         chapter_title: string;
         book: string;
         mode: string;
+        alignment_status?: string;
+        matched_characters?: string[];
     } | null>(null);
     const [isRefLoading, setIsRefLoading] = useState(false);
     const [refError, setRefError] = useState<string | null>(null);
+
+    // New API States
+    const [themeResults, setThemeResults] = useState<Record<number, any>>({});
+    const [referenceResults, setReferenceResults] = useState<Record<number, any>>({});
+    const [isLoadingThemes, setIsLoadingThemes] = useState(false);
+    const [isLoadingRefs, setIsLoadingRefs] = useState(false);
 
     const handleReferenceClick = async (sentenceText: string, targetChapter: number) => {
         setIsRefLoading(true);
@@ -141,6 +150,84 @@ export function ChapterModal({
             setActiveChapterInView(chapterNumber);
         }
     }, [chapterNumber, isFullscreen]);
+
+    // Fetch Themes when toggled
+    useEffect(() => {
+        if (showThemes && !isLoadingThemes) {
+            const fetchThemes = async () => {
+                setIsLoadingThemes(true);
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
+                const results: Record<number, any> = { ...themeResults };
+                const toFetch = sentences.filter(s => !results[s.id]);
+                
+                const batchSize = 10;
+                for (let i = 0; i < toFetch.length; i += batchSize) {
+                    const batch = toFetch.slice(i, i + batchSize);
+                    await Promise.all(batch.map(async (s) => {
+                        try {
+                            const res = await fetch(`${apiUrl}/api/v1/sentences/${s.id}/paksa`);
+                            if (res.ok) {
+                                const data = await res.json();
+                                results[s.id] = data;
+                                if (data.passage_ids) {
+                                    data.passage_ids.forEach((pid: number) => {
+                                        results[pid] = data;
+                                    });
+                                }
+                            } else {
+                                results[s.id] = { has_theme: false };
+                            }
+                        } catch (e) {
+                            results[s.id] = { has_theme: false };
+                        }
+                    }));
+                    setThemeResults({...results});
+                }
+                setIsLoadingThemes(false);
+            };
+            fetchThemes();
+        }
+    }, [showThemes, isFullscreen, loadedChapters, content]);
+
+    // Fetch References when toggled
+    useEffect(() => {
+        if (showReference && !isLoadingRefs) {
+            const fetchRefs = async () => {
+                setIsLoadingRefs(true);
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
+                const results: Record<number, any> = { ...referenceResults };
+                const toFetch = sentences.filter(s => !results[s.id]);
+                
+                const batchSize = 5;
+                for (let i = 0; i < toFetch.length; i += batchSize) {
+                    const batch = toFetch.slice(i, i + batchSize);
+                    await Promise.all(batch.map(async (s) => {
+                        try {
+                            const res = await fetch(`${apiUrl}/api/v1/sentences/${s.id}/sanggunian`);
+                            if (res.ok) {
+                                const data = await res.json();
+                                results[s.id] = data;
+                                if (data.has_reference && data.passage_ids) {
+                                    data.passage_ids.forEach((pid: number) => {
+                                        results[pid] = data;
+                                    });
+                                }
+                            } else {
+                                results[s.id] = { has_reference: false };
+                            }
+                        } catch (e) {
+                            results[s.id] = { has_reference: false };
+                        }
+                    }));
+                    setReferenceResults({...results});
+                }
+                setIsLoadingRefs(false);
+            };
+            fetchRefs();
+        }
+    }, [showReference, isFullscreen, loadedChapters, content]);
 
     // Precise Scroll Spy Logic for Fullscreen
     useEffect(() => {
@@ -552,16 +639,44 @@ export function ChapterModal({
                                                             <p key={`${paraIdx}-${showCharacters}-${showThemes}-${showReference}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
-                                                                    const themeCount = (sentence.themes || []).length;
+                                                                    
+                                                                    let themeRender = null;
+                                                                    if (showThemes && themeResults[sentence.id]?.has_theme) {
+                                                                        const themeResult = themeResults[sentence.id];
+                                                                        const themeCount = themeResult.themes?.length || 0;
+                                                                        if (themeCount > 0) {
+                                                                            themeRender = (
+                                                                                <span onClick={(e) => { e.stopPropagation(); setSelectedSentenceForTheme(sentence.sentence_index); setThemeFullscreen(true); }} className={`inline-flex items-center justify-center w-[14px] h-[14px] rounded-full shadow-sm cursor-pointer transition-transform ml-1 ${themeCount === 1 ? 'bg-brand-gold hover:bg-brand-gold/80' : 'bg-brand-navy hover:bg-brand-navy/80'} text-white text-[8px] font-sans font-bold select-none leading-none z-10 transform -translate-y-[6px] align-middle`}>{themeCount}</span>
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    let refRender = null;
+                                                                    if (showReference && referenceResults[sentence.id]?.has_reference) {
+                                                                        const refData = referenceResults[sentence.id];
+                                                                        refRender = (
+                                                                            <sup onClick={(e) => { 
+                                                                                e.stopPropagation(); 
+                                                                                setSelectedSentenceForRef(sentence.sentence_index); 
+                                                                                setRefFullscreen(true); 
+                                                                                setSelectedReference({
+                                                                                    sentence_text: refData.reference_text,
+                                                                                    chapter_number: chap.chapterNumber,
+                                                                                    chapter_title: chap.title,
+                                                                                    book: book,
+                                                                                    mode: mode === 'buod' ? 'full' : 'buod',
+                                                                                    alignment_status: refData.alignment_status,
+                                                                                    matched_characters: refData.matched_characters
+                                                                                });
+                                                                            }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
+                                                                        );
+                                                                    }
+                                                                    
                                                                     return (
                                                                         <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}`}>
                                                                             {highlightText(sentence.sentence_text)}
-                                                                            {showThemes && themeCount > 0 && (
-                                                                                <span onClick={(e) => { e.stopPropagation(); setSelectedSentenceForTheme(sentence.sentence_index); setThemeFullscreen(true); }} className={`inline-flex items-center justify-center w-[14px] h-[14px] rounded-full shadow-sm cursor-pointer transition-transform ml-1 ${themeCount === 1 ? 'bg-brand-gold hover:bg-brand-gold/80' : 'bg-brand-navy hover:bg-brand-navy/80'} text-white text-[8px] font-sans font-bold select-none leading-none z-10 transform -translate-y-[6px] align-middle`}>{themeCount}</span>
-                                                                            )}
-                                                                            {showReference && (
-                                                                                <sup onClick={(e) => { e.stopPropagation(); setSelectedSentenceForRef(sentence.sentence_index); setRefFullscreen(true); handleReferenceClick(sentence.sentence_text, chap.chapterNumber); }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
-                                                                            )}
+                                                                            {themeRender}
+                                                                            {refRender}
                                                                             {" "}
                                                                         </span>
                                                                     );
@@ -586,7 +701,7 @@ export function ChapterModal({
                             )}
                         </motion.div>
 
-                        {themeFullscreen && selectedSentence && (
+                        {themeFullscreen && selectedSentence && themeResults[selectedSentence.id] && (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-white flex flex-col">
                                 <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
                                     <div className="max-w-7xl mx-auto px-6 text-center space-y-2 relative">
@@ -601,13 +716,16 @@ export function ChapterModal({
                                     <div className="w-96 border-l border-brand-gold/30 bg-brand-paper overflow-y-auto p-6">
                                         <h3 className="text-lg font-serif font-bold text-brand-navy mb-4 uppercase tracking-widest text-xs">Mga Paksa</h3>
                                         <div className="space-y-4">
-                                            {selectedSentence.themes?.map((theme, idx) => (
-                                                <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow">
-                                                    <div className="flex items-start gap-3">
-                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0 ${idx % 3 === 0 ? 'bg-purple-500' : idx % 3 === 1 ? 'bg-blue-500' : 'bg-amber-500'}`}>{idx + 1}</div>
-                                                        <div>
-                                                            <h4 className="font-serif font-bold text-brand-navy text-sm mb-1">{theme.label}</h4>
-                                                            <p className="text-xs text-brand-text-light leading-relaxed">{theme.explanation}</p>
+                                            {themeResults[selectedSentence.id].themes?.map((theme: any, idx: number) => (
+                                                <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                                                    <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: theme.confidence > 0.8 ? '#4caf50' : '#ff9800' }} />
+                                                    <div className="flex items-start gap-3 pl-2">
+                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0 ${idx % 3 === 0 ? 'bg-brand-navy' : idx % 3 === 1 ? 'bg-brand-gold' : 'bg-brand-brown'}`}>{idx + 1}</div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <h4 className="font-serif font-bold text-brand-navy text-sm">{theme.label}</h4>
+                                                                <span className="text-[10px] bg-brand-cream px-1.5 py-0.5 rounded text-brand-text-light font-mono">{(theme.confidence * 100).toFixed(0)}%</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -640,10 +758,31 @@ export function ChapterModal({
                                             {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 font-serif">{refError}</p></div>) : selectedReference && (
                                                 <div className="space-y-8">
                                                     <div className="p-6 bg-brand-cream/20 rounded-xl border border-brand-gold/10">
-                                                        <div className="mb-4"><span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span><h4 className="font-serif font-bold text-brand-navy text-lg">Kabanata {selectedReference.chapter_number}: {selectedReference.chapter_title}</h4></div>
+                                                        <div className="mb-4 flex justify-between items-start">
+                                                            <div>
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span>
+                                                                {/* Just display the source chapter number if target chapter is not exactly known. It searches target-mode nearby chapters */}
+                                                            </div>
+                                                            {selectedReference.alignment_status && (
+                                                                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                    {selectedReference.alignment_status}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="text-xl font-serif leading-relaxed text-brand-text">&quot;{selectedReference.sentence_text}&quot;</p>
+                                                        
+                                                        {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
+                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10">
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Tauhan</span>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {selectedReference.matched_characters.map(c => (
+                                                                        <span key={c} className="bg-brand-gold/10 text-brand-navy px-2 py-1 rounded text-xs font-bold">{c}</span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div className="pt-6 border-t border-brand-gold/10"><p className="text-xs text-brand-text/50 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng semantikong paghahambing (XLM-RoBERTa) sa pagitan ng buod at orihinal na teksto ni Rizal.</p></div>
+                                                    <div className="pt-6 border-t border-brand-gold/10"><p className="text-xs text-brand-text/50 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
                                                 </div>
                                             )}
                                         </div>

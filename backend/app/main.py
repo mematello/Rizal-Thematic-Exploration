@@ -14,6 +14,20 @@ async def lifespan(app: FastAPI):
         conn.commit()
     
     Base.metadata.create_all(bind=engine)
+    
+    import os
+    import logging
+    from pathlib import Path
+    
+    frontend_ts_path = Path(__file__).parent.parent.parent / "frontend" / "lib" / "characterData.ts"
+    backend_json_path = Path(__file__).parent / "data" / "character_aliases.json"
+    
+    if frontend_ts_path.exists() and backend_json_path.exists():
+        if os.path.getmtime(frontend_ts_path) > os.path.getmtime(backend_json_path):
+            logging.warning("⚠️ character_aliases.json is older than characterData.ts! Please run scripts/character_index.py.")
+    elif frontend_ts_path.exists() and not backend_json_path.exists():
+        logging.warning("⚠️ character_aliases.json not found! Please run scripts/character_index.py.")
+        
     yield
     # Shutdown logic
 
