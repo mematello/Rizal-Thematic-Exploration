@@ -12,6 +12,8 @@ import pickle
 import math
 import json
 import re
+from app.core.config import get_settings
+config = get_settings()
 
 # Cache for CSV data
 _csv_cache = {}
@@ -393,6 +395,7 @@ def get_chapter_content(
 class ThemeResult(BaseModel):
     label: str
     confidence: float
+    evidence: Optional[str] = None
 
 class PaksaResponse(BaseModel):
     has_theme: bool
@@ -405,16 +408,28 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
     if not sentence:
         raise HTTPException(status_code=404, detail="Sentence not found")
         
-    # Load theme bank
+    book_key = "noli" if sentence.book.lower() in ("noli", "noli me tangere") else "elfili"
+    
     backend_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
     theme_bank_path = backend_data_dir / "theme_bank.pkl"
     if not theme_bank_path.exists():
         return PaksaResponse(has_theme=False)
         
     with open(theme_bank_path, 'rb') as f:
-        theme_bank = pickle.load(f)
+        theme_bank_full = pickle.load(f)
         
-    # Fetch passage
+    theme_bank = []
+    if isinstance(theme_bank_full, dict) and book_key in theme_bank_full:
+        theme_bank = theme_bank_full[book_key]
+        
+    char_theme_map_path = backend_data_dir / f"character_theme_map_{book_key}.json"
+    theme_kw_path = backend_data_dir / f"theme_keywords_{book_key}.json"
+    char_aliases_path = backend_data_dir / "character_aliases.json"
+    
+    char_theme_map = json.loads(char_theme_map_path.read_text(encoding='utf-8')) if char_theme_map_path.exists() else {}
+    theme_kw_map = json.loads(theme_kw_path.read_text(encoding='utf-8')) if theme_kw_path.exists() else {}
+    char_aliases = json.loads(char_aliases_path.read_text(encoding='utf-8')) if char_aliases_path.exists() else []
+    
     if sentence.source_type == 'summary':
         passage_sentences = [sentence]
     else:
@@ -428,7 +443,52 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
                 Sentence.passage_id == sentence.passage_id
             ).order_by(Sentence.sentence_index).all()
             
-    # Compute Significance-Weighted Consensus Embedding
+    passage_text = " ".join([str(s.sentence_text) for s in passage_sentences]).lower()
+    
+    # Gate 1: Character-Theme Affinity Filter
+    found_chars = set()
+    for c in char_aliases:
+        name = c.get('name', '')
+        aliases = c.get('aliases', [])
+        if name and name not in aliases: aliases.append(name)
+        for a in aliases:
+            if not a: continue
+            if re.search(r'\b' + re.escape(a.lower()) + r'\b', passage_text):
+                found_chars.add(name)
+                break
+                
+    candidate_themes = set()
+    has_chars = len(found_chars) > 0
+    if has_chars:
+        for c in found_chars:
+            if c in char_theme_map:
+                candidate_themes.update(char_theme_map[c])
+    else:
+        candidate_themes = set([row['label'] for row in theme_bank])
+        
+    if not candidate_themes:
+        return PaksaResponse(has_theme=False)
+        
+    # Gate 2: Keyword Density Filter
+    passing_gate_2 = set()
+    theme_kw_densities = {}
+    
+    req_kws = config.PAKSA_MIN_KWS_WITH_CHARS if has_chars else config.PAKSA_MIN_KWS_NO_CHARS
+    passage_words = set(re.findall(r'\w+', passage_text))
+    
+    for theme in candidate_themes:
+        kws = theme_kw_map.get(theme, [])
+        matches = sum(1 for kw in kws if kw.lower() in passage_words)
+        
+        if matches >= req_kws:
+            passing_gate_2.add(theme)
+            density_score = min(1.0, matches / max(1, req_kws))
+            theme_kw_densities[theme] = density_score
+            
+    if not passing_gate_2:
+        return PaksaResponse(has_theme=False)
+        
+    # Final Scoring
     weighted_embeddings = []
     total_weight = 0.0
     for s in passage_sentences:
@@ -444,58 +504,34 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
     consensus = np.sum(weighted_embeddings, axis=0) / total_weight
     consensus = consensus / (np.linalg.norm(consensus) + 1e-9)
     
-    T_theme = 0.65
-    T_override = 0.85
+    final_passed = {}
+    wd = config.PAKSA_WEIGHT_KEYWORD_DENSITY
+    ws = config.PAKSA_WEIGHT_SEMANTIC
     
-    # Multi-Example Theme Scoring
-    theme_scores = {}
-    for theme_name, examples in theme_bank.items():
-        scores = [float(np.dot(consensus, np.array(ex))) for ex in examples]
-        scores.sort(reverse=True)
-        top_3_avg = np.mean(scores[:3]) if len(scores) >= 3 else np.mean(scores)
-        theme_scores[theme_name] = top_3_avg
+    for row in theme_bank:
+        label = row['label']
+        if label not in passing_gate_2: continue
+            
+        semantic_score = float(np.dot(consensus, np.array(row['embedding'])))
+        density_score = theme_kw_densities[label]
+        final_score = (density_score * wd) + (semantic_score * ws)
         
-    earned_themes = {t: s for t, s in theme_scores.items() if s >= T_theme}
-    
-    # Stability Check (for full text passages)
-    if sentence.source_type == 'full' and len(passage_sentences) > 1 and earned_themes:
-        sentence_top_themes = []
-        for s in passage_sentences:
-            if s.embedding is None: continue
-            s_emb = np.array(s.embedding)
-            s_scores = {}
-            for t_name, examples in theme_bank.items():
-                s_s = [float(np.dot(s_emb, np.array(ex))) for ex in examples]
-                s_s.sort(reverse=True)
-                s_scores[t_name] = np.mean(s_s[:3]) if len(s_s) >= 3 else np.mean(s_s)
-            
-            top_3 = sorted(s_scores.keys(), key=lambda k: s_scores[k], reverse=True)[:3]
-            sentence_top_themes.append(set(top_3))
-            
-        if sentence_top_themes:
-            intersection = sentence_top_themes[0].intersection(*sentence_top_themes[1:])
-            union = sentence_top_themes[0].union(*sentence_top_themes[1:])
-            jaccard = len(intersection) / len(union) if len(union) > 0 else 0
-            
-            if jaccard <= 0.6:
-                earned_themes = {} # Stability failed
+        if final_score >= config.PAKSA_THEME_THRESHOLD:
+            if label not in final_passed or semantic_score > final_passed[label]['sem_score']:
+                final_passed[label] = {
+                    'confidence': final_score,
+                    'sem_score': semantic_score,
+                    'evidence': row['evidence']
+                }
                 
-    # Sharp Sentence Override
-    if sentence.embedding is not None:
-        s_emb = np.array(sentence.embedding)
-        for t_name, examples in theme_bank.items():
-            s_s = [float(np.dot(s_emb, np.array(ex))) for ex in examples]
-            s_s.sort(reverse=True)
-            s_score = np.mean(s_s[:3]) if len(s_s) >= 3 else float(np.mean(s_s))
-            if s_score >= T_override:
-                earned_themes[t_name] = max(earned_themes.get(t_name, 0.0), s_score)
-                
-    if not earned_themes:
+    if not final_passed:
         return PaksaResponse(has_theme=False)
         
-    sorted_themes = sorted([{"label": k, "confidence": float(v)} for k, v in earned_themes.items()], 
-                          key=lambda x: x["confidence"], reverse=True)
-                          
+    sorted_themes = sorted([
+        ThemeResult(label=k, confidence=v['confidence'], evidence=v['evidence'])
+        for k, v in final_passed.items()
+    ], key=lambda x: x.confidence, reverse=True)
+    
     return PaksaResponse(
         has_theme=True,
         passage_ids=[s.id for s in passage_sentences],
@@ -509,6 +545,19 @@ class SanggunianResponse(BaseModel):
     alignment_status: str = ""
     score: float = 0.0
     matched_characters: List[str] = []
+
+_nlp = None
+def get_nlp():
+    global _nlp
+    if _nlp is None:
+        import spacy
+        try:
+            _nlp = spacy.load(config.SANGGUNIAN_SPACY_MODEL)
+        except OSError:
+            import subprocess
+            subprocess.run(["python", "-m", "spacy", "download", config.SANGGUNIAN_SPACY_MODEL])
+            _nlp = spacy.load(config.SANGGUNIAN_SPACY_MODEL)
+    return _nlp
 
 @router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
 def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
@@ -543,27 +592,29 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
         search_chapter = 63
         
     full_book = "Noli Me Tangere" if search_book_noli else "El Filibusterismo"
-    
     backend_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+    
     char_aliases_path = backend_data_dir / "character_aliases.json"
-    character_aliases = []
-    if char_aliases_path.exists():
-        with open(char_aliases_path, 'r', encoding='utf-8') as f:
-            character_aliases = json.load(f)
-            
-    buod_chars_found = []
-    if sentence.sentence_text:
-        text_lower = sentence.sentence_text.lower()
-        for c in character_aliases:
-            aliases = c.get('aliases', [])
-            if c.get('name'):
-                aliases.append(c.get('name'))
-            for alias in aliases:
-                if not alias: continue
-                if re.search(r'\b' + re.escape(alias.lower()) + r'\b', text_lower):
-                    buod_chars_found.append(c)
-                    break
+    char_aliases = json.loads(char_aliases_path.read_text(encoding='utf-8')) if char_aliases_path.exists() else []
+    
+    buod_text = (sentence.sentence_text or "").lower()
+    buod_chars = set()
+    for c in char_aliases:
+        name = c.get('name', '')
+        aliases = c.get('aliases', [])
+        if name and name not in aliases: aliases.append(name)
+        for a in aliases:
+            if not a: continue
+            if re.search(r'\b' + re.escape(a.lower()) + r'\b', buod_text):
+                buod_chars.add(name)
+                break
                 
+    nlp = get_nlp()
+    doc = nlp(buod_text)
+    action_words = set([token.lemma_.lower() for token in doc if token.pos_ in ["VERB", "NOUN"] and len(token.text) > 2])
+    buod_emb = np.array(sentence.embedding) if sentence.embedding is not None else None
+    buod_words_all = set(re.findall(r'\w+', buod_text))
+    
     def search_in_chapter(chap_num):
         full_sentences = db.query(Sentence).filter(
             Sentence.book == full_book,
@@ -582,77 +633,67 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
         total_full = len(full_sentences)
         total_buod = len(buod_sentences)
         
-        chapter_ratio = total_full / total_buod
-        dynamic_buffer = chapter_ratio * 2
+        chapter_ratio = total_full / max(1, total_buod)
+        dynamic_buffer = chapter_ratio * config.SANGGUNIAN_DYNAMIC_BFR_MULTIPLIER
         
-        buod_idx_in_chap = 0
-        for i, bs in enumerate(buod_sentences):
-            if bs.id == sentence.id:
-                buod_idx_in_chap = i
-                break
-                
-        position_ratio = buod_idx_in_chap / total_buod
-        search_center = position_ratio * total_full
+        buod_idx = next((i for i, bs in enumerate(buod_sentences) if bs.id == sentence.id), 0)
+        search_center = (buod_idx / max(1, total_buod)) * total_full
         
-        candidates = []
-        for i, fs in enumerate(full_sentences):
-            if (search_center - dynamic_buffer) <= i <= (search_center + dynamic_buffer):
-                candidates.append(fs)
-                
-        if not candidates:
-            return None
-            
-        filtered_candidates = []
-        if buod_chars_found:
-            for fs in candidates:
-                fs_matched_chars = []
-                if not fs.sentence_text: continue
-                fs_text_lower = fs.sentence_text.lower()
-                for c in buod_chars_found:
-                    aliases = c.get('aliases', [])
-                    if c.get('name'): aliases.append(c.get('name'))
-                    for alias in aliases:
-                        if alias and re.search(r'\b' + re.escape(alias.lower()) + r'\b', fs_text_lower):
-                            fs_matched_chars.append(c.get('name'))
-                            break
-                if fs_matched_chars:
-                    filtered_candidates.append((fs, list(set(fs_matched_chars))))
-            if not filtered_candidates:
-                return None
-        else:
-            filtered_candidates = [(fs, []) for fs in candidates]
-            
+        candidates = [fs for i, fs in enumerate(full_sentences) if (search_center - dynamic_buffer) <= i <= (search_center + dynamic_buffer)]
+        if not candidates or buod_emb is None: return None
+        
         best_fs = None
         best_score = -1.0
         best_chars = []
         
-        if sentence.embedding is None or not sentence.sentence_text:
-            return None
+        for fs in candidates:
+            fs_text = (fs.sentence_text or "").lower()
+            if not fs_text or fs.embedding is None: continue
             
-        buod_emb = np.array(sentence.embedding)
-        buod_words = set(re.findall(r'\w+', sentence.sentence_text.lower()))
-        
-        for fs, fs_chars in filtered_candidates:
-            if fs.embedding is None or not fs.sentence_text: continue
-            fs_emb = np.array(fs.embedding)
-            
-            semantic_score = np.dot(buod_emb, fs_emb) / (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb) + 1e-9)
-            
-            fs_words = set(re.findall(r'\w+', fs.sentence_text.lower()))
-            overlap = len(buod_words.intersection(fs_words))
-            lexical_score = overlap / max(len(buod_words), 1)
-            
-            if fs_chars:
-                lexical_score *= 2.0
+            # Gate 1: Character Overlap Filter
+            fs_chars = set()
+            for c in char_aliases:
+                name = c.get('name', '')
+                aliases = c.get('aliases', [])
+                if name and name not in aliases: aliases.append(name)
+                for a in aliases:
+                    if not a: continue
+                    if re.search(r'\b' + re.escape(a.lower()) + r'\b', fs_text):
+                        fs_chars.add(name)
+                        break
+                        
+            if buod_chars:
+                overlap = buod_chars.intersection(fs_chars)
+                if not overlap: continue # Hard reject
+            else:
+                overlap = set()
                 
-            final_score = float(0.55 * lexical_score + 0.45 * semantic_score)
+            # Gate 2: Action Keyword Match
+            fs_doc = nlp(fs_text)
+            fs_action_words = set([token.lemma_.lower() for token in fs_doc if token.pos_ in ["VERB", "NOUN"] and len(token.text) > 2])
+            
+            if action_words and not action_words.intersection(fs_action_words):
+                continue # Hard reject
+                
+            # Hybrid Scoring
+            fs_emb = np.array(fs.embedding)
+            semantic_score = float(np.dot(buod_emb, fs_emb) / (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb) + 1e-9))
+            
+            fs_words_all = set(re.findall(r'\w+', fs_text))
+            lexical_overlap = len(buod_words_all.intersection(fs_words_all))
+            lexical_score = lexical_overlap / max(1, len(buod_words_all))
+            
+            char_boost = min(len(overlap) * config.SANGGUNIAN_CHAR_BOOST_PER_MATCH, config.SANGGUNIAN_CHAR_BOOST_MAX)
+            lexical_score += char_boost
+            
+            final_score = (lexical_score * config.SANGGUNIAN_WEIGHT_LEXICAL) + (semantic_score * config.SANGGUNIAN_WEIGHT_SEMANTIC)
+            
             if final_score > best_score:
                 best_score = final_score
                 best_fs = fs
-                best_chars = fs_chars
+                best_chars = list(overlap) if overlap else list(fs_chars)
                 
-        T_fallback = 0.45
-        if best_score < T_fallback:
+        if best_score < config.SANGGUNIAN_FALLBACK_THRESHOLD:
             return None
             
         return best_fs, best_score, best_chars
