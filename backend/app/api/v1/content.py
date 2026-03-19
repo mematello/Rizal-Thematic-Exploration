@@ -406,7 +406,7 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Sentence not found")
         
     # Load theme bank
-    backend_data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
+    backend_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
     theme_bank_path = backend_data_dir / "theme_bank.pkl"
     if not theme_bank_path.exists():
         return PaksaResponse(has_theme=False)
@@ -432,7 +432,7 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
     weighted_embeddings = []
     total_weight = 0.0
     for s in passage_sentences:
-        if not s.embedding: continue
+        if s.embedding is None: continue
         word_count = len(str(s.sentence_text).split())
         weight = math.log(word_count + 1)
         weighted_embeddings.append(np.array(s.embedding) * weight)
@@ -461,7 +461,7 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
     if sentence.source_type == 'full' and len(passage_sentences) > 1 and earned_themes:
         sentence_top_themes = []
         for s in passage_sentences:
-            if not s.embedding: continue
+            if s.embedding is None: continue
             s_emb = np.array(s.embedding)
             s_scores = {}
             for t_name, examples in theme_bank.items():
@@ -481,7 +481,7 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
                 earned_themes = {} # Stability failed
                 
     # Sharp Sentence Override
-    if sentence.embedding:
+    if sentence.embedding is not None:
         s_emb = np.array(sentence.embedding)
         for t_name, examples in theme_bank.items():
             s_s = [float(np.dot(s_emb, np.array(ex))) for ex in examples]
@@ -544,7 +544,7 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
         
     full_book = "Noli Me Tangere" if search_book_noli else "El Filibusterismo"
     
-    backend_data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
+    backend_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
     char_aliases_path = backend_data_dir / "character_aliases.json"
     character_aliases = []
     if char_aliases_path.exists():
@@ -626,14 +626,14 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
         best_score = -1.0
         best_chars = []
         
-        if not sentence.embedding or not sentence.sentence_text:
+        if sentence.embedding is None or not sentence.sentence_text:
             return None
             
         buod_emb = np.array(sentence.embedding)
         buod_words = set(re.findall(r'\w+', sentence.sentence_text.lower()))
         
         for fs, fs_chars in filtered_candidates:
-            if not fs.embedding or not fs.sentence_text: continue
+            if fs.embedding is None or not fs.sentence_text: continue
             fs_emb = np.array(fs.embedding)
             
             semantic_score = np.dot(buod_emb, fs_emb) / (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb) + 1e-9)
