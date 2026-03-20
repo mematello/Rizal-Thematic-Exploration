@@ -19,7 +19,11 @@ export interface ResultCardProps {
     chapter: number;
     chapterTitle: string;
     passageHtml: string;
-    contextHtml: string;
+    context: {
+        id: number;
+        text: string;
+        is_center: boolean;
+    }[];
     scores: {
         semantic: number;
         lexical: number;

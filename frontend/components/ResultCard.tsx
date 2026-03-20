@@ -1,14 +1,14 @@
-"use client";
-
-import { useState } from "react";
-import { ChevronDown, ChevronUp, BookOpen, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, BookOpen, ExternalLink, Quote } from "lucide-react";
 import { ResultCardProps } from "../types";
 import { ScoreVisualizer } from "./ScoreVisualizer";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchCacheStore } from "../store/searchCacheStore";
 
 interface ResultCardExtendedProps extends ResultCardProps {
     showScores?: boolean;
     onChapterOpen?: (book: string, chapter: number, sentenceIndex: number) => void;
+    onReferenceClick?: (sentenceId: number, sentenceText: string) => void;
 }
 
 export function ResultCard({
@@ -17,15 +17,17 @@ export function ResultCard({
     chapter,
     chapterTitle,
     passageHtml,
-    contextHtml,
+    context = [],
     scores,
     confidenceBadge = false,
     themes = [],
     showScores = false,
     onChapterOpen,
+    onReferenceClick,
     sentenceIndex: sentenceIndexProp,
 }: ResultCardExtendedProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { paksaCache, sanggunianCache, setPaksaBatch, setSanggunianBatch } = useSearchCacheStore();
 
     const novelTheme = {
         noli: {
@@ -35,6 +37,8 @@ export function ResultCard({
             novelName: 'Noli Me Tangere',
             btnBorder: 'border-noli-gold/40 hover:border-noli-gold text-noli-gold hover:bg-noli-gold/5',
             book: 'noli',
+            text: 'text-noli-gold',
+            bg: 'bg-noli-gold',
         },
         fili: {
             border: 'border-l-fili-magenta',
@@ -43,11 +47,47 @@ export function ResultCard({
             novelName: 'El Filibusterismo',
             btnBorder: 'border-fili-magenta/40 hover:border-fili-magenta text-fili-magenta hover:bg-fili-magenta/5',
             book: 'elfili',
+            text: 'text-fili-magenta',
+            bg: 'bg-fili-magenta',
         },
     }[novel];
 
     const hasThemes = themes.length > 0;
     const sentenceIndex = sentenceIndexProp ?? 0;
+    const mainSentenceId = parseInt(id);
+
+    // Batch fetch themes and references when expanded
+    useEffect(() => {
+        if (!isExpanded || context.length === 0) return;
+
+        const allIds = [mainSentenceId, ...context.map(s => s.id)];
+        
+        // Filter out those already in cache
+        const missingPaksa = allIds.filter(id => !paksaCache[id]);
+        const missingSanggunian = allIds.filter(id => !sanggunianCache[id]);
+
+        if (missingPaksa.length > 0) {
+            fetch("/api/v1/sentences/batch/paksa", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(missingPaksa)
+            })
+            .then(res => res.json())
+            .then(data => setPaksaBatch(data))
+            .catch(err => console.error("Batch Paksa Error:", err));
+        }
+
+        if (missingSanggunian.length > 0) {
+            fetch("/api/v1/sentences/batch/sanggunian", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(missingSanggunian)
+            })
+            .then(res => res.json())
+            .then(data => setSanggunianBatch(data))
+            .catch(err => console.error("Batch Sanggunian Error:", err));
+        }
+    }, [isExpanded, context, mainSentenceId, paksaCache, sanggunianCache, setPaksaBatch, setSanggunianBatch]);
 
     return (
         <article
@@ -81,12 +121,37 @@ export function ResultCard({
                     )}
                 </div>
 
-                {/* Passage */}
-                <div
-                    className="font-serif text-sm leading-relaxed text-brand-text/80"
-                    dangerouslySetInnerHTML={{ __html: passageHtml }}
-                    aria-label="Sipi mula sa nobela"
-                />
+                {/* Main Passage */}
+                <div className="relative">
+                    <div
+                        className="font-serif text-sm leading-relaxed text-brand-text/80"
+                        dangerouslySetInnerHTML={{ __html: passageHtml }}
+                        aria-label="Sipi mula sa nobela"
+                    />
+                    
+                    {/* Inline Indicators for Main Passage */}
+                    <div className="mt-2 flex flex-wrap gap-2 items-center">
+                        {mainSentenceId && paksaCache[mainSentenceId]?.themes?.map((t, idx) => (
+                            <span key={idx} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter ${novelTheme.novelBadge} border border-current/20`}>
+                                {t.label} 
+                                <span className="opacity-50">{(t.confidence * 100).toFixed(0)}%</span>
+                            </span>
+                        ))}
+                        {mainSentenceId && sanggunianCache[mainSentenceId]?.has_reference && (
+                            <button 
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    const mainText = context.find(s => s.is_center)?.text || "";
+                                    onReferenceClick?.(mainSentenceId, mainText); 
+                                }}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter border transition-colors ${novelTheme.btnBorder}`}
+                                title="Buksan ang Sanggunian"
+                            >
+                                <Quote size={8} /> Sanggunian
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Action Row */}
@@ -94,10 +159,6 @@ export function ResultCard({
                 <button
                     onClick={(e) => { 
                         e.stopPropagation(); 
-                        console.log(`[ResultCard ${id}] "Ipakita ang Konteksto" clicked.`);
-                        console.log(`[ResultCard ${id}] Before state change - isExpanded:`, isExpanded);
-                        console.log(`[ResultCard ${id}] themes prop:`, themes);
-                        console.log(`[ResultCard ${id}] hasThemes derived:`, hasThemes);
                         setIsExpanded(!isExpanded); 
                     }}
                     className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all ${novelTheme.btnBorder}`}
@@ -134,21 +195,43 @@ export function ResultCard({
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.25 }}
-                        className="overflow-hidden"
+                        className="overflow-hidden pb-4"
                     >
-                        {/* Context */}
-                        <div
-                            className="mx-5 mt-3 p-4 rounded-sm bg-brand-cream border border-brand-gold/10 font-serif text-brand-text/70 text-sm italic leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: contextHtml }}
-                            aria-label="Konteksto ng sipi"
-                        />
+                        {/* Structured Context */}
+                        <div className="mx-5 mt-3 p-4 rounded-sm bg-brand-cream border border-brand-gold/10 font-serif space-y-3">
+                            {context.map((s) => (
+                                <div key={s.id} className="relative group">
+                                    <p className={`text-sm leading-relaxed ${s.is_center ? 'text-brand-text font-bold' : 'text-brand-text/60 italic'}`}>
+                                        {s.is_center ? <strong>{s.text}</strong> : s.text}
+                                    </p>
+                                    
+                                    {/* Inline Indicators for Context Sentences */}
+                                    <div className="mt-1 flex flex-wrap gap-1.5 items-center">
+                                        {paksaCache[s.id]?.themes?.map((t, idx) => (
+                                            <span key={idx} className={`inline-flex items-center gap-1 px-1.5 py-0 rounded-full text-[8px] font-bold uppercase tracking-tighter ${novelTheme.novelBadge} border border-current/10`}>
+                                                {t.label}
+                                                <span className="opacity-40">{(t.confidence * 100).toFixed(0)}%</span>
+                                            </span>
+                                        ))}
+                                        {sanggunianCache[s.id]?.has_reference && (
+                                            <button 
+                                                onClick={() => onReferenceClick?.(s.id, s.text)}
+                                                className={`inline-flex items-center gap-1 px-1.5 py-0 rounded-full text-[8px] font-bold uppercase tracking-tighter border opacity-40 group-hover:opacity-100 transition-opacity ${novelTheme.btnBorder}`}
+                                            >
+                                                <Quote size={7} /> Sanggunian
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
 
-                        {/* Meaning section (if themes exist) */}
+                        {/* Summary Meaning section (kept as requested to not change logic) */}
                         {hasThemes && (
-                            <div className="mx-5 mt-3 space-y-2">
+                            <div className="mx-5 mt-4 space-y-2">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text/40 block">Kahulugan ng Tema</span>
                                 {themes.map((t) => (
-                                    <div key={t.id} className={`p-3 rounded-sm border-l-4 ${novelTheme.innerBorder} bg-white`}>
+                                    <div key={t.id} className={`p-3 rounded-sm border-l-4 ${novelTheme.innerBorder} bg-white shadow-sm`}>
                                         <h5 className="font-serif font-bold text-brand-navy text-sm mb-1">{t.label}</h5>
                                         {t.explanation && (
                                             <p className="font-serif text-xs text-brand-text/60 italic leading-relaxed">
@@ -160,9 +243,9 @@ export function ResultCard({
                             </div>
                         )}
 
-                        {/* Open chapter button at bottom of expansion */}
+                        {/* Open chapter button */}
                         {onChapterOpen && (
-                            <div className="px-5 py-4">
+                            <div className="px-5 mt-4">
                                 <button
                                     onClick={() => onChapterOpen(novelTheme.book, chapter, sentenceIndex)}
                                     className={`w-full flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider rounded-sm px-4 py-2.5 border transition-all ${novelTheme.btnBorder}`}

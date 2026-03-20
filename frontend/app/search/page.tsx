@@ -6,8 +6,10 @@ import { SearchBar } from "@/components/SearchBar";
 import { ResultCard } from "@/components/ResultCard";
 import { SkeletonLoader } from "@/components/SkeletonLoader";
 import { ChapterModal } from "@/components/ChapterModal";
+import { SanggunianModal } from "@/components/SanggunianModal";
 import { SuggestionsCard } from "@/components/SuggestionsCard";
 import { useRizalSearch } from "@/hooks/useRizalSearch";
+import { useSearchCacheStore } from "@/store/searchCacheStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, BarChart2 } from "lucide-react";
 import { Suspense } from "react";
@@ -15,6 +17,7 @@ import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 
 interface ChapterContent {
+    id: number;
     sentence_index: number;
     sentence_text: string;
     themes: any[];
@@ -36,6 +39,12 @@ function SearchContent() {
     const [chapterContent, setChapterContent] = useState<ChapterContent[]>([]);
     const [loadingContent, setLoadingContent] = useState(false);
     const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
+    
+    // Sanggunian modal state
+    const [isRefModalOpen, setIsRefModalOpen] = useState(false);
+    const [refSourceText, setRefSourceText] = useState("");
+    const [refSentenceId, setRefSentenceId] = useState<number | null>(null);
+    const { sanggunianCache } = useSearchCacheStore();
 
     const { data, isLoading, error } = useRizalSearch(initialQuery);
 
@@ -74,6 +83,12 @@ function SearchContent() {
 
     const handleNavigate = (book: string, chapter: number) => {
         handleChapterOpen(book, chapter, 0); // Open new chapter, reset highlight
+    };
+
+    const handleReferenceClick = (sentenceId: number, sentenceText: string) => {
+        setRefSentenceId(sentenceId);
+        setRefSourceText(sentenceText);
+        setIsRefModalOpen(true);
     };
 
     const results = data?.results;
@@ -244,7 +259,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {filteredNoli.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -255,7 +270,7 @@ function SearchContent() {
                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
                                                         {strongNoli.map((result, i) => (
                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                             </motion.div>
                                                         ))}
                                                     </div>
@@ -272,7 +287,7 @@ function SearchContent() {
                                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                         {partialNoli.map((result, i) => (
                                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                             </motion.div>
                                                                         ))}
                                                                     </motion.div>
@@ -296,7 +311,7 @@ function SearchContent() {
                                                                             <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                             {partialNoli.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </motion.div>
@@ -320,7 +335,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {filteredFili.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -331,7 +346,7 @@ function SearchContent() {
                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
                                                         {strongFili.map((result, i) => (
                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                             </motion.div>
                                                         ))}
                                                     </div>
@@ -348,7 +363,7 @@ function SearchContent() {
                                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                         {partialFili.map((result, i) => (
                                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                             </motion.div>
                                                                         ))}
                                                                     </motion.div>
@@ -372,7 +387,7 @@ function SearchContent() {
                                                                             <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                             {partialFili.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </motion.div>
@@ -401,7 +416,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {col1.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -409,7 +424,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {col2.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + col1.length) * 0.04 }}>
-                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -424,14 +439,14 @@ function SearchContent() {
                                                         <div className="space-y-4">
                                                             {strongCol1.map((result, i) => (
                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                 </motion.div>
                                                             ))}
                                                         </div>
                                                         <div className="space-y-4">
                                                             {strongCol2.map((result, i) => (
                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                 </motion.div>
                                                             ))}
                                                         </div>
@@ -457,14 +472,14 @@ function SearchContent() {
                                                                         <div className="space-y-4">
                                                                             {partialCol1.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </div>
                                                                         <div className="space-y-4">
                                                                             {partialCol2.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </div>
@@ -495,14 +510,14 @@ function SearchContent() {
                                                                             <div className="space-y-4">
                                                                                 {partialCol1.map((result, i) => (
                                                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                     </motion.div>
                                                                                 ))}
                                                                             </div>
                                                                             <div className="space-y-4">
                                                                                 {partialCol2.map((result, i) => (
                                                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} onReferenceClick={handleReferenceClick} />
                                                                                     </motion.div>
                                                                                 ))}
                                                                             </div>
@@ -543,6 +558,20 @@ function SearchContent() {
                     isLoading={loadingContent}
                     highlightSentenceIndex={highlightSentenceIndex}
                     onNavigate={handleNavigate}
+                />
+            )}
+            {/* Sanggunian Modal */}
+            {refSentenceId && (
+                <SanggunianModal 
+                    isOpen={isRefModalOpen}
+                    onClose={() => setIsRefModalOpen(false)}
+                    sourceText={refSourceText}
+                    book={singleNovelResults.find(r => Number(r.id) === refSentenceId)?.novel || noliResults.find(r => Number(r.id) === refSentenceId)?.novel || filiResults.find(r => Number(r.id) === refSentenceId)?.novel || "noli"}
+                    chapterNumber={singleNovelResults.find(r => Number(r.id) === refSentenceId)?.chapter || noliResults.find(r => Number(r.id) === refSentenceId)?.chapter || filiResults.find(r => Number(r.id) === refSentenceId)?.chapter || 0}
+                    mode={mode}
+                    referenceData={sanggunianCache[refSentenceId]}
+                    isLoading={false}
+                    error={null}
                 />
             )}
         </div>

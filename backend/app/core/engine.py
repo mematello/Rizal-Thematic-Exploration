@@ -1,4 +1,5 @@
 import numpy as np
+from typing import List
 import re
 import os
 from functools import lru_cache
@@ -822,9 +823,9 @@ class RizalEngine:
                 # Remove embedding early to prevent serialization issues in precise_matches
                 item.pop('embedding', None)
                 
-                # Add context
-                item['context_text'] = self._expand_context(db, sent)
-                # Add themes (using pre-computed query embedding)
+                # Add context as structured list for inline Paksa/Sanggunian
+                item['context'] = self._expand_context(db, sent)
+                # Add themes for the main sentence
                 item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
                 
                 # Check for Precision Threshold (Tumpak na Tugma)
@@ -1377,22 +1378,54 @@ class RizalEngine:
         w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))
         return len(w1 & w2) / len(w2) if w2 else 0.0
 
-    def _expand_context(self, db: Session, center_sentence: Sentence) -> str:
+    def _expand_context(self, db: Session, center_sentence: Sentence) -> List[dict]:
+        """
+        Returns a list of structured sentence objects surrounding the center sentence.
+        Format: [{'id': int, 'text': str, 'is_center': bool}, ...]
+        """
         max_dist = self.MAX_CONTEXT_EXPANSION
         range_start, range_end = center_sentence.sentence_index - max_dist, center_sentence.sentence_index + max_dist
-        candidates = db.scalars(select(Sentence).filter(Sentence.book == center_sentence.book, Sentence.chapter_number == center_sentence.chapter_number, Sentence.sentence_index >= range_start, Sentence.sentence_index <= range_end)).all()
+        
+        candidates = db.scalars(
+            select(Sentence).filter(
+                Sentence.book == center_sentence.book, 
+                Sentence.chapter_number == center_sentence.chapter_number, 
+                Sentence.sentence_index >= range_start, 
+                Sentence.sentence_index <= range_end
+            )
+        ).all()
+        
         sent_map = {s.sentence_index: s for s in candidates}
         
-        prefix, suffix = [], []
+        prefix_ids, suffix_ids = [], []
+        
+        # Expand backwards
         for i in range(1, max_dist + 1):
             idx = center_sentence.sentence_index - i
-            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD: prefix.append(sent_map[idx].sentence_text)
-            else: break
+            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                prefix_ids.append(sent_map[idx])
+            else:
+                break
+                
+        # Expand forwards
         for i in range(1, max_dist + 1):
             idx = center_sentence.sentence_index + i
-            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD: suffix.append(sent_map[idx].sentence_text)
-            else: break
-        return " ".join(reversed(prefix)) + f" <strong>{center_sentence.sentence_text}</strong> " + " ".join(suffix)
+            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                suffix_ids.append(sent_map[idx])
+            else:
+                break
+        
+        # Combine into ordered list
+        result = []
+        for s in reversed(prefix_ids):
+            result.append({"id": s.id, "text": s.sentence_text, "is_center": False})
+            
+        result.append({"id": center_sentence.id, "text": center_sentence.sentence_text, "is_center": True})
+        
+        for s in suffix_ids:
+            result.append({"id": s.id, "text": s.sentence_text, "is_center": False})
+            
+        return result
 
     def _compute_neighbor_score(self, center, neighbor):
         v1, v2 = np.array(center.embedding), np.array(neighbor.embedding)

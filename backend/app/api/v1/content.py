@@ -402,8 +402,20 @@ class PaksaResponse(BaseModel):
     passage_ids: List[int] = []
     themes: List[ThemeResult] = []
 
-@router.get("/sentences/{id}/paksa", response_model=PaksaResponse)
-def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
+@router.post("/sentences/batch/paksa", response_model=dict[int, PaksaResponse])
+def get_batch_paksa(ids: List[int], db: Session = Depends(get_db)):
+    """
+    Batch fetch theme data for multiple sentences.
+    """
+    results = {}
+    for sid in ids:
+        try:
+            results[sid] = _get_paksa_data(sid, db)
+        except HTTPException:
+            continue
+    return results
+
+def _get_paksa_data(id: int, db: Session) -> PaksaResponse:
     sentence = db.query(Sentence).filter(Sentence.id == id).first()
     if not sentence:
         raise HTTPException(status_code=404, detail="Sentence not found")
@@ -538,6 +550,10 @@ def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
         themes=sorted_themes
     )
 
+@router.get("/sentences/{id}/paksa", response_model=PaksaResponse)
+def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
+    return _get_paksa_data(id, db)
+
 class SanggunianResponse(BaseModel):
     has_reference: bool
     passage_ids: List[int] = []
@@ -559,8 +575,20 @@ def get_nlp():
             _nlp = spacy.load(config.SANGGUNIAN_SPACY_MODEL)
     return _nlp
 
-@router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
-def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
+@router.post("/sentences/batch/sanggunian", response_model=dict[int, SanggunianResponse])
+def get_batch_sanggunian(ids: List[int], db: Session = Depends(get_db)):
+    """
+    Batch fetch reference data for multiple sentences.
+    """
+    results = {}
+    for sid in ids:
+        try:
+            results[sid] = _get_sanggunian_data(sid, db)
+        except HTTPException:
+            continue
+    return results
+
+def _get_sanggunian_data(id: int, db: Session) -> SanggunianResponse:
     sentence = db.query(Sentence).filter(Sentence.id == id).first()
     if not sentence:
         raise HTTPException(status_code=404, detail="Sentence not found")
@@ -732,3 +760,7 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
         score=best_score,
         matched_characters=best_chars
     )
+
+@router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
+def get_sentence_sanggunian(id: int, db: Session = Depends(get_db)):
+    return _get_sanggunian_data(id, db)
