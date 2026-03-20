@@ -1,0 +1,142 @@
+[
+  {
+    "id": 6065,
+    "type": "dialogue",
+    "text": "Kayong mga malalaking makasalanan, mga bihag ng mga moro ng kaluluwa, na siyang lumalaganap sa mga dagat ng walang hanggang buhay, na pawang nakalulan sa makapangyarihang mga sasakyan ng sa taong katawan at ng mga lugod sa buhay na ito, kayong hindi magkandadala ng mga tanikala ng mahahalay na hilig at ng mga kalibugan, at nangagsisigaod sa daong ng taga Impyernong si Satan, masdan ninyo riyan ng mapitagang pagkahiya ang tumutubos sa mga kaluluwa sa pagkabihag ng demonyo, ang matapang na Gedeon, ang malakas na loob na David, ang mapagwaging Roldan ng kakristyanohan, ang tagalangit na gwardya sibil, na higit ang katapangan sa lahat ng mga gwardya sibil kahi't pagsamasamahin ang mga gwardya sibil ngayon at ang sa bukas pa\".",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang tunay na relihiyon, ayon sa diwa ng nobela, ay yaong nagbubuklod sa tao at nagpapalaya sa isip, hindi yaong nagbubulag at nagpapasunod sa mali."
+  },
+  {
+    "id": 2743,
+    "type": "dialogue",
+    "text": "Siya't isang intsik ang may hawak ng \"kontrata\" ng opio at hindi nga kailangang sabihing sila'y nangagtutubo ng lubhang malaki.",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang mga prusisyon at pista ay ginamit ng mga prayle upang mangalap ng yaman at impluwensiya kaysa sa pagpapalalim ng pananampalataya."
+  },
+  {
+    "id": 9792,
+    "type": "dialogue",
+    "text": "Walang ano mang ginagawa ang aking manugang ay siyang naka-\"esposas\"!",
+    "assigned_theme": "Pribilehiyo",
+    "evidence": "Ang pribilehiyo ni Kapitan Tiago bilang malapit sa simbahan at pamahalaan ay nakasalalay lamang sa kanyang kayamanan at pag-aalay."
+  },
+  {
+    "id": 3945,
+    "type": "dialogue",
+    "text": "ang idinugtong ni Hermana Sipa, isang matandang babaeng wala ng ngipin;—ibig ko sanang mangumpisal at ng makapakinabang at ng magkamit ng nga \"indulgencia\".",
+    "assigned_theme": "None",
+    "evidence": "None"
+  },
+  {
+    "id": 3460,
+    "type": "dialogue",
+    "text": "Dala po ninyo riyan, ginoong kapitan, ang isang arrobang kandilang galing sa tindahan ng intsik; may mahigit ng sampong taong aking ipinakikiusap sa bawa't bagong kapitang bumibili ng pararrayos, at pinagtatawanan ako ng lahat; gayon ma'y bumibili ng mga \"bomba\" at mga \"kohete\", at nangagbabayad ng mga repike ng mga kampana.",
+    "assigned_theme": "None",
+    "evidence": "None"
+  },
+  {
+    "id": 2315,
+    "type": "character",
+    "text": "Sa pagkamangha ng nangasasalas ay nangagtinginan sa pulutong na iyon: itinunghay ng dominiko ang kanyang ulo upang tingnan niya si pari Damaso sa ilalim ng kanyang salamin sa mata.",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang mga prusisyon at pista ay ginamit ng mga prayle upang mangalap ng yaman at impluwensiya kaysa sa pagpapalalim ng pananampalataya."
+  },
+  {
+    "id": 7662,
+    "type": "character",
+    "text": "ang lalong mainam ay maglimos sa dalawang Cruz, sa ganya'y walang maghihinanakit na sino man at lalong madaling gagaling si Maria Clara ...",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang pananampalataya ni Maria Clara ay sumasalamin sa dalisay na puso ng Pilipinong naniniwala sa kabutihan kahit sa gitna ng panlilinlang."
+  },
+  {
+    "id": 4669,
+    "type": "character",
+    "text": "Nang makita ni Sisang siya'y sumasagitna ng daan lumakad na siyang di alam ang ginagawa, at tumungo sa kanyang bahay, nagmamadali, walang ano mang takip ang ulo at ang tinititiga'y ang malayong tan-awin.",
+    "assigned_theme": "Pag-iisa",
+    "evidence": "Ipinakita sa mga libing at sementeryo ang larawan ng pag-iisa, kung saan ang mga bangkay ay inihiwalay batay sa paratang ng simbahan."
+  },
+  {
+    "id": 4532,
+    "type": "character",
+    "text": "Tumatakbo si Sisang patungo sa kanyang bahay, taglay iyong kaguluhan ng bait na nangyayari sa ating katauhan, pagka sa gitna ng isang kasakunaan ay wala sino mang nagmamalasakit sa atin at sa ati'y tumatakas ang mga pag-asa.",
+    "assigned_theme": "Kalayaan at Pagmamahal sa Bayan",
+    "evidence": "Ipinakita sa nobela na ang tunay na pagmamahal sa bayan ay nangangailangan ng sakripisyo at tapang."
+  },
+  {
+    "id": 3143,
+    "type": "character",
+    "text": "Lumibot ng makaalawa o makaatlo sa salas si Kapitang Tiagong nag-iisip-isip at nagbubuntong hininga; di kaginsaginsa'y parang may naisip siyang magaling, tumakbo sa panalanginan at pinatay ang mga kandila at ang lamparang kanyang pinasindihan upang siyang makapagligtas kay Ibarra.",
+    "assigned_theme": "Kalayaan at Pagmamahal sa Bayan",
+    "evidence": "Ipinakita sa nobela na ang tunay na pagmamahal sa bayan ay nangangailangan ng sakripisyo at tapang."
+  },
+  {
+    "id": 2443,
+    "type": "action",
+    "text": "Pitong taon na ngayong umalis ako rito sa aking bayan, at ngayong ako'y bumalik ay hindi ko mapigilan ang nasang ako'y bumati sa lalong mahalagang hiyas niya; sa kanyang mga supling na babae.",
+    "assigned_theme": "Pag-iisa",
+    "evidence": "Ipinakita sa mga libing at sementeryo ang larawan ng pag-iisa, kung saan ang mga bangkay ay inihiwalay batay sa paratang ng simbahan."
+  },
+  {
+    "id": 2997,
+    "type": "action",
+    "text": "Ng makababa na ng tulay, tumakbo ang mga kabayo't tinungo ang paseo ng Sabana.",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang mga prusisyon at pista ay ginamit ng mga prayle upang mangalap ng yaman at impluwensiya kaysa sa pagpapalalim ng pananampalataya."
+  },
+  {
+    "id": 8311,
+    "type": "action",
+    "text": "umalis na tayo rito, tayo'y mapapahamak!",
+    "assigned_theme": "None",
+    "evidence": "None"
+  },
+  {
+    "id": 3873,
+    "type": "action",
+    "text": "Ang bata'y tumakbo at nagtago sa likuran ng sakristan; ngunit siya'y tinangnan nito at inihanda ang kanyang katawan sa sumusubong galit ng kura; ang kaawaawang bata'y nagpupumiglas, nagsisikad, sumisigaw, nagpapatinghiga, gumugulong, tumitindig, tumatakas, nadudulas, nasusubasob at sinasangga ng mga kamay ang mga hampas na sa pagka't nasusugatan ay biglang itinatago at umaatungal.",
+    "assigned_theme": "Pag-iisa",
+    "evidence": "Ipinakita sa mga libing at sementeryo ang larawan ng pag-iisa, kung saan ang mga bangkay ay inihiwalay batay sa paratang ng simbahan."
+  },
+  {
+    "id": 7345,
+    "type": "action",
+    "text": "Nagpatuloy ang katahimikan: humihingasing ng malakas ang alferez; kinuha ang latigo ng babaeng sa kanya'y humihiwatig at tumitingin ng mga matang wari'y tumatanong, at saka sa kanya'y nagsabi ng tinig na payapa at madalangdalang:",
+    "assigned_theme": "Pag-ibig, Kadalisayan, at Katapatan",
+    "evidence": "Sa pagkawasak ng kanilang pag-ibig, ipinakita ni Rizal na ang kadalisayan ay nananatiling buhay sa puso ng mga tapat."
+  },
+  {
+    "id": 9083,
+    "type": "descriptive",
+    "text": "Tumigil ng pananalita ang matandang lalaki, at ng makita niyang siya'y tinititigan ni don Filipong nagninilaynilay, ngumiti at muling nagsalita:",
+    "assigned_theme": "Pag-iisa",
+    "evidence": "Ipinakita sa mga libing at sementeryo ang larawan ng pag-iisa, kung saan ang mga bangkay ay inihiwalay batay sa paratang ng simbahan."
+  },
+  {
+    "id": 6266,
+    "type": "descriptive",
+    "text": "Na sa paligid ang mga iba, nakatayo at pawang nakapugay, napakalaki ang kanilang katahimikan, na ano pa't baga man ang pagbasa'y mahina napagwawaring nanginginig ang boses ni Pari Salvi.",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang mga prusisyon at pista ay ginamit ng mga prayle upang mangalap ng yaman at impluwensiya kaysa sa pagpapalalim ng pananampalataya."
+  },
+  {
+    "id": 3236,
+    "type": "descriptive",
+    "text": "Pagbabayad ng sakristan ng multang ipinarurusa ng kura, dahil sa hindi niya pagsipot, kanyang ipinauunawa, ang kadahilanan.",
+    "assigned_theme": "Relihiyon",
+    "evidence": "Ang mga prusisyon at pista ay ginamit ng mga prayle upang mangalap ng yaman at impluwensiya kaysa sa pagpapalalim ng pananampalataya."
+  },
+  {
+    "id": 8668,
+    "type": "descriptive",
+    "text": "Hindi ako mag-aral sa kasamahan ng mga anak ng bayan, kaya't marahil hindi ko talos ang kanilang mga kailangan; sa buong kamusmusan ko'y doon ako natira sa kolegio ng mga Jesuita lumaki ako sa Europa, ang mga aklat lamang ang siyang ininuman ng aking pag-iisip at ang aking nabasa lamang ay yaong nailathala ng mga tao: nananatili sa gitna ng mga dilim ang hindi sinasabi ng mga sumusulat ng mga aklat, ang mga iya'y hindi ko alam.",
+    "assigned_theme": "Pribilehiyo",
+    "evidence": "Si Elías ay nawala ang kanyang dangal at yaman dahil sa kasaysayan ng kanyang pamilya, patunay kung gaano kadaling mawala ang pribilehiyo."
+  },
+  {
+    "id": 3950,
+    "type": "descriptive",
+    "text": "Sukat na ang isang indulgencia plenaria upang mahango siya sa Purgatoryo; hindi dapat ninyong sayangin ang mga santa indulgencia; tumulad kayo sa akin.",
+    "assigned_theme": "Kalayaan at Pagmamahal sa Bayan",
+    "evidence": "Ipinakita sa nobela na ang tunay na pagmamahal sa bayan ay nangangailangan ng sakripisyo at tapang."
+  }
+]

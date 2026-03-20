@@ -1,56 +1,54 @@
 {
   "Simoun": [
-    "Karahasan laban sa Di-Karahasan",
+    "Pagpapasakop at Pag-aaklas",
     "Kolonyalismo at Pagkakakilanlan",
-    "Karahasan laban sa Kapayapaan",
     "Kolonyalismo",
-    "Kawalang-Katarungan at Katarungan",
     "Kasakiman",
-    "Pagpapasakop at Pag-aaklas"
-  ],
-  "Padre Florentino": [
-    "Kolonyalismo at Pagkakakilanlan",
-    "Kawalang-Katarungan at Katarungan",
-    "Kasakiman",
-    "Relihiyon"
-  ],
-  "Basilio": [
-    "Kawalang-Katarungan at Katarungan",
-    "Pagpapasakop at Pag-aaklas"
-  ],
-  "Isagani": [
-    "Kolonyalismo at Pagkakakilanlan",
-    "Edukasyon at Kalayaan",
     "Karahasan laban sa Kapayapaan",
-    "Kolonyalismo",
-    "Kawalang-Katarungan at Katarungan",
-    "Edukasyon",
-    "Pagpapasakop at Pag-aaklas"
+    "Kawalang-Katarungan at Katarungan"
   ],
   "Kabesang Tales": [
-    "Kolonyalismo",
-    "Kawalang-Katarungan at Katarungan",
     "Kasakiman",
-    "Pagpapasakop at Pag-aaklas"
+    "Pagpapasakop at Pag-aaklas",
+    "Kawalang-Katarungan at Katarungan",
+    "Kolonyalismo"
+  ],
+  "Padre Florentino": [
+    "Kasakiman",
+    "Relihiyon",
+    "Kolonyalismo at Pagkakakilanlan"
+  ],
+  "Basilio": [
+    "Pagpapasakop at Pag-aaklas",
+    "Kawalang-Katarungan at Katarungan"
   ],
   "Placido Penitente": [
     "Pagpapasakop at Pag-aaklas"
   ],
+  "Isagani": [
+    "Pagpapasakop at Pag-aaklas",
+    "Kolonyalismo at Pagkakakilanlan",
+    "Edukasyon",
+    "Kolonyalismo",
+    "Karahasan laban sa Kapayapaan",
+    "Edukasyon at Kalayaan",
+    "Kawalang-Katarungan at Katarungan"
+  ],
   "Padre Salvi": [
-    "Ipokrasya at Pang-aaping Kolonyal",
-    "Relihiyon"
+    "Relihiyon",
+    "Ipokrasya at Pang-aaping Kolonyal"
   ],
   "Padre Camorra": [
-    "Ipokrasya at Pang-aaping Kolonyal",
-    "Relihiyon"
+    "Relihiyon",
+    "Ipokrasya at Pang-aaping Kolonyal"
   ],
   "Father Fernandez": [
     "Relihiyon"
   ],
   "Don Custodio": [
+    "Rasismo",
     "Ipokrasya at Pang-aaping Kolonyal",
-    "Kolonyalismo",
-    "Rasismo"
+    "Kolonyalismo"
   ],
   "Dona Victorina": [
     "Ipokrasya at Pang-aaping Kolonyal"
