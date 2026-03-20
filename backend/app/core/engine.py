@@ -48,6 +48,9 @@ class RizalEngine:
         
         self.vocabulary = self._load_vocabulary()
         
+        # Load character-theme maps and theme keywords for 4-step matching
+        self._load_character_theme_maps()
+        
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
             'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
@@ -194,6 +197,144 @@ class RizalEngine:
                 except Exception as e:
                     pass
         return vocab
+
+    def _load_character_theme_maps(self):
+        """Load character->theme JSON maps and TF-IDF keyword maps for both books."""
+        import json
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
+        data_dir = os.path.normpath(data_dir)
+
+        self.char_theme_maps: dict[str, dict[str, list]] = {}
+        self.theme_keyword_maps: dict[str, dict[str, list]] = {}
+        # character regex patterns: book -> list of (canon_name, compiled_pattern)
+        self.char_patterns: dict[str, list] = {}
+
+        # Load character_aliases for regex matching
+        aliases_path = os.path.join(data_dir, 'character_aliases.json')
+        alias_list: list = []
+        if os.path.exists(aliases_path):
+            try:
+                with open(aliases_path, 'r', encoding='utf-8') as f:
+                    alias_list = json.load(f)
+            except Exception:
+                alias_list = []
+
+        for book in ['noli', 'elfili']:
+            # Load character->theme map
+            map_path = os.path.join(data_dir, f'character_theme_map_{book}.json')
+            if os.path.exists(map_path):
+                try:
+                    with open(map_path, 'r', encoding='utf-8') as f:
+                        self.char_theme_maps[book] = json.load(f)
+                except Exception:
+                    self.char_theme_maps[book] = {}
+            else:
+                self.char_theme_maps[book] = {}
+
+            # Load theme keywords
+            kw_path = os.path.join(data_dir, f'theme_keywords_{book}.json')
+            if os.path.exists(kw_path):
+                try:
+                    with open(kw_path, 'r', encoding='utf-8') as f:
+                        self.theme_keyword_maps[book] = json.load(f)
+                except Exception:
+                    self.theme_keyword_maps[book] = {}
+            else:
+                self.theme_keyword_maps[book] = {}
+
+            # Build character regex patterns from aliases for this book's character map
+            char_map = self.char_theme_maps.get(book, {})
+            patterns = []
+            # Build a lookup: lower(canon_name) -> aliases from alias_list
+            alias_lookup: dict[str, list] = {}
+            for entry in alias_list:
+                name = entry.get('name', '')
+                aliases = list(entry.get('aliases', []))
+                if name and name not in aliases:
+                    aliases.append(name)
+                alias_lookup[name.lower()] = aliases
+
+            for canon_name in char_map:
+                all_aliases = alias_lookup.get(canon_name.lower(), [canon_name])
+                pat_parts = [r'\b' + re.escape(a.lower()) + r'\b' for a in all_aliases if a]
+                if pat_parts:
+                    patterns.append((
+                        canon_name,
+                        re.compile('|'.join(pat_parts), re.IGNORECASE)
+                    ))
+            self.char_patterns[book] = patterns
+
+        if os.getenv('DEBUG_SEARCH'):
+            for book in ['noli', 'elfili']:
+                n_chars = len(self.char_theme_maps.get(book, {}))
+                n_themes = len(self.theme_keyword_maps.get(book, {}))
+                print(f'[DEBUG] char_theme_map_{book}: {n_chars} chars | theme_keywords_{book}: {n_themes} themes')
+
+    def _get_character_theme_candidates(self, sentence_text: str, book: str) -> set | None:
+        """
+        Step 1 — Character Gate.
+        Returns:
+          - set of Tagalog theme labels if >=1 character found in the sentence
+          - None if no characters detected (gate not applied)
+        """
+        text_lower = sentence_text.lower()
+        patterns = self.char_patterns.get(book, [])
+        char_map = self.char_theme_maps.get(book, {})
+        candidate_themes: set[str] = set()
+        found_any = False
+
+        for canon_name, pattern in patterns:
+            if pattern.search(text_lower):
+                found_any = True
+                themes = char_map.get(canon_name, [])
+                candidate_themes.update(themes)
+
+        return candidate_themes if found_any else None
+
+    def _keyword_matches(self, sentence_text: str, tagalog_theme: str, book: str) -> int:
+        """
+        Step 2 — Keyword Narrowing Gate.
+        Returns count of TF-IDF keywords for `tagalog_theme` found in `sentence_text`.
+        Stricter: Does not count character names/aliases or generic particles as keyword hits.
+        Uses word boundaries to avoid substring false positives (e.g., 'asa' in 'inaasahan').
+        """
+        kw_map = self.theme_keyword_maps.get(book, {})
+        keywords = kw_map.get(tagalog_theme, [])
+        if not keywords:
+            return 0
+            
+        text_lower = sentence_text.lower()
+        
+        # Generic particles and short words that provide no thematic value
+        KEYWORD_BLACKLIST = {
+            'pag', 'upang', 'ngunit', 'bilang', 'ginamit', 'kanyang', 'kaniyang',
+            'dahil', 'isang', 'siya', 'naging', 'mga', 'ang', 'sa', 'ng', 'na',
+            'at', 'ito', 'niya', 'nang', 'ay', 'si', 'sila', 'kami', 'tayo',
+            'asa', 'para', 'lang', 'muli', 'kahit', 'mga', 'isang', 'pa',
+            'hindi', 'walang', 'wala', 'din', 'rin', 'naman', 'muna', 'muli'
+        }
+        
+        # Identify character names to ignore
+        ignore_names = set()
+        for canon_name, pattern in self.char_patterns.get(book, []):
+            ignore_names.add(canon_name.lower())
+            parts = extract_words(canon_name.lower())
+            ignore_names.update(parts)
+            
+        count = 0
+        for kw in keywords:
+            kw_l = kw.lower()
+            if kw_l in KEYWORD_BLACKLIST or len(kw_l) < 3:
+                continue
+            if kw_l in ignore_names:
+                continue
+            
+            # Use regex for word boundaries
+            pattern = re.compile(r'\b' + re.escape(kw_l) + r'\b', re.IGNORECASE)
+            if pattern.search(text_lower):
+                count += 1
+        return count
+
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary"):
         if not self._validate_query_semantics(db, query):
@@ -1072,6 +1213,40 @@ class RizalEngine:
             
         candidates.sort(key=lambda x: x['score'], reverse=True)
         
+        # ── 4-STEP CHARACTER-GATED MATCHING ─────────────────────────────────────
+        # Determine book from the center sentence
+        book_key = 'noli' if 'noli' in (center_sent.book or '').lower() else 'elfili'
+        sent_text = center_sent.sentence_text
+
+        # Step 1: Character gate
+        char_candidates = self._get_character_theme_candidates(sent_text, book_key)
+
+        if char_candidates is not None:
+            # Characters found — restrict to their theme candidates only
+            candidates = [c for c in candidates if c['label'] in char_candidates]
+
+        # Step 2: Keyword narrowing — require ≥1 match (≥2 for Kapangyarihan)
+        # Step 3: Passage consensus already embedded in pass_sims above
+        STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
+        STRICT_KEYWORD_MIN = 2   # must match ≥2 keywords
+        DEFAULT_KEYWORD_MIN = 1  # all other themes: ≥1 keyword
+
+        keyword_filtered = []
+        for c in candidates:
+            theme_label = c['label']
+            min_kw = STRICT_KEYWORD_MIN if theme_label in STRICT_THEMES else DEFAULT_KEYWORD_MIN
+            kw_count = self._keyword_matches(sent_text, theme_label, book_key)
+            if kw_count >= min_kw:
+                keyword_filtered.append(c)
+            elif os.getenv('DEBUG_SEARCH'):
+                print(f"  [DEBUG] KW-gate dropped '{theme_label}' (count={kw_count}, min={min_kw})")
+
+        # Characters were found but no theme earned enough keyword evidence.
+        # Correct behavior per plan: return Walang Tema (empty list).
+        # Do NOT fall back to best semantic score when the gate had characters to check.
+        candidates = keyword_filtered
+        # ────────────────────────────────────────────────────────────────────────
+        
         # UI DISPLAY THRESHOLD (Phase 36 Approval)
         if candidates:
             best_theme = candidates[0]
@@ -1088,9 +1263,17 @@ class RizalEngine:
                 if len(query_words.intersection(theme_words)) > 0:
                     literal_override = True
 
-            # Standard threshold is 0.55 unless explicitly matched directly by string
-            if best_theme['score'] >= 0.55 or literal_override:
+            # Dynamic Threshold based on gated context
+            # Case 3: No character anchor found -> Stricter threshold (0.70)
+            # Case with character anchor -> Leaner threshold (0.55)
+            required_threshold = 0.55
+            if char_candidates is None:
+                required_threshold = 0.70
+            
+            if best_theme['score'] >= required_threshold or literal_override:
                 return [best_theme]
+            elif os.getenv('DEBUG_SEARCH'):
+                print(f"  [DEBUG] Theme '{best_theme['label']}' rejected: score {best_theme['score']:.4f} < required {required_threshold}")
             
         return []
 
@@ -1154,6 +1337,28 @@ class RizalEngine:
                 })
             
             candidates.sort(key=lambda x: x['score'], reverse=True)
+
+            # ── 4-STEP CHARACTER-GATED MATCHING (batch path) ─────────────────────
+            book_key = 'noli' if 'noli' in (sentences[i].book or '').lower() else 'elfili'
+            sent_text = sentences[i].sentence_text
+
+            # Step 1: Character gate
+            char_candidates = self._get_character_theme_candidates(sent_text, book_key)
+            if char_candidates is not None:
+                candidates = [c for c in candidates if c['label'] in char_candidates]
+
+            # Step 2: Keyword narrowing
+            STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
+            keyword_filtered = []
+            for c in candidates:
+                min_kw = 2 if c['label'] in STRICT_THEMES else 1
+                kw_count = self._keyword_matches(sent_text, c['label'], book_key)
+                if kw_count >= min_kw:
+                    keyword_filtered.append(c)
+            # Characters found but no keyword evidence → Walang Tema (do NOT fall back)
+            candidates = keyword_filtered
+            # ─────────────────────────────────────────────────────────────────────
+
             results.append(candidates[:1])
             
         return results

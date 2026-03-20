@@ -3,6 +3,20 @@ import pandas as pd
 import re
 from pathlib import Path
 
+# Characters who are absent from the themes CSV Meaning rows but play
+# notable narrative roles. These are merged in AFTER the automated scan
+# so a CSV rebuild never loses them.
+MANUAL_OVERRIDES_NOLI = {
+    "Tinyente Guevarra": ["Kapangyarihan at Kawalang-Katarungan", "Kalayaan at Pagmamahal sa Bayan"],
+    "Padre Sibyla":      ["Relihiyon", "Kapangyarihan at Kawalang-Katarungan", "Katiwalian"],
+    "Tiya Isabel":       ["Pamilya at Dangal", "Pagkamapagpatuloy"],
+    "Don Filipo":        ["Pag-asa at Reporma", "Kapangyarihan at Kawalang-Katarungan", "Kalayaan at Pagmamahal sa Bayan"],
+    "Lucas":             ["Paghihiganti", "Kapangyarihan at Kawalang-Katarungan"],
+    "Kapitan Pablo":     ["Kapangyarihan at Kawalang-Katarungan", "Paghihiganti", "Kalayaan at Pagmamahal sa Bayan"],
+    "Kapitan Basilio":   ["Kapangyarihan at Kawalang-Katarungan", "Relihiyon", "Katiwalian"],
+}
+MANUAL_OVERRIDES_ELFILI: dict = {}  # None needed for Fili at this time
+
 def build_character_theme_map():
     base_dir = Path(__file__).resolve().parent.parent.parent
     backend_data_dir = base_dir / "backend" / "app" / "data"
@@ -34,6 +48,7 @@ def build_character_theme_map():
         })
         
     # Process both books
+    manual_overrides_by_book = {'noli': MANUAL_OVERRIDES_NOLI, 'elfili': MANUAL_OVERRIDES_ELFILI}
     for book in ['noli', 'elfili']:
         csv_path = base_dir / "csvFiles" / f"{book}_themes.csv"
         if not csv_path.exists():
@@ -42,12 +57,8 @@ def build_character_theme_map():
             
         df = pd.read_csv(csv_path)
         
-        # We need a map: canon_name -> list of themes
-        # Wait, the prompt says: "builds a map of which characters are associated with which themes"
-        # The Paksa gate 1 says: "look up which themes those characters are associated with in the character theme map"
-        # So we need mapping: canon_name -> [theme_label1, theme_label2]
-        
-        char_to_themes = {}
+        # Build mapping: canon_name -> set of tagalog theme labels
+        char_to_themes: dict[str, set] = {}
         
         for _, row in df.iterrows():
             tagalog_title = row['Tagalog Title']
@@ -62,11 +73,22 @@ def build_character_theme_map():
         # Convert sets to list
         output_data = {k: list(v) for k, v in char_to_themes.items()}
         
+        # Merge manual overrides — these characters are absent from CSV Meaning rows
+        overrides = manual_overrides_by_book.get(book, {})
+        for char_name, themes in overrides.items():
+            if char_name in output_data:
+                # Merge without duplicates
+                existing = set(output_data[char_name])
+                output_data[char_name] = list(existing | set(themes))
+            else:
+                output_data[char_name] = list(themes)
+        
         output_path = backend_data_dir / f"character_theme_map_{book}.json"
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(output_data, f, ensure_ascii=False, indent=2)
             
         print(f"Generated {output_path.name}: {len(output_data)} characters mapped to themes.")
+        print(f"  (includes {len(overrides)} manual override entries)")
 
 if __name__ == "__main__":
     build_character_theme_map()
