@@ -98,12 +98,19 @@ class ThemeResponse(BaseModel):
     best_match: Optional[ThemeContextResponse] = None
 
 @router.get("/themes", response_model=List[ThemeResponse])
-def get_themes(db: Session = Depends(get_db)):
+def get_themes(book: Optional[str] = None, db: Session = Depends(get_db)):
     """
     Fetch unique themes and their best matching sentence context.
+    Optionally filter by book.
     """
+    query = db.query(Theme)
+    db_book = None
+    if book:
+        db_book = "elfili" if book.lower() in ["fili", "elfili"] else "noli"
+        query = query.filter(Theme.book == db_book)
+        
     # 1. Fetch all themes
-    all_themes = db.query(Theme).all()
+    all_themes = query.all()
     
     # 2. Deduplicate by tagalog_title
     unique_themes = {}
@@ -119,11 +126,17 @@ def get_themes(db: Session = Depends(get_db)):
         
         # If theme has embedding, find closest sentence
         if theme_obj.embedding is not None:
+            stmt = db.query(Sentence)
+            
+            # Filter sentences by the exact book requested or the theme's book
+            search_book = db_book if db_book else (
+                "elfili" if theme_obj.book and theme_obj.book.lower() in ["fili", "elfili"] else "noli"
+            )
+            stmt = stmt.filter(Sentence.book == search_book)
+
             # Using cosine distance
             closest_sentence = db.scalars(
-                db.query(Sentence)
-                .order_by(Sentence.embedding.cosine_distance(theme_obj.embedding))
-                .limit(1)
+                stmt.order_by(Sentence.embedding.cosine_distance(theme_obj.embedding)).limit(1)
             ).first()
             
             if closest_sentence:
@@ -395,7 +408,6 @@ def get_chapter_content(
 class ThemeResult(BaseModel):
     label: str
     confidence: float
-    evidence: Optional[str] = None
 
 class PaksaResponse(BaseModel):
     has_theme: bool
@@ -403,19 +415,19 @@ class PaksaResponse(BaseModel):
     themes: List[ThemeResult] = []
 
 @router.post("/sentences/batch/paksa", response_model=dict[int, PaksaResponse])
-def get_batch_paksa(ids: List[int], db: Session = Depends(get_db)):
+def get_batch_paksa(ids: List[int], db: Session = Depends(get_db), engine: RizalEngine = Depends(get_engine)):
     """
     Batch fetch theme data for multiple sentences.
     """
     results = {}
     for sid in ids:
         try:
-            results[sid] = _get_paksa_data(sid, db)
+            results[sid] = _get_paksa_data(sid, db, engine)
         except HTTPException:
             continue
     return results
 
-def _get_paksa_data(id: int, db: Session) -> PaksaResponse:
+def _get_paksa_data(id: int, db: Session, engine: RizalEngine) -> PaksaResponse:
     sentence = db.query(Sentence).filter(Sentence.id == id).first()
     if not sentence:
         raise HTTPException(status_code=404, detail="Sentence not found")
@@ -457,50 +469,11 @@ def _get_paksa_data(id: int, db: Session) -> PaksaResponse:
             
     passage_text = " ".join([str(s.sentence_text) for s in passage_sentences]).lower()
     
-    # Gate 1: Character-Theme Affinity Filter
-    found_chars = set()
-    for c in char_aliases:
-        name = c.get('name', '')
-        aliases = c.get('aliases', [])
-        if name and name not in aliases: aliases.append(name)
-        for a in aliases:
-            if not a: continue
-            if re.search(r'\b' + re.escape(a.lower()) + r'\b', passage_text):
-                found_chars.add(name)
-                break
-                
-    candidate_themes = set()
-    has_chars = len(found_chars) > 0
-    if has_chars:
-        for c in found_chars:
-            if c in char_theme_map:
-                candidate_themes.update(char_theme_map[c])
-    else:
-        candidate_themes = set([row['label'] for row in theme_bank])
-        
+    candidate_themes = [row['label'] for row in theme_bank]
     if not candidate_themes:
         return PaksaResponse(has_theme=False)
-        
-    # Gate 2: Keyword Density Filter
-    passing_gate_2 = set()
-    theme_kw_densities = {}
-    
-    req_kws = config.PAKSA_MIN_KWS_WITH_CHARS if has_chars else config.PAKSA_MIN_KWS_NO_CHARS
-    passage_words = set(re.findall(r'\w+', passage_text))
-    
-    for theme in candidate_themes:
-        kws = theme_kw_map.get(theme, [])
-        matches = sum(1 for kw in kws if kw.lower() in passage_words)
-        
-        if matches >= req_kws:
-            passing_gate_2.add(theme)
-            density_score = min(1.0, matches / max(1, req_kws))
-            theme_kw_densities[theme] = density_score
-            
-    if not passing_gate_2:
-        return PaksaResponse(has_theme=False)
-        
-    # Final Scoring
+
+    # Calculate Passage consensus
     weighted_embeddings = []
     total_weight = 0.0
     for s in passage_sentences:
@@ -514,35 +487,31 @@ def _get_paksa_data(id: int, db: Session) -> PaksaResponse:
         return PaksaResponse(has_theme=False)
         
     consensus = np.sum(weighted_embeddings, axis=0) / total_weight
-    consensus = consensus / (np.linalg.norm(consensus) + 1e-9)
+    consensus_norm = np.linalg.norm(consensus)
+    if consensus_norm > 0:
+        consensus = consensus / consensus_norm
     
     final_passed = {}
-    wd = config.PAKSA_WEIGHT_KEYWORD_DENSITY
-    ws = config.PAKSA_WEIGHT_SEMANTIC
     
-    for row in theme_bank:
-        label = row['label']
-        if label not in passing_gate_2: continue
-            
-        semantic_score = float(np.dot(consensus, np.array(row['embedding'])))
-        density_score = theme_kw_densities[label]
-        final_score = (density_score * wd) + (semantic_score * ws)
+    for theme_label in candidate_themes:
+        final_score = engine.get_search_score(theme_label, passage_text, consensus)
         
-        if final_score >= config.PAKSA_THEME_THRESHOLD:
-            if label not in final_passed or semantic_score > final_passed[label]['sem_score']:
-                final_passed[label] = {
-                    'confidence': final_score,
-                    'sem_score': semantic_score,
-                    'evidence': row['evidence']
-                }
+        # Existing search confidence threshold from engine
+        query_analysis = engine.query_analyzer.analyze_query_words(theme_label)
+        sig_items = [item for item in query_analysis if not item['is_stopword']]
+        min_threshold = 0.45 if len(sig_items) >= 2 else 0.05
+        
+        if final_score >= min_threshold:
+            if theme_label not in final_passed or final_score > final_passed[theme_label]:
+                final_passed[theme_label] = final_score
                 
     if not final_passed:
         return PaksaResponse(has_theme=False)
         
     sorted_themes = sorted([
-        ThemeResult(label=k, confidence=v['confidence'], evidence=v['evidence'])
+        ThemeResult(label=k, confidence=v)
         for k, v in final_passed.items()
-    ], key=lambda x: x.confidence, reverse=True)
+    ], key=lambda x: x.confidence, reverse=True)[:2]
     
     return PaksaResponse(
         has_theme=True,
@@ -551,8 +520,8 @@ def _get_paksa_data(id: int, db: Session) -> PaksaResponse:
     )
 
 @router.get("/sentences/{id}/paksa", response_model=PaksaResponse)
-def get_sentence_paksa(id: int, db: Session = Depends(get_db)):
-    return _get_paksa_data(id, db)
+def get_sentence_paksa(id: int, db: Session = Depends(get_db), engine: RizalEngine = Depends(get_engine)):
+    return _get_paksa_data(id, db, engine)
 
 class SanggunianResponse(BaseModel):
     has_reference: bool
@@ -690,9 +659,12 @@ def _get_sanggunian_data(id: int, db: Session) -> SanggunianResponse:
                         fs_chars.add(name)
                         break
                         
+            pronouns = {"dalawa", "sila", "nila"}
+            has_pronoun = any(p in buod_words_all for p in pronouns)
+            
             if buod_chars:
                 overlap = buod_chars.intersection(fs_chars)
-                if not overlap: continue # Hard reject
+                if not overlap and not has_pronoun: continue # Hard reject
             else:
                 overlap = set()
                 

@@ -66,8 +66,10 @@ export function ResultCard({
         const missingPaksa = allIds.filter(id => !paksaCache[id]);
         const missingSanggunian = allIds.filter(id => !sanggunianCache[id]);
 
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
         if (missingPaksa.length > 0) {
-            fetch("/api/v1/sentences/batch/paksa", {
+            fetch(`${apiUrl}/api/v1/sentences/batch/paksa`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(missingPaksa)
@@ -78,7 +80,7 @@ export function ResultCard({
         }
 
         if (missingSanggunian.length > 0) {
-            fetch("/api/v1/sentences/batch/sanggunian", {
+            fetch(`${apiUrl}/api/v1/sentences/batch/sanggunian`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(missingSanggunian)

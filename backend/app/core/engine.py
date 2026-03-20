@@ -206,7 +206,7 @@ class RizalEngine:
         data_dir = os.path.normpath(data_dir)
 
         self.char_theme_maps: dict[str, dict[str, list]] = {}
-        self.theme_keyword_maps: dict[str, dict[str, list]] = {}
+        self.theme_title_embeddings: dict[str, np.ndarray] = {}
         # character regex patterns: book -> list of (canon_name, compiled_pattern)
         self.char_patterns: dict[str, list] = {}
 
@@ -232,16 +232,29 @@ class RizalEngine:
             else:
                 self.char_theme_maps[book] = {}
 
-            # Load theme keywords
-            kw_path = os.path.join(data_dir, f'theme_keywords_{book}.json')
-            if os.path.exists(kw_path):
+        # Load theme title embeddings from CSVs
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))) 
+        csv_dir = os.path.join(base_dir, 'csvFiles')
+        files = ['noli_themes.csv', 'elfili_themes.csv']
+        
+        unique_titles = set()
+        for f in files:
+            path = os.path.join(csv_dir, f)
+            if os.path.exists(path):
                 try:
-                    with open(kw_path, 'r', encoding='utf-8') as f:
-                        self.theme_keyword_maps[book] = json.load(f)
-                except Exception:
-                    self.theme_keyword_maps[book] = {}
-            else:
-                self.theme_keyword_maps[book] = {}
+                    import pandas as pd
+                    df = pd.read_csv(path)
+                    if 'Tagalog Title' in df.columns:
+                        unique_titles.update(df['Tagalog Title'].dropna().tolist())
+                except Exception as e:
+                    print(f"Error loading {f}: {e}")
+                    
+        print(f"Embedding {len(unique_titles)} theme titles at startup...")
+        for title in unique_titles:
+            emb = self.base_model.encode(str(title).strip(), show_progress_bar=False)
+            norm = np.linalg.norm(emb)
+            if norm > 0:
+                self.theme_title_embeddings[str(title).strip()] = emb / norm
 
             # Build character regex patterns from aliases for this book's character map
             char_map = self.char_theme_maps.get(book, {})
@@ -268,8 +281,7 @@ class RizalEngine:
         if os.getenv('DEBUG_SEARCH'):
             for book in ['noli', 'elfili']:
                 n_chars = len(self.char_theme_maps.get(book, {}))
-                n_themes = len(self.theme_keyword_maps.get(book, {}))
-                print(f'[DEBUG] char_theme_map_{book}: {n_chars} chars | theme_keywords_{book}: {n_themes} themes')
+                print(f'[DEBUG] char_theme_map_{book}: {n_chars} chars | theme_title_embeddings: {len(self.theme_title_embeddings)}')
 
     def _get_character_theme_candidates(self, sentence_text: str, book: str) -> set | None:
         """
@@ -292,49 +304,7 @@ class RizalEngine:
 
         return candidate_themes if found_any else None
 
-    def _keyword_matches(self, sentence_text: str, tagalog_theme: str, book: str) -> int:
-        """
-        Step 2 — Keyword Narrowing Gate.
-        Returns count of TF-IDF keywords for `tagalog_theme` found in `sentence_text`.
-        Stricter: Does not count character names/aliases or generic particles as keyword hits.
-        Uses word boundaries to avoid substring false positives (e.g., 'asa' in 'inaasahan').
-        """
-        kw_map = self.theme_keyword_maps.get(book, {})
-        keywords = kw_map.get(tagalog_theme, [])
-        if not keywords:
-            return 0
-            
-        text_lower = sentence_text.lower()
-        
-        # Generic particles and short words that provide no thematic value
-        KEYWORD_BLACKLIST = {
-            'pag', 'upang', 'ngunit', 'bilang', 'ginamit', 'kanyang', 'kaniyang',
-            'dahil', 'isang', 'siya', 'naging', 'mga', 'ang', 'sa', 'ng', 'na',
-            'at', 'ito', 'niya', 'nang', 'ay', 'si', 'sila', 'kami', 'tayo',
-            'asa', 'para', 'lang', 'muli', 'kahit', 'mga', 'isang', 'pa',
-            'hindi', 'walang', 'wala', 'din', 'rin', 'naman', 'muna', 'muli'
-        }
-        
-        # Identify character names to ignore
-        ignore_names = set()
-        for canon_name, pattern in self.char_patterns.get(book, []):
-            ignore_names.add(canon_name.lower())
-            parts = extract_words(canon_name.lower())
-            ignore_names.update(parts)
-            
-        count = 0
-        for kw in keywords:
-            kw_l = kw.lower()
-            if kw_l in KEYWORD_BLACKLIST or len(kw_l) < 3:
-                continue
-            if kw_l in ignore_names:
-                continue
-            
-            # Use regex for word boundaries
-            pattern = re.compile(r'\b' + re.escape(kw_l) + r'\b', re.IGNORECASE)
-            if pattern.search(text_lower):
-                count += 1
-        return count
+    # Removed _keyword_matches
 
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary"):
@@ -1226,27 +1196,11 @@ class RizalEngine:
             # Characters found — restrict to their theme candidates only
             candidates = [c for c in candidates if c['label'] in char_candidates]
 
-        # Step 2: Keyword narrowing — require ≥1 match (≥2 for Kapangyarihan)
-        # Step 3: Passage consensus already embedded in pass_sims above
-        STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
-        STRICT_KEYWORD_MIN = 2   # must match ≥2 keywords
-        DEFAULT_KEYWORD_MIN = 1  # all other themes: ≥1 keyword
-
-        keyword_filtered = []
-        for c in candidates:
-            theme_label = c['label']
-            min_kw = STRICT_KEYWORD_MIN if theme_label in STRICT_THEMES else DEFAULT_KEYWORD_MIN
-            kw_count = self._keyword_matches(sent_text, theme_label, book_key)
-            if kw_count >= min_kw:
-                keyword_filtered.append(c)
-            elif os.getenv('DEBUG_SEARCH'):
-                print(f"  [DEBUG] KW-gate dropped '{theme_label}' (count={kw_count}, min={min_kw})")
-
-        # Characters were found but no theme earned enough keyword evidence.
-        # Correct behavior per plan: return Walang Tema (empty list).
-        # Do NOT fall back to best semantic score when the gate had characters to check.
-        candidates = keyword_filtered
-        # ────────────────────────────────────────────────────────────────────────
+        # Step 2: Keyword narrowing (REMOVED)
+        # Step 3: Passage consensus (REMOVED for old multi-step approach; replaced by new logic in content.py)
+        # _classify_themes still needs to behave somewhat consistently if it's called somewhere else.
+        # But wait, earlier the user said "Replace the current multi-step theme matching pipeline ... in _get_paksa_data".
+        candidates = candidates
         
         # UI DISPLAY THRESHOLD (Phase 36 Approval)
         if candidates:
@@ -1266,8 +1220,8 @@ class RizalEngine:
 
             # Dynamic Threshold based on gated context
             # Case 3: No character anchor found -> Stricter threshold (0.70)
-            # Case with character anchor -> Leaner threshold (0.55)
-            required_threshold = 0.55
+            # Case with character anchor -> Leaner threshold (0.68) raised from 0.55
+            required_threshold = 0.68
             if char_candidates is None:
                 required_threshold = 0.70
             
@@ -1348,16 +1302,6 @@ class RizalEngine:
             if char_candidates is not None:
                 candidates = [c for c in candidates if c['label'] in char_candidates]
 
-            # Step 2: Keyword narrowing
-            STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
-            keyword_filtered = []
-            for c in candidates:
-                min_kw = 2 if c['label'] in STRICT_THEMES else 1
-                kw_count = self._keyword_matches(sent_text, c['label'], book_key)
-                if kw_count >= min_kw:
-                    keyword_filtered.append(c)
-            # Characters found but no keyword evidence → Walang Tema (do NOT fall back)
-            candidates = keyword_filtered
             # ─────────────────────────────────────────────────────────────────────
 
             results.append(candidates[:1])
@@ -1365,6 +1309,51 @@ class RizalEngine:
         return results
 
     
+    def get_search_score(self, query: str, target_text: str, target_embedding: list) -> float:
+        """Standalone helper to run the exact search hybrid scoring function on a single sentence/passage."""
+        query_analysis = self.query_analyzer.analyze_query_words(query)
+        stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+        
+        sig_items = [item for item in query_analysis if not item['is_stopword']]
+        sig_words = [item['word'].lower() for item in sig_items]
+        is_single_word = len(sig_words) < 2
+
+        query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        
+        if is_single_word:
+            query_embedding = query_vec_initial
+            dapt_query_embedding = None
+        else:
+            structured_info = self.parser.structured_string(query)
+            combined_query = f"{query} [SEP] {structured_info}"
+            dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
+            query_embedding = (query_vec_initial + dapt_query_embedding) / 2
+            
+        q_vec = query_embedding / np.linalg.norm(query_embedding) if np.linalg.norm(query_embedding) > 0 else query_embedding
+
+        v_sent = np.array(target_embedding)
+        v_sent = v_sent / np.linalg.norm(v_sent) if np.linalg.norm(v_sent) > 0 else v_sent
+        
+        lex_score = self._compute_lexical_score(query, target_text, query_analysis, stopword_ratio)
+        sem_score = float(np.dot(q_vec, v_sent))
+        
+        if not is_single_word and dapt_query_embedding is not None:
+            v_dapt = dapt_query_embedding / np.linalg.norm(dapt_query_embedding) if np.linalg.norm(dapt_query_embedding) > 0 else dapt_query_embedding
+            sem_score_dapt = float(np.dot(v_dapt, v_sent))
+            sem_score = max(sem_score, sem_score_dapt)
+
+        text_len = len(target_text.split())
+        query_sig_len = len(sig_words)
+
+        if is_single_word:
+            lam_lex, lam_sem = 0.2, 0.8
+            final_score = (lex_score * lam_lex) + (sem_score * lam_sem)
+        else:
+            lam_lex, lam_sem = self._compute_dynamic_weights(text_len, query_sig_len)
+            final_score = self._calculate_clear_score(sem_score, lex_score, lam_lex, lam_sem, text_len)
+            
+        return max(0.0, min(1.0, final_score))
+
     def _determine_query_type(self, query: str) -> str:
         chars = ["elias", "maria clara", "ibarra", "simoun", "crisostomo", "padre", "sisa", "basilio", "crispin"]
         if query.lower() in chars or any(c in query.lower() for c in chars):

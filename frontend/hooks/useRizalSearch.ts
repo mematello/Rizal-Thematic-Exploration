@@ -36,7 +36,11 @@ async function fetchSearchResults(query: string, mode: 'buod' | 'full'): Promise
             chapter: item.chapter_number,
             chapterTitle: item.chapter_title,
             passageHtml: item.sentence_text,
-            contextHtml: item.context_text,
+            context: (item.context || []).map((s: any) => ({
+                id: s.id,
+                text: s.text,
+                is_center: s.is_center,
+            })),
             scores: item.scores,
             conceptMatchType: item.concept_match_type,
             sentenceIndex: item.sentence_index,
@@ -68,6 +72,6 @@ export function useRizalSearch(query: string) {
         queryKey: ['search', query, mode],
         queryFn: () => fetchSearchResults(query, mode),
         enabled: query.length >= 3,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 0, // Always fresh — sort is applied in display layer
     });
 }

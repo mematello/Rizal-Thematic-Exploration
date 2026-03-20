@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 
 import { useState, useEffect } from "react";
@@ -38,9 +38,10 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
 
     useEffect(() => {
         async function fetchThemes() {
+            setLoading(true);
             try {
                 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-                const res = await fetch(`${baseUrl}/api/v1/themes`);
+                const res = await fetch(`${baseUrl}/api/v1/themes?book=${selectedNovel}`);
                 if (!res.ok) throw new Error("Failed to fetch");
                 const data = await res.json();
                 setThemes(data);
@@ -51,7 +52,7 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
             }
         }
         fetchThemes();
-    }, []);
+    }, [selectedNovel]);
 
     const handleThemeClick = (theme: Theme) => {
         setSelectedTheme(theme);
@@ -82,13 +83,7 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
                     }
                 }}
             >
-                {themes
-                    .filter(theme => {
-                        if (!theme.best_match) return true;
-                        const themeBook = theme.best_match.book === 'elfili' ? 'fili' : theme.best_match.book;
-                        return themeBook === selectedNovel;
-                    })
-                    .map((theme, idx) => (
+                {themes.map((theme, idx) => (
                         <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
                     ))}
             </motion.div>

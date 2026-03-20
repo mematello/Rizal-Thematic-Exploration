@@ -92,8 +92,18 @@ function SearchContent() {
     };
 
     const results = data?.results;
-    const noliResults = results?.noli || [];
-    const filiResults = results?.fili || [];
+    const noliResultsRaw = results?.noli || [];
+    const filiResultsRaw = results?.fili || [];
+
+    const sortByLexical = (arr: any[]): any[] =>
+        [...arr].sort((a, b) => {
+            const lexDiff = (b.scores?.lexical ?? 0) - (a.scores?.lexical ?? 0);
+            if (lexDiff !== 0) return lexDiff;
+            return (b.scores?.semantic ?? 0) - (a.scores?.semantic ?? 0);
+        });
+
+    const noliResults = sortByLexical(noliResultsRaw);
+    const filiResults = sortByLexical(filiResultsRaw);
 
     const showNoli = novelFilter === 'both' || novelFilter === 'noli';
     const showFili = novelFilter === 'both' || novelFilter === 'fili';
@@ -107,9 +117,8 @@ function SearchContent() {
                 'Parehong Nobela';
 
     const singleNovelResults = novelFilter === 'noli' ? filteredNoli : novelFilter === 'fili' ? filteredFili : [];
-    const midpoint = Math.ceil(singleNovelResults.length / 2);
-    const col1 = singleNovelResults.slice(0, midpoint);
-    const col2 = singleNovelResults.slice(midpoint);
+    const col1 = singleNovelResults.filter((_, i) => i % 2 === 0);
+    const col2 = singleNovelResults.filter((_, i) => i % 2 === 1);
 
     const isMultiConcept = noliResults.some(r => r.conceptMatchType) || filiResults.some(r => r.conceptMatchType);
     
