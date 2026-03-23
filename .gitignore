@@ -66,4 +66,9 @@ Thumbs.db
 .env.production.local
 *.env
 !backend/.env.example
-!frontend/.env.example
+
+# Models
+backend/models/
+*.safetensors
+*.bin
+*.pt

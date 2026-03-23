@@ -73,9 +73,7 @@ export function ChapterModal({
     const [charSortBy, setCharSortBy] = useState<'number' | 'relevance'>('number');
 
     const [showReference, setShowReference] = useState(false);
-    const [themeFullscreen, setThemeFullscreen] = useState(false);
     const [refFullscreen, setRefFullscreen] = useState(false);
-    const [selectedSentenceForTheme, setSelectedSentenceForTheme] = useState<number | null>(null);
     const [selectedSentenceForRef, setSelectedSentenceForRef] = useState<number | null>(null);
 
     // Reference state
@@ -91,10 +89,8 @@ export function ChapterModal({
     const [isRefLoading, setIsRefLoading] = useState(false);
     const [refError, setRefError] = useState<string | null>(null);
 
-    // New API States
-    const [themeResults, setThemeResults] = useState<Record<number, any>>({});
+    // Reference results cache
     const [referenceResults, setReferenceResults] = useState<Record<number, any>>({});
-    const [isLoadingThemes, setIsLoadingThemes] = useState(false);
     const [isLoadingRefs, setIsLoadingRefs] = useState(false);
 
     const handleReferenceClick = async (sentenceText: string, targetChapter: number) => {
@@ -151,44 +147,6 @@ export function ChapterModal({
         }
     }, [chapterNumber, isFullscreen]);
 
-    // Fetch Themes when toggled
-    useEffect(() => {
-        if (showThemes && !isLoadingThemes) {
-            const fetchThemes = async () => {
-                setIsLoadingThemes(true);
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-                const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
-                const results: Record<number, any> = { ...themeResults };
-                const toFetch = sentences.filter(s => !results[s.id]);
-                
-                const batchSize = 10;
-                for (let i = 0; i < toFetch.length; i += batchSize) {
-                    const batch = toFetch.slice(i, i + batchSize);
-                    await Promise.all(batch.map(async (s) => {
-                        try {
-                            const res = await fetch(`${apiUrl}/api/v1/sentences/${s.id}/paksa`);
-                            if (res.ok) {
-                                const data = await res.json();
-                                results[s.id] = data;
-                                if (data.passage_ids) {
-                                    data.passage_ids.forEach((pid: number) => {
-                                        results[pid] = data;
-                                    });
-                                }
-                            } else {
-                                results[s.id] = { has_theme: false };
-                            }
-                        } catch (e) {
-                            results[s.id] = { has_theme: false };
-                        }
-                    }));
-                    setThemeResults({...results});
-                }
-                setIsLoadingThemes(false);
-            };
-            fetchThemes();
-        }
-    }, [showThemes, isFullscreen, loadedChapters, content]);
 
     // Fetch References when toggled
     useEffect(() => {
@@ -373,10 +331,7 @@ export function ChapterModal({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
-                if (themeFullscreen) {
-                    setThemeFullscreen(false);
-                    setSelectedSentenceForTheme(null);
-                } else if (refFullscreen) {
+                if (refFullscreen) {
                     setRefFullscreen(false);
                     setSelectedSentenceForRef(null);
                     setSelectedReference(null);
@@ -395,7 +350,7 @@ export function ChapterModal({
             window.removeEventListener("keydown", handleKeyDown);
             document.body.style.overflow = "unset";
         };
-    }, [isOpen, isFullscreen, themeFullscreen, refFullscreen, onClose]);
+    }, [isOpen, isFullscreen, refFullscreen, onClose]);
 
     // Scroll to highlighted sentence
     useEffect(() => {
@@ -554,7 +509,6 @@ export function ChapterModal({
         });
     };
 
-    const selectedSentence = content.find(s => s.sentence_index === selectedSentenceForTheme);
     const activeChapterTitle = chapterMetadata[activeChapterInView] || title;
 
     return (
@@ -583,7 +537,6 @@ export function ChapterModal({
                                 <div className="flex flex-col sm:flex-row gap-4 p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
                                     <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full">
                                         <button onClick={() => setShowCharacters(!showCharacters)} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-sm font-bold uppercase tracking-widest">Tauhan</span></button>
-                                        <button onClick={() => setShowThemes(!showThemes)} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showThemes ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-sm font-bold uppercase tracking-widest">Paksa</span></button>
                                         <button onClick={() => setShowReference(!showReference)} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span></button>
                                     </div>
                                 </div>
@@ -605,8 +558,8 @@ export function ChapterModal({
                                             </div>
                                             <div className="space-y-4 pt-4 border-t border-brand-gold/10">
                                                 <button onClick={() => setShowCharacters(!showCharacters)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showCharacters ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}>Tauhan</button>
-                                                <button onClick={() => setShowThemes(!showThemes)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showThemes ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}>Paksa</button>
                                                 <button onClick={() => setShowReference(!showReference)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showReference ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}>Sanggunian</button>
+                                                <p className="text-[10px] text-brand-text/40 font-serif italic">I-click ang pangalan ng tauhan para makita ang Paksa</p>
                                             </div>
                                         </div>
                                     </div>
@@ -636,20 +589,9 @@ export function ChapterModal({
                                                             else paragraphs[paragraphs.length - 1].push(sentence);
                                                             return paragraphs;
                                                         }, []).map((para, paraIdx) => (
-                                                            <p key={`${paraIdx}-${showCharacters}-${showThemes}-${showReference}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
+                                                            <p key={`${paraIdx}-${showCharacters}-${showReference}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
-                                                                    
-                                                                    let themeRender = null;
-                                                                    if (showThemes && themeResults[sentence.id]?.has_theme) {
-                                                                        const themeResult = themeResults[sentence.id];
-                                                                        const themeCount = themeResult.themes?.length || 0;
-                                                                        if (themeCount > 0) {
-                                                                            themeRender = (
-                                                                                <span onClick={(e) => { e.stopPropagation(); setSelectedSentenceForTheme(sentence.sentence_index); setThemeFullscreen(true); }} className={`inline-flex items-center justify-center w-[14px] h-[14px] rounded-full shadow-sm cursor-pointer transition-transform ml-1 ${themeCount === 1 ? 'bg-brand-gold hover:bg-brand-gold/80' : 'bg-brand-navy hover:bg-brand-navy/80'} text-white text-[8px] font-sans font-bold select-none leading-none z-10 transform -translate-y-[6px] align-middle`}>{themeCount}</span>
-                                                                            );
-                                                                        }
-                                                                    }
                                                                     
                                                                     let refRender = null;
                                                                     if (showReference && referenceResults[sentence.id]?.has_reference) {
@@ -675,7 +617,6 @@ export function ChapterModal({
                                                                     return (
                                                                         <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}`}>
                                                                             {highlightText(sentence.sentence_text)}
-                                                                            {themeRender}
                                                                             {refRender}
                                                                             {" "}
                                                                         </span>
@@ -701,43 +642,6 @@ export function ChapterModal({
                             )}
                         </motion.div>
 
-                        {themeFullscreen && selectedSentence && themeResults[selectedSentence.id] && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-white flex flex-col">
-                                <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
-                                    <div className="max-w-7xl mx-auto px-6 text-center space-y-2 relative">
-                                        <h2 className="text-2xl font-serif text-brand-navy font-bold">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</h2>
-                                        <p className="text-lg text-brand-text">Kabanata {chapterNumber}</p>
-                                        <p className="text-base text-brand-text-light italic">{title}</p>
-                                        <button onClick={() => { setThemeFullscreen(false); setSelectedSentenceForTheme(null); }} className="absolute top-0 right-0 p-2 hover:bg-black/5 rounded-full"><X size={24} className="text-brand-navy" /></button>
-                                    </div>
-                                </div>
-                                <div className="flex-1 overflow-hidden flex">
-                                    <div className="flex-1 overflow-y-auto p-8"><div className="max-w-3xl mx-auto"><p className="font-serif text-brand-text leading-loose text-justify text-xl italic">&quot;{selectedSentence.sentence_text}&quot;</p></div></div>
-                                    <div className="w-96 border-l border-brand-gold/30 bg-brand-paper overflow-y-auto p-6">
-                                        <h3 className="text-lg font-serif font-bold text-brand-navy mb-4 uppercase tracking-widest text-xs">Mga Paksa</h3>
-                                        <div className="space-y-4">
-                                            {themeResults[selectedSentence.id].themes?.map((theme: any, idx: number) => (
-                                                <div key={idx} className="bg-white p-4 rounded-lg border border-brand-gold/20 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                                                    <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: theme.confidence > 0.8 ? '#4caf50' : '#ff9800' }} />
-                                                    <div className="flex items-start gap-3 pl-2">
-                                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0 ${idx % 3 === 0 ? 'bg-brand-navy' : idx % 3 === 1 ? 'bg-brand-gold' : 'bg-brand-brown'}`}>{idx + 1}</div>
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center justify-between mb-1">
-                                                                <h4 className="font-serif font-bold text-brand-navy text-base">{theme.label}</h4>
-                                                                <span className="text-[10px] bg-brand-cream px-1.5 py-0.5 rounded text-brand-text-light font-mono">{(theme.confidence * 100).toFixed(0)}%</span>
-                                                            </div>
-                                                            {theme.evidence && (
-                                                                <p className="text-sm text-brand-text/70 italic mt-2 leading-relaxed">&quot;{theme.evidence}&quot;</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
 
                         <AnimatePresence>
                             {refFullscreen && selectedSentenceForRef !== null && (

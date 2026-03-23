@@ -246,9 +246,24 @@ class RizalEngine:
             char_map = self.char_theme_maps.get(book, {})
             patterns = []
             # Build a lookup: lower(canon_name) -> aliases from alias_list
+            # FIX 1: Book-aware alias resolution
             alias_lookup: dict[str, list] = {}
             for entry in alias_list:
                 name = entry.get('name', '')
+                novels = entry.get('novel', 'both')
+                
+                # Only include character's aliases if they belong to this book (or both)
+                # But Simoun is a special case: In Fili, he inherits Ibarra's aliases.
+                # In Noli, Simoun should be completely ignored/separated.
+                char_in_noli = novels in ('noli', 'both')
+                char_in_fili = novels in ('fili', 'both')
+                
+                if book == 'noli' and not char_in_noli:
+                    continue
+                if book == 'elfili' and not char_in_fili and name.lower() != 'crisostomo ibarra':
+                    # We only allow Ibarra into Fili aliases if he's treated as Simoun
+                    continue
+
                 aliases = list(entry.get('aliases', []))
                 if name and name not in aliases:
                     aliases.append(name)
@@ -1070,7 +1085,21 @@ class RizalEngine:
             word_theme_map = {} # word -> {theme_title: count}
             total_themes = 0
             
+            self.theme_grouped = {}
+            
             for t in themes:
+                title = t.tagalog_title
+                if title not in self.theme_grouped:
+                    title_emb = self.base_model.encode(title, show_progress_bar=False)
+                    norm = np.linalg.norm(title_emb)
+                    if norm > 0: title_emb = title_emb / norm
+                    
+                    self.theme_grouped[title] = {
+                        'title_embedding': title_emb,
+                        'meaning_embeddings': [],
+                        'id': t.id
+                    }
+                
                 if t.embedding is not None and len(t.embedding) > 0:
                     emb = np.array(t.embedding)
                     norm = np.linalg.norm(emb)
@@ -1081,6 +1110,8 @@ class RizalEngine:
                             'meaning_len': len(t.meaning.split())
                         })
                         self.theme_matrix.append(emb)
+                        
+                        self.theme_grouped[title]['meaning_embeddings'].append(emb)
                         
                         # Count distinct words in this theme for IDF and Specificity
                         words = set(extract_words(t.meaning.lower()))
@@ -1094,6 +1125,14 @@ class RizalEngine:
                             word_theme_map[w][title_key] = word_theme_map[w].get(title_key, 0) + 1
                             
                         total_themes += 1
+            
+            for title, data in self.theme_grouped.items():
+                if data['meaning_embeddings']:
+                    avg_meaning = np.mean(data['meaning_embeddings'], axis=0)
+                    avg_meaning = avg_meaning / np.linalg.norm(avg_meaning)
+                    data['avg_meaning_embedding'] = avg_meaning
+                else:
+                    data['avg_meaning_embedding'] = data['title_embedding']
             
             if self.theme_matrix:
                 self.theme_matrix = np.array(self.theme_matrix)

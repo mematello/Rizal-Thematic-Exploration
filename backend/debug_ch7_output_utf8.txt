@@ -1,0 +1,11 @@
+﻿Loading SentenceTransformer models...
+Using DAPT model from C:\Users\Rhia\Documents\AntiGravity\Rizal-Thematic-Exploration\backend\models\rizal-xlm-r-dapt
+BUOD: sa simbahan palang ay di na mapakali si maria clara dahil alam niyang darating si ibarra sa araw na iyon.
+BUOD CHARS: {'Crisostomo Ibarra', 'Maria Clara'}
+Full sentences in chapter: 140
+Window: -16.5 to 16.5
+Candidates in window: 17
+DEBUG Passage ID 5942 (Length 667): maagang nangagsimba ng umagang iyon si tia isabel at si maria clara: mainam na totoo ang pananamit nito at may tangang isang kwintas na asul ang mga b...
+DEBUG Detected Chars in Passage: {'Maria Clara'}
+DEBUG Passage ID 5943 (Length 1279): patatawarin na ako ng mabait na diyos na dapat makakilala ng puso ng mga dalaga kay sa inyo po tia isabelùang sasabihin sana ni maria clara sa kanya u...
+DEBUG Detected Chars in Passage: {'Kapitan Tiago', 'Maria Clara'}

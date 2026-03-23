@@ -24,8 +24,22 @@ def seed_db():
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
 
-    # Model
-    model = SentenceTransformer(settings.BERT_MODEL_NAME)
+    # Load Model with DAPT preference (match engine.py logic)
+    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    dapt_path = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
+    
+    if os.path.exists(dapt_path):
+        print(f"Using DAPT model for seeding from {dapt_path}")
+        model = SentenceTransformer(dapt_path)
+    else:
+        print(f"DAPT model not found at {dapt_path}. Using base model as fallback.")
+        model = SentenceTransformer(settings.BERT_MODEL_NAME)
+
+    # Clear existing data
+    print("Clearing existing sentence and theme data...")
+    session.query(Sentence).delete()
+    session.query(Theme).delete()
+    session.commit()
 
     # Data paths (assuming script is run from backend/)
     # Adjusted to point to root project csvFiles/

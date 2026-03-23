@@ -1,0 +1,40 @@
+﻿ID,BOOK,CH,TEXT
+1,noli,1,Isang malaking pagtitipon ang gaganapin sa bahay n
+46,noli,2,Handa na ang lahat para sa hapunan.
+47,noli,3,Galit na galit parin si Padre Damaso dahil sa main
+66,noli,4,Lumabas si Ibarra upang makalanghap ng sariwang ha
+154,noli,7,Sa simbahan palang ay di na mapakali si Maria Clar
+203,noli,10,Ang bayan ng San Diego ay matatagpuan sa gitna ng 
+248,noli,13,Sakay sa kanyang kalesa, nagtungo si Ibarra sa sem
+370,noli,20,Ang bulwagang pulungan ng San Diego ay dinadaluhan
+472,noli,26,Bago palang ang araw ng pista sa San Diego ay abal
+526,noli,30,Marami ang taong pumunta sa simbahan upang makinig
+99,noli,5,Dumating si Ibarra sa kanyang tinutuluyan sa Fonda
+288,noli,15,Ang dalawang magkapatid na nakita ni Pilosopo Tasy
+447,noli,25,Nagtungo si Ibarra sa bahay ni Pilosopo Tasyo upan
+607,noli,35,IbaÆt-ibang balita ang nagkalat sa bayan tungkol s
+798,noli,45,Narating ni Elias ang isang lugar na napapaligiran
+978,noli,55,Sama-samang naghahapunan sina Kapitan Tiago, Tiya 
+1161,noli,61,Maya-maya paÆy may nakitang dugo ang gwardiya ngun
+1162,noli,62,Kinaumagahan ay kita pa din ang lungkot kay Maria 
+3358,noli,63,Sa isang dampang nakatayo sa tabi ng bukal sa paan
+171,noli,8,Ang kalungkutang naramdaman ni Ibarra sa pag-alis 
+187,noli,9,Papunta si Padre Damaso sa bahay nila Kapitan Tiag
+228,noli,11,Si Don Rafael ay hindi makapangyarihan bagamat siy
+238,noli,12,Ang sementeryo ng San Diego ay matatagpuan sa gitn
+267,noli,14,Si Don Anastacio o mas kilala sa tawag na Pilosopo
+1213,elfili,1,Naglalayag sa ilog Pasig ang Bapor Tabo isang umag
+1222,elfili,2,Pumunta si Simoun sa ilalim ng kubyerta.
+1248,elfili,3,Naabutan ni Padre Florentino na nagtatawanan ang m
+1274,elfili,4,Si Tandang Selo na umampon noon sa gubat kay Basil
+1298,elfili,5,Gabi na noon at kasabay ng pag-uwi ni Basilio sa b
+1410,elfili,10,Nakipanuluyan si Simoun sa bahay ni Kabesang Tales
+1531,elfili,15,Sinadya ni Isagani ang opisina ng manananggol na s
+1611,elfili,20,Nasa mga kamay ni Don Custodio ang usapin sa akade
+1733,elfili,25,Tumutol si Isagani.
+4094,elfili,30,Dinamdam ito ng buong bayan lalo na si Juli.
+1924,elfili,31,Hindi nabalita sa mga pahayagan ang pagkamatay ni 
+1941,elfili,32,Nagmadali namang pumunta sa Europa si Makaraig.
+1955,elfili,33,Maaga pa ay inayos na ni Simoun ang kanyang mga hi
+1977,elfili,34,Ika-walo na ng gabi.
+4226,elfili,35,Siya namang paglabo ng ilawan.

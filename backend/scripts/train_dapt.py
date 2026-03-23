@@ -35,7 +35,10 @@ def train_dapt():
     os.makedirs(output_path, exist_ok=True)
 
     # 2. Load Corpus
-    files = ['noli_chapters.csv', 'elfili_chapters.csv']
+    files = [
+        'noli_chapters.csv', 'elfili_chapters.csv',
+        'fullversion_noli.csv', 'fullversion_elfili.csv'
+    ]
     train_sentences = []
     
     logging.info(f"Loading corpus from {csv_dir}...")
@@ -67,7 +70,11 @@ def train_dapt():
         except Exception as e:
             logging.error(f"Error reading {filename}: {e}")
 
-    logging.info(f"Total training sentences: {len(train_sentences)}")
+    logging.info(f"Total sentences before deduplication: {len(train_sentences)}")
+    
+    # Deduplicate sentences
+    train_sentences = list(set(train_sentences))
+    logging.info(f"Total unique training sentences: {len(train_sentences)}")
     
     if not train_sentences:
         logging.error("No training data found. Aborting.")
@@ -85,7 +92,7 @@ def train_dapt():
     train_dataset = datasets.DenoisingAutoEncoderDataset(train_sentences)
     
     # DataLoader
-    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True, drop_last=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, drop_last=True)
     
     # 5. Define Loss
     logging.info("Defining DenoisingAutoEncoderLoss...")

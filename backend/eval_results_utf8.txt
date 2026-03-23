@@ -1,0 +1,66 @@
+﻿Loading SentenceTransformer models...
+Using DAPT model from C:\Users\Rhia\Documents\AntiGravity\Rizal-Thematic-Exploration\backend\models\rizal-xlm-r-dapt
+
+--- Testing Kabanata 1: Isang malaking pagtitipon ang gaganapin sa bahay ni Don Sant... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.3829
+Reference: Nag-anyaya ng pagpapakain nang isang hapunan, ng magtatapos ang Oktubre, si Ginoong Santiago de los Santos, na lalong nakikilala ng bayan sa pamagat na Kapitang Tiago, anyayang baga man niyon lamang h...
+
+--- Testing Kabanata 2: Handa na ang lahat para sa hapunan.... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.5997
+Reference: Salamat po! ang isinagot ng buong lugod. Ngunit pasasa San Diego po ako bukas ... Sayang! Kung gayo'y saka na, kung kayo'y bumalik! Handa na ang pagkain! ang bigay alam ng isang lingkod ng Cafe "La Ca...
+
+--- Testing Kabanata 3: Galit na galit parin si Padre Damaso dahil sa mainit na tala... ---
+Status: Walang Sanggunian
+Result: Walang Sanggunian
+
+--- Testing Kabanata 4: Lumabas si Ibarra upang makalanghap ng sariwang hangin.... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.6298
+Reference: Nag-aalinlangan si Ibarra. Ang hangin sa gabi, na sa mga buwang iyo'y karaniwang may kalamigan na sa Maynila, ang siyang tila mandin pumawi sa kanyang noo ng manipis na ulap na doo'y nagpadilim: nagpu...
+
+--- Testing Kabanata 7: Sa simbahan palang ay di na mapakali si Maria Clara dahil al... ---
+Status: Walang Sanggunian
+Result: Walang Sanggunian
+
+--- Testing Kabanata 10: Ang bayan ng San Diego ay matatagpuan sa gitna ng palayan na... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.5185
+Reference: Halos sa pampang ng dagatan ang kinalalagyan ng bayang San Diego, na sumasagitna ng mga kapatagang halamanan at mga palayan. Nagpapadala sa ibang mga bayan ng asukal, bigas, kape at mga bungang halama...
+
+--- Testing Kabanata 13: Sakay sa kanyang kalesa, nagtungo si Ibarra sa sementeryo ka... ---
+Status: Walang Sanggunian
+Result: Walang Sanggunian
+
+--- Testing Kabanata 20: Ang bulwagang pulungan ng San Diego ay dinadaluhan ng mga ki... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.5502
+Reference: At ínatira siya sa kumbento upang makipagsalitaan sa kurang may sakit! ipinaalaala ng isa sa mga bata. Hindi kailangan! ang sinabi naman ng isa;ùang lahat, ay naihanda na natin. Huwag ba lamang magkar...
+
+--- Testing Kabanata 26: Bago palang ang araw ng pista sa San Diego ay abala na ang l... ---
+Status: Correct
+Alignment: PRECISE
+Score: 0.3623
+Reference: Tayo'y na sa ikasampo ng Nobyembre, vispera (araw na sinusundan) ng fiesta (pagsasaya). Iniiwan ang kaugaliang anyo sa araw-araw, at gumagamit ang bayan ng isang walang kahulilip na kasipagan sa bahay...
+
+--- Testing Kabanata 30: Marami ang taong pumunta sa simbahan upang makinig sa misa.... ---
+Status: Correct
+Alignment: EXPANDED
+Score: 0.3845
+Reference: Tinugtog ng mga banda ng musika ang "diana" sa unang pagsilang ng liwayway, na ano pa't pinukaw ng masasayang tugtugin ang mga pagal na mga mamamayan. Nanag-uli ang buhay at kasayahan, muling nirepike...
+
+==================================================
+EVALUATION SUMMARY
+==================================================
+Total Tested: 10
+Matches Found: 7
+Precise Matches: 6
+Expanded Matches: 1
+Match Rate: 70.0%
+==================================================

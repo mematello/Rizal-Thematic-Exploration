@@ -60,6 +60,36 @@ export function ItemModal({
     const [isAvatarZoomed, setIsAvatarZoomed] = useState(false);
     // Removed internal novelFilter state in favor of selectedNovel prop
 
+    // Paksa themes for character modal
+    interface PaksaTheme { label: string; description: string; }
+    const [paksaThemes, setPaksaThemes] = useState<PaksaTheme[]>([]);
+    const [paksaLoading, setPaksaLoading] = useState(false);
+    const [charView, setCharView] = useState<'sentences' | 'paksa'>('sentences');
+
+    // Reset view when opening or changing character
+    useEffect(() => {
+        if (isOpen) setCharView('sentences');
+    }, [isOpen, title]);
+
+    useEffect(() => {
+        if (!isOpen || type !== 'character') return;
+        const fetchPaksa = async () => {
+            setPaksaLoading(true);
+            setPaksaThemes([]);
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+                const bookParam = selectedNovel === 'noli' ? 'noli' : 'elfili';
+                const res = await fetch(`${apiUrl}/api/v1/characters/${encodeURIComponent(title)}/paksa?book=${bookParam}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setPaksaThemes(data.themes || []);
+                }
+            } catch (e) {}
+            setPaksaLoading(false);
+        };
+        fetchPaksa();
+    }, [isOpen, type, title, selectedNovel]);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose();
@@ -182,7 +212,30 @@ export function ItemModal({
                                     {getNovelLabel(selectedNovel)}
                                 </div>
 
-                                {type === "character" && onSort && (
+                                {type === "character" && (
+                                    <div className="flex bg-white/40 p-1 rounded-full border border-brand-gold/20 shadow-inner">
+                                        <button
+                                            onClick={() => setCharView('sentences')}
+                                            className={`
+                                                px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all
+                                                ${charView === 'sentences' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                            `}
+                                        >
+                                            Mga Pangungusap
+                                        </button>
+                                        <button
+                                            onClick={() => setCharView('paksa')}
+                                            className={`
+                                                px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all
+                                                ${charView === 'paksa' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                            `}
+                                        >
+                                            Mga Paksa
+                                        </button>
+                                    </div>
+                                )}
+
+                                {type === "character" && onSort && charView === 'sentences' && (
                                     <button
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
@@ -261,27 +314,76 @@ export function ItemModal({
                                         </div>
                                     )}
 
-                                    {/* Character View - Chapter Grid */}
-                                    {type === "character" && chapterAppearances && (
+                                    {/* Character View */}
+                                    {type === "character" && (
                                         <div className="space-y-6">
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
-                                                    {`Chapters (${filteredChapters?.length})`}
-                                                </h4>
-                                            </div>
+                                            {charView === 'sentences' ? (
+                                                <>
+                                                    <div className="flex items-center justify-between">
+                                                        <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
+                                                            {`Mga Kabanata (${filteredChapters?.length || 0})`}
+                                                        </h4>
+                                                    </div>
 
-                                            {chapterAppearances.length > 0 ? (
-                                                // Single Novel View - 4 Columns
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                    {filteredChapters?.map((c, i) => renderChapter(c, i))}
-                                                </div>
+                                                    {chapterAppearances && chapterAppearances.length > 0 ? (
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                                            {filteredChapters?.map((c, i) => renderChapter(c, i))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-brand-text-light italic text-center py-10 col-span-4">
+                                                            Walang nakitang kabanata para sa tauhang ito.
+                                                        </p>
+                                                    )}
+                                                </>
                                             ) : (
-                                                <p className="text-brand-text-light italic text-center py-10 col-span-4">
-                                                    No chapters found for this character.
-                                                </p>
+                                                <>
+                                                    <div className="flex items-center justify-between">
+                                                        <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
+                                                            Mga Paksa ng Tauhan
+                                                        </h4>
+                                                    </div>
+
+                                                    {paksaLoading ? (
+                                                        <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                                            <div className="w-8 h-8 border-4 border-brand-gold border-t-transparent rounded-full animate-spin" />
+                                                            <span className="text-brand-text/50 font-serif italic">Naghahanap ng mga paksa...</span>
+                                                        </div>
+                                                    ) : paksaThemes.length > 0 ? (
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                                            {paksaThemes.map((theme, i) => (
+                                                                <div
+                                                                    key={i}
+                                                                    className={`
+                                                                        p-6 rounded-sm border bg-white transition-all shadow-sm
+                                                                        ${selectedNovel === 'noli' ? 'border-noli-accent/10' : 'border-fili-accent/10'}
+                                                                    `}
+                                                                >
+                                                                    <div className="flex items-center gap-2 mb-4">
+                                                                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
+                                                                            Paksa
+                                                                        </span>
+                                                                        <h3 className="text-xl font-serif font-bold text-brand-navy">
+                                                                            {theme.label}
+                                                                        </h3>
+                                                                    </div>
+                                                                    {theme.description && (
+                                                                        <p className="text-sm text-brand-text/70 leading-relaxed font-serif italic border-t border-brand-gold/5 pt-4">
+                                                                            “{theme.description}”
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-brand-text-light italic text-center py-10">
+                                                            Walang nakitang paksa para sa tauhang ito.
+                                                        </p>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     )}
+
                                 </>
                             )}
                         </div>
