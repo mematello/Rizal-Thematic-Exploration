@@ -77,3 +77,4 @@ The study explicitly focuses on system engineering rather than formal statistica
 - **Retrieval Pipeline Verification**: Internal scripts (`check_backend.py`) continuously validate that the dual-novel fetching logic returns the expected structural metadata, correctly routing queries to the appropriate database sections for *Noli* and *Fili*.
 - **System Calibration**: The latency of semantic lookups and query parsing logic is monitored to calibrate threshold values (e.g., the 0.55 similarity threshold for semantic validation and stopword penalty factors), ensuring reasonable response times.
 - **Fallback Assessment**: Ad-hoc query runs are logged to ensure the engine's behavior during Stage A failures appropriately triggers Stage B, filtering noise via the implemented blocklists and vocabulary guards.
+  
