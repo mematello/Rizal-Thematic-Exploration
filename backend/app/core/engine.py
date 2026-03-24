@@ -12,6 +12,7 @@ from app.core.analyzer import QueryAnalyzer, extract_words
 from app.models.database import Sentence
 from app.core.tagalog_parser import TagalogRoleParser
 from app.services.suggestions import DynamicSuggestionGenerator
+from app.core.sequence_aligner import SequenceAligner
 
 settings = get_settings()
 
@@ -19,18 +20,21 @@ class RizalEngine:
     def __init__(self):
         print("Loading SentenceTransformer models...")
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        dapt_path = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
+        dapt_path_1 = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
+        dapt_path_2 = os.path.join(base_path, 'app', 'models', 'rizal-xlm-r-dapt')
+        
+        dapt_path = dapt_path_1 if os.path.exists(dapt_path_1) else (dapt_path_2 if os.path.exists(dapt_path_2) else None)
         
         # Load Base Model (Always)
         self.base_model = SentenceTransformer(settings.BERT_MODEL_NAME)
         
         # Load DAPT Model if available, else fallback to base
-        if os.path.exists(dapt_path):
+        if dapt_path:
             print(f"Using DAPT model from {dapt_path}")
             self.dapt_model = SentenceTransformer(dapt_path)
             self.has_dapt = True
         else:
-            print(f"DAPT model not found at {dapt_path}. Using base model as fallback.")
+            print(f"DAPT model not found at {dapt_path_1} or {dapt_path_2}. Using base model as fallback.")
             self.dapt_model = self.base_model
             self.has_dapt = False
             
@@ -51,6 +55,13 @@ class RizalEngine:
         # Load character-theme maps and theme keywords for 4-step matching
         self._load_character_theme_maps()
         
+        # Instantiate the DP sequence aligner (uses DAPT model when available)
+        self.aligner = SequenceAligner(
+            model=self.dapt_model,
+            char_patterns=self.char_patterns,
+        )
+        print(f"SequenceAligner ready (DAPT={self.has_dapt}).")
+
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
             'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
