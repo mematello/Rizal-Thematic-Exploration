@@ -1,0 +1,304 @@
+[
+  {
+    "query": "edukasyon",
+    "mode": "summary",
+    "results": [
+      {
+        "text": "Ibinahagi din ng guro ang iba\u2019t-ibang problemang kinaharap ng mga guro at ng edukasyon.",
+        "book": "noli",
+        "chapter": "Kabanata 19: Mga Karanasan ng Isang Guro",
+        "lexical_score": 100,
+        "semantic_score": 71,
+        "final_score": 77,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon at Kalayaan",
+        "theme_confidence": 0.5788808084333547,
+        "retrieval_stage": "semantic",
+        "rank": 1
+      },
+      {
+        "text": "Sisikapin niyang paunladin ang sistema ng edukasyon sa kanilang lugar.",
+        "book": "noli",
+        "chapter": "Kabanata 19: Mga Karanasan ng Isang Guro",
+        "lexical_score": 100,
+        "semantic_score": 67,
+        "final_score": 74,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon at Kalayaan",
+        "theme_confidence": 0.550434945121857,
+        "retrieval_stage": "semantic",
+        "rank": 2
+      },
+      {
+        "text": "Isa din sa balakid sa edukasyon ay ang kakaibang pananaw ng mga pari sa paraan ng pagtuturo ng mga guro.",
+        "book": "noli",
+        "chapter": "Kabanata 19: Mga Karanasan ng Isang Guro",
+        "lexical_score": 99,
+        "semantic_score": 64,
+        "final_score": 71,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon at Kalayaan",
+        "theme_confidence": 0.5935378589467764,
+        "retrieval_stage": "semantic",
+        "rank": 3
+      },
+      {
+        "text": "Nagtanong si Ibarra kung ano ang kinahinatnat ng pagtulong ng ama sa mga mahihiraP. Sinabi ng guro na nakatulong si Don Rafael sa pagpapaunlad ng edukasyon sa kanilang bayan.",
+        "book": "noli",
+        "chapter": "Kabanata 19: Mga Karanasan ng Isang Guro",
+        "lexical_score": 95,
+        "semantic_score": 58,
+        "final_score": 65,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.5958161991573948,
+        "retrieval_stage": "semantic",
+        "rank": 4
+      },
+      {
+        "text": "May mga estudyante daw na nagtungo sa Malakanyang upang magpahayag ng pagkamaka-Kastila ngunit nahulihan sila ng armas kaya ang mga ito ay pinagkukulong.",
+        "book": "noli",
+        "chapter": "Kabanata 28: Pagkatakot",
+        "lexical_score": 50,
+        "semantic_score": 54,
+        "final_score": 53,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.5900429375464009,
+        "retrieval_stage": "semantic",
+        "rank": 5
+      }
+    ],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": true
+    }
+  },
+  {
+    "query": "edukasyon",
+    "mode": "full",
+    "results": [
+      {
+        "text": "Nangagpakpakan ang mga nangangatungkulan sa pamahalaan.",
+        "book": "noli",
+        "chapter": "Kabanata 32: ANG \"KABRYA\".",
+        "lexical_score": 50,
+        "semantic_score": 57,
+        "final_score": 56,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.42058545034228123,
+        "retrieval_stage": "semantic",
+        "rank": 1
+      },
+      {
+        "text": "Sino po si Instruccion Primaria?",
+        "book": "noli",
+        "chapter": "Kabanata 27: SA PAGTATAKIPSILIM.",
+        "lexical_score": 50,
+        "semantic_score": 57,
+        "final_score": 56,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.2880474450877873,
+        "retrieval_stage": "semantic",
+        "rank": 2
+      },
+      {
+        "text": "Ang sadyang ibig matuto ay natututo mayroon man o walang mga akademia!",
+        "book": "noli",
+        "chapter": "Kabanata 13: ANG ARALAN NG PISIKA",
+        "lexical_score": 50,
+        "semantic_score": 53,
+        "final_score": 53,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.4951495182040753,
+        "retrieval_stage": "semantic",
+        "rank": 3
+      },
+      {
+        "text": "ani Albinong seminarista ng sabing malakas sa isang kapwa binata;\u2014yapakan mong magaling ang mga bunot na pangsiksik na na sa ilalim ng iyong paa.",
+        "book": "noli",
+        "chapter": "Kabanata 23: ANG PANGIGISDA",
+        "lexical_score": 50,
+        "semantic_score": 52,
+        "final_score": 51,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon at Kalayaan",
+        "theme_confidence": 0.49816714911111887,
+        "retrieval_stage": "semantic",
+        "rank": 4
+      },
+      {
+        "text": "Ang bihis ng mga taga Universidad ay lalong maayos at makisig, mararahan ang lakad at madalas pang tungkod ang dala at hindi aklat.",
+        "book": "noli",
+        "chapter": "Kabanata 12: PLACIDO PENITENTE",
+        "lexical_score": 50,
+        "semantic_score": 50,
+        "final_score": 50,
+        "match_type": "semantic neighbor",
+        "theme": "Edukasyon",
+        "theme_confidence": 0.5451086473361236,
+        "retrieval_stage": "semantic",
+        "rank": 5
+      }
+    ],
+    "metadata": {
+      "has_lexical_hits": false,
+      "used_semantic_fallback": true
+    }
+  },
+  {
+    "query": "edukasyon bilang pag-asa ni Ibarra",
+    "mode": "summary",
+    "results": [
+      {
+        "text": "Nagtanong si Ibarra kung ano ang kinahinatnat ng pagtulong ng ama sa mga mahihiraP. Sinabi ng guro na nakatulong si Don Rafael sa pagpapaunlad ng edukasyon sa kanilang bayan.",
+        "book": "noli",
+        "chapter": "Kabanata 19: Mga Karanasan ng Isang Guro",
+        "lexical_score": 12,
+        "semantic_score": 23,
+        "final_score": 16,
+        "match_type": "partial",
+        "theme": "Pag-aalay at Pagsasakripisyo",
+        "theme_confidence": 0.6731325387954712,
+        "retrieval_stage": "lexical",
+        "rank": 1
+      }
+    ],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "edukasyon bilang pag-asa ni Ibarra",
+    "mode": "full",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "pang-aapi ng mga prayle",
+    "mode": "summary",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "pang-aapi ng mga prayle",
+    "mode": "full",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "Maria Clara at pagdurusa",
+    "mode": "summary",
+    "results": [
+      {
+        "text": "Si Basilio daw ang magtatakas kay Maria Clara sa kumbento ni Sta. Clara habang nagkakagulo ang buong lungsod.",
+        "book": "noli",
+        "chapter": "Kabanata 23: Isang Bangkay",
+        "lexical_score": 11,
+        "semantic_score": 23,
+        "final_score": 16,
+        "match_type": "partial",
+        "theme": "Pang-aapi sa Kababaihan",
+        "theme_confidence": 0.5738581279913584,
+        "retrieval_stage": "lexical",
+        "rank": 1
+      },
+      {
+        "text": "Nagsimula na ang pangungumpisal ni Maria Clara kay Padre Salvi.",
+        "book": "noli",
+        "chapter": "Kabanata 44: Pagsusuri ng Budhi",
+        "lexical_score": 12,
+        "semantic_score": 23,
+        "final_score": 15,
+        "match_type": "partial",
+        "theme": "Pang-aapi sa Kababaihan",
+        "theme_confidence": 0.6036424477895102,
+        "retrieval_stage": "lexical",
+        "rank": 2
+      },
+      {
+        "text": "Umalis ang ketongin dala ang bigay na laket ni Maria Clara.",
+        "book": "noli",
+        "chapter": "Kabanata 27: Sa Pagtatakipsilim",
+        "lexical_score": 12,
+        "semantic_score": 25,
+        "final_score": 15,
+        "match_type": "partial",
+        "theme": "Pag-ibig, Kadalisayan, at Katapatan",
+        "theme_confidence": 0.6439100942190956,
+        "retrieval_stage": "lexical",
+        "rank": 3
+      },
+      {
+        "text": "Ipinakita din ni Ibarra ang liham niya kay Maria Clara bago siya magtungo papuntang Europa.",
+        "book": "noli",
+        "chapter": "Kabanata 7: Ligawan sa Asotea",
+        "lexical_score": 11,
+        "semantic_score": 23,
+        "final_score": 15,
+        "match_type": "partial",
+        "theme": "Pang-aapi sa Kababaihan",
+        "theme_confidence": 0.6280008713404337,
+        "retrieval_stage": "lexical",
+        "rank": 4
+      },
+      {
+        "text": "Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara.",
+        "book": "noli",
+        "chapter": "Kabanata 64: Katapusan",
+        "lexical_score": 12,
+        "semantic_score": 24,
+        "final_score": 15,
+        "match_type": "partial",
+        "theme": "Pag-ibig, Kadalisayan, at Katapatan",
+        "theme_confidence": 0.6179976603564095,
+        "retrieval_stage": "lexical",
+        "rank": 5
+      }
+    ],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "Maria Clara at pagdurusa",
+    "mode": "full",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "internet sa panahon ni rizal",
+    "mode": "summary",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  },
+  {
+    "query": "internet sa panahon ni rizal",
+    "mode": "full",
+    "results": [],
+    "metadata": {
+      "has_lexical_hits": true,
+      "used_semantic_fallback": false
+    }
+  }
+]
