@@ -1425,7 +1425,9 @@ class RizalEngine:
 
     def _compute_simple_lexical(self, text1, text2):
         w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))
-        return len(w1 & w2) / len(w2) if w2 else 0.0
+        if not w1 and not w2:
+            return 0.0
+        return len(w1 & w2) / len(w1 | w2)
 
     def _expand_context(self, db: Session, center_sentence: Sentence) -> str:
         max_dist = self.MAX_CONTEXT_EXPANSION

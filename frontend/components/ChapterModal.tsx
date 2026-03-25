@@ -6,6 +6,7 @@ import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } f
 import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
+import { ScoreVisualizer } from "@/components/ScoreVisualizer";
 
 interface ThemeMatch {
     id: string;
@@ -85,6 +86,12 @@ export function ChapterModal({
         mode: string;
         alignment_status?: string;
         matched_characters?: string[];
+        score: number;
+        semantic_score: number;
+        lexical_score: number;
+        char_score: number;
+        buod_sentence_index?: number;
+        full_sentence_indices?: number[];
     } | null>(null);
     const [isRefLoading, setIsRefLoading] = useState(false);
     const [refError, setRefError] = useState<string | null>(null);
@@ -608,7 +615,13 @@ export function ChapterModal({
                                                                                     book: book,
                                                                                     mode: mode === 'buod' ? 'full' : 'buod',
                                                                                     alignment_status: refData.alignment_status,
-                                                                                    matched_characters: refData.matched_characters
+                                                                                    matched_characters: refData.matched_characters,
+                                                                                    score: refData.score,
+                                                                                    semantic_score: refData.semantic_score,
+                                                                                    lexical_score: refData.lexical_score,
+                                                                                    char_score: refData.char_score,
+                                                                                    buod_sentence_index: refData.buod_sentence_index,
+                                                                                    full_sentence_indices: refData.full_sentence_indices
                                                                                 });
                                                                             }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
                                                                         );
@@ -680,7 +693,7 @@ export function ChapterModal({
                                                         
                                                         {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
                                                             <div className="mt-6 pt-4 border-t border-brand-gold/10">
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Tauhan</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {selectedReference.matched_characters.map(c => (
                                                                         <span key={c} className="bg-brand-gold/10 text-brand-navy px-2 py-1 rounded text-xs font-bold">{c}</span>
@@ -688,6 +701,36 @@ export function ChapterModal({
                                                                 </div>
                                                             </div>
                                                         )}
+
+                                                        {selectedReference.buod_sentence_index !== undefined && (
+                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10">
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
+                                                                <div className="bg-brand-navy/5 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10">
+                                                                    <div className="flex flex-col text-sm text-slate-600 font-medium">
+                                                                        <div><strong className="text-brand-navy">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
+                                                                        <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices.join(', ')}</div>
+                                                                    </div>
+                                                                </div>                                               </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="p-6 bg-white rounded-xl border border-brand-gold/10 shadow-sm space-y-4">
+                                                        <div className="flex justify-between items-end">
+                                                            <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
+                                                            <span className="text-2xl font-serif font-black text-brand-navy">
+                                                                {Math.round(selectedReference.score * 100)}%
+                                                            </span>
+                                                        </div>
+                                                        
+                                                        <ScoreVisualizer 
+                                                            semantic={Math.round(selectedReference.semantic_score * 100)} 
+                                                            lexical={Math.round(selectedReference.lexical_score * 100)}
+                                                            char={selectedReference.char_score === -1 ? -1 : Math.round(selectedReference.char_score * 100)}
+                                                        />
+                                                        
+                                                        <p className="text-[10px] text-brand-text/40 leading-relaxed italic mt-4">
+                                                            Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 45% Kahulugan, 35% Salita, at 20% Tauhan.
+                                                        </p>
                                                     </div>
                                                     <div className="pt-6 border-t border-brand-gold/10"><p className="text-xs text-brand-text/50 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
                                                 </div>

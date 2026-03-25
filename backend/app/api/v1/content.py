@@ -498,7 +498,12 @@ class SanggunianResponse(BaseModel):
     reference_text: str = ""
     alignment_status: str = ""
     score: float = 0.0
+    semantic_score: float = 0.0
+    lexical_score: float = 0.0
+    char_score: float = 0.0
     matched_characters: List[str] = []
+    buod_sentence_index: Optional[int] = None
+    full_sentence_indices: List[int] = []
 
 _nlp = None
 def get_nlp():
@@ -537,7 +542,9 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
             reference_text=" ".join([str(s.sentence_text) for s in passage_sentences]),
             alignment_status="precise",
             score=1.0,
-            matched_characters=[]
+            matched_characters=[],
+            buod_sentence_index=sentence.sentence_index,
+            full_sentence_indices=[s.sentence_index for s in passage_sentences]
         )
         
     search_chapter = sentence.chapter_number
@@ -577,12 +584,13 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         total_full = len(full_sentences)
         total_buod = max(1, len(buod_sentences))
         
-        chapter_ratio = total_full / total_buod
-        dynamic_buffer = chapter_ratio * 2.0
-        
+        # 1. Expected Chronological Position
         buod_idx = next((i for i, bs in enumerate(buod_sentences) if bs.id == sentence.id), 0)
         position_ratio = buod_idx / total_buod
         search_center = position_ratio * total_full
+        
+        # Expanded dynamic buffer to cast a wider chronological net
+        dynamic_buffer = (total_full / total_buod) * 3.0
         
         candidates = [fs for i, fs in enumerate(full_sentences) if (search_center - dynamic_buffer) <= i <= (search_center + dynamic_buffer)]
         if not candidates or buod_emb is None: return None
@@ -590,12 +598,17 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         best_fs = None
         best_score = -1.0
         best_chars = []
+        best_semantic = 0.0
+        best_lexical = 0.0
+        best_char_overlap = 0.0
         
-        for fs in candidates:
+        for i, fs in enumerate(full_sentences):
+            if fs not in candidates: continue
+            
             fs_text = (fs.sentence_text or "").lower()
             if not fs_text or fs.embedding is None: continue
             
-            # Character ALL-match Filter (Passage-level)
+            # --- Character Overlap Score (IoU) ---
             passage_text = fs_text
             if fs.passage_id is not None:
                 passage_sents = db.query(Sentence).filter(
@@ -611,37 +624,52 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
                 if pattern.search(passage_text):
                     fs_chars.add(canon_name)
                     
-            # Character Overlap Score (NEW Stage 2)
-            char_overlap_score = 1.0
-            if buod_chars:
-                matches = buod_chars.intersection(fs_chars)
-                char_overlap_score = len(matches) / len(buod_chars)
-                
-                # Soft Rule: Hard reject only if zero characters match despite being in buod
-                if char_overlap_score == 0:
-                    continue
+            intersection = buod_chars.intersection(fs_chars)
+            union = buod_chars.union(fs_chars)
             
-            # Hybrid Scoring: NEW WEIGHTS (45% Semantic, 35% Lexical, 20% Char)
+            if union:
+                char_overlap_score = len(intersection) / len(union)
+            else:
+                char_overlap_score = -1.0 # Represents N/A
+            
+            # --- Semantic Score ---
             fs_emb = np.array(fs.embedding)
             num = float(np.dot(buod_emb, fs_emb))
             den = (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb))
             semantic_score = num / den if den > 0 else 0.0
             semantic_score = max(0.0, min(1.0, semantic_score))
             
-            lexical_score = engine._compute_simple_lexical(buod_text, fs_text)
+            # --- Lexical Score (Engine Lexical) ---
+            lexical_score = engine._compute_simple_lexical(buod_text, passage_text)
             
-            final_score = (0.45 * semantic_score) + (0.35 * lexical_score) + (0.20 * char_overlap_score)
+            # --- Position Penalty (Chronological Alignment) ---
+            # Max penalty of 15% if the sentence is at the absolute opposite end of the chapter
+            distance_from_center = abs(i - search_center)
+            position_penalty = 1.0 - (0.15 * (distance_from_center / total_full))
+            
+            # --- Score Fusion ---
+            if char_overlap_score == -1.0:
+                # Re-weight Semantic (55%) and Lexical (45%)
+                fused_score = (0.55 * semantic_score) + (0.45 * lexical_score)
+            else:
+                fused_score = (0.45 * semantic_score) + (0.35 * lexical_score) + (0.20 * char_overlap_score)
+                
+            # Apply position multiplier
+            final_score = fused_score * position_penalty
             final_score = min(final_score, 1.0)
             
             if final_score > best_score:
                 best_score = final_score
                 best_fs = fs
                 best_chars = list(buod_chars) if buod_chars else list(fs_chars)
+                best_semantic = semantic_score
+                best_lexical = lexical_score
+                best_char_overlap = char_overlap_score
                 
-        if best_score < 0.45: 
+        if best_score < 0.40: # Lowered threshold slightly due to explicit structural penalties
             return None
             
-        return best_fs, best_score, best_chars
+        return best_fs, best_score, best_chars, best_semantic, best_lexical, best_char_overlap
         
     res = search_in_chapter(search_chapter)
     alignment = "precise"
@@ -656,7 +684,7 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
     if not res:
         return SanggunianResponse(has_reference=False)
         
-    best_fs, best_score, best_chars = res
+    best_fs, best_score, best_chars, sem_score, lex_score, char_score = res
     
     passage_sentences = []
     if best_fs.passage_id is not None:
@@ -675,7 +703,12 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         reference_text=" ".join([str(s.sentence_text) for s in passage_sentences]),
         alignment_status=alignment,
         score=best_score,
-        matched_characters=best_chars
+        semantic_score=sem_score,
+        lexical_score=lex_score,
+        char_score=char_score,
+        matched_characters=best_chars,
+        buod_sentence_index=sentence.sentence_index,
+        full_sentence_indices=[s.sentence_index for s in passage_sentences]
     )
 
 

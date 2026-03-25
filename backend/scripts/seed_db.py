@@ -81,7 +81,7 @@ def seed_db():
                 'book': book_key,
                 'chapter_number': int(row['chapter_number']),
                 'chapter_title': str(row['chapter_title']),
-                'sentence_index': idx,
+                'sentence_index': int(row['sentence_number']),
                 'sentence_text': text_content
             })
             
