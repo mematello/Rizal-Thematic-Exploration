@@ -160,7 +160,7 @@ export function ChapterModal({
         if (showReference && !isLoadingRefs) {
             const fetchRefs = async () => {
                 setIsLoadingRefs(true);
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
                 const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
                 const results: Record<number, any> = { ...referenceResults };
                 const toFetch = sentences.filter(s => !results[s.id]);
@@ -231,7 +231,7 @@ export function ChapterModal({
         if (isOpen) {
             const fetchMetadata = async () => {
                 try {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
                     const res = await fetch(`${apiUrl}/api/v1/chapters?mode=${mode}`);
                     if (res.ok) {
                         const data = await res.json();
@@ -283,7 +283,7 @@ export function ChapterModal({
             setModeError(null);
 
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
                 const targetChapter = isFullscreen ? activeChapterInView : chapterNumber;
                 const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${targetChapter}?mode=${mode}`, { signal: abortController.signal });
 
@@ -398,7 +398,7 @@ export function ChapterModal({
     };
 
     const fetchSpecificChapter = async (num: number, overrideMode?: 'buod' | 'full', signal?: AbortSignal): Promise<ChapterContent[]> => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const targetMode = overrideMode || mode;
         const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${num}?mode=${targetMode}`, { signal });
         if (!res.ok) throw new Error("Failed");
@@ -475,7 +475,7 @@ export function ChapterModal({
         setCharLoading(true);
         try {
             const searchTerm = [char.name, ...(char.aliases || [])].join(",");
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
             const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}&mode=${mode}`);
             if (res.ok) setCharAppearances(await res.json());
         } catch (err) {}
@@ -620,6 +620,7 @@ export function ChapterModal({
                                                                                     semantic_score: refData.semantic_score,
                                                                                     lexical_score: refData.lexical_score,
                                                                                     char_score: refData.char_score,
+                                                                                    ratio_score: refData.ratio_score,
                                                                                     buod_sentence_index: refData.buod_sentence_index,
                                                                                     full_sentence_indices: refData.full_sentence_indices
                                                                                 });
@@ -726,6 +727,7 @@ export function ChapterModal({
                                                             semantic={Math.round(selectedReference.semantic_score * 100)} 
                                                             lexical={Math.round(selectedReference.lexical_score * 100)}
                                                             char={selectedReference.char_score === -1 ? -1 : Math.round(selectedReference.char_score * 100)}
+                                                            ratio={Math.round(selectedReference.ratio_score * 100)}
                                                         />
                                                         
                                                         <p className="text-[10px] text-brand-text/40 leading-relaxed italic mt-4">

@@ -106,7 +106,6 @@ def seed_db():
         
         # --- Process Themes ---
         if os.path.exists(theme_path):
-            from app.models.database import Theme # Import here to ensure it's available
             print(f"Processing {book_key} themes from {theme_filename}...")
             themes_df = pd.read_csv(theme_path)
             themes_df.columns = themes_df.columns.str.strip()

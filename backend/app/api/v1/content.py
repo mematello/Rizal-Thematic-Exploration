@@ -501,6 +501,7 @@ class SanggunianResponse(BaseModel):
     semantic_score: float = 0.0
     lexical_score: float = 0.0
     char_score: float = 0.0
+    ratio_score: float = 0.0
     matched_characters: List[str] = []
     buod_sentence_index: Optional[int] = None
     full_sentence_indices: List[int] = []
@@ -566,110 +567,228 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
             
     buod_emb = np.array(sentence.embedding) if sentence.embedding is not None else None
     
-    def search_in_chapter(chap_num):
-        full_sentences = db.query(Sentence).filter(
+    def _jaccard(b_tokens: set, window_sentences: list) -> float:
+        """Window-level Jaccard: B vs union of all tokens in the window."""
+        from app.core.analyzer import extract_words
+        w_tokens: set = set()
+        for s in window_sentences:
+            w_tokens.update(extract_words((s.sentence_text or "").lower()))
+        if not b_tokens and not w_tokens:
+            return 0.0
+        return len(b_tokens & w_tokens) / len(b_tokens | w_tokens)
+
+    def _avg_embedding(sents: list):
+        embs = [np.array(s.embedding) for s in sents if s.embedding is not None]
+        if not embs:
+            return None
+        return np.mean(embs, axis=0)
+
+    def _cosine(a, b) -> float:
+        if a is None or b is None:
+            return 0.0
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na == 0 or nb == 0:
+            return 0.0
+        return float(np.clip(np.dot(a, b) / (na * nb), 0.0, 1.0))
+
+    def _tauhan_boost(window_sents: list, char_freq: dict) -> tuple:
+        """Returns (boost_value, list_of_matched_chars)."""
+        if not buod_chars:
+            return 0.0, []
+        matched = []
+        boost = 0.0
+        window_text = " ".join((s.sentence_text or "").lower() for s in window_sents)
+        for canon_name, pattern in patterns:
+            if canon_name in buod_chars and pattern.search(window_text):
+                distinctiveness = 1.0 - char_freq.get(canon_name, 0.0)
+                boost += distinctiveness * 0.20
+                matched.append(canon_name)
+        # Cap at 0.20 (the weight slot for tauhan)
+        return min(boost, 0.20), matched
+
+    def _ratio_score(actual_idx: float, expected_idx: float, total_full: int) -> float:
+        if total_full == 0:
+            return 0.0
+        return float(np.clip(1.0 - abs(actual_idx - expected_idx) / total_full, 0.0, 1.0))
+
+    def _combine(jaccard: float, semantic: float, tauhan: float, ratio: float) -> float:
+        return (jaccard * 0.30) + (semantic * 0.40) + (tauhan * 0.20) + (ratio * 0.10)
+
+    def _get_window(sent_list: list, center_i: int, half: int) -> list:
+        lo = max(0, center_i - half)
+        hi = min(len(sent_list) - 1, center_i + half)
+        return sent_list[lo:hi + 1]
+
+    def search_in_chapter(chap_num, anchor_shift: int = 0):
+        from app.core.analyzer import extract_words
+
+        full_sentences_raw = db.query(Sentence).filter(
             Sentence.book == full_book,
             Sentence.chapter_number == chap_num,
             Sentence.source_type == 'full'
         ).order_by(Sentence.sentence_index).all()
-        
-        buod_sentences = db.query(Sentence).filter(
+
+        buod_sentences_raw = db.query(Sentence).filter(
             Sentence.book == sentence.book,
             Sentence.chapter_number == sentence.chapter_number,
             Sentence.source_type == 'summary'
         ).order_by(Sentence.sentence_index).all()
-        
-        if not full_sentences or not buod_sentences: return None
-        
+
+        if not full_sentences_raw or not buod_sentences_raw:
+            return None
+
+        # Deduplicate to prevent bloated totals if DB has dupes
+        seen_full = set()
+        full_sentences = []
+        for fs in full_sentences_raw:
+            if fs.sentence_index not in seen_full:
+                seen_full.add(fs.sentence_index)
+                full_sentences.append(fs)
+
+        seen_buod = set()
+        buod_sentences = []
+        for bs in buod_sentences_raw:
+            if bs.sentence_index not in seen_buod:
+                seen_buod.add(bs.sentence_index)
+                buod_sentences.append(bs)
+
         total_full = len(full_sentences)
         total_buod = max(1, len(buod_sentences))
-        
-        # 1. Expected Chronological Position
+
+        # ── Pre-computation ──────────────────────────────────────────────────
         buod_idx = next((i for i, bs in enumerate(buod_sentences) if bs.id == sentence.id), 0)
-        position_ratio = buod_idx / total_buod
-        search_center = position_ratio * total_full
-        
-        # Expanded dynamic buffer to cast a wider chronological net
-        dynamic_buffer = (total_full / total_buod) * 3.0
-        
-        candidates = [fs for i, fs in enumerate(full_sentences) if (search_center - dynamic_buffer) <= i <= (search_center + dynamic_buffer)]
-        if not candidates or buod_emb is None: return None
-        
+        buod_ratio = buod_idx / total_buod
+        full_expected_idx = buod_ratio * total_full + anchor_shift
+        full_expected_idx = max(0.0, min(full_expected_idx, total_full - 1))
+
+        adaptive_window = max(3, round((total_full / total_buod) * 1.5))
+
+        if buod_emb is None:
+            return None
+
+        buod_tokens = set(extract_words(buod_text))
+
+        # Build character frequency map: canon_name -> fraction of full sentences containing it
+        char_freq: dict = {}
+        for canon_name, pattern in patterns:
+            count = sum(1 for fs in full_sentences if pattern.search((fs.sentence_text or "").lower()))
+            char_freq[canon_name] = count / total_full if total_full > 0 else 0.0
+
+        # ── PASS 1: Large-window Jaccard scan ────────────────────────────────
+        # Generate 5 candidate region centers around the expected position
+        expected_int = int(round(full_expected_idx))
+        spacing = max(1, adaptive_window // 2)
+        region_centers = sorted(set(
+            max(0, min(total_full - 1, expected_int + offset))
+            for offset in [-2 * spacing, -spacing, 0, spacing, 2 * spacing]
+        ))
+
+        best_zone_center = expected_int
+        best_p1_score = -1.0
+
+        for center in region_centers:
+            window = _get_window(full_sentences, center, adaptive_window)
+            if not window:
+                continue
+            j_large  = _jaccard(buod_tokens, window)
+            sem_large = _cosine(buod_emb, _avg_embedding(window))
+            tau_large, _ = _tauhan_boost(window, char_freq)
+            rat_large = _ratio_score(center, full_expected_idx, total_full)
+            # For tauhan in combine we need the raw boost value not capped — convert to 0..1
+            tau_norm = tau_large / 0.20 if tau_large > 0 else 0.0
+            p1_score = _combine(j_large, sem_large, tau_norm, rat_large)
+            if p1_score > best_p1_score:
+                best_p1_score = p1_score
+                best_zone_center = center
+
+        # Candidate zone: adaptive_window sentences around best P1 winner
+        zone = _get_window(full_sentences, best_zone_center, adaptive_window)
+        # Map back to indices in full_sentences for ratio computation
+        zone_start = max(0, best_zone_center - adaptive_window)
+
+        # ── PASS 2: Sentence-level refinement ────────────────────────────────
         best_fs = None
         best_score = -1.0
-        best_chars = []
+        best_chars: list = []
         best_semantic = 0.0
         best_lexical = 0.0
-        best_char_overlap = 0.0
-        
-        for i, fs in enumerate(full_sentences):
-            if fs not in candidates: continue
-            
-            fs_text = (fs.sentence_text or "").lower()
-            if not fs_text or fs.embedding is None: continue
-            
-            # --- Character Overlap Score (IoU) ---
-            passage_text = fs_text
-            if fs.passage_id is not None:
-                passage_sents = db.query(Sentence).filter(
-                    Sentence.book == fs.book,
-                    Sentence.chapter_number == fs.chapter_number,
-                    Sentence.source_type == 'full',
-                    Sentence.passage_id == fs.passage_id
-                ).order_by(Sentence.sentence_index).all()
-                passage_text = " ".join([(s.sentence_text or "").lower() for s in passage_sents])
-            
-            fs_chars = set()
-            for canon_name, pattern in patterns:
-                if pattern.search(passage_text):
-                    fs_chars.add(canon_name)
-                    
-            intersection = buod_chars.intersection(fs_chars)
-            union = buod_chars.union(fs_chars)
-            
-            if union:
-                char_overlap_score = len(intersection) / len(union)
-            else:
-                char_overlap_score = -1.0 # Represents N/A
-            
-            # --- Semantic Score ---
+        best_char_score = 0.0
+        best_ratio_score = 0.0
+        best_idx = -1
+
+        for zone_i, fs in enumerate(zone):
+            if fs.embedding is None or not (fs.sentence_text or "").strip():
+                continue
+
+            actual_full_i = zone_start + zone_i  # position in full_sentences list
+
+            # ±3 window around this sentence (within full chapter)
+            small_window = _get_window(full_sentences, actual_full_i, 3)
+
+            # Jaccard: window-level (±3 window, not single sentence)
+            j_small = _jaccard(buod_tokens, small_window)
+
+            # Semantic: single-sentence cosine (narrows at Pass 2)
             fs_emb = np.array(fs.embedding)
-            num = float(np.dot(buod_emb, fs_emb))
-            den = (np.linalg.norm(buod_emb) * np.linalg.norm(fs_emb))
-            semantic_score = num / den if den > 0 else 0.0
-            semantic_score = max(0.0, min(1.0, semantic_score))
-            
-            # --- Lexical Score (Engine Lexical) ---
-            lexical_score = engine._compute_simple_lexical(buod_text, passage_text)
-            
-            # --- Position Penalty (Chronological Alignment) ---
-            # Max penalty of 15% if the sentence is at the absolute opposite end of the chapter
-            distance_from_center = abs(i - search_center)
-            position_penalty = 1.0 - (0.15 * (distance_from_center / total_full))
-            
-            # --- Score Fusion ---
-            if char_overlap_score == -1.0:
-                # Re-weight Semantic (55%) and Lexical (45%)
-                fused_score = (0.55 * semantic_score) + (0.45 * lexical_score)
-            else:
-                fused_score = (0.45 * semantic_score) + (0.35 * lexical_score) + (0.20 * char_overlap_score)
-                
-            # Apply position multiplier
-            final_score = fused_score * position_penalty
-            final_score = min(final_score, 1.0)
-            
-            if final_score > best_score:
-                best_score = final_score
+            sem_sent = _cosine(buod_emb, fs_emb)
+
+            # Tauhan boost over ±3 window
+            tau_val, matched_chars = _tauhan_boost(small_window, char_freq)
+            tau_norm = tau_val / 0.20 if tau_val > 0 else 0.0
+
+            # Ratio
+            rat = _ratio_score(actual_full_i, full_expected_idx, total_full)
+
+            final = _combine(j_small, sem_sent, tau_norm, rat)
+
+            if final > best_score:
+                best_score = final
                 best_fs = fs
-                best_chars = list(buod_chars) if buod_chars else list(fs_chars)
-                best_semantic = semantic_score
-                best_lexical = lexical_score
-                best_char_overlap = char_overlap_score
-                
-        if best_score < 0.40: # Lowered threshold slightly due to explicit structural penalties
+                best_chars = matched_chars if matched_chars else list(buod_chars)
+                best_semantic = sem_sent
+                best_lexical = j_small
+                best_char_score = tau_norm
+                best_ratio_score = rat
+                best_idx = actual_full_i
+
+        # ── Fallback ─────────────────────────────────────────────────────────
+        THRESHOLD = 0.35
+        if best_score < THRESHOLD:
             return None
-            
-        return best_fs, best_score, best_chars, best_semantic, best_lexical, best_char_overlap
+
+        # ── Dynamic Window Expansion ─────────────────────────────────────────
+        # GUARDS:
+        # 1. Hard cap at 15 sentences maximum.
+        # 2. Tightened threshold (0.50) for per-sentence gating.
+        MAX_PASSAGE_SIZE = 15
+        EXPANSION_THRESHOLD = 0.50
+        
+        final_indices = [best_idx]
+        
+        # Expand Left
+        curr = best_idx - 1
+        while curr >= 0 and len(final_indices) < MAX_PASSAGE_SIZE:
+            fs = full_sentences[curr]
+            sim = _cosine(buod_emb, np.array(fs.embedding))
+            if sim >= EXPANSION_THRESHOLD or len(final_indices) < 2:
+                final_indices.insert(0, curr)
+                curr -= 1
+            else:
+                break
+                
+        # Expand Right
+        curr = best_idx + 1
+        while curr < len(full_sentences) and len(final_indices) < MAX_PASSAGE_SIZE:
+            fs = full_sentences[curr]
+            sim = _cosine(buod_emb, np.array(fs.embedding))
+            if sim >= EXPANSION_THRESHOLD or len(final_indices) < 3:
+                final_indices.append(curr)
+                curr += 1
+            else:
+                break
+
+        passage_sentences = [full_sentences[i] for i in final_indices]
+        return passage_sentences, best_score, best_chars, best_semantic, best_lexical, best_char_score, best_ratio_score
         
     res = search_in_chapter(search_chapter)
     alignment = "precise"
@@ -684,18 +803,7 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
     if not res:
         return SanggunianResponse(has_reference=False)
         
-    best_fs, best_score, best_chars, sem_score, lex_score, char_score = res
-    
-    passage_sentences = []
-    if best_fs.passage_id is not None:
-        passage_sentences = db.query(Sentence).filter(
-            Sentence.book == best_fs.book,
-            Sentence.chapter_number == best_fs.chapter_number,
-            Sentence.source_type == 'full',
-            Sentence.passage_id == best_fs.passage_id
-        ).order_by(Sentence.sentence_index).all()
-    else:
-        passage_sentences = [best_fs]
+    passage_sentences, best_score, best_chars, sem_score, lex_score, char_score, ratio_score = res
         
     return SanggunianResponse(
         has_reference=True,
@@ -706,6 +814,7 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         semantic_score=sem_score,
         lexical_score=lex_score,
         char_score=char_score,
+        ratio_score=ratio_score,
         matched_characters=best_chars,
         buod_sentence_index=sentence.sentence_index,
         full_sentence_indices=[s.sentence_index for s in passage_sentences]
