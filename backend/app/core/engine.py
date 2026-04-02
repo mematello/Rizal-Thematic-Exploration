@@ -13,6 +13,7 @@ from app.models.database import Sentence
 from app.core.tagalog_parser import TagalogRoleParser
 from app.services.suggestions import DynamicSuggestionGenerator
 from app.core.sequence_aligner import SequenceAligner
+from app.core.robust_aligner import RobustAligner
 
 settings = get_settings()
 
@@ -60,7 +61,16 @@ class RizalEngine:
             model=self.dapt_model,
             char_patterns=self.char_patterns,
         )
-        print(f"SequenceAligner ready (DAPT={self.has_dapt}).")
+
+        # Initialize RobustAligner with characters from both books
+        all_chars = set()
+        for book in self.char_patterns:
+            for canon_name, _ in self.char_patterns[book]:
+                all_chars.add(canon_name)
+        
+        self.robust_aligner = RobustAligner(tauhan_list=list(all_chars))
+        
+        print(f"Aligners ready (DAPT={self.has_dapt}).")
 
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
