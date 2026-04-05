@@ -1,0 +1,273 @@
+{
+  "chapter": 1,
+  "novel": "Noli Me Tangere",
+  "total_full_text_sentences": 223,
+  "greedy_path": [
+    {
+      "buod_index": 0,
+      "buod_text": "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa.",
+      "matched_full_text_index": 0,
+      "score": 0.593
+    },
+    {
+      "buod_index": 1,
+      "buod_text": "Sikat at malaki ang kanyang impluwensya dahil siya ang dating alkade ng kanilang lugar.",
+      "matched_full_text_index": 0,
+      "score": 0.545
+    },
+    {
+      "buod_index": 2,
+      "buod_text": "Kilala din ito dahil sa pagiging matulungin sa mga mahihiraP. Mabilis na kumalat ang balita ng pagtitipon sa maraming distrito ng Maynila hanggang sa loob ng Intramuros.",
+      "matched_full_text_index": 2,
+      "score": 0.565
+    },
+    {
+      "buod_index": 3,
+      "buod_text": "Pagpasok palang sa bahay ay may sasalubong nang malaking hagdanan na nababalutan ng karpeta.",
+      "matched_full_text_index": 29,
+      "score": 0.548
+    },
+    {
+      "buod_index": 4,
+      "buod_text": "Sa ikalawang palapag ay may makikitang mga porselanang Intsik na may iba\u2019t-ibang kulay at disenyo na mas nakatawag ng pansin sa mga bisitang dumalo.",
+      "matched_full_text_index": 17,
+      "score": 0.559
+    },
+    {
+      "buod_index": 5,
+      "buod_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos.",
+      "matched_full_text_index": 8,
+      "score": 0.557
+    },
+    {
+      "buod_index": 6,
+      "buod_text": "Sa gitna ng bulwagan ay may mahabang lamesa na kainan na puno ng adorno.",
+      "matched_full_text_index": 14,
+      "score": 0.524
+    },
+    {
+      "buod_index": 7,
+      "buod_text": "Ang dingding ay mga mga relihiyosong likhang sining na pinamagatang Purgatoryo, Impyerno, Huling Paghuhukom, Ang Kamatayan ng Makatarungan at Kamatayan ng Makasalanan.",
+      "matched_full_text_index": 12,
+      "score": 0.582
+    },
+    {
+      "buod_index": 8,
+      "buod_text": "Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.",
+      "matched_full_text_index": 24,
+      "score": 0.573
+    },
+    {
+      "buod_index": 9,
+      "buod_text": "Si Tiya Isabel, ang pinsan ni Kapitan Tiyago ang siyang naging tagatanggap ng mga panauhin.",
+      "matched_full_text_index": 63,
+      "score": 0.512
+    },
+    {
+      "buod_index": 10,
+      "buod_text": "Baluktok siya kung mangastila.",
+      "matched_full_text_index": 95,
+      "score": 0.497
+    },
+    {
+      "buod_index": 11,
+      "buod_text": "Nagdatingan pa ang mga panauhin kabilang na ang mag-asawang sina Don Tiburcio de Espada\u00f1a at Do\u00f1a Victorina de Espada\u00f1a; Padre Hernando De La Sibyla na siyang kura ng Tanawan; Padre Damaso Vardolagas ang dating kura San Diego; ang dalawang paisano; at si Tinyente Guevarra ang tinyente ng gwardiya sibil.",
+      "matched_full_text_index": 187,
+      "score": 0.545
+    },
+    {
+      "buod_index": 12,
+      "buod_text": "Ikinagulat ni Padre Damaso ang dahilan ng pagpunta ng binata.",
+      "matched_full_text_index": 116,
+      "score": 0.633
+    },
+    {
+      "buod_index": 13,
+      "buod_text": "Ang akala niya\u2019y pumunta ang binata sa Pilipinas upang magtrabaho, yun pala ay interesado ang binata sa pag-uugali ng mga katutubong Pilipino.",
+      "matched_full_text_index": 127,
+      "score": 0.53
+    },
+    {
+      "buod_index": 14,
+      "buod_text": "Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhin laban kay Padre Damaso.",
+      "matched_full_text_index": 163,
+      "score": 0.631
+    },
+    {
+      "buod_index": 15,
+      "buod_text": "Hindi na napigilan ng pari na mailabas ang kanyang mapanlait na ugali laban sa mga Indio.",
+      "matched_full_text_index": 175,
+      "score": 0.543
+    },
+    {
+      "buod_index": 16,
+      "buod_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.",
+      "matched_full_text_index": 164,
+      "score": 0.649
+    },
+    {
+      "buod_index": 17,
+      "buod_text": "Ngunit ito ay tinutulan ni Tinyente Guevarra, batid niya na may karapatan ang Kapitan Heneral sa pagpaparusa dahil ito ang kinatawan ng hari ng bansa.",
+      "matched_full_text_index": 175,
+      "score": 0.547
+    },
+    {
+      "buod_index": 18,
+      "buod_text": "Pinalipat si Padre Damaso sa ibang lugar dahil pinahukay nito ang bangkay ng isang marangal na lalaki na napagkamalang isang erehe dahil sa hindi nito pagkumpisal.",
+      "matched_full_text_index": 182,
+      "score": 0.653
+    },
+    {
+      "buod_index": 19,
+      "buod_text": "Iniwan ni Tinyente Guevarra ang umpukan.",
+      "matched_full_text_index": 197,
+      "score": 0.489
+    },
+    {
+      "buod_index": 20,
+      "buod_text": "Pinakalma naman ni Padre Sibyla ang galit na galit na si Padre Damaso.",
+      "matched_full_text_index": 204,
+      "score": 0.638
+    },
+    {
+      "buod_index": 21,
+      "buod_text": "Kinalaunan ay nagpatuloy na muli ang pagtitipon.",
+      "matched_full_text_index": 214,
+      "score": 0.507
+    }
+  ],
+  "dp_path": [
+    {
+      "buod_index": 0,
+      "buod_text": "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa.",
+      "matched_full_text_index": 0,
+      "score": 0.593
+    },
+    {
+      "buod_index": 1,
+      "buod_text": "Sikat at malaki ang kanyang impluwensya dahil siya ang dating alkade ng kanilang lugar.",
+      "matched_full_text_index": 0,
+      "score": 0.545
+    },
+    {
+      "buod_index": 2,
+      "buod_text": "Kilala din ito dahil sa pagiging matulungin sa mga mahihiraP. Mabilis na kumalat ang balita ng pagtitipon sa maraming distrito ng Maynila hanggang sa loob ng Intramuros.",
+      "matched_full_text_index": 2,
+      "score": 0.565
+    },
+    {
+      "buod_index": 3,
+      "buod_text": "Pagpasok palang sa bahay ay may sasalubong nang malaking hagdanan na nababalutan ng karpeta.",
+      "matched_full_text_index": 4,
+      "score": 0.546
+    },
+    {
+      "buod_index": 4,
+      "buod_text": "Sa ikalawang palapag ay may makikitang mga porselanang Intsik na may iba\u2019t-ibang kulay at disenyo na mas nakatawag ng pansin sa mga bisitang dumalo.",
+      "matched_full_text_index": 6,
+      "score": 0.545
+    },
+    {
+      "buod_index": 5,
+      "buod_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos.",
+      "matched_full_text_index": 8,
+      "score": 0.557
+    },
+    {
+      "buod_index": 6,
+      "buod_text": "Sa gitna ng bulwagan ay may mahabang lamesa na kainan na puno ng adorno.",
+      "matched_full_text_index": 9,
+      "score": 0.515
+    },
+    {
+      "buod_index": 7,
+      "buod_text": "Ang dingding ay mga mga relihiyosong likhang sining na pinamagatang Purgatoryo, Impyerno, Huling Paghuhukom, Ang Kamatayan ng Makatarungan at Kamatayan ng Makasalanan.",
+      "matched_full_text_index": 12,
+      "score": 0.582
+    },
+    {
+      "buod_index": 8,
+      "buod_text": "Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.",
+      "matched_full_text_index": 24,
+      "score": 0.573
+    },
+    {
+      "buod_index": 9,
+      "buod_text": "Si Tiya Isabel, ang pinsan ni Kapitan Tiyago ang siyang naging tagatanggap ng mga panauhin.",
+      "matched_full_text_index": 63,
+      "score": 0.512
+    },
+    {
+      "buod_index": 10,
+      "buod_text": "Baluktok siya kung mangastila.",
+      "matched_full_text_index": 95,
+      "score": 0.497
+    },
+    {
+      "buod_index": 11,
+      "buod_text": "Nagdatingan pa ang mga panauhin kabilang na ang mag-asawang sina Don Tiburcio de Espada\u00f1a at Do\u00f1a Victorina de Espada\u00f1a; Padre Hernando De La Sibyla na siyang kura ng Tanawan; Padre Damaso Vardolagas ang dating kura San Diego; ang dalawang paisano; at si Tinyente Guevarra ang tinyente ng gwardiya sibil.",
+      "matched_full_text_index": 113,
+      "score": 0.54
+    },
+    {
+      "buod_index": 12,
+      "buod_text": "Ikinagulat ni Padre Damaso ang dahilan ng pagpunta ng binata.",
+      "matched_full_text_index": 116,
+      "score": 0.633
+    },
+    {
+      "buod_index": 13,
+      "buod_text": "Ang akala niya\u2019y pumunta ang binata sa Pilipinas upang magtrabaho, yun pala ay interesado ang binata sa pag-uugali ng mga katutubong Pilipino.",
+      "matched_full_text_index": 127,
+      "score": 0.53
+    },
+    {
+      "buod_index": 14,
+      "buod_text": "Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhin laban kay Padre Damaso.",
+      "matched_full_text_index": 160,
+      "score": 0.629
+    },
+    {
+      "buod_index": 15,
+      "buod_text": "Hindi na napigilan ng pari na mailabas ang kanyang mapanlait na ugali laban sa mga Indio.",
+      "matched_full_text_index": 160,
+      "score": 0.534
+    },
+    {
+      "buod_index": 16,
+      "buod_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.",
+      "matched_full_text_index": 164,
+      "score": 0.649
+    },
+    {
+      "buod_index": 17,
+      "buod_text": "Ngunit ito ay tinutulan ni Tinyente Guevarra, batid niya na may karapatan ang Kapitan Heneral sa pagpaparusa dahil ito ang kinatawan ng hari ng bansa.",
+      "matched_full_text_index": 175,
+      "score": 0.547
+    },
+    {
+      "buod_index": 18,
+      "buod_text": "Pinalipat si Padre Damaso sa ibang lugar dahil pinahukay nito ang bangkay ng isang marangal na lalaki na napagkamalang isang erehe dahil sa hindi nito pagkumpisal.",
+      "matched_full_text_index": 182,
+      "score": 0.653
+    },
+    {
+      "buod_index": 19,
+      "buod_text": "Iniwan ni Tinyente Guevarra ang umpukan.",
+      "matched_full_text_index": 197,
+      "score": 0.489
+    },
+    {
+      "buod_index": 20,
+      "buod_text": "Pinakalma naman ni Padre Sibyla ang galit na galit na si Padre Damaso.",
+      "matched_full_text_index": 204,
+      "score": 0.638
+    },
+    {
+      "buod_index": 21,
+      "buod_text": "Kinalaunan ay nagpatuloy na muli ang pagtitipon.",
+      "matched_full_text_index": 214,
+      "score": 0.507
+    }
+  ]
+}

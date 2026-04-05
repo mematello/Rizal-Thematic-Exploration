@@ -51,8 +51,9 @@ class RobustAligner:
         buod_sentences: List[str],
         full_sentences: List[str],
         buod_embeddings: np.ndarray,
-        full_embeddings: np.ndarray
-    ) -> List[RobustAlignedBlock]:
+        full_embeddings: np.ndarray,
+        return_debug: bool = False
+    ) -> Any:
         """
         Main entry point for alignment.
         """
@@ -60,7 +61,7 @@ class RobustAligner:
         num_full = len(full_sentences)
         
         if num_buod == 0 or num_full == 0:
-            return []
+            return [] if not return_debug else ([], {})
 
         # STEP 1: WINDOW GENERATION
         windows = []
@@ -98,8 +99,8 @@ class RobustAligner:
         # Average window embeddings for comparison
         window_avg_embs = np.array([np.mean(w["embeddings"], axis=0) for w in windows])
         # Normalize embeddings for cosine similarity
-        buod_embs_norm = buod_embeddings / np.linalg.norm(buod_embeddings, axis=1, keepdims=True)
-        window_embs_norm = window_avg_embs / np.linalg.norm(window_avg_embs, axis=1, keepdims=True)
+        buod_embs_norm = buod_embeddings / (np.linalg.norm(buod_embeddings, axis=1, keepdims=True) + 1e-9)
+        window_embs_norm = window_avg_embs / (np.linalg.norm(window_avg_embs, axis=1, keepdims=True) + 1e-9)
         semantic_scores = np.dot(buod_embs_norm, window_embs_norm.T) # (num_buod, num_windows)
         
         # STEP 4: TAUHAN SCORING
@@ -111,10 +112,15 @@ class RobustAligner:
             b_tauhan = buod_tauhan_mentions[i]
             for j in range(num_windows):
                 w_tauhan = window_tauhan_mentions[j]
-                if b_tauhan and w_tauhan:
-                    intersection = len(b_tauhan.intersection(w_tauhan))
-                    tauhan_scores[i, j] = intersection / max(1, len(b_tauhan))
+                
+                if not b_tauhan:
+                    # If buod_tauhan empty -> tauhan_score = 0 (as per requested edge case)
+                    tauhan_scores[i, j] = 0.0
+                elif b_tauhan.issubset(w_tauhan):
+                    # Strict subset rule: if complete, score = |buod_tauhan| / |full_tauhan|
+                    tauhan_scores[i, j] = len(b_tauhan) / len(w_tauhan)
                 else:
+                    # Missing any required tauhan = hard fail (0)
                     tauhan_scores[i, j] = 0.0
                     
         # STEP 5: POSITION SCORING
@@ -219,7 +225,21 @@ class RobustAligner:
                 matched_characters=sorted(list(buod_tauhan_mentions[i] & window_tauhan_mentions[window_idx]))
             ))
             
+        if return_debug:
+            return aligned_results, {
+                "lexical_scores": lexical_scores,
+                "semantic_scores": semantic_scores,
+                "tauhan_scores": tauhan_scores,
+                "position_scores": position_scores,
+                "final_scores": final_scores,
+                "windows": windows,
+                "buod_tauhan_mentions": buod_tauhan_mentions,
+                "window_tauhan_mentions": window_tauhan_mentions,
+                "dp_path": path
+            }
+            
         return aligned_results
+
 
     def _extract_tauhan(self, text: str) -> set:
         """

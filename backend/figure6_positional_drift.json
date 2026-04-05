@@ -1,0 +1,392 @@
+[
+  {
+    "sentence_id": 1,
+    "novel": "Noli Me Tangere",
+    "chapter": 1,
+    "buod_text": "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 6,
+    "novel": "Noli Me Tangere",
+    "chapter": 1,
+    "buod_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos.",
+    "estimated_position_normalized": 0.238,
+    "actual_position_normalized": 0.041,
+    "drift": 0.198,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 46,
+    "novel": "Noli Me Tangere",
+    "chapter": 2,
+    "buod_text": "Handa na ang lahat para sa hapunan.",
+    "estimated_position_normalized": 1.0,
+    "actual_position_normalized": 1.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 47,
+    "novel": "Noli Me Tangere",
+    "chapter": 3,
+    "buod_text": "Galit na galit parin si Padre Damaso dahil sa mainit na talakayan na nangyari.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.092,
+    "drift": 0.092,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 66,
+    "novel": "Noli Me Tangere",
+    "chapter": 4,
+    "buod_text": "Lumabas si Ibarra upang makalanghap ng sariwang hangin.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 99,
+    "novel": "Noli Me Tangere",
+    "chapter": 5,
+    "buod_text": "Dumating si Ibarra sa kanyang tinutuluyan sa Fonda de Lala.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 154,
+    "novel": "Noli Me Tangere",
+    "chapter": 7,
+    "buod_text": "Sa simbahan palang ay di na mapakali si Maria Clara dahil alam niyang darating si Ibarra sa araw na iyon.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.221,
+    "drift": 0.221,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 171,
+    "novel": "Noli Me Tangere",
+    "chapter": 8,
+    "buod_text": "Ang kalungkutang naramdaman ni Ibarra sa pag-alis niya sa bahay ni Maria Clara ay napalitan ng kagalakan nang libutin niya ang kamaynilaan sakay sa kalesa.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 187,
+    "novel": "Noli Me Tangere",
+    "chapter": 9,
+    "buod_text": "Papunta si Padre Damaso sa bahay nila Kapitan Tiago nang makasalubong nito si Ibarra.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 203,
+    "novel": "Noli Me Tangere",
+    "chapter": 10,
+    "buod_text": "Ang bayan ng San Diego ay matatagpuan sa gitna ng palayan na siyang malapit din sa lawa.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 228,
+    "novel": "Noli Me Tangere",
+    "chapter": 11,
+    "buod_text": "Si Don Rafael ay hindi makapangyarihan bagamat siya ang pinakamayaman sa lugar.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.043,
+    "drift": 0.043,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 238,
+    "novel": "Noli Me Tangere",
+    "chapter": 12,
+    "buod_text": "Ang sementeryo ng San Diego ay matatagpuan sa gitna ng malawak na palayan.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.1,
+    "drift": 0.1,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 248,
+    "novel": "Noli Me Tangere",
+    "chapter": 13,
+    "buod_text": "Sakay sa kanyang kalesa, nagtungo si Ibarra sa sementeryo kasama ang kanyang katiwala upang hanapin ang nitso ng amang si Don Rafael.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.01,
+    "drift": 0.01,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 267,
+    "novel": "Noli Me Tangere",
+    "chapter": 14,
+    "buod_text": "Si Don Anastacio o mas kilala sa tawag na Pilosopo Tasyo ay kilala sa San Diego dahil siya ay may kakaibang pananaw tungkol sa pulitika at mga paniniwala.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.035,
+    "drift": 0.035,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 288,
+    "novel": "Noli Me Tangere",
+    "chapter": 15,
+    "buod_text": "Ang dalawang magkapatid na nakita ni Pilosopo Tasyo ay nasa ikalawang palapag ng simbahan.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.027,
+    "drift": 0.027,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 370,
+    "novel": "Noli Me Tangere",
+    "chapter": 20,
+    "buod_text": "Ang bulwagang pulungan ng San Diego ay dinadaluhan ng mga kinikilalang mamamayan na pawang nagbibigay ng opinyon para sa ikakaganda ng bayan.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.015,
+    "drift": 0.015,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 447,
+    "novel": "Noli Me Tangere",
+    "chapter": 25,
+    "buod_text": "Nagtungo si Ibarra sa bahay ni Pilosopo Tasyo upang humingi ng suhestiyon sa ipapatayong paaralan.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.022,
+    "drift": 0.022,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 472,
+    "novel": "Noli Me Tangere",
+    "chapter": 26,
+    "buod_text": "Bago palang ang araw ng pista sa San Diego ay abala na ang lahat sa paghahanda.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.008,
+    "drift": 0.008,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 607,
+    "novel": "Noli Me Tangere",
+    "chapter": 35,
+    "buod_text": "Iba\u2019t-ibang balita ang nagkalat sa bayan tungkol sa nangyari sa tanghalian.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 798,
+    "novel": "Noli Me Tangere",
+    "chapter": 45,
+    "buod_text": "Narating ni Elias ang isang lugar na napapaligiran ng malalaking batong buhay na natatakpan ng mga sanga ng punongkahoy.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.072,
+    "drift": 0.072,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 871,
+    "novel": "Noli Me Tangere",
+    "chapter": 50,
+    "buod_text": "Animnapung taon na ang nakalipas nang mamasukan ang lolo ni Elias bilang tagasuri sa opisina ng isang mangangalakal na Kastila.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 978,
+    "novel": "Noli Me Tangere",
+    "chapter": 55,
+    "buod_text": "Sama-samang naghahapunan sina Kapitan Tiago, Tiya Isabel, at Linares.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.05,
+    "drift": 0.05,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1161,
+    "novel": "Noli Me Tangere",
+    "chapter": 61,
+    "buod_text": "Maya-maya pa\u2019y may nakitang dugo ang gwardiya ngunit wala namang nakitang bangkay.",
+    "estimated_position_normalized": 1.0,
+    "actual_position_normalized": 0.989,
+    "drift": 0.011,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1162,
+    "novel": "Noli Me Tangere",
+    "chapter": 62,
+    "buod_text": "Kinaumagahan ay kita pa din ang lungkot kay Maria Clara.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.477,
+    "drift": 0.477,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1198,
+    "novel": "Noli Me Tangere",
+    "chapter": 64,
+    "buod_text": "Nagpatuloy si Maria Clara sa pagpasok sa kumbento upang maging isang madre.",
+    "estimated_position_normalized": 1.0,
+    "actual_position_normalized": 1.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1213,
+    "novel": "El Filibusterismo",
+    "chapter": 1,
+    "buod_text": "Naglalayag sa ilog Pasig ang Bapor Tabo isang umaga ng Disyembre.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1222,
+    "novel": "El Filibusterismo",
+    "chapter": 2,
+    "buod_text": "Pumunta si Simoun sa ilalim ng kubyerta.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1248,
+    "novel": "El Filibusterismo",
+    "chapter": 3,
+    "buod_text": "Naabutan ni Padre Florentino na nagtatawanan ang mga tao sa itaas ng kubyerta.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1274,
+    "novel": "El Filibusterismo",
+    "chapter": 4,
+    "buod_text": "Si Tandang Selo na umampon noon sa gubat kay Basilio ay matanda na.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.173,
+    "drift": 0.173,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1298,
+    "novel": "El Filibusterismo",
+    "chapter": 5,
+    "buod_text": "Gabi na noon at kasabay ng pag-uwi ni Basilio sa bayan ng San Diego ay ang nagaganap na prusisyong pang-noche Buena.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.011,
+    "drift": 0.011,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1410,
+    "novel": "El Filibusterismo",
+    "chapter": 10,
+    "buod_text": "Nakipanuluyan si Simoun sa bahay ni Kabesang Tales na nasa pagitan ng bayan ng San Diego at ng Tiyani.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.018,
+    "drift": 0.018,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 3358,
+    "novel": "Noli Me Tangere",
+    "chapter": 63,
+    "buod_text": "Sa isang dampang nakatayo sa tabi ng bukal sa paanan ng bund...",
+    "estimated_position_normalized": 1.0,
+    "actual_position_normalized": 0.965,
+    "drift": 0.035,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1531,
+    "novel": "El Filibusterismo",
+    "chapter": 15,
+    "buod_text": "Sinadya ni Isagani ang opisina ng manananggol na si Senyor Pasta, isa sa mga may pinakamatalas na pag-iisip sa Maynila na sinasangguni ng mga pari kung ang mga ito\u2019y nasa gipit na kalagayan.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1611,
+    "novel": "El Filibusterismo",
+    "chapter": 20,
+    "buod_text": "Nasa mga kamay ni Don Custodio ang usapin sa akademya ng wikang Kastila.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.0,
+    "drift": 0.0,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1733,
+    "novel": "El Filibusterismo",
+    "chapter": 25,
+    "buod_text": "Tumutol si Isagani.",
+    "estimated_position_normalized": 0.381,
+    "actual_position_normalized": 0.384,
+    "drift": 0.003,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1924,
+    "novel": "El Filibusterismo",
+    "chapter": 31,
+    "buod_text": "Hindi nabalita sa mga pahayagan ang pagkamatay ni Juli.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.038,
+    "drift": 0.038,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1941,
+    "novel": "El Filibusterismo",
+    "chapter": 32,
+    "buod_text": "Nagmadali namang pumunta sa Europa si Makaraig.",
+    "estimated_position_normalized": 0.278,
+    "actual_position_normalized": 0.174,
+    "drift": 0.104,
+    "alignment_status": "medium"
+  },
+  {
+    "sentence_id": 1955,
+    "novel": "El Filibusterismo",
+    "chapter": 33,
+    "buod_text": "Maaga pa ay inayos na ni Simoun ang kanyang mga hiyas at armas.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.008,
+    "drift": 0.008,
+    "alignment_status": "high"
+  },
+  {
+    "sentence_id": 1977,
+    "novel": "El Filibusterismo",
+    "chapter": 34,
+    "buod_text": "Ika-walo na ng gabi.",
+    "estimated_position_normalized": 0.0,
+    "actual_position_normalized": 0.034,
+    "drift": 0.034,
+    "alignment_status": "medium"
+  }
+]

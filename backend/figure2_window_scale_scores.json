@@ -1,0 +1,58 @@
+[
+  {
+    "sentence_id": 1,
+    "novel": "Noli Me Tangere",
+    "chapter": 1,
+    "buod_text": "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa.",
+    "scores_by_window_size": {
+      "3": 0.591,
+      "4": 0.591,
+      "5": 0.593,
+      "6": 0.592
+    },
+    "winning_window_size": 5,
+    "final_score": 0.593
+  },
+  {
+    "sentence_id": 6,
+    "novel": "Noli Me Tangere",
+    "chapter": 1,
+    "buod_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos.",
+    "scores_by_window_size": {
+      "3": 0.556,
+      "4": 0.557,
+      "5": 0.555,
+      "6": 0.556
+    },
+    "winning_window_size": 4,
+    "final_score": 0.557
+  },
+  {
+    "sentence_id": 1198,
+    "novel": "Noli Me Tangere",
+    "chapter": 64,
+    "buod_text": "Nagpatuloy si Maria Clara sa pagpasok sa kumbento upang maging isang madre.",
+    "scores_by_window_size": {
+      "3": 0.625,
+      "4": 0.625,
+      "5": 0.639,
+      "6": 0.638
+    },
+    "winning_window_size": 5,
+    "final_score": 0.639
+  },
+  {
+    "sentence_id": 1213,
+    "novel": "El Filibusterismo",
+    "chapter": 1,
+    "buod_text": "Naglalayag sa ilog Pasig ang Bapor Tabo isang umaga ng Disyembre.",
+    "scores_by_window_size": {
+      "3": 0.615,
+      "4": 0.618,
+      "5": 0.61,
+      "6": 0.604
+    },
+    "winning_window_size": 4,
+    "final_score": 0.618
+  }
+]
