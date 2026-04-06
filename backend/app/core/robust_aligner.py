@@ -3,6 +3,7 @@ import re
 from typing import List, Dict, Tuple, Any
 from sklearn.feature_extraction.text import TfidfVectorizer
 from dataclasses import dataclass
+from .tagalog_stemmer import TagalogStemmer
 
 @dataclass
 class RobustAlignedBlock:
@@ -35,10 +36,15 @@ class RobustAligner:
     
     def __init__(
         self,
-        tauhan_list: List[str],
+        tauhan_map: Dict[str, str], # Map of Alias -> Canonical Name
         weights: Dict[str, float] = None
     ):
-        self.tauhan_list = [t.lower() for t in tauhan_list]
+        self.tauhan_map = {k.lower(): v for k, v in tauhan_map.items()}
+        # Also include canonical names as their own aliases if missing
+        for v in tauhan_map.values():
+            if v.lower() not in self.tauhan_map:
+                self.tauhan_map[v.lower()] = v
+        
         self.weights = weights or {
             "lexical": 0.40,
             "semantic": 0.40,
@@ -52,6 +58,7 @@ class RobustAligner:
         full_sentences: List[str],
         buod_embeddings: np.ndarray,
         full_embeddings: np.ndarray,
+        full_is_short: List[bool] = None,
         return_debug: bool = False
     ) -> Any:
         """
@@ -63,37 +70,117 @@ class RobustAligner:
         if num_buod == 0 or num_full == 0:
             return [] if not return_debug else ([], {})
 
-        # STEP 1: WINDOW GENERATION
+        # If flags not provided, assume all are valid (non-short)
+        if full_is_short is None:
+            full_is_short = [False] * num_full
+
+        # STEP 1: WINDOW GENERATION (3-6 valid sentences)
         windows = []
-        for start in range(num_full):
-            for size in range(3, 7): # 3 to 6
-                end = start + size
-                if end <= num_full:
-                    windows.append({
-                        "start": start,
-                        "end": end - 1,
-                        "center": (start + end - 1) // 2,
-                        "text": " ".join(full_sentences[start:end]),
-                        "embeddings": full_embeddings[start:end]
-                    })
-        
+        # Find indices of all valid (non-short) sentences
+        valid_indices = [i for i, is_short in enumerate(full_is_short) if not is_short]
+        num_valid = len(valid_indices)
+
+        if num_valid < 3:
+            # Fallback: if there are fewer than 3 valid sentences in the whole chapter, 
+            # just use the standard 3-6 sentence windowing (or whatever is available)
+            for start in range(num_full):
+                for size in range(3, 7):
+                    end = start + size
+                    if end <= num_full:
+                        windows.append({
+                            "start": start,
+                            "end": end - 1,
+                            "center": (start + end - 1) // 2,
+                            "text": " ".join(full_sentences[start:end]),
+                            "embeddings": full_embeddings[start:end]
+                        })
+        else:
+            # Revised Window Logic: For each start position, find end positions that hit 3-6 valid sentences
+            for start in range(num_full):
+                v_count = 0
+                for end in range(start, num_full):
+                    if not full_is_short[end]:
+                        v_count += 1
+                    
+                    if 3 <= v_count <= 6:
+                        # We found a window with 3-6 valid sentences.
+                        # Only add if 'end' is a valid sentence frontier OR last sentence.
+                        if not full_is_short[end] or end == num_full - 1:
+                            windows.append({
+                                "start": start,
+                                "end": end,
+                                "center": (start + end) // 2,
+                                "text": " ".join(full_sentences[start : end + 1]),
+                                "embeddings": full_embeddings[start : end + 1]
+                            })
+                    elif v_count > 6:
+                        break
         num_windows = len(windows)
+        if num_windows == 0:
+            return []
         
-        # STEP 2: LEXICAL SCORING (TF-IDF + char n-grams)
-        # Combine all buod and window texts for TF-IDF context
-        all_texts = buod_sentences + [w["text"] for w in windows]
-        vectorizer = TfidfVectorizer(
-            analyzer='char_wb', 
-            ngram_range=(3, 5),
-            min_df=1
-        )
-        tfidf_matrix = vectorizer.fit_transform(all_texts)
-        buod_tfidf = tfidf_matrix[:num_buod]
-        window_tfidf = tfidf_matrix[num_buod:]
+        # STEP 2: LEXICAL SCORING (Dynamic Layered Subword Matching)
+        stemmer = TagalogStemmer()
         
-        # Precompute lexical scores: cosine similarity between buod and windows
-        from sklearn.metrics.pairwise import cosine_similarity
-        lexical_scores = cosine_similarity(buod_tfidf, window_tfidf) # (num_buod, num_windows)
+        stopwords = {
+            'ang', 'ng', 'sa', 'mga', 'at', 'ay', 'na', 'ni', 'rin', 'din', 
+            'si', 'sila', 'kami', 'tayo', 'kayo', 'kanya', 'nila', 'namin',
+            'ito', 'iyan', 'iyon', 'dito', 'diyan', 'doon', 'kung', 'para',
+            'upang', 'dahil', 'habang', 'bagamat', 'kaysa', 'nang', 'noon',
+            'mula', 'hanggang', 'pa', 'lamang', 'lang', 'ba', 'po', 'ho',
+            'naman', 'o', 'pati', 'maging', 'kaya', 'tulad', 'gaya', 'ako', 'ikaw',
+            'siya', 'niya', 'ko', 'mo', 'ata', 'raw', 'daw', 'yata', 'nga',
+            'hindi', 'di', 'wala', 'may', 'mayroon', 'walang', 'isang', 'niyang', 'siyang'
+        }
+        
+        def get_tokens(text):
+            import string
+            clean_text = text.lower().translate(str.maketrans('', '', string.punctuation))
+            return [w for w in clean_text.split() if w not in stopwords and len(w) > 2]
+            
+        buod_tokens_list = [get_tokens(s) for s in buod_sentences]
+        window_tokens_list = [get_tokens(w["text"]) for w in windows]
+        
+        lexical_scores = np.zeros((num_buod, num_windows))
+        
+        for i, b_tokens in enumerate(buod_tokens_list):
+            if not b_tokens:
+                lexical_scores[i, :] = 0.0
+                continue
+                
+            for j, w_tokens in enumerate(window_tokens_list):
+                if not w_tokens:
+                    continue
+                
+                match_count = 0
+                for b_word in b_tokens:
+                    b_stem = stemmer.stem(b_word)
+                    matched = False
+                    
+                    for w_word in w_tokens:
+                        w_stem = stemmer.stem(w_word)
+                        
+                        # 1. Canonical Context Equality
+                        if b_stem == w_stem:
+                            matched = True
+                            break
+                            
+                        # 2. Partial Canonical (Subword overlap on stems)
+                        if len(b_stem) >= 4 and len(w_stem) >= 4:
+                            if b_stem in w_stem or w_stem in b_stem:
+                                matched = True
+                                break
+                                
+                        # 3. Subword Sliding Check (Compound resolution)
+                        if len(b_word) >= 5 and len(w_word) >= 5:
+                            if b_word in w_word or w_word in b_word:
+                                matched = True
+                                break
+                                
+                    if matched:
+                        match_count += 1
+                        
+                lexical_scores[i, j] = match_count / len(b_tokens)
         
         # STEP 3: SEMANTIC SCORING
         # Average window embeddings for comparison
@@ -114,14 +201,12 @@ class RobustAligner:
                 w_tauhan = window_tauhan_mentions[j]
                 
                 if not b_tauhan:
-                    # If buod_tauhan empty -> tauhan_score = 0 (as per requested edge case)
-                    tauhan_scores[i, j] = 0.0
-                elif b_tauhan.issubset(w_tauhan):
-                    # Strict subset rule: if complete, score = |buod_tauhan| / |full_tauhan|
-                    tauhan_scores[i, j] = len(b_tauhan) / len(w_tauhan)
+                    # If buod has no characters, characters aren't a matching signal here
+                    tauhan_scores[i, j] = -1.0 # N/A match
                 else:
-                    # Missing any required tauhan = hard fail (0)
-                    tauhan_scores[i, j] = 0.0
+                    # Overlap Ratio: (Characters in summary found in window) / (Total Unique Characters in Summary)
+                    matched = b_tauhan.intersection(w_tauhan)
+                    tauhan_scores[i, j] = len(matched) / len(b_tauhan)
                     
         # STEP 5: POSITION SCORING
         position_scores = np.zeros((num_buod, num_windows))
@@ -132,12 +217,29 @@ class RobustAligner:
                 position_scores[i, j] = 1.0 - abs(buod_rel_pos - window_rel_pos)
                 
         # STEP 6: FINAL SCORING
-        final_scores = (
-            self.weights["lexical"] * lexical_scores +
-            self.weights["semantic"] * semantic_scores +
-            self.weights["position"] * position_scores +
-            self.weights["tauhan"] * tauhan_scores
-        )
+        final_scores = np.zeros((num_buod, num_windows))
+        for i in range(num_buod):
+            if tauhan_scores[i, 0] == -1.0:
+                # No characters in this buod sentence - ignore the tauhan weight
+                # Calculate normalized weights for the remaining signals
+                remaining_weight = self.weights["lexical"] + self.weights["semantic"] + self.weights["position"]
+                w_lex = self.weights["lexical"] / remaining_weight
+                w_sem = self.weights["semantic"] / remaining_weight
+                w_pos = self.weights["position"] / remaining_weight
+                
+                final_scores[i, :] = (
+                    w_lex * lexical_scores[i, :] +
+                    w_sem * semantic_scores[i, :] +
+                    w_pos * position_scores[i, :]
+                )
+            else:
+                # Normal weighted combination
+                final_scores[i, :] = (
+                    self.weights["lexical"] * lexical_scores[i, :] +
+                    self.weights["semantic"] * semantic_scores[i, :] +
+                    self.weights["position"] * position_scores[i, :] +
+                    self.weights["tauhan"] * tauhan_scores[i, :]
+                )
         
         # STEP 9: GLOBAL ALIGNMENT (SEQUENTIAL CONSISTENCY)
         # dp[i, j] = max cumulative score for first i buod sentences ending at window j
@@ -244,13 +346,21 @@ class RobustAligner:
     def _extract_tauhan(self, text: str) -> set:
         """
         Extracts tauhan mentions from the provided list.
-        Exact string match (case-insensitive).
+        Supports Tagalog suffixes: -ng, -y, -n.
         """
         found = set()
         text_lower = text.lower()
-        for tauhan in self.tauhan_list:
-            # Use regex to ensure word boundary
-            pattern = r'\b' + re.escape(tauhan) + r'\b'
-            if re.search(pattern, text_lower):
-                found.add(tauhan)
+        
+        for alias, canon in self.tauhan_map.items():
+            # Support multi-word names with potential Tagalog suffixes after EACH word
+            # e.g., "Kapitang Tiagong" matches alias "Kapitan Tiago"
+            parts = alias.split()
+            if not parts: continue
+            
+            # Pattern: \bPart1(?:ng|y|n)?\s+Part2(?:ng|y|n)?\b
+            pattern = r'\b' + r'\s+'.join([re.escape(p) + r'(?:ng|y|n)?' for p in parts]) + r'\b'
+            
+            if re.search(pattern, text_lower, re.IGNORECASE):
+                found.add(canon) # Aggregate by Canonical Person Name
+                
         return found

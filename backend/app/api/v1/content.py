@@ -260,6 +260,7 @@ class ThemeMatch(BaseModel):
 
 class ChapterContentResponse(BaseModel):
     id: int
+    is_short: bool = False
     sentence_index: int
     sentence_text: str
     themes: List[ThemeMatch] = []
@@ -354,6 +355,7 @@ def get_chapter_content(
                     for _, row in chapter_df.iterrows():
                         response_data.append(ChapterContentResponse(
                             id=0, # Fallback ID for CSV data
+                            is_short=len(str(row['sentence_text']).split()) <= 4,
                             sentence_index=row['sentence_number'],
                             sentence_text=row['sentence_text'],
                             themes=[]
@@ -388,11 +390,12 @@ def get_chapter_content(
         
         response_data.append(ChapterContentResponse(
             id=s.id,
-            sentence_index=s.sentence_index,
+            is_short=s.is_short,
+            sentence_index=s.original_sentence_number or s.sentence_index,
             sentence_text=s.sentence_text,
             themes=theme_matches
         ))
-        
+    
     return response_data
 
 class ThemeResult(BaseModel):
@@ -508,6 +511,7 @@ class SanggunianResponse(BaseModel):
     matched_characters: List[str] = []
     buod_sentence_index: Optional[int] = None
     full_sentence_indices: List[int] = []
+    full_is_short: List[bool] = []
 
 
 @router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
@@ -584,11 +588,13 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
 
         # 3. Use RobustAligner
         _alignment_cache[cache_key] = {
+            "v": "2.0", # Versioning to force refresh
             "alignments": engine.robust_aligner.align(
                 buod_sentences=buod_texts,
                 full_sentences=full_texts,
                 buod_embeddings=buod_embs,
-                full_embeddings=full_embs
+                full_embeddings=full_embs,
+                full_is_short=[r.is_short for r in full_rows]
             ),
             "full_sentences": full_rows,
             "buod_rows": buod_rows
@@ -622,8 +628,9 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         char_score=match.tauhan_score,
         ratio_score=match.position_score,
         matched_characters=match.matched_characters,
-        buod_sentence_index=sentence.sentence_index,
-        full_sentence_indices=[s.sentence_index for s in passage_sentences]
+        buod_sentence_index=sentence.original_sentence_number or sentence.sentence_index,
+        full_sentence_indices=[s.original_sentence_number or s.sentence_index for s in passage_sentences],
+        full_is_short=[s.is_short for s in passage_sentences]
     )
 
 

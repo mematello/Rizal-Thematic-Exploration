@@ -89,7 +89,7 @@ export function CharacterList({ onChapterSelect, selectedNovel }: CharacterListP
     };
 
     const filteredCharacters = CHARACTERS.filter(char => {
-        return char.novel === selectedNovel || char.novel === 'both';
+        return (char.novel === selectedNovel || char.novel === 'both') && char.isMajor !== false;
     });
 
     return (

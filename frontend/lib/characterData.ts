@@ -5,6 +5,7 @@ export interface Character {
     novel: "noli" | "fili" | "both";
     description: string;
     aliases?: string[];
+    isMajor?: boolean;
 }
 
 export const CHARACTERS: Character[] = [
@@ -30,6 +31,14 @@ export const CHARACTERS: Character[] = [
     { id: "19", name: "Nol Juan", role: "Foreman", novel: "noli", description: "Tagapamahala sa pagpapatayo ng paaralan ni Ibarra.", aliases: ["Nol Juan", "Juan"] },
     { id: "20", name: "Lucas", role: "Conspirator", novel: "noli", description: "Isang lalaking kasabwat sa plano laban kay Ibarra.", aliases: ["Lucas"] },
     { id: "21", name: "Albino", role: "Seminarian", novel: "noli", description: "Isang dating seminarista.", aliases: ["Albino"] },
+    { id: "45", name: "Sinang", role: "Secondary Character", novel: "noli", description: "Matalik na kaibigan ni Maria Clara.", aliases: ["Sinang", "Tomasa"], isMajor: false },
+    { id: "46", name: "Victoria", role: "Secondary Character", novel: "noli", description: "Kaibigan ni Maria Clara.", aliases: ["Victoria"], isMajor: false },
+    { id: "47", name: "Iday", role: "Secondary Character", novel: "noli", description: "Kaibigan ni Maria Clara.", aliases: ["Iday"], isMajor: false },
+    { id: "48", name: "Neneng", role: "Secondary Character", novel: "noli", description: "Kaibigan ni Maria Clara.", aliases: ["Neneng"], isMajor: false },
+    { id: "49", name: "Andeng", role: "Secondary Character", novel: "noli", description: "Kinakapatid ni Maria Clara.", aliases: ["Andeng"], isMajor: false },
+    { id: "50", name: "Kapitana Tika", role: "Secondary Character", novel: "noli", description: "Ina ni Sinang.", aliases: ["Kapitana Tika", "Tika"], isMajor: false },
+    { id: "51", name: "Kapitan Basilio", role: "Secondary Character", novel: "noli", description: "Ama ni Sinang.", aliases: ["Kapitan Basilio", "Basilio"], isMajor: false },
+    { id: "53", name: "Linares", role: "Secondary Character", novel: "noli", description: "Pinsan ni Don Tiburcio na nagnanasang pakasalan si Maria Clara.", aliases: ["Linares", "Alfonso Linares", "Don Alfonso"], isMajor: false },
 
     // El Filibusterismo
     { id: "22", name: "Simoun", role: "Protagonist", novel: "fili", description: "Ang mayamang mag-aalahas na siyang nagbabalik na Ibarra.", aliases: ["Simoun", "Simoun Ibarra", "Crisostomo Ibarra", "Crisostomo", "Ibarra", "Juan Crisostomo Ibarra", "Juan Ibarra"] },

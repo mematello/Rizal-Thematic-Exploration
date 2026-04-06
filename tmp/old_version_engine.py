@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import re
 import os
 from functools import lru_cache
@@ -62,35 +62,13 @@ class RizalEngine:
             char_patterns=self.char_patterns,
         )
 
-        # Initialize RobustAligner with ALL known names and aliases for robust scoring
-        # Use a map of Alias -> Canonical Name to handle identity correctly
-        scoring_map = {}
+        # Initialize RobustAligner with characters from both books
+        all_chars = set()
+        for book in self.char_patterns:
+            for canon_name, _ in self.char_patterns[book]:
+                all_chars.add(canon_name)
         
-        # Load character_aliases directly to get all alias strings
-        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
-        aliases_path = os.path.join(data_dir, 'character_aliases.json')
-        if os.path.exists(aliases_path):
-            try:
-                import json
-                with open(aliases_path, 'r', encoding='utf-8') as f:
-                    alias_data = json.load(f)
-                    for entry in alias_data:
-                        canon = entry.get('name', '')
-                        if not canon: continue
-                        
-                        scoring_map[canon.lower()] = canon
-                        for alias in entry.get('aliases', []):
-                            if alias: scoring_map[alias.lower()] = canon
-            except Exception:
-                pass
-        
-        # Fallback to canon names from patterns if JSON failed
-        if not scoring_map:
-            for book in self.char_patterns:
-                for canon_name, _ in self.char_patterns[book]:
-                    scoring_map[canon_name.lower()] = canon_name
-        
-        self.robust_aligner = RobustAligner(tauhan_map=scoring_map)
+        self.robust_aligner = RobustAligner(tauhan_list=list(all_chars))
         
         print(f"Aligners ready (DAPT={self.has_dapt}).")
 
@@ -330,7 +308,7 @@ class RizalEngine:
 
     def _get_character_theme_candidates(self, sentence_text: str, book: str) -> set | None:
         """
-        Step 1 — Character Gate.
+        Step 1 ΓÇö Character Gate.
         Returns:
           - set of Tagalog theme labels if >=1 character found in the sentence
           - None if no characters detected (gate not applied)
@@ -351,7 +329,7 @@ class RizalEngine:
 
     def _keyword_matches(self, sentence_text: str, tagalog_theme: str, book: str) -> int:
         """
-        Step 2 — Keyword Narrowing Gate.
+        Step 2 ΓÇö Keyword Narrowing Gate.
         Returns count of TF-IDF keywords for `tagalog_theme` found in `sentence_text`.
         Stricter: Does not count character names/aliases or generic particles as keyword hits.
         Uses word boundaries to avoid substring false positives (e.g., 'asa' in 'inaasahan').
@@ -699,7 +677,7 @@ class RizalEngine:
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
 
-                # Hard semantic threshold — but bypass for confirmed lexical matches
+                # Hard semantic threshold ΓÇö but bypass for confirmed lexical matches
                 has_query_word = any(sw in text_lower for sw in sig_words) if sig_words else False
                 if sem_score < 0.30 and not has_query_word:
                     continue
@@ -1295,7 +1273,7 @@ class RizalEngine:
             
         candidates.sort(key=lambda x: x['score'], reverse=True)
         
-        # ── 4-STEP CHARACTER-GATED MATCHING ─────────────────────────────────────
+        # ΓöÇΓöÇ 4-STEP CHARACTER-GATED MATCHING ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         # Determine book from the center sentence
         book_key = 'noli' if 'noli' in (center_sent.book or '').lower() else 'elfili'
         sent_text = center_sent.sentence_text
@@ -1304,14 +1282,14 @@ class RizalEngine:
         char_candidates = self._get_character_theme_candidates(sent_text, book_key)
 
         if char_candidates is not None:
-            # Characters found — restrict to their theme candidates only
+            # Characters found ΓÇö restrict to their theme candidates only
             candidates = [c for c in candidates if c['label'] in char_candidates]
 
-        # Step 2: Keyword narrowing — require ≥1 match (≥2 for Kapangyarihan)
+        # Step 2: Keyword narrowing ΓÇö require ΓëÑ1 match (ΓëÑ2 for Kapangyarihan)
         # Step 3: Passage consensus already embedded in pass_sims above
         STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
-        STRICT_KEYWORD_MIN = 2   # must match ≥2 keywords
-        DEFAULT_KEYWORD_MIN = 1  # all other themes: ≥1 keyword
+        STRICT_KEYWORD_MIN = 2   # must match ΓëÑ2 keywords
+        DEFAULT_KEYWORD_MIN = 1  # all other themes: ΓëÑ1 keyword
 
         keyword_filtered = []
         for c in candidates:
@@ -1327,7 +1305,7 @@ class RizalEngine:
         # Correct behavior per plan: return Walang Tema (empty list).
         # Do NOT fall back to best semantic score when the gate had characters to check.
         candidates = keyword_filtered
-        # ────────────────────────────────────────────────────────────────────────
+        # ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         
         # UI DISPLAY THRESHOLD (Phase 36 Approval)
         if candidates:
@@ -1420,7 +1398,7 @@ class RizalEngine:
             
             candidates.sort(key=lambda x: x['score'], reverse=True)
 
-            # ── 4-STEP CHARACTER-GATED MATCHING (batch path) ─────────────────────
+            # ΓöÇΓöÇ 4-STEP CHARACTER-GATED MATCHING (batch path) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
             book_key = 'noli' if 'noli' in (sentences[i].book or '').lower() else 'elfili'
             sent_text = sentences[i].sentence_text
 
@@ -1437,9 +1415,9 @@ class RizalEngine:
                 kw_count = self._keyword_matches(sent_text, c['label'], book_key)
                 if kw_count >= min_kw:
                     keyword_filtered.append(c)
-            # Characters found but no keyword evidence → Walang Tema (do NOT fall back)
+            # Characters found but no keyword evidence ΓåÆ Walang Tema (do NOT fall back)
             candidates = keyword_filtered
-            # ─────────────────────────────────────────────────────────────────────
+            # ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
             results.append(candidates[:1])
             

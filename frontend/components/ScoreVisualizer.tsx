@@ -9,14 +9,26 @@ export function ScoreVisualizer({
 }: ScoreVisualizerProps & { char?: number, ratio?: number, compact?: boolean }) {
     
     // Calculate total based on Sanggunian weights: 
-    // Jaccard (Lexical) 30%, Semantic 40%, Tauhan (Char) 20%, Ratio 10%
-    const charVal = char === -1 ? 0 : char;
-    const totalScore = Math.round(
-        (lexical * 0.30) + 
-        (semantic * 0.40) + 
-        (charVal * 0.20) + 
-        (ratio * 0.10)
-    );
+    // Lexical 40%, Semantic 40%, Tauhan (Char) 10%, Position (Ratio) 10%
+    const isCharNA = char === -1;
+    const charVal = isCharNA ? 0 : char;
+    
+    let totalScore = 0;
+    if (isCharNA) {
+        // Redistribute 10% tauhan weight to the rest (90% remaining)
+        totalScore = Math.round(
+            (lexical * (40/90)) + 
+            (semantic * (40/90)) + 
+            (ratio * (10/90))
+        );
+    } else {
+        totalScore = Math.round(
+            (lexical * 0.40) + 
+            (semantic * 0.40) + 
+            (charVal * 0.10) + 
+            (ratio * 0.10)
+        );
+    }
 
     return (
         <div className={compact ? "space-y-2" : "mt-4 pt-3 border-t border-brand-brown/10 space-y-3"}>
@@ -31,35 +43,35 @@ export function ScoreVisualizer({
             <ScoreRow 
                 label="Kahulugan" 
                 value={semantic} 
-                weight={40} 
+                weight={isCharNA ? 44 : 40} 
                 colorClass="bg-semantic-teal" 
                 textClass="text-semantic-teal" 
             />
 
-            {/* Lexical Score (30%) */}
+            {/* Lexical Score (40%) */}
             <ScoreRow 
                 label="Salita" 
                 value={lexical} 
-                weight={30} 
+                weight={isCharNA ? 44 : 40} 
                 colorClass="bg-lexical-amber" 
                 textClass="text-lexical-text" 
             />
 
-            {/* Character Score (20%) */}
+            {/* Character Score (10%) */}
             <ScoreRow 
                 label="Tauhan" 
-                value={char === -1 ? 0 : char} 
-                weight={20} 
+                value={charVal} 
+                weight={10} 
                 colorClass="bg-brand-blue" 
                 textClass="text-brand-blue"
-                isNA={char === -1}
+                isNA={isCharNA}
             />
 
             {/* Ratio Score (10%) */}
             <ScoreRow 
-                label="Ratio" 
+                label="Posisyon" 
                 value={ratio} 
-                weight={10} 
+                weight={isCharNA ? 12 : 10} 
                 colorClass="bg-purple-500" 
                 textClass="text-purple-600" 
             />

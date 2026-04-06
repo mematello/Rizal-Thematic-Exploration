@@ -17,6 +17,7 @@ interface ThemeMatch {
 
 interface ChapterContent {
     id: number;
+    is_short: boolean;
     sentence_index: number;
     sentence_text: string;
     themes: ThemeMatch[];
@@ -90,8 +91,10 @@ export function ChapterModal({
         semantic_score: number;
         lexical_score: number;
         char_score: number;
+        ratio_score: number;
         buod_sentence_index?: number;
         full_sentence_indices?: number[];
+        full_is_short?: boolean[];
     } | null>(null);
     const [isRefLoading, setIsRefLoading] = useState(false);
     const [refError, setRefError] = useState<string | null>(null);
@@ -601,7 +604,7 @@ export function ChapterModal({
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
                                                                     
                                                                     let refRender = null;
-                                                                    if (showReference && referenceResults[sentence.id]?.has_reference) {
+                                                                    if (showReference && referenceResults[sentence.id]?.has_reference && referenceResults[sentence.id]?.score >= 70) {
                                                                         const refData = referenceResults[sentence.id];
                                                                         refRender = (
                                                                             <sup onClick={(e) => { 
@@ -622,7 +625,8 @@ export function ChapterModal({
                                                                                     char_score: refData.char_score,
                                                                                     ratio_score: refData.ratio_score,
                                                                                     buod_sentence_index: refData.buod_sentence_index,
-                                                                                    full_sentence_indices: refData.full_sentence_indices
+                                                                                    full_sentence_indices: refData.full_sentence_indices,
+                                                                                    full_is_short: refData.full_is_short
                                                                                 });
                                                                             }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
                                                                         );
@@ -709,7 +713,7 @@ export function ChapterModal({
                                                                 <div className="bg-brand-navy/5 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10">
                                                                     <div className="flex flex-col text-sm text-slate-600 font-medium">
                                                                         <div><strong className="text-brand-navy">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
-                                                                        <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices.join(', ')}</div>
+                                                                        <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
                                                                     </div>
                                                                 </div>                                               </div>
                                                         )}
@@ -731,7 +735,7 @@ export function ChapterModal({
                                                         />
                                                         
                                                         <p className="text-[10px] text-brand-text/40 leading-relaxed italic mt-4">
-                                                            Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 45% Kahulugan, 35% Salita, at 20% Tauhan.
+                                                            Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                         </p>
                                                     </div>
                                                     <div className="pt-6 border-t border-brand-gold/10"><p className="text-xs text-brand-text/50 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>

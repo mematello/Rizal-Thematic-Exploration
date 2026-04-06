@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Float, MetaData, create_engine
+from sqlalchemy import Column, Integer, String, Text, Float, Boolean, MetaData, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pgvector.sqlalchemy import Vector
 from app.core.config import get_settings
@@ -20,6 +20,8 @@ class Sentence(Base):
     sentence_text = Column(Text)
     source_type = Column(String(20), default="summary")
     passage_id = Column(Integer, index=True, nullable=True)
+    is_short = Column(Boolean, default=False)
+    original_sentence_number = Column(Integer, nullable=True)
     embedding = Column(Vector(768))
 
 class Theme(Base):

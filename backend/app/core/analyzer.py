@@ -9,6 +9,11 @@ WORD_PATTERN = re.compile(r'[0-9a-zA-ZÀ-ÿñÑ]+(?:-[0-9a-zA-ZÀ-ÿñÑ]+)*')
 def extract_words(text):
     return WORD_PATTERN.findall(text)
 
+def is_short_sentence(text: str) -> bool:
+    if not text:
+        return True
+    return len(extract_words(text)) <= 4
+
 class QueryAnalyzer:
     def __init__(self):
         self.STOPWORDS = self._load_official_stopwords()
