@@ -1,0 +1,19 @@
+﻿poetry : Traceback (most recent call 
+last):
+At line:1 char:13
++ cd backend; poetry run python -c 
+"import sys; sys.stdout.reconfigure( 
+...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+NotSpecified    : (Traceback (most 
+recent call last)::    String) [], 
+RemoteException
+    + FullyQualifiedErrorId : 
+NativeComman    dError
+ 
+  File "<string>", line 1, in <module>
+  File "<string>", line 14, in <module>
+NameError: name '__file__' is not 
+defined. Did you mean: '__name__'?

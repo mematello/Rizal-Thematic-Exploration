@@ -1,0 +1,4 @@
+C1-CharAssisted|lex=0.6667|sem=0.8271|tau=1.0000|pos=0.8000|fin=0.7775|chars=['Simoun']|win=[0:3]
+C2-SemanticOnly|lex=0.8571|sem=0.8273|tau=-1.0000|pos=0.6000|fin=0.8153|chars=[]|win=[0:5]
+C3-LexicalDriven|lex=0.5714|sem=0.8455|tau=-1.0000|pos=0.6000|fin=0.6964|chars=[]|win=[0:5]
+C4-HighConf|lex=0.9000|sem=0.8519|tau=1.0000|pos=0.6000|fin=0.8608|chars=['Maria Clara', 'Padre Salvi']|win=[0:5]

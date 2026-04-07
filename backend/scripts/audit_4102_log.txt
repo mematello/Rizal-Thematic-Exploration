@@ -1,0 +1,164 @@
+PyTorch version 2.10.0 available.
+Loading RizalEngine (this takes a moment)...
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: sentence-transformers/paraphrase-xlm-r-multilingual-v1
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\app\models\rizal-xlm-r-dapt
+You try to use a model that was created with version 5.3.0, however, your version is 3.4.1. This might cause unexpected behavior or errors. In that case, try to update to the latest version.
+
+
+
+2 prompts are loaded, with the keys: ['query', 'document']
+ERROR: Sentence ID 228 not found!
+ERROR: Sentence ID 203 not found!
+ERROR: Sentence ID 1213 not found!
+ERROR: Sentence ID 1531 not found!
+
+
+Results saved to C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\scripts\audit_4102_real_results.json
+Total cases processed: 0
+PyTorch version 2.10.0 available.
+Loading RizalEngine (this takes a moment)...
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: sentence-transformers/paraphrase-xlm-r-multilingual-v1
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\app\models\rizal-xlm-r-dapt
+You try to use a model that was created with version 5.3.0, however, your version is 3.4.1. This might cause unexpected behavior or errors. In that case, try to update to the latest version.
+
+
+
+2 prompts are loaded, with the keys: ['query', 'document']
+
+======================================================================
+  Sentence ID: 116214
+  Book: noli | Chapter: 11
+  Buod: Si Don Rafael ay hindi makapangyarihan bagamat siya ang pinakamayaman sa lugar.
+  ERROR: Missing buod or full rows. buod_rows: 10, full_rows: 0
+
+======================================================================
+  Sentence ID: 116189
+  Book: noli | Chapter: 10
+  Buod: Ang bayan ng San Diego ay matatagpuan sa gitna ng palayan na siyang malapit din sa lawa.
+  ERROR: Missing buod or full rows. buod_rows: 24, full_rows: 0
+
+======================================================================
+  Sentence ID: 117199
+  Book: elfili | Chapter: 1
+  Buod: Naglalayag sa ilog Pasig ang Bapor Tabo isang umaga ng Disyembre.
+  ERROR: Missing buod or full rows. buod_rows: 9, full_rows: 0
+
+======================================================================
+  Sentence ID: 117517
+  Book: elfili | Chapter: 15
+  Buod: Sinadya ni Isagani ang opisina ng manananggol na si Senyor Pasta, isa sa mga may pinakamatalas na pag-iisip sa Maynila na sinasangguni ng mga pari kung ang mga ito’y nasa gipit na kalagayan.
+  ERROR: Missing buod or full rows. buod_rows: 6, full_rows: 0
+
+
+Results saved to C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\scripts\audit_4102_real_results.json
+Total cases processed: 0
+PyTorch version 2.10.0 available.
+Loading RizalEngine (this takes a moment)...
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: sentence-transformers/paraphrase-xlm-r-multilingual-v1
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\app\models\rizal-xlm-r-dapt
+You try to use a model that was created with version 5.3.0, however, your version is 3.4.1. This might cause unexpected behavior or errors. In that case, try to update to the latest version.
+
+
+
+2 prompts are loaded, with the keys: ['query', 'document']
+
+======================================================================
+  Sentence ID: 116214
+  Book: noli | Chapter: 11
+  Buod: Si Don Rafael ay hindi makapangyarihan bagamat siya ang pinakamayaman sa lugar.
+  Buod count: 10 | Full count: 70
+  Embedding dim: 768
+
+  RESULTS:
+  Window: [1:4] (4 sentences)
+  Lexical Score:  0.8000
+  Semantic Score: 0.9761
+  Tauhan Score:   1.0000
+  Position Score: 0.9710
+  FINAL SCORE:    0.9075
+  Matched Chars:  ['Don Rafael Ibarra']
+
+  PASSAGE WINDOW:
+    [1] [SHORT] Bagong Machiabelo)
+    [2] Sinosino baga ang mga nakapangyayari sa bayan?
+    [3] Kailan ma'y hindi nakapangyari si Don Rafael ng nabubuhay pa siya, baga man siya ang lalong mayaman doon, malaki ang lupa at halos may utang na loob sa kanya ang lahat.
+    [4] Palibhasa'y mahinhing loob at pinagsisikapang huwag bigyang kabuluhan ang lahat ng kanyang mga ginagawa, hindi nagtatag sa bayan ng kanyang partido , at nakita na natin kung paano ang mga paglaban sa kanya ng makita nilang masama ang kanyang kalagayan.
+
+======================================================================
+  Sentence ID: 116189
+  Book: noli | Chapter: 10
+  Buod: Ang bayan ng San Diego ay matatagpuan sa gitna ng palayan na siyang malapit din sa lawa.
+  Buod count: 24 | Full count: 29
+  Embedding dim: 768
+
+  RESULTS:
+  Window: [0:2] (3 sentences)
+  Lexical Score:  0.6250
+  Semantic Score: 0.9776
+  Tauhan Score:   -1.0000
+  Position Score: 0.9643
+  FINAL SCORE:    0.8194
+  Matched Chars:  []
+
+  PASSAGE WINDOW:
+    [0] Halos sa pampang ng dagatan ang kinalalagyan ng bayang San Diego, na sumasagitna ng mga kapatagang halamanan at mga palayan.
+    [1] Nagpapadala sa ibang mga bayan ng asukal, bigas, kape at mga bungang halaman, o ipinagbibili kaya ng murangmura sa intsik na nagsasamantala ng kawal-ang malay o ng pagkahilig sa mga masasamang pinagkaratihan ng magsasaka.
+    [2] Pagka araw na mabuting panahon at umaacyat ang mga bata sa kaitaasan ng kampanaryo ng simbahan, na napapamutihan ng lumot at ng damong hatid ng hangin; pagkakagayo'y masayang nangagsisigawan, sa udyok ng kagandahan ng natatanaw na humahandog sa kanilang mga mata.
+
+======================================================================
+  Sentence ID: 117199
+  Book: elfili | Chapter: 1
+  Buod: Naglalayag sa ilog Pasig ang Bapor Tabo isang umaga ng Disyembre.
+  Buod count: 9 | Full count: 163
+  Embedding dim: 768
+
+  RESULTS:
+  Window: [0:5] (6 sentences)
+  Lexical Score:  0.8571
+  Semantic Score: 0.9630
+  Tauhan Score:   -1.0000
+  Position Score: 0.9877
+  FINAL SCORE:    0.9187
+  Matched Chars:  []
+
+  PASSAGE WINDOW:
+    [0] Isang umaga ng Disyembre ay hirap na sumasalunga sa palikolikong linalakaran ng ilog Pasig ang bapor Tabo, na may lulang maraming tao, na tungo sa Lalaguna.
+    [1] Ang bapor ay may anyong bagol, halos bilog na wari’y tabo na siyang pinanggalingan ng kaniyang pangalan; napakarumi kahit na may nasa siyang maging maputi, malumanay at waring nagmamalaki dahil sa kaniyang banayad na lakad.
+    [2] Gayon man, siya’y kinagigiliwan sa dakong iyon, sanhi marahil sa pangalan niyang tagalog o dahil sa taglay niya ang sadyang ugali ng mga bagay-bagay ng bayan, isang wari’y tagumpay na laban sa pagkakasulong, isang bapor na hindi tunay na bapor ang kabuoan, isang sangkap na hindi nagbabago, hindi ayos ngunit hindi mapag-aalinlanganan, na, kung ibig mag-anyong makabago ay nasisiyahan na ng buong kalakhan sa isang pahid ng pintura.
+    [3] Na ang bapor na ito’y tunay na pilipino!
+    [4] Kaunting pagpapaumanhin lamang ang gamiti’t pagkakamanlang siya ang daong ng Pamahalaan, na nayari sa ilalim ng pagsisiyasat ng mga Reberendo at mga Ilustrisimo!
+    [5] Balot ng liwanag sa umaga, hayo na ang maputi niyang katawan (na iniwawasiwas ang maitim na usok) na nagpapagalaw sa alon ng ilog at nagpapaawit sa hangin sa mga maigkas na kawayang nasa sa magkabilang pangpang; may nagsasabing nag-uumusok din ang daong ng Pamahalaan!...
+
+======================================================================
+  Sentence ID: 117517
+  Book: elfili | Chapter: 15
+  Buod: Sinadya ni Isagani ang opisina ng manananggol na si Senyor Pasta, isa sa mga may pinakamatalas na pag-iisip sa Maynila na sinasangguni ng mga pari kung ang mga ito’y nasa gipit na kalagayan.
+  Buod count: 6 | Full count: 128
+  Embedding dim: 768
+
+  RESULTS:
+  Window: [16:21] (6 sentences)
+  Lexical Score:  0.5000
+  Semantic Score: 0.9928
+  Tauhan Score:   1.0000
+  Position Score: 0.8583
+  FINAL SCORE:    0.7829
+  Matched Chars:  ['Isagani']
+
+  PASSAGE WINDOW:
+    [16] Hindi nanglupaypay si Isagani: sinabi ang kapasiyahang ibibigay at nagtapos sa pagpapahayag ng pagkakatiwala ng kabinataan na siya, si Ginoong Pasta, ay mamamagitna ng sang-ayon sa kanila sakaling si Don Custodio ay sumangguni sa kaniya, gaya ng maaasahan.
+    [17] Hindi nangahas si Isaganing sabihin na pagpayuhan dahil sa ngibit na ipinamalas ng manananggol.
+    [18] Ngunit may takda ng gagawin si Ginoong Pasta, na dili iba’t ang huwag manghimasok sa bagay na iyon, ni sumangguni, ni pagsanggunian.
+    [19] Alam niya ang nangyari sa Los Baños, batid niyang may dalawang pangkat at hindi si Padre Irene ang tanging bayani na nasa dako ng mga nag-aaral, ni hindi siya ang nagpalagay ng pagdaraan ng kasulatan sa Lupong ng Paaralan, kundi lubos na kaiba.
+    [20] Si Padre Irene, si Padre Fernandez, ang kondesa, isang mangangalakal na nakakikinikinita nang makapagbibili ng kagamitang ukol sa bagong Akademia at ang mataas na kawaning nagtukoy ng iba’t ibang kapasiyahang-hari ay mangagtatagumpay na sana, ng ipinaalaala ni Padre Sibyla, upang magkapanahon, ang Kataastasang Lupon.
+    [21] Ang lahat ng bagay na ito’y natatala sa alaala ng abogado; kaya’t ng matapos makapagsalita si Isagani, ay tinangkang lituhin ito sa pariway na mga pangungusap, guluhin at ilipat ang usapan sa ibang bagay.
+
+
+Results saved to C:\Users\ianku\Documents\VS Code\Rizal-Thematic-Exploration\backend\scripts\audit_4102_real_results.json
+Total cases processed: 4

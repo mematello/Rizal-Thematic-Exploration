@@ -604,8 +604,12 @@ export function ChapterModal({
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
                                                                     
                                                                     let refRender = null;
-                                                                    if (showReference && referenceResults[sentence.id]?.has_reference && referenceResults[sentence.id]?.score >= 70) {
+                                                                    if (showReference && referenceResults[sentence.id]?.has_reference) {
                                                                         const refData = referenceResults[sentence.id];
+                                                                        const isLowScore = refData.score < 0.70;
+                                                                        const superscriptColor = isLowScore 
+                                                                            ? "text-red-500/90 cursor-pointer hover:text-red-700 ml-0.5 font-bold text-xs bg-red-500/10 px-1 rounded transition-colors"
+                                                                            : "text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors";
                                                                         refRender = (
                                                                             <sup onClick={(e) => { 
                                                                                 e.stopPropagation(); 
@@ -628,7 +632,7 @@ export function ChapterModal({
                                                                                     full_sentence_indices: refData.full_sentence_indices,
                                                                                     full_is_short: refData.full_is_short
                                                                                 });
-                                                                            }} className="text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors">[{sentence.sentence_index}]</sup>
+                                                                            }} className={superscriptColor}>[{sentence.sentence_index}]</sup>
                                                                         );
                                                                     }
                                                                     
@@ -722,7 +726,7 @@ export function ChapterModal({
                                                     <div className="p-6 bg-white rounded-xl border border-brand-gold/10 shadow-sm space-y-4">
                                                         <div className="flex justify-between items-end">
                                                             <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
-                                                            <span className="text-2xl font-serif font-black text-brand-navy">
+                                                            <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy'}`}>
                                                                 {Math.round(selectedReference.score * 100)}%
                                                             </span>
                                                         </div>
