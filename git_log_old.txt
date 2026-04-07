@@ -1,0 +1,29 @@
+commit c94fee67ca14753958d16ebb31ff9e3d920339bc
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Sun Apr 5 13:49:53 2026 +0800
+
+    Instrument RobustAligner and export thesis figure data (N=42)
+
+commit 0b46cb206521d49a6a804eb4b68822caa063a2d1
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Thu Apr 2 23:26:29 2026 +0800
+
+    fixing the reference best so far
+
+commit b5f683e9ace66af605db4ec0c4a9ffe3fde22396
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Thu Mar 26 18:17:19 2026 +0800
+
+    Fix duplicate chapter sentences via database cleanup and re-seeding
+
+commit dbc62ea3b50a6d61a3247932dac53fbd1b410e36
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Wed Mar 25 17:58:37 2026 +0800
+
+    Refactor Sanggunian alignment, fix 100% lexical score bug, and correct CSV sentence indexing
+
+commit c34694ff62e6e90b5d8d87a829f159fefe1c0431
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Tue Mar 24 20:39:46 2026 +0800
+
+    Implement DP-based monotonic sequence alignment for buod-to-passage mapping

@@ -12,6 +12,8 @@ from app.core.analyzer import QueryAnalyzer, extract_words
 from app.models.database import Sentence
 from app.core.tagalog_parser import TagalogRoleParser
 from app.services.suggestions import DynamicSuggestionGenerator
+from app.core.sequence_aligner import SequenceAligner
+from app.core.robust_aligner import RobustAligner
 
 settings = get_settings()
 
@@ -19,18 +21,21 @@ class RizalEngine:
     def __init__(self):
         print("Loading SentenceTransformer models...")
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        dapt_path = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
+        dapt_path_1 = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
+        dapt_path_2 = os.path.join(base_path, 'app', 'models', 'rizal-xlm-r-dapt')
+        
+        dapt_path = dapt_path_1 if os.path.exists(dapt_path_1) else (dapt_path_2 if os.path.exists(dapt_path_2) else None)
         
         # Load Base Model (Always)
         self.base_model = SentenceTransformer(settings.BERT_MODEL_NAME)
         
         # Load DAPT Model if available, else fallback to base
-        if os.path.exists(dapt_path):
+        if dapt_path:
             print(f"Using DAPT model from {dapt_path}")
             self.dapt_model = SentenceTransformer(dapt_path)
             self.has_dapt = True
         else:
-            print(f"DAPT model not found at {dapt_path}. Using base model as fallback.")
+            print(f"DAPT model not found at {dapt_path_1} or {dapt_path_2}. Using base model as fallback.")
             self.dapt_model = self.base_model
             self.has_dapt = False
             
@@ -48,6 +53,25 @@ class RizalEngine:
         
         self.vocabulary = self._load_vocabulary()
         
+        # Load character-theme maps and theme keywords for 4-step matching
+        self._load_character_theme_maps()
+        
+        # Instantiate the DP sequence aligner (uses DAPT model when available)
+        self.aligner = SequenceAligner(
+            model=self.dapt_model,
+            char_patterns=self.char_patterns,
+        )
+
+        # Initialize RobustAligner with characters from both books
+        all_chars = set()
+        for book in self.char_patterns:
+            for canon_name, _ in self.char_patterns[book]:
+                all_chars.add(canon_name)
+        
+        self.robust_aligner = RobustAligner(tauhan_list=list(all_chars))
+        
+        print(f"Aligners ready (DAPT={self.has_dapt}).")
+
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
             'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
@@ -194,6 +218,159 @@ class RizalEngine:
                 except Exception as e:
                     pass
         return vocab
+
+    def _load_character_theme_maps(self):
+        """Load character->theme JSON maps and TF-IDF keyword maps for both books."""
+        import json
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
+        data_dir = os.path.normpath(data_dir)
+
+        self.char_theme_maps: dict[str, dict[str, list]] = {}
+        self.theme_keyword_maps: dict[str, dict[str, list]] = {}
+        # character regex patterns: book -> list of (canon_name, compiled_pattern)
+        self.char_patterns: dict[str, list] = {}
+
+        # Load character_aliases for regex matching
+        aliases_path = os.path.join(data_dir, 'character_aliases.json')
+        alias_list: list = []
+        if os.path.exists(aliases_path):
+            try:
+                with open(aliases_path, 'r', encoding='utf-8') as f:
+                    alias_list = json.load(f)
+            except Exception:
+                alias_list = []
+
+        for book in ['noli', 'elfili']:
+            # Load character->theme map
+            map_path = os.path.join(data_dir, f'character_theme_map_{book}.json')
+            if os.path.exists(map_path):
+                try:
+                    with open(map_path, 'r', encoding='utf-8') as f:
+                        self.char_theme_maps[book] = json.load(f)
+                except Exception:
+                    self.char_theme_maps[book] = {}
+            else:
+                self.char_theme_maps[book] = {}
+
+            # Load theme keywords
+            kw_path = os.path.join(data_dir, f'theme_keywords_{book}.json')
+            if os.path.exists(kw_path):
+                try:
+                    with open(kw_path, 'r', encoding='utf-8') as f:
+                        self.theme_keyword_maps[book] = json.load(f)
+                except Exception:
+                    self.theme_keyword_maps[book] = {}
+            else:
+                self.theme_keyword_maps[book] = {}
+
+            # Build character regex patterns from aliases for this book's character map
+            char_map = self.char_theme_maps.get(book, {})
+            patterns = []
+            # Build a lookup: lower(canon_name) -> aliases from alias_list
+            # FIX 1: Book-aware alias resolution
+            alias_lookup: dict[str, list] = {}
+            for entry in alias_list:
+                name = entry.get('name', '')
+                novels = entry.get('novel', 'both')
+                
+                # Only include character's aliases if they belong to this book (or both)
+                # But Simoun is a special case: In Fili, he inherits Ibarra's aliases.
+                # In Noli, Simoun should be completely ignored/separated.
+                char_in_noli = novels in ('noli', 'both')
+                char_in_fili = novels in ('fili', 'both')
+                
+                if book == 'noli' and not char_in_noli:
+                    continue
+                if book == 'elfili' and not char_in_fili and name.lower() != 'crisostomo ibarra':
+                    # We only allow Ibarra into Fili aliases if he's treated as Simoun
+                    continue
+
+                aliases = list(entry.get('aliases', []))
+                if name and name not in aliases:
+                    aliases.append(name)
+                alias_lookup[name.lower()] = aliases
+
+            for canon_name in char_map:
+                all_aliases = alias_lookup.get(canon_name.lower(), [canon_name])
+                pat_parts = [r'\b' + re.escape(a.lower()) + r'\b' for a in all_aliases if a]
+                if pat_parts:
+                    patterns.append((
+                        canon_name,
+                        re.compile('|'.join(pat_parts), re.IGNORECASE)
+                    ))
+            self.char_patterns[book] = patterns
+
+        if os.getenv('DEBUG_SEARCH'):
+            for book in ['noli', 'elfili']:
+                n_chars = len(self.char_theme_maps.get(book, {}))
+                n_themes = len(self.theme_keyword_maps.get(book, {}))
+                print(f'[DEBUG] char_theme_map_{book}: {n_chars} chars | theme_keywords_{book}: {n_themes} themes')
+
+    def _get_character_theme_candidates(self, sentence_text: str, book: str) -> set | None:
+        """
+        Step 1 — Character Gate.
+        Returns:
+          - set of Tagalog theme labels if >=1 character found in the sentence
+          - None if no characters detected (gate not applied)
+        """
+        text_lower = sentence_text.lower()
+        patterns = self.char_patterns.get(book, [])
+        char_map = self.char_theme_maps.get(book, {})
+        candidate_themes: set[str] = set()
+        found_any = False
+
+        for canon_name, pattern in patterns:
+            if pattern.search(text_lower):
+                found_any = True
+                themes = char_map.get(canon_name, [])
+                candidate_themes.update(themes)
+
+        return candidate_themes if found_any else None
+
+    def _keyword_matches(self, sentence_text: str, tagalog_theme: str, book: str) -> int:
+        """
+        Step 2 — Keyword Narrowing Gate.
+        Returns count of TF-IDF keywords for `tagalog_theme` found in `sentence_text`.
+        Stricter: Does not count character names/aliases or generic particles as keyword hits.
+        Uses word boundaries to avoid substring false positives (e.g., 'asa' in 'inaasahan').
+        """
+        kw_map = self.theme_keyword_maps.get(book, {})
+        keywords = kw_map.get(tagalog_theme, [])
+        if not keywords:
+            return 0
+            
+        text_lower = sentence_text.lower()
+        
+        # Generic particles and short words that provide no thematic value
+        KEYWORD_BLACKLIST = {
+            'pag', 'upang', 'ngunit', 'bilang', 'ginamit', 'kanyang', 'kaniyang',
+            'dahil', 'isang', 'siya', 'naging', 'mga', 'ang', 'sa', 'ng', 'na',
+            'at', 'ito', 'niya', 'nang', 'ay', 'si', 'sila', 'kami', 'tayo',
+            'asa', 'para', 'lang', 'muli', 'kahit', 'mga', 'isang', 'pa',
+            'hindi', 'walang', 'wala', 'din', 'rin', 'naman', 'muna', 'muli'
+        }
+        
+        # Identify character names to ignore
+        ignore_names = set()
+        for canon_name, pattern in self.char_patterns.get(book, []):
+            ignore_names.add(canon_name.lower())
+            parts = extract_words(canon_name.lower())
+            ignore_names.update(parts)
+            
+        count = 0
+        for kw in keywords:
+            kw_l = kw.lower()
+            if kw_l in KEYWORD_BLACKLIST or len(kw_l) < 3:
+                continue
+            if kw_l in ignore_names:
+                continue
+            
+            # Use regex for word boundaries
+            pattern = re.compile(r'\b' + re.escape(kw_l) + r'\b', re.IGNORECASE)
+            if pattern.search(text_lower):
+                count += 1
+        return count
+
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary"):
         if not self._validate_query_semantics(db, query):
@@ -929,7 +1106,21 @@ class RizalEngine:
             word_theme_map = {} # word -> {theme_title: count}
             total_themes = 0
             
+            self.theme_grouped = {}
+            
             for t in themes:
+                title = t.tagalog_title
+                if title not in self.theme_grouped:
+                    title_emb = self.base_model.encode(title, show_progress_bar=False)
+                    norm = np.linalg.norm(title_emb)
+                    if norm > 0: title_emb = title_emb / norm
+                    
+                    self.theme_grouped[title] = {
+                        'title_embedding': title_emb,
+                        'meaning_embeddings': [],
+                        'id': t.id
+                    }
+                
                 if t.embedding is not None and len(t.embedding) > 0:
                     emb = np.array(t.embedding)
                     norm = np.linalg.norm(emb)
@@ -940,6 +1131,8 @@ class RizalEngine:
                             'meaning_len': len(t.meaning.split())
                         })
                         self.theme_matrix.append(emb)
+                        
+                        self.theme_grouped[title]['meaning_embeddings'].append(emb)
                         
                         # Count distinct words in this theme for IDF and Specificity
                         words = set(extract_words(t.meaning.lower()))
@@ -953,6 +1146,14 @@ class RizalEngine:
                             word_theme_map[w][title_key] = word_theme_map[w].get(title_key, 0) + 1
                             
                         total_themes += 1
+            
+            for title, data in self.theme_grouped.items():
+                if data['meaning_embeddings']:
+                    avg_meaning = np.mean(data['meaning_embeddings'], axis=0)
+                    avg_meaning = avg_meaning / np.linalg.norm(avg_meaning)
+                    data['avg_meaning_embedding'] = avg_meaning
+                else:
+                    data['avg_meaning_embedding'] = data['title_embedding']
             
             if self.theme_matrix:
                 self.theme_matrix = np.array(self.theme_matrix)
@@ -1072,6 +1273,40 @@ class RizalEngine:
             
         candidates.sort(key=lambda x: x['score'], reverse=True)
         
+        # ── 4-STEP CHARACTER-GATED MATCHING ─────────────────────────────────────
+        # Determine book from the center sentence
+        book_key = 'noli' if 'noli' in (center_sent.book or '').lower() else 'elfili'
+        sent_text = center_sent.sentence_text
+
+        # Step 1: Character gate
+        char_candidates = self._get_character_theme_candidates(sent_text, book_key)
+
+        if char_candidates is not None:
+            # Characters found — restrict to their theme candidates only
+            candidates = [c for c in candidates if c['label'] in char_candidates]
+
+        # Step 2: Keyword narrowing — require ≥1 match (≥2 for Kapangyarihan)
+        # Step 3: Passage consensus already embedded in pass_sims above
+        STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
+        STRICT_KEYWORD_MIN = 2   # must match ≥2 keywords
+        DEFAULT_KEYWORD_MIN = 1  # all other themes: ≥1 keyword
+
+        keyword_filtered = []
+        for c in candidates:
+            theme_label = c['label']
+            min_kw = STRICT_KEYWORD_MIN if theme_label in STRICT_THEMES else DEFAULT_KEYWORD_MIN
+            kw_count = self._keyword_matches(sent_text, theme_label, book_key)
+            if kw_count >= min_kw:
+                keyword_filtered.append(c)
+            elif os.getenv('DEBUG_SEARCH'):
+                print(f"  [DEBUG] KW-gate dropped '{theme_label}' (count={kw_count}, min={min_kw})")
+
+        # Characters were found but no theme earned enough keyword evidence.
+        # Correct behavior per plan: return Walang Tema (empty list).
+        # Do NOT fall back to best semantic score when the gate had characters to check.
+        candidates = keyword_filtered
+        # ────────────────────────────────────────────────────────────────────────
+        
         # UI DISPLAY THRESHOLD (Phase 36 Approval)
         if candidates:
             best_theme = candidates[0]
@@ -1088,9 +1323,17 @@ class RizalEngine:
                 if len(query_words.intersection(theme_words)) > 0:
                     literal_override = True
 
-            # Standard threshold is 0.55 unless explicitly matched directly by string
-            if best_theme['score'] >= 0.55 or literal_override:
+            # Dynamic Threshold based on gated context
+            # Case 3: No character anchor found -> Stricter threshold (0.70)
+            # Case with character anchor -> Leaner threshold (0.55)
+            required_threshold = 0.55
+            if char_candidates is None:
+                required_threshold = 0.70
+            
+            if best_theme['score'] >= required_threshold or literal_override:
                 return [best_theme]
+            elif os.getenv('DEBUG_SEARCH'):
+                print(f"  [DEBUG] Theme '{best_theme['label']}' rejected: score {best_theme['score']:.4f} < required {required_threshold}")
             
         return []
 
@@ -1154,6 +1397,28 @@ class RizalEngine:
                 })
             
             candidates.sort(key=lambda x: x['score'], reverse=True)
+
+            # ── 4-STEP CHARACTER-GATED MATCHING (batch path) ─────────────────────
+            book_key = 'noli' if 'noli' in (sentences[i].book or '').lower() else 'elfili'
+            sent_text = sentences[i].sentence_text
+
+            # Step 1: Character gate
+            char_candidates = self._get_character_theme_candidates(sent_text, book_key)
+            if char_candidates is not None:
+                candidates = [c for c in candidates if c['label'] in char_candidates]
+
+            # Step 2: Keyword narrowing
+            STRICT_THEMES = {"Kapangyarihan at Kawalang-Katarungan"}
+            keyword_filtered = []
+            for c in candidates:
+                min_kw = 2 if c['label'] in STRICT_THEMES else 1
+                kw_count = self._keyword_matches(sent_text, c['label'], book_key)
+                if kw_count >= min_kw:
+                    keyword_filtered.append(c)
+            # Characters found but no keyword evidence → Walang Tema (do NOT fall back)
+            candidates = keyword_filtered
+            # ─────────────────────────────────────────────────────────────────────
+
             results.append(candidates[:1])
             
         return results
@@ -1170,7 +1435,9 @@ class RizalEngine:
 
     def _compute_simple_lexical(self, text1, text2):
         w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))
-        return len(w1 & w2) / len(w2) if w2 else 0.0
+        if not w1 and not w2:
+            return 0.0
+        return len(w1 & w2) / len(w1 | w2)
 
     def _expand_context(self, db: Session, center_sentence: Sentence) -> str:
         max_dist = self.MAX_CONTEXT_EXPANSION

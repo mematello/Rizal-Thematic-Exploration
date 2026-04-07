@@ -1,0 +1,343 @@
+diff --git a/backend/app/api/v1/content.py b/backend/app/api/v1/content.py
+index 0996530..39e8728 100644
+--- a/backend/app/api/v1/content.py
++++ b/backend/app/api/v1/content.py
+@@ -8,10 +8,19 @@ from sqlalchemy import select
+ import numpy as np
+ import pandas as pd
+ from pathlib import Path
++import pickle
++import math
++import json
++import re
++from app.core.config import get_settings
++config = get_settings()
+ 
+ # Cache for CSV data
+ _csv_cache = {}
+ 
++# Cache for chapter-level buod-to-full alignments  (key: (full_book, full_chapter, buod_book, buod_chapter))
++_alignment_cache: dict = {}
++
+ def get_csv_data(book: str) -> Optional[pd.DataFrame]:
+     if book in _csv_cache:
+         return _csv_cache[book]
+@@ -250,6 +259,7 @@ class ThemeMatch(BaseModel):
+     explanation: Optional[str] = ""
+ 
+ class ChapterContentResponse(BaseModel):
++    id: int
+     sentence_index: int
+     sentence_text: str
+     themes: List[ThemeMatch] = []
+@@ -343,6 +353,7 @@ def get_chapter_content(
+                     response_data = []
+                     for _, row in chapter_df.iterrows():
+                         response_data.append(ChapterContentResponse(
++                            id=0, # Fallback ID for CSV data
+                             sentence_index=row['sentence_number'],
+                             sentence_text=row['sentence_text'],
+                             themes=[]
+@@ -376,9 +387,302 @@ def get_chapter_content(
+         ]
+         
+         response_data.append(ChapterContentResponse(
++            id=s.id,
+             sentence_index=s.sentence_index,
+             sentence_text=s.sentence_text,
+             themes=theme_matches
+         ))
+         
+     return response_data
++
++class ThemeResult(BaseModel):
++    label: str
++    confidence: float
++    evidence: Optional[str] = None
++
++class PaksaResponse(BaseModel):
++    has_theme: bool
++    passage_ids: List[int] = []
++    themes: List[ThemeResult] = []
++
++@router.get("/sentences/{id}/paksa", response_model=PaksaResponse)
++def get_sentence_paksa(id: int, db: Session = Depends(get_db), engine: RizalEngine = Depends(get_engine)):
++    sentence = db.query(Sentence).filter(Sentence.id == id).first()
++    if not sentence:
++        raise HTTPException(status_code=404, detail="Sentence not found")
++        
++    book_key = "noli" if sentence.book.lower() in ("noli", "noli me tangere") else "elfili"
++    
++    if sentence.source_type == 'summary':
++        passage_sentences = [sentence]
++    else:
++        if sentence.passage_id is None:
++            passage_sentences = [sentence]
++        else:
++            passage_sentences = db.query(Sentence).filter(
++                Sentence.book == sentence.book,
++                Sentence.chapter_number == sentence.chapter_number,
++                Sentence.source_type == 'full',
++                Sentence.passage_id == sentence.passage_id
++            ).order_by(Sentence.sentence_index).all()
++            
++    passage_text = " ".join([str(s.sentence_text) for s in passage_sentences]).lower()
++    
++    engine._ensure_themes_loaded(db)
++    
++    # 1. Character Detection (String matching via engine default logic)
++    char_candidates = engine._get_character_theme_candidates(passage_text, book_key)
++    candidate_themes = char_candidates if char_candidates is not None else set(engine.theme_grouped.keys())
++
++    if not candidate_themes:
++        return PaksaResponse(has_theme=False)
++
++    # 2. Candidate Theme Scoring
++    weighted_embeddings = []
++    total_weight = 0.0
++    for s in passage_sentences:
++        if s.embedding is None: continue
++        word_count = len(str(s.sentence_text).split())
++        weight = math.log(word_count + 1)
++        weighted_embeddings.append(np.array(s.embedding) * weight)
++        total_weight += weight
++        
++    if total_weight == 0:
++        return PaksaResponse(has_theme=False)
++        
++    consensus = np.sum(weighted_embeddings, axis=0) / total_weight
++    consensus = consensus / (np.linalg.norm(consensus) + 1e-9)
++
++    final_passed = []
++    
++    for theme_title in candidate_themes:
++        if theme_title not in engine.theme_grouped:
++            continue
++            
++        theme_data = engine.theme_grouped[theme_title]
++        title_emb = theme_data['title_embedding']
++        meaning_emb = theme_data['avg_meaning_embedding']
++        
++        # Semantic Score: 0.30 Title + 0.70 Meaning
++        title_sim = float(np.dot(consensus, title_emb))
++        meaning_sim = float(np.dot(consensus, meaning_emb))
++        theme_score = (0.30 * title_sim) + (0.70 * meaning_sim)
++        
++        # Lexical Score (Overlap Passge vs Theme Title)
++        lexical_score = engine._compute_simple_lexical(passage_text, theme_title)
++        
++        # Final Score: 0.80 Semantic + 0.20 Lexical
++        final_score = (0.80 * theme_score) + (0.20 * lexical_score)
++        final_score = min(max(final_score, 0.0), 1.0)
++        
++        if final_score >= 0.70:
++            final_passed.append(ThemeResult(
++                label=theme_title,
++                confidence=final_score,
++                evidence=None
++            ))
++            
++    if not final_passed:
++        return PaksaResponse(has_theme=False)
++        
++    # Sort and limit to top 2
++    final_passed.sort(key=lambda x: x.confidence, reverse=True)
++    final_passed = final_passed[:2]
++    
++    return PaksaResponse(
++        has_theme=True,
++        passage_ids=[s.id for s in passage_sentences],
++        themes=final_passed
++    )
++
++class SanggunianResponse(BaseModel):
++    has_reference: bool
++    passage_ids: List[int] = []
++    reference_text: str = ""
++    alignment_status: str = ""
++    score: float = 0.0
++    semantic_score: float = 0.0
++    lexical_score: float = 0.0
++    char_score: float = 0.0
++    ratio_score: float = 0.0
++    matched_characters: List[str] = []
++    buod_sentence_index: Optional[int] = None
++    full_sentence_indices: List[int] = []
++
++
++@router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
++def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: RizalEngine = Depends(get_engine)):
++    sentence = db.query(Sentence).filter(Sentence.id == id).first()
++    if not sentence:
++        raise HTTPException(status_code=404, detail="Sentence not found")
++
++    # ?????? Full-text sentence: return its own passage ????????????????????????????????????????????????????????????????????????????????????
++    if sentence.source_type == 'full':
++        if sentence.passage_id is not None:
++            passage_sentences = db.query(Sentence).filter(
++                Sentence.book == sentence.book,
++                Sentence.chapter_number == sentence.chapter_number,
++                Sentence.source_type == 'full',
++                Sentence.passage_id == sentence.passage_id
++            ).order_by(Sentence.sentence_index).all()
++        else:
++            passage_sentences = [sentence]
++
++        return SanggunianResponse(
++            has_reference=True,
++            passage_ids=[s.id for s in passage_sentences],
++            reference_text=" ".join(str(s.sentence_text) for s in passage_sentences),
++            alignment_status="precise",
++            score=1.0,
++            matched_characters=[],
++            buod_sentence_index=sentence.sentence_index,
++            full_sentence_indices=[s.sentence_index for s in passage_sentences]
++        )
++
++    # ?????? Buod sentence: run Buod-to-Full alignment ????????????????????????????????????????????????????????????????????????????????????
++    search_book_noli = sentence.book.lower() in ('noli', 'noli me tangere')
++    full_book = "Noli Me Tangere" if search_book_noli else "El Filibusterismo"
++
++    search_chapter = sentence.chapter_number
++    # Noli chapter 64 maps to 63 in the full text
++    if search_book_noli and search_chapter == 64:
++        search_chapter = 63
++
++    # ?????? Run alignment (with per-chapter cache) ?????????????????????????????????????????????????????????????????????????????????????????????
++    cache_key = (full_book, search_chapter, sentence.book, sentence.chapter_number)
++    if cache_key not in _alignment_cache:
++        # 1. Fetch ALL buod and full sentences for the chapter
++        buod_rows = db.query(Sentence).filter(
++            Sentence.book == sentence.book,
++            Sentence.chapter_number == sentence.chapter_number,
++            Sentence.source_type == 'summary'
++        ).order_by(Sentence.sentence_index).all()
++        
++        full_rows = db.query(Sentence).filter(
++            Sentence.book == full_book,
++            Sentence.chapter_number == search_chapter,
++            Sentence.source_type == 'full'
++        ).order_by(Sentence.sentence_index).all()
++        
++        if not buod_rows or not full_rows:
++            return SanggunianResponse(has_reference=False)
++
++        # 2. Extract texts and embeddings
++        buod_texts = [r.sentence_text for r in buod_rows]
++        full_texts = [r.sentence_text for r in full_rows]
++        
++        # Check for missing embeddings and encode if necessary
++        if any(r.embedding is None for r in buod_rows):
++            buod_embs = engine.dapt_model.encode(buod_texts)
++        else:
++            buod_embs = np.array([r.embedding for r in buod_rows], dtype=np.float32)
++            
++        if any(r.embedding is None for r in full_rows):
++            full_embs = engine.dapt_model.encode(full_texts)
++        else:
++            full_embs = np.array([r.embedding for r in full_rows], dtype=np.float32)
++
++        # 3. Use RobustAligner
++        _alignment_cache[cache_key] = {
++            "alignments": engine.robust_aligner.align(
++                buod_sentences=buod_texts,
++                full_sentences=full_texts,
++                buod_embeddings=buod_embs,
++                full_embeddings=full_embs
++            ),
++            "full_sentences": full_rows,
++            "buod_rows": buod_rows
++        }
++
++    cached_data = _alignment_cache[cache_key]
++    alignments = cached_data["alignments"]
++    full_chapter_sentences = cached_data["full_sentences"]
++    buod_rows = cached_data["buod_rows"]
++    
++    # Find the position of THIS sentence within the buod list
++    buod_idx = next((i for i, s in enumerate(buod_rows) if s.id == sentence.id), None)
++    if buod_idx is None or buod_idx >= len(alignments):
++        return SanggunianResponse(has_reference=False)
++
++    match = alignments[buod_idx]
++    w_start, w_end = match.best_window_start, match.best_window_end
++    
++    passage_sentences = full_chapter_sentences[w_start:w_end+1]
++    if not passage_sentences:
++        return SanggunianResponse(has_reference=False)
++
++    return SanggunianResponse(
++        has_reference=True,
++        passage_ids=[s.id for s in passage_sentences],
++        reference_text=" ".join(str(s.sentence_text) for s in passage_sentences),
++        alignment_status="precise",
++        score=match.final_score,
++        semantic_score=match.semantic_score,
++        lexical_score=match.lexical_score,
++        char_score=match.tauhan_score,
++        ratio_score=match.position_score,
++        matched_characters=match.matched_characters,
++        buod_sentence_index=sentence.sentence_index,
++        full_sentence_indices=[s.sentence_index for s in passage_sentences]
++    )
++
++
++class CharacterThemeResult(BaseModel):
++    label: str
++    description: str
++
++class CharacterPaksaResponse(BaseModel):
++    characterName: str
++    themes: List[CharacterThemeResult]
++
++@router.get("/characters/{name}/paksa", response_model=CharacterPaksaResponse)
++def get_character_paksa(
++    name: str, 
++    book: str, 
++    db: Session = Depends(get_db), 
++    engine: RizalEngine = Depends(get_engine)
++):
++    book_key = "noli" if book.lower() in ("noli", "noli me tangere") else "elfili"
++    
++    backend_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
++    char_aliases_path = backend_data_dir / "character_aliases.json"
++    char_aliases = json.loads(char_aliases_path.read_text(encoding='utf-8')) if char_aliases_path.exists() else []
++    
++    canonical_name = name
++    name_lower = name.lower().strip()
++    
++    for c in char_aliases:
++        c_name = c.get('name', '')
++        aliases = c.get('aliases', [])
++        if name_lower == c_name.lower() or name_lower in [a.lower() for a in aliases]:
++            canonical_name = c_name
++            break
++            
++    char_theme_map_path = backend_data_dir / f"character_theme_map_{book_key}.json"
++    char_theme_map = json.loads(char_theme_map_path.read_text(encoding='utf-8')) if char_theme_map_path.exists() else {}
++    
++    associated_themes = char_theme_map.get(canonical_name, [])
++    
++    engine._ensure_themes_loaded(db)
++    
++    results = []
++    for theme_label in associated_themes:
++        meanings = [t['meaning'] for t in getattr(engine, 'theme_cache', []) if t['tagalog_title'] == theme_label]
++        
++        best_meaning = ""
++        if meanings:
++            explicit_meanings = [m for m in meanings if re.search(r'\b' + re.escape(canonical_name) + r'\b', m, re.IGNORECASE)]
++            if explicit_meanings:
++                best_meaning = explicit_meanings[0]
++            else:
++                best_meaning = meanings[0]
++                
++        results.append(CharacterThemeResult(
++            label=theme_label,
++            description=best_meaning
++        ))
++        
++    return CharacterPaksaResponse(
++        characterName=canonical_name,
++        themes=results
++    )

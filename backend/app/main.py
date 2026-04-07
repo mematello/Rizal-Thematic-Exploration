@@ -46,6 +46,7 @@ app.add_middleware(
 def health_check():
     return {"status": "ok", "version": settings.VERSION}
 
-from app.api.v1 import search, content
+from app.api.v1 import search, content, alignment
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(content.router, prefix="/api/v1")
+app.include_router(alignment.router, prefix="/api/v1")

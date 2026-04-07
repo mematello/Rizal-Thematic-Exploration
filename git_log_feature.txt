@@ -1,0 +1,35 @@
+commit 5003f842970bda2f7196e0540f56b7c7eecd456f
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Tue Mar 17 16:36:36 2026 +0800
+
+    fix the sentence highlighting accuracy for all novels and its versions
+
+commit 6c185f15cea8c0dc02da9e37e3b1d498cf86021c
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Tue Mar 17 15:48:16 2026 +0800
+
+    Exact Match Consistency ??? documents the has_lexical_hits flag and initial lexical-priority reservation
+    Lexical Validation Edge Cases ??? documents the sem < 0.30 bypass for confirmed lexical matches and the early reservation inside finalize()
+
+commit 2683169ac30bd0810b4647d66cb13b707ef97998
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Tue Mar 17 15:03:23 2026 +0800
+
+    fix(search): preserve lexical hits during semantic fallback
+    
+    - add has_lexical_hits metadata for accurate fallback messaging
+    - reserve true lexical matches before semantic supplements
+    - prevent sparse exact matches from being drowned out in fallback mode
+    - preserve existing lexical behavior for high-frequency queries
+
+commit ca9d3acaf3468547a4e48f220b228151782e503b
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Tue Mar 17 14:35:27 2026 +0800
+
+     Added has_lexical_hits = len(candidates) > 0 before the fallback gate (line 312). Included has_lexical_hits in the API metadata payload (line 709).,Added has_lexical_hits?: boolean to the TS interface and forwarded it from the API response (defaults to true if missing).,Banner now requires has_lexical_hits === false in addition to result_mode === semantic_fallback.
+
+commit f9f956adc51c4a293336b003c3fdb58418ac3557
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Tue Mar 17 13:46:24 2026 +0800
+
+    bahagyang tugma grids are always collapsed by default

@@ -66,4 +66,10 @@ Thumbs.db
 .env.production.local
 *.env
 !backend/.env.example
-!frontend/.env.example
+
+# Models
+backend/models/
+backend/app/models/rizal-xlm-r-dapt/
+*.safetensors
+*.bin
+*.pt

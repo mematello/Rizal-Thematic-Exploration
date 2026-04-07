@@ -38,4 +38,6 @@ export interface ResultCardProps {
 export interface ScoreVisualizerProps {
     semantic: number;
     lexical: number;
+    char?: number;
+    ratio?: number;
 }

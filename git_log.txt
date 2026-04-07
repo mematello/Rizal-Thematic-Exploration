@@ -1,0 +1,228 @@
+commit c94fee67ca14753958d16ebb31ff9e3d920339bc
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Sun Apr 5 13:49:53 2026 +0800
+
+    Instrument RobustAligner and export thesis figure data (N=42)
+
+ backend/app/core/robust_aligner.py       |    36 +-
+ backend/figure1_score_matrix.json        |  5361 +++++++++++++
+ backend/figure2_window_scale_scores.json |    58 +
+ backend/figure3_tauhan_gate_scatter.json | 12107 +++++++++++++++++++++++++++++
+ backend/figure4_greedy_vs_dp.json        |   273 +
+ backend/figure5_audit_40_sentences.json  |   587 ++
+ backend/figure6_positional_drift.json    |   392 +
+ backend/scripts/export_thesis_data.py    |   395 +
+ backend/tests/test_tauhan_logic.py       |    95 +
+ backend/verify_ids.py                    |    42 +
+ docs/REFERENCE_SYSTEM.md                 |    69 +
+ 11 files changed, 19407 insertions(+), 8 deletions(-)
+
+commit 0b46cb206521d49a6a804eb4b68822caa063a2d1
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Thu Apr 2 23:26:29 2026 +0800
+
+    fixing the reference best so far
+
+ backend/app/__pycache__/__init__.cpython-311.pyc   | Bin 192 -> 199 bytes
+ backend/app/__pycache__/main.cpython-311.pyc       | Bin 3753 -> 3760 bytes
+ .../api/v1/__pycache__/__init__.cpython-311.pyc    | Bin 250 -> 257 bytes
+ .../app/api/v1/__pycache__/content.cpython-311.pyc | Bin 39535 -> 35979 bytes
+ .../app/api/v1/__pycache__/search.cpython-311.pyc  | Bin 2270 -> 2277 bytes
+ backend/app/api/v1/alignment.py                    | 173 +++++++++--
+ backend/app/api/v1/content.py                      | 342 +++++----------------
+ backend/app/core/engine.py                         |  12 +-
+ backend/app/core/robust_aligner.py                 | 236 ++++++++++++++
+ .../models/__pycache__/__init__.cpython-311.pyc    | Bin 199 -> 206 bytes
+ .../models/__pycache__/database.cpython-311.pyc    | Bin 2446 -> 2453 bytes
+ backend/tests/test_robust_alignment.py             |  85 +++++
+ csvFiles/noli_themes.csv                           |   2 +-
+ 13 files changed, 560 insertions(+), 290 deletions(-)
+
+commit b5f683e9ace66af605db4ec0c4a9ffe3fde22396
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Thu Mar 26 18:17:19 2026 +0800
+
+    Fix duplicate chapter sentences via database cleanup and re-seeding
+
+ backend/app/api/v1/content.py            | 305 +++++++++++++++++++++----------
+ backend/scripts/merge_short_sentences.py |  83 +++++++++
+ backend/scripts/seed_db.py               |   1 -
+ check_all_chapters.py                    |  16 ++
+ frontend/app/search/page.tsx             |   2 +-
+ frontend/components/ChapterGrid.tsx      |   2 +-
+ frontend/components/ChapterModal.tsx     |  12 +-
+ frontend/components/ItemModal.tsx        |   2 +-
+ frontend/components/ScoreVisualizer.tsx  | 141 ++++++++------
+ frontend/components/ThemeList.tsx        |   2 +-
+ frontend/hooks/useRizalSearch.ts         |   2 +-
+ frontend/types/index.ts                  |   1 +
+ reproduce_bug.py                         |  34 ++++
+ test_get_chapters.py                     |  21 +++
+ 14 files changed, 462 insertions(+), 162 deletions(-)
+
+commit dbc62ea3b50a6d61a3247932dac53fbd1b410e36
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Wed Mar 25 17:58:37 2026 +0800
+
+    Refactor Sanggunian alignment, fix 100% lexical score bug, and correct CSV sentence indexing
+
+ .../app/api/v1/__pycache__/content.cpython-311.pyc | Bin 38156 -> 39535 bytes
+ backend/app/api/v1/content.py                      |  77 +-
+ backend/app/core/engine.py                         |   4 +-
+ backend/ch1_sentences.json                         | 986 +++++++++++++++++++++
+ backend/fetch_ch1.py                               |  18 +
+ backend/scripts/fix_indices.py                     |  42 +
+ backend/scripts/seed_db.py                         |   2 +-
+ backend/test_api.py                                |  54 ++
+ backend/test_api_lexical.py                        |  49 +
+ backend/test_lexical.py                            |  26 +
+ backend/test_lexical2.py                           |  25 +
+ frontend/components/ChapterModal.tsx               |  47 +-
+ frontend/components/ScoreVisualizer.tsx            |  44 +-
+ frontend/types/index.ts                            |   1 +
+ 14 files changed, 1334 insertions(+), 41 deletions(-)
+
+commit c34694ff62e6e90b5d8d87a829f159fefe1c0431
+Author: Ian <iankurbyplacencia30@gmail.com>
+Date:   Tue Mar 24 20:39:46 2026 +0800
+
+    Implement DP-based monotonic sequence alignment for buod-to-passage mapping
+
+ .gitignore                                         |   1 +
+ backend/app/__pycache__/__init__.cpython-311.pyc   | Bin 199 -> 192 bytes
+ backend/app/__pycache__/main.cpython-311.pyc       | Bin 3650 -> 3753 bytes
+ .../api/v1/__pycache__/__init__.cpython-311.pyc    | Bin 257 -> 250 bytes
+ .../app/api/v1/__pycache__/content.cpython-311.pyc | Bin 39720 -> 38156 bytes
+ .../app/api/v1/__pycache__/search.cpython-311.pyc  | Bin 2277 -> 2270 bytes
+ backend/app/api/v1/alignment.py                    | 167 +++++++++++++
+ backend/app/core/engine.py                         |  17 +-
+ backend/app/core/sequence_aligner.py               | 258 +++++++++++++++++++++
+ backend/app/main.py                                |   3 +-
+ .../models/__pycache__/__init__.cpython-311.pyc    | Bin 206 -> 199 bytes
+ .../models/__pycache__/database.cpython-311.pyc    | Bin 2453 -> 2446 bytes
+ backend/scripts/analyze_ratios_temp.py             |  36 +++
+ backend/scripts/seed_db.py                         |   9 +-
+ 14 files changed, 484 insertions(+), 7 deletions(-)
+
+commit 1dbb619d3ccece0dc4a9a1b9cd1b7ba7111ceb0d
+Author: kib666 <iankurbyplacencia30@gmail.com>
+Date:   Mon Mar 23 17:40:53 2026 +0800
+
+    Backup of Sanggunian Refactor (excluding model weights)
+
+ .gitignore                                     |    7 +-
+ backend/app/__pycache__/main.cpython-312.pyc   |  Bin 3232 -> 3232 bytes
+ backend/app/api/v1/content.py                  |  290 +--
+ backend/app/core/engine.py                     |   39 +
+ backend/app/data/character_theme_map_noli.json |   16 -
+ backend/count_output.txt                       |  Bin 0 -> 478 bytes
+ backend/debug_ch7_output.txt                   |  Bin 0 -> 1804 bytes
+ backend/debug_ch7_output_utf8.txt              |   11 +
+ backend/eval_40.py                             |   93 +
+ backend/eval_40_results.txt                    |  Bin 0 -> 21836 bytes
+ backend/eval_40_results_utf8.txt               |  210 ++
+ backend/eval_results.txt                       |  Bin 0 -> 6790 bytes
+ backend/eval_results_fixed.txt                 |  Bin 0 -> 5504 bytes
+ backend/eval_results_fixed_utf8.txt            |   60 +
+ backend/eval_results_passage.txt               |  Bin 0 -> 5504 bytes
+ backend/eval_results_passage_utf8.txt          |   60 +
+ backend/eval_results_utf8.txt                  |   66 +
+ backend/eval_results_weighted.txt              |  Bin 0 -> 8080 bytes
+ backend/eval_results_weighted_utf8.txt         |   72 +
+ backend/list_sents.py                          |   31 +
+ backend/poetry.lock                            | 2617 +++++++++++++++++-------
+ backend/pyproject.toml                         |    2 +
+ backend/run_poetry.py                          |   11 +
+ backend/scripts/append_endpoint.py             |   75 +
+ backend/scripts/check_dapt.py                  |    3 +
+ backend/scripts/count_sentences.py             |   44 +
+ backend/scripts/debug_ch7.py                   |  128 ++
+ backend/scripts/eval_sanggunian.py             |   82 +
+ backend/scripts/seed_db.py                     |   18 +-
+ backend/scripts/train_dapt.py                  |   13 +-
+ backend/sentence_count_log.txt                 |    6 +
+ backend/sents_list.txt                         |  Bin 0 -> 4856 bytes
+ backend/sents_list_utf8.txt                    |   40 +
+ backend/spacy_err.txt                          |  Bin 0 -> 2466 bytes
+ backend/test_spacy.py                          |    6 +
+ frontend/components/ChapterModal.tsx           |  106 +-
+ frontend/components/ItemModal.tsx              |  134 +-
+ 37 files changed, 3271 insertions(+), 969 deletions(-)
+
+commit 7436a8890fa6886f39ea25e0ee3f6053009e2dcd
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Fri Mar 20 13:20:52 2026 +0800
+
+    done reference and theme
+
+ backend/app/core/engine.py                       | 209 +++++++++++++-
+ backend/app/data/character_theme_map_elfili.json |  52 ++--
+ backend/app/data/character_theme_map_noli.json   | 140 ++++++----
+ backend/app/data/theme_keywords_elfili.json      | 332 +++++++++++------------
+ backend/build_csv.py                             |  75 +++++
+ backend/fetch_top_5.py                           |  67 +++++
+ backend/sample_results.json                      | 142 ++++++++++
+ backend/scripts/build_character_theme_map.py     |  34 ++-
+ csvFiles/elfili_themes.csv                       |  11 -
+ theme_anchors.csv                                | 126 +++++++++
+ 10 files changed, 910 insertions(+), 278 deletions(-)
+
+commit 4c01e30b1f91c054234939349b9d518eb58b93d1
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Fri Mar 20 00:58:32 2026 +0800
+
+    fixing the reference but theme has issues
+
+ .../app/api/v1/__pycache__/content.cpython-311.pyc | Bin 36655 -> 39720 bytes
+ backend/app/api/v1/content.py                      | 291 ++++++++------
+ backend/app/core/config.py                         |  17 +
+ backend/app/data/character_theme_map_elfili.json   |  61 +++
+ backend/app/data/character_theme_map_noli.json     | 129 ++++++
+ backend/app/data/theme_bank.pkl                    | Bin 1709897 -> 1811301 bytes
+ backend/app/data/theme_keywords_elfili.json        | 323 +++++++++++++++
+ backend/app/data/theme_keywords_noli.json          | 434 +++++++++++++++++++++
+ backend/scripts/build_character_theme_map.py       |  72 ++++
+ backend/scripts/build_theme_keywords.py            |  57 +++
+ backend/scripts/theme_indexer.py                   |  41 +-
+ frontend/components/ChapterModal.tsx               |   5 +-
+ 12 files changed, 1284 insertions(+), 146 deletions(-)
+
+commit 97ee4c18f343958c6f1757164664bf8e3ca19603
+Author: Ian Kurby Placencia <iankurbyplacencia30@gmail.com>
+Date:   Thu Mar 19 23:21:46 2026 +0800
+
+    first try fixing
+
+ backend/app/__pycache__/__init__.cpython-311.pyc    | Bin 192 -> 199 bytes
+ backend/app/__pycache__/main.cpython-311.pyc        | Bin 2449 -> 3650 bytes
+ .../app/api/v1/__pycache__/__init__.cpython-311.pyc | Bin 250 -> 257 bytes
+ .../app/api/v1/__pycache__/content.cpython-311.pyc  | Bin 12744 -> 36655 bytes
+ .../app/api/v1/__pycache__/search.cpython-311.pyc   | Bin 1929 -> 2277 bytes
+ backend/app/api/v1/content.py                       |  14 +++++++-------
+ .../app/models/__pycache__/__init__.cpython-311.pyc | Bin 199 -> 206 bytes
+ .../app/models/__pycache__/database.cpython-311.pyc | Bin 2257 -> 2453 bytes
+ 8 files changed, 7 insertions(+), 7 deletions(-)
+
+commit a740424ebcc3411ef1b9dd4d06f62d9da2b4b9e8
+Author: kib666 <iankurbyplacencia30@gmail.com>
+Date:   Thu Mar 19 11:55:49 2026 +0800
+
+    Preserve work from detached HEAD
+
+ backend/app/__pycache__/__init__.cpython-312.pyc   | Bin 175 -> 183 bytes
+ backend/app/__pycache__/main.cpython-312.pyc       | Bin 2132 -> 3232 bytes
+ .../api/v1/__pycache__/__init__.cpython-312.pyc    | Bin 222 -> 230 bytes
+ .../app/api/v1/__pycache__/search.cpython-312.pyc  | Bin 1958 -> 1966 bytes
+ backend/app/api/v1/content.py                      | 309 ++++++++++++
+ backend/app/data/character_aliases.json            | 525 +++++++++++++++++++++
+ backend/app/data/theme_bank.pkl                    | Bin 0 -> 1709897 bytes
+ backend/app/main.py                                |  14 +
+ .../models/__pycache__/__init__.cpython-312.pyc    | Bin 182 -> 190 bytes
+ .../models/__pycache__/database.cpython-312.pyc    | Bin 1903 -> 1965 bytes
+ backend/app/models/database.py                     |   1 +
+ backend/scripts/character_index.py                 |  66 +++
+ backend/scripts/segmentation.py                    | 156 ++++++
+ backend/scripts/theme_indexer.py                   |  82 ++++
+ frontend/components/ChapterModal.tsx               | 173 ++++++-
+ scripts/analyze_mapping.py                         |  46 ++
+ 16 files changed, 1355 insertions(+), 17 deletions(-)

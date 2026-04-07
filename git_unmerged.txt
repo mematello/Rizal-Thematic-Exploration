@@ -1,0 +1,127 @@
+5003f84 fix the sentence highlighting accuracy for all novels and its versions
+6c185f1 Exact Match Consistency ??? documents the has_lexical_hits flag and initial lexical-priority reservation Lexical Validation Edge Cases ??? documents the sem < 0.30 bypass for confirmed lexical matches and the early reservation inside finalize()
+2683169 fix(search): preserve lexical hits during semantic fallback
+ca9d3ac  Added has_lexical_hits = len(candidates) > 0 before the fallback gate (line 312). Included has_lexical_hits in the API metadata payload (line 709).,Added has_lexical_hits?: boolean to the TS interface and forwarded it from the API response (defaults to true if missing).,Banner now requires has_lexical_hits === false in addition to result_mode === semantic_fallback.
+f9f956a bahagyang tugma grids are always collapsed by default
+91139aa updated page.tsx (tugmang konsepto + collapsable bahagyang tugma
+d3c04de embedding tune by ian
+de12594 committing engine.py
+ff3be3c fix: explicit theme keyword override for classification threshold
+4156a5e Add student UX validation script for suggestions
+4408ba8 Fix suggestion click routing to preserve novel context and sync input
+65f4d98 Add frontend UI for dynamic search suggestions
+7a56759 Refactor dynamic suggestions to strict Query-Class architecture with alias mapping
+bc9e649 feat: implement two-stage RAG-style neural reranking pipeline
+a80ceb1 fix(search): improve phrase-query validation and suppress low-information semantic triggers
+c0d5f44 fix(search): refine semantic search engine and add phrase evaluation script
+80dd949 fix(search): improve semantic search precision and add evaluation scripts
+d4c273f fix: restrict Sanggunian to same chapter, resolve character listing errors, and enhance API reliability
+0b6f9e9 fix: resolve character mode filtering and enhance API fetch robustness
+68be585 chore: add missing utility and seeding scripts to web-ui
+35d080b docs: update setupCommands.txt with new and subsequent startup options
+1bd3cca docs: update setupCommands with new and subsequent startup options
+49b9521 docs: separate first-time and subsequent startup commands
+0067616 docs: simplify setup commands and include full-db seeding steps
+455d0a4 feat: integrate adaptive search, Sanggunian fullscreen, and cross-version reference mapping into web-ui
+36c8670 Merge branch 'my-work-backup' into web-ui
+335384b merge conflict
+2ae8be9 bookmark Function Incomplete
+0e443f9 Bookmark fucntion Incomplete
+cd6de07 Merge pull request #4 from mematello/feature/novel-background-wallpapers
+0402451 fix: synchronize fullscreen wallpaper with selected novel
+039d254 feat: implement adaptive search precision, strict multi-word coverage, and merge latest web-ui improvements
+401151a Top home page fixed 0.2
+506c2e9 Top home page fixed
+8e71059 sidebar edit
+e9fcf44 Merge pull request #3 from mematello/feature/full-version-toggle
+967a809 Merge branch 'web-ui' into feature/full-version-toggle
+a4bce85 fix: preserve drop cap styling when toggling Tauhan/highlight states
+eac7e5e feat: add Buod/Full Version toggle and dataset normalization
+47efa21 Side navigation
+c5825ff adding full version and the characterData.ts issue
+6ab20fa changing images name
+48721af removing the both option
+5542dd3 adding images & replacing background
+cce3b4f fixing the fullscreen
+05a5e15 creating the mainhomepage
+34aa1bd pushing on ojt 1
+8d8547f pushing second coffe
+6baa15b Resolve merge conflict in CharacterList.tsx and integrate CharacterAvatar with shared data
+72fb6f0 generated and integrated vintage lithograph-style portraits for all 44 characters for web-ui
+9c3671a pushing for marcus
+ea573d9 updating the ui in tnc
+7058c09 improving the ui of chapters inside
+1acd2d2 adding the setup commands txt
+90e1e3a updating the lates UI
+015c65b updating the UI by ian
+7397200 docs: improve cross-platform support and add .gitignore
+4a081d2 fix(themes): restore classification, deduplicate tags, and add editorial UI
+da1954b upgraded the context window logic (dynamic expansion, smart selection, thresholding, and optimized fetching) in engine.py base on vbest.py
+082bab2 improved lexical matching to engine.py based on vbest.py
+15b6b34 refine search algorithm scores and resolve UI/UX bugs in SearchBar and mobile filters
+1047d67 edited some files (pyproject.toml)
+bb33489 updated the readme.md file
+c135871 Updated useRizalSearch.ts  to transform snake_case backend data to camelCase frontend props, fixing the blank card issue. Modified engine.py  to run separate queries for Noli and Fili, ensuring results appear for both.
+c79a40f added frontend, and backend
+ef971b7 deleted unnecessary files
+01ddb75 created branch web-ui
+cb49b26 Merge branch 'main' of https://github.com/mematello/Rizal-Thematic-Exploration into marcus
+0c8d15a changing the folder name into csvFiles
+ed994aa adding ipynb
+2a53573 vbest modified: added smart suggestion, but not yet solid
+1c0ae55 vbest modified: better dapt validation
+b3ca7ed Update vbest.py from ian-branch
+2a342d9 adding the vbest with dapt
+86444e7 v200.py
+d6415f8 flow semantic lexical update
+a77b394  adding v18 with DAPT
+3d2f7df Add files via upload
+43f5b53 Add files via upload
+8251b2e v16 - removed unnecessary codes
+7512811 v15fix
+c162827 claudefixV15
+e531f65 v15claude
+1c9fef6 lexicalUniversal
+ba1354d the final
+1b4453f dual formula
+f4b4255 dual formula
+732ede9 v13.2 update
+d576949  v13.2 fix
+cc6fe17 v13.2
+d98cf5f v13
+b55facd old code v12 added
+b3832ec improved v12
+829048c added El Filibusterismo themes
+a996594 adding csv files
+0f424cc adding v12
+b5e774f Merge remote-tracking branch 'refs/remotes/origin/main'
+6e70c53 adding v11 semantic and lexical score of neighbor sentence
+a161b9b Merge branch 'main' of https://github.com/mematello/Rizal-Thematic-Exploration
+c86ea86 mema
+71dd665 themes.csv (noli themes) - added 225 new rows
+ad4505c Add files via upload
+f8ad605 Add files via upload
+64df63d Add files via upload
+6545ca8 v9
+9fa75b4 Merge branch 'main' of https://github.com/mematello/Rizal-Thematic-Exploration
+95bbcdc improvethemes
+4fef279 v8 -> remove stemming in retrieval
+bfcc0eb Add ImprovedThemes_cleaned_all_rows.csv
+9647769 issue -> redundant passages
+2f8979b Add files via upload
+7ad2ce7 Add files via upload
+09dd131 Add files via upload
+3ebd971 Add files via upload
+1464994 Add files via upload
+f5c17a9 Create Elfiliv1.py
+2c63aa6 Add files via upload
+f8938ec adding the best code and best prompt so far
+2dd0b66 deleted noli_chapters_with_thematic_sentences.csv
+f1ba2c8 noli -> chapters.csv
+82a0916 fixing the noli themes second row
+328a095 Merge remote-tracking branch 'refs/remotes/origin/main'
+3b969c2 09-17-2025: chunked sentences, added themes, etc.
+82d4b9a  just trying to clone
+0298bc7 Create README.md
+e3b4630 Noli and Elfili CSV
+e09cddf 09/13/2025
