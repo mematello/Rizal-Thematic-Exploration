@@ -67,3 +67,6 @@ Thumbs.db
 *.env
 !backend/.env.example
 !frontend/.env.example
+
+# Backend
+backend/app/models/rizal-xlm-r-dapt/
