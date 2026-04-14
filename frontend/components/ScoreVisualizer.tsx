@@ -3,31 +3,36 @@ import { ScoreVisualizerProps } from "../types";
 export function ScoreVisualizer({ 
     semantic, 
     lexical, 
-    char = 0, 
-    ratio = 0,
+    char,
+    ratio,
     compact = false 
 }: ScoreVisualizerProps & { char?: number, ratio?: number, compact?: boolean }) {
     
-    // Calculate total based on Sanggunian weights: 
-    // Lexical 40%, Semantic 40%, Tauhan (Char) 10%, Position (Ratio) 10%
+    const showCharRatio = char !== undefined && ratio !== undefined;
     const isCharNA = char === -1;
-    const charVal = isCharNA ? 0 : char;
+    const charVal = isCharNA ? 0 : (char ?? 0);
+    const ratioVal = ratio ?? 0;
     
+    // Total score calculation
     let totalScore = 0;
-    if (isCharNA) {
-        // Redistribute 10% tauhan weight to the rest (90% remaining)
-        totalScore = Math.round(
-            (lexical * (40/90)) + 
-            (semantic * (40/90)) + 
-            (ratio * (10/90))
-        );
+    if (showCharRatio) {
+        if (isCharNA) {
+            totalScore = Math.round(
+                (lexical * (40/90)) + 
+                (semantic * (40/90)) + 
+                (ratioVal * (10/90))
+            );
+        } else {
+            totalScore = Math.round(
+                (lexical * 0.40) + 
+                (semantic * 0.40) + 
+                (charVal * 0.10) + 
+                (ratioVal * 0.10)
+            );
+        }
     } else {
-        totalScore = Math.round(
-            (lexical * 0.40) + 
-            (semantic * 0.40) + 
-            (charVal * 0.10) + 
-            (ratio * 0.10)
-        );
+        // Search results: only Kahulugan + Salita, equal weight
+        totalScore = Math.round((semantic + lexical) / 2);
     }
 
     return (
@@ -39,42 +44,44 @@ export function ScoreVisualizer({
                 </div>
             )}
 
-            {/* Semantic Score (40%) */}
+            {/* Semantic Score */}
             <ScoreRow 
                 label="Kahulugan" 
                 value={semantic} 
-                weight={isCharNA ? 44 : 40} 
+                weight={showCharRatio ? (isCharNA ? 44 : 40) : 50} 
                 colorClass="bg-semantic-teal" 
                 textClass="text-semantic-teal" 
             />
 
-            {/* Lexical Score (40%) */}
+            {/* Lexical Score */}
             <ScoreRow 
                 label="Salita" 
                 value={lexical} 
-                weight={isCharNA ? 44 : 40} 
+                weight={showCharRatio ? (isCharNA ? 44 : 40) : 50} 
                 colorClass="bg-lexical-amber" 
                 textClass="text-lexical-text" 
             />
 
-            {/* Character Score (10%) */}
-            <ScoreRow 
-                label="Tauhan" 
-                value={charVal} 
-                weight={10} 
-                colorClass="bg-brand-blue" 
-                textClass="text-brand-blue"
-                isNA={isCharNA}
-            />
-
-            {/* Ratio Score (10%) */}
-            <ScoreRow 
-                label="Posisyon" 
-                value={ratio} 
-                weight={isCharNA ? 12 : 10} 
-                colorClass="bg-purple-500" 
-                textClass="text-purple-600" 
-            />
+            {/* Tauhan and Posisyon — only shown in Sanggunian/reference view */}
+            {showCharRatio && (
+                <>
+                    <ScoreRow 
+                        label="Tauhan" 
+                        value={charVal} 
+                        weight={10} 
+                        colorClass="bg-brand-blue" 
+                        textClass="text-brand-blue"
+                        isNA={isCharNA}
+                    />
+                    <ScoreRow 
+                        label="Posisyon" 
+                        value={ratioVal} 
+                        weight={isCharNA ? 12 : 10} 
+                        colorClass="bg-purple-500" 
+                        textClass="text-purple-600" 
+                    />
+                </>
+            )}
         </div>
     );
 }
@@ -100,7 +107,7 @@ function ScoreRow({ label, value, weight, colorClass, textClass, isNA = false }:
                     aria-valuenow={isNA ? 0 : value}
                 />
             </div>
-            <div className="flex items-center gap-1 w-12 justify-end">
+            <div className="flex items-center gap-1 w-16 justify-end whitespace-nowrap">
                 <span className={`text-[10px] font-bold font-roboto ${isNA ? 'text-brand-text/40' : textClass}`}>
                     {isNA ? 'N/A' : `${value}%`}
                 </span>

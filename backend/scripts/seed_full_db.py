@@ -29,9 +29,9 @@ def seed_full_db():
     parser = TagalogRoleParser()
     settings = get_settings()
     
-    # Model Selection - Skipping DAPT for now as it's too slow on CPU
+    # Base XLM model — for search bar (embedding column)
     model_name = settings.BERT_MODEL_NAME
-    logger.info(f"Using model {model_name} for seeding...")
+    logger.info(f"Using base XLM model for search embeddings: {model_name}")
     model = SentenceTransformer(model_name)
 
     csv_files = {

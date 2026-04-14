@@ -576,15 +576,15 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         full_texts = [r.sentence_text for r in full_rows]
         
         # Check for missing embeddings and encode if necessary
-        if any(r.embedding is None for r in buod_rows):
+        if any(r.embedding_dapt is None for r in buod_rows):
             buod_embs = engine.dapt_model.encode(buod_texts)
         else:
-            buod_embs = np.array([r.embedding for r in buod_rows], dtype=np.float32)
+            buod_embs = np.array([r.embedding_dapt for r in buod_rows], dtype=np.float32)
             
-        if any(r.embedding is None for r in full_rows):
+        if any(r.embedding_dapt is None for r in full_rows):
             full_embs = engine.dapt_model.encode(full_texts)
         else:
-            full_embs = np.array([r.embedding for r in full_rows], dtype=np.float32)
+            full_embs = np.array([r.embedding_dapt for r in full_rows], dtype=np.float32)
 
         # 3. Use RobustAligner
         _alignment_cache[cache_key] = {

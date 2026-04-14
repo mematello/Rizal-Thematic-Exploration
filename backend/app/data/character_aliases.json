@@ -341,7 +341,7 @@
         "description": "Ama ni Sinang.",
         "aliases": [
             "Kapitan Basilio",
-            "Capitan Basilio"
+            "Basilio"
         ],
         "isMajor": false
     },
@@ -613,14 +613,6 @@
         "description": "Isang mapag-alinlangang mag-aaral.",
         "aliases": [
             "Pecson"
-        ]
-    },
-    {
-        "name": "Tiya Isabel",
-        "aliases": [
-            "Isabel",
-            "Tiya Isabel",
-            "Donya Isabel"
         ]
     }
 ]

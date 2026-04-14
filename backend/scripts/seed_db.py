@@ -24,19 +24,10 @@ def seed_db():
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
 
-    # Load Model with DAPT preference (match engine.py logic)
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dapt_path_1 = os.path.join(base_path, 'models', 'rizal-xlm-r-dapt')
-    dapt_path_2 = os.path.join(base_path, 'app', 'models', 'rizal-xlm-r-dapt')
-    
-    dapt_path = dapt_path_1 if os.path.exists(dapt_path_1) else (dapt_path_2 if os.path.exists(dapt_path_2) else None)
-    
-    if dapt_path:
-        print(f"Using DAPT model for seeding from {dapt_path}")
-        model = SentenceTransformer(dapt_path)
-    else:
-        print(f"DAPT model not found at {dapt_path_1} or {dapt_path_2}. Using base model as fallback.")
-        model = SentenceTransformer(settings.BERT_MODEL_NAME)
+    # Base XLM model — for search bar (embedding column)
+    base_model_name = settings.BERT_MODEL_NAME
+    print(f"Using base XLM model for search embeddings: {base_model_name}")
+    model = SentenceTransformer(base_model_name)
 
     # Clear existing data
     print("Clearing existing sentence and theme data...")

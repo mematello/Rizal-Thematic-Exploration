@@ -120,7 +120,10 @@ export function ResultCard({
                         className="overflow-hidden"
                     >
                         <div className="px-5 pb-3 pt-2 border-t border-brand-gold/10 bg-brand-cream/20">
-                            <ScoreVisualizer semantic={scores.semantic} lexical={scores.lexical} />
+                            <ScoreVisualizer 
+                                semantic={Math.round(scores.semantic)} 
+                                lexical={Math.round(scores.lexical)} 
+                            />
                         </div>
                     </motion.div>
                 )}

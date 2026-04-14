@@ -22,7 +22,8 @@ class Sentence(Base):
     passage_id = Column(Integer, index=True, nullable=True)
     is_short = Column(Boolean, default=False)
     original_sentence_number = Column(Integer, nullable=True)
-    embedding = Column(Vector(768))
+    embedding = Column(Vector(768))          # base XLM — used by search bar
+    embedding_dapt = Column(Vector(768), nullable=True)  # DAPT — used by Sanggunian
 
 class Theme(Base):
     __tablename__ = "themes"

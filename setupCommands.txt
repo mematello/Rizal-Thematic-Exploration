@@ -11,9 +11,32 @@ Use this if you just cloned the project or need to reset everything.
 2. BACKEND INITIALIZATION
    cd backend
    poetry install
+   
+   # --- MODEL ---
+   # The custom "rizal-xlm-r-dapt" model is ALREADY PRE-TRAINED and bundled at:
+   #   backend/app/models/rizal-xlm-r-dapt
+   # NO TRAINING NEEDED on first setup. Skip directly to the migration steps below.
+   #
+   # (OPTIONAL) Only re-train if you want to update the model with new corpus data:
+   #   1. poetry add "accelerate>=0.26.0"   ← install training dependency first
+   #   2. poetry run python scripts/train_dapt.py
+   #   3. Move model_output/rizal-xlm-r  →  app/models/rizal-xlm-r-dapt
+   #   4. Re-run seed_db.py and seed_full_db.py to re-index the database
+   # ----------------------
+   
    poetry run python scripts/migrate_source_type.py
+   poetry run python scripts/migrate_is_short.py
+   poetry run python scripts/migrate_original_index.py
+   poetry run python scripts/migrate_dapt_column.py
+   poetry run python scripts/character_index.py
+   
+   # --- SEEDING ---
+   # 1. Search Bar Embeddings (Base XLM)
    poetry run python scripts/seed_db.py
    poetry run python scripts/seed_full_db.py
+   
+   # 2. Sanggunian Embeddings (DAPT)
+   poetry run python scripts/seed_dapt_db.py
    poetry run uvicorn app.main:app --reload
 
 3. FRONTEND INITIALIZATION
