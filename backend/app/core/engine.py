@@ -93,6 +93,21 @@ class RizalEngine:
         
         print(f"Aligners ready (DAPT={self.has_dapt}).")
 
+        # Cross-lingual Fallback Dictionary (English to Tagalog)
+        # Backup layer for most common thesis domain queries.
+        self.EN_TL_DICTIONARY = {
+            "education": ["edukasyon", "pag-aaral", "paaralan", "karunungan"],
+            "justice": ["katarungan", "hustisya", "batas"],
+            "oppression": ["pang-aapi", "pang-aabuso", "kalupitan", "api"],
+            "revolution": ["rebolusyon", "himagsikan", "paghihimagsik", "pag-aalsa"],
+            "corruption": ["korapsyon", "katiwalian", "kasakiman"],
+            "religion": ["relihiyon", "simbahan", "pananampalataya", "prayle"],
+            "colonialism": ["kolonyalismo", "dayuhan", "kastila", "espanya"],
+            "violence": ["karahasan", "dahas", "gulo", "pagpatay"],
+            "greed": ["kasakiman", "katakawan", "hangad"],
+            "suffering": ["paghihirap", "dusa", "pagdurusa", "sakit"]
+        }
+
         # Hardcoded blocklist for modern terms that might trigger semantic matches
         self.MODERN_TERMS = {
             'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
@@ -111,6 +126,18 @@ class RizalEngine:
             "kaya", "sana", "kapag", "kung", "habang", "kahit", "agad", "tuwing", "tiyak", "ilang",
             "katulad", "mukhang", "lalong", "panahong", "talagang", "bagay", "katwiran", "marahil",
             "upang", "gayon", "ngunit", "datapwat", "subalit", "bagaman", "palibhasa", "sapagkat"
+        }
+
+        self.EN_STOPWORDS = {
+            "the", "a", "an", "and", "or", "but", "if", "because", "as", "what",
+            "which", "this", "that", "these", "those", "then", "just", "so", "than",
+            "such", "both", "through", "about", "for", "is", "of", "while", "during", 
+            "to", "from", "in", "out", "on", "off", "over", "under", "again", "further", 
+            "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", 
+            "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", 
+            "not", "only", "own", "same", "so", "than", "too", "very", "can", "will", 
+            "just", "don", "should", "now", "against", "between", "into", "through", "with",
+            "by"
         }
 
     
@@ -213,12 +240,12 @@ class RizalEngine:
         top_tokens = final_tokens[:12]
         
         if not top_tokens:
-            return "", set()
+            return "", []
 
         # Construct expansion text
         expansion_text = f"{best_title} {' '.join(top_tokens)}"
         
-        return expansion_text, set(top_tokens)
+        return expansion_text, top_tokens
 
     def _load_vocabulary(self):
         vocab = set()
@@ -407,6 +434,25 @@ class RizalEngine:
         stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
         sig_items = [item for item in query_analysis if not item['is_stopword']]
         sig_words = [item['word'].lower() for item in sig_items]
+
+        # --- English Stopword Preprocessing ---
+        discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
+        sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
+
+        # --- Multilingual & Categorical Token Splitting ---
+        # Instead of generic OOV ratio, explicitly split words
+        native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
+        foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
+        
+        is_cross_lingual = len(foreign_tokens) > 0
+        
+        bridge_tokens = set()
+        
+        # 1. Check small static dictionary for major thesis domains
+        if is_cross_lingual:
+            for w in foreign_tokens:
+                if w in self.EN_TL_DICTIONARY:
+                    bridge_tokens.update(self.EN_TL_DICTIONARY[w])
         
         # If there are 2 or more significant words, it's NOT a single-word query
         is_single_word = len(sig_words) < 2
@@ -429,6 +475,16 @@ class RizalEngine:
             component_vecs.append(cv)
 
         expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
+        theme_tokens = set(extracted_tokens) if extracted_tokens else set()
+        
+        if is_cross_lingual and extracted_tokens:
+            # 2. Add top 2-3 strongest Tagalog anchor tokens from XLM-R expansion
+            top_anchor_tokens = extracted_tokens[:3]
+            bridge_tokens.update(top_anchor_tokens)
+
+        if os.getenv("DEBUG_SEARCH"):
+            print(f"[DEBUG] is_cross_lingual: {is_cross_lingual} | Native: {native_tokens} | Foreign: {foreign_tokens} | Bridge Tokens: {bridge_tokens} | Discarded: {discarded_words}")
+
         if expanded_text:
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Expanding query '{query}' with: {expanded_text[:50]}...")
@@ -437,7 +493,6 @@ class RizalEngine:
             # We combine query + expansion to form a "Concept Vector"
             combined_text = f"{query} {expanded_text}"
             query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
-            theme_tokens = extracted_tokens
         else:
             query_embedding_base = query_vec_initial
             
@@ -464,10 +519,23 @@ class RizalEngine:
         }
 
         lex_word = sig_words[0] if sig_words else query_words[0]
+        
         for key, book_name in books.items():
             stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
             
-            if not is_single_word and sig_words:
+            if is_cross_lingual:
+                # Mandate native entities/tokens
+                for nt in native_tokens:
+                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
+                
+                # Expand foreign tokens via bridge tokens
+                if bridge_tokens:
+                    filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
+                    if filters:
+                        stmt = stmt.filter(or_(*filters))
+                elif foreign_tokens:
+                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+            elif not is_single_word and sig_words:
                 # Require all significant words to appear for a true lexical phrase match
                 for w in sig_words:
                     stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
@@ -607,6 +675,16 @@ class RizalEngine:
             
             # Lexical Score Calculation
             lex_score = self._compute_lexical_score(query, sent.sentence_text, query_analysis, stopword_ratio)
+            sent_words_set = set(extract_words(sent.sentence_text.lower()))
+            sent_text_lower = sent.sentence_text.lower()
+            
+            # Cross-Lingual Lexical Grounding
+            if is_cross_lingual and bridge_tokens:
+                bt_matches = sum(1 for bt in bridge_tokens if len(bt) > 3 and (bt in sent_words_set or bt in sent_text_lower))
+                if bt_matches > 0:
+                    # Ensure any lexical score improvement only applies proportionally to valid bridge grounding
+                    bridge_ratio = min(1.0, bt_matches / max(len(foreign_tokens), 1))
+                    lex_score = max(lex_score, 0.85 * bridge_ratio)
             
             # STRICT FILTER: For single words in lexical mode, must have lexical match
             if is_single_word and result_mode == "lexical" and lex_score < 0.1:
@@ -718,8 +796,6 @@ class RizalEngine:
                         print(f"  [DEBUG] Passed Validation: ID: {sent.id} | Trigger Token: {matched_token} | Boosted Sem: {sem_score:.3f}")
 
             # Coverage & Noise Penalty
-            sent_words_set = set(extract_words(sent.sentence_text.lower()))
-            
             # Multi-word Coverage: Ensure all significant words are represented
             if not is_single_word and sig_words:
                 coverage_count = 0
@@ -728,16 +804,21 @@ class RizalEngine:
                 
                 # STRICT: track lexical and semantic separately
                 lexical_matches = 0
-                sent_text_lower = sent.sentence_text.lower()
                 for i, sw in enumerate(sig_words):
                     if sw in sent_words_set or sw in sent_text_lower:
                         coverage_count += 1
                         lexical_matches += 1
+                    elif is_cross_lingual and sw in foreign_tokens:
+                        # For foreign words, allow valid bridge tokens to legitimately stand in for lexical grounding
+                        if any(bt in sent_words_set or bt in sent_text_lower for bt in bridge_tokens if len(bt) > 3):
+                            coverage_count += 1
+                            lexical_matches += 1
                     else:
                         # Semantic representation check for missing lexical word
                         word_sim = float(np.dot(norm_sig_vecs[i], v_sent))
                         if word_sim >= threshold:
                             coverage_count += 1
+                
                 coverage_ratio = coverage_count / len(sig_words)
                 is_strong_match = coverage_ratio >= 1.0
                 
@@ -762,6 +843,8 @@ class RizalEngine:
             # Stopword dominance check
             if result_mode == "semantic_fallback":
                 match_sig = True  # We already did strict synonym validation
+            elif is_cross_lingual and bridge_tokens:
+                match_sig = any(bt in sent_words_set or bt in sent_text_lower for bt in bridge_tokens if len(bt) > 3)
             else:
                 match_sig = any(w in sent_words_set for w in sig_words)
                 
