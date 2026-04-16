@@ -67,3 +67,6 @@ Thumbs.db
 *.env
 !backend/.env.example
 !frontend/.env.example
+
+# Hugging Face
+backend/app/models/rizal-xlm-r-dapt/

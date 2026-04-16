@@ -599,7 +599,7 @@ class RizalEngine:
             # Increased noise floor for multi-word queries to prune unrelated results
             min_threshold = 0.45 if not is_single_word else 0.05
             
-            # if final_score < min_threshold and precision_score < 0.60: continue
+            if final_score < min_threshold and precision_score < 0.60: continue
 
             result_item = {
                 'id': sent.id,
