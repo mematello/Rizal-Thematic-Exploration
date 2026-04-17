@@ -643,12 +643,19 @@ class RizalEngine:
                 # Gate Threshold
                 query_tokens = extract_words(query.lower())
                 is_oov = any(token not in self.vocabulary for token in query_tokens)
-                threshold = 0.50 if is_oov else 0.40
+                gate_oov = float(os.getenv("TEST_GATE_THRESHOLD_OOV", "0.50"))
+                threshold = gate_oov if is_oov else 0.40
                 
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"[DEBUG] Theme Anchor Score: {max_theme_score:.3f} | Threshold: {threshold:.2f} | OOV: {is_oov}")
                 
                 if max_theme_score < threshold:
+                    if is_single_word and is_cross_lingual and not bridge_tokens:
+                        suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
+                        return {
+                            'results': {'noli': [], 'elfili': []},
+                            'metadata': {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+                        }
                     return {
                         'results': {'noli': [], 'elfili': []},
                         'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
@@ -911,9 +918,11 @@ class RizalEngine:
                 precision_score = self._calculate_precision_score(sent.sentence_text, np.array(sent.embedding), components, component_vecs)
 
             # Increased noise floor for multi-word queries to prune unrelated results
-            min_threshold = 0.45 if not is_single_word else 0.05
+            min_thresh_multi = float(os.getenv("TEST_MIN_THRESHOLD_MULTI", "0.45")) if is_cross_lingual else 0.45
+            min_threshold = min_thresh_multi if not is_single_word else 0.05
             
-            if final_score < min_threshold and precision_score < 0.60: continue
+            p_thresh = float(os.getenv("TEST_PRECISION_THRESHOLD", "0.60")) if is_cross_lingual else 0.60
+            if final_score < min_threshold and precision_score < p_thresh: continue
 
             result_item = {
                 'id': sent.id,
@@ -1045,6 +1054,11 @@ class RizalEngine:
         }
         top_combined = sorted(results['noli'] + results['elfili'], key=lambda x: x['scores']['final'], reverse=True)[:5]
         suggestions = DynamicSuggestionGenerator.generate_suggestions(query, top_combined, theme_metadata)
+
+        # --- Late Diagnostic Fallback (If survived gate but failed lexical/precision) ---
+        if not top_combined and is_single_word and is_cross_lingual and not bridge_tokens:
+            reason = "unmapped_standalone_concept"
+            suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
 
         return {
             "results": results,
@@ -1224,12 +1238,42 @@ class RizalEngine:
                 matches.append({"component": comp, "type": "semantic"})
         return matches
 
-    def _calculate_clear_score(self, sem, lex, lam_lex, lam_sem, length):
-        score = (lam_sem * sem) + (lam_lex * lex)
-        if length < self.SHORT_SENTENCE_THRESHOLD:
-            penalty = self.SHORT_SENTENCE_PENALTY * (self.SHORT_SENTENCE_THRESHOLD - length) / self.SHORT_SENTENCE_THRESHOLD
-            score -= penalty
-        return max(0.0, min(1.0, score))
+    def _calculate_clear_score(self, sem_score, lex_score, lam_lex, lam_sem, text_length):
+        score = (lam_lex * lex_score) + (lam_sem * sem_score)
+        len_penalty = min(text_length / 20.0, 1.0)
+        final_score = score * (0.8 + 0.2 * len_penalty)
+        return final_score
+
+    def _generate_diagnostic_suggestions(self, query: str, query_vec_initial) -> list[str]:
+        """Dynamically generates semantically-weighted contextual hints for unmapped abstractions."""
+        try:
+            candidate_anchors = [
+                ("ng bayan", "nation country society"),
+                ("sa simbahan", "church religion priest"),
+                ("ng mga prayle", "friar priest power corruption"),
+                ("ni Maria Clara", "love tragedy female woman relationship"),
+                ("ni Elias", "revolution sacrifice hero death"),
+                ("ng pamahalaan", "government power law"),
+                ("sa paaralan", "school education student")
+            ]
+            
+            # Rank candidates by scoring the abstract noun against English heuristic tags natively
+            h_vecs = self.base_model.encode([c[1] for c in candidate_anchors], show_progress_bar=False)
+            h_norms = np.linalg.norm(h_vecs, axis=1, keepdims=True)
+            h_vecs = np.divide(h_vecs, h_norms, out=np.zeros_like(h_vecs), where=h_norms!=0)
+            
+            import numpy as np
+            q_vec_norm = np.array(query_vec_initial)
+            if np.linalg.norm(q_vec_norm) > 0: 
+                q_vec_norm = q_vec_norm / np.linalg.norm(q_vec_norm)
+            
+            sims = np.dot(h_vecs, q_vec_norm)
+            top_indices = np.argsort(sims)[::-1][:3]
+            
+            return [f"{query} {candidate_anchors[i][0]}" for i in top_indices]
+        except Exception as e:
+            if os.getenv("DEBUG_SEARCH"): print(f"[DEBUG] Suggestion Gen Error: {e}")
+            return [f"{query} ng bayan", f"{query} sa simbahan", f"{query} laban sa kastila"]
 
     def _ensure_themes_loaded(self, db: Session):
         if not hasattr(self, 'theme_cache'):
