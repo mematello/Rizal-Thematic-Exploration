@@ -482,13 +482,30 @@ class RizalEngine:
         expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
         theme_tokens = set(extracted_tokens) if extracted_tokens else set()
         
-        if is_cross_lingual and extracted_tokens:
+        enrichment_anchor = None
+        if is_cross_lingual:
             # 2. Add top 2-3 strongest Tagalog anchor tokens from XLM-R expansion
-            top_anchor_tokens = extracted_tokens[:3]
+            top_anchor_tokens = extracted_tokens[:3] if extracted_tokens else []
             bridge_tokens.update(top_anchor_tokens)
 
+            # --- Dynamic Anchor Enrichment ---
+            # Automatically supply the translation's structural anchor if the query is a standalone OOV concept
+            if is_single_word and bridge_tokens:
+                enrichment_anchor = top_anchor_tokens[0] if top_anchor_tokens else list(bridge_tokens)[0]
+                native_tokens.append(enrichment_anchor)
+                sig_words.append(enrichment_anchor)
+                
+                # Treat as multi-word structurally
+                is_single_word = False
+                
+                # Create independent component vector to power Stage A-2 multi-anchor pooling
+                cv = self.base_model.encode(enrichment_anchor, show_progress_bar=False)
+                cv = cv / np.linalg.norm(cv) if np.linalg.norm(cv) > 0 else cv
+                component_vecs.append(cv)
+                components.append(enrichment_anchor)
+
         if os.getenv("DEBUG_SEARCH"):
-            print(f"[DEBUG] is_cross_lingual: {is_cross_lingual} | Native: {native_tokens} | Foreign: {foreign_tokens} | Bridge Tokens: {bridge_tokens} | Discarded: {discarded_words}")
+            print(f"[DEBUG] is_cross_lingual: {is_cross_lingual} | Native: {native_tokens} | Foreign: {foreign_tokens} | Bridge Tokens: {bridge_tokens} | Discarded: {discarded_words} | Enriched: {enrichment_anchor}")
 
         if expanded_text:
             if os.getenv("DEBUG_SEARCH"):
