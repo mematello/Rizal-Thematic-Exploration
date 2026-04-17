@@ -93,24 +93,49 @@ class RizalEngine:
         
         print(f"Aligners ready (DAPT={self.has_dapt}).")
 
-        # Cross-lingual Fallback Dictionary (English to Tagalog)
-        # Backup layer for most common thesis domain queries.
+        # Tier A: Bounded Precision Layer (Cross-Lingual Dictionary)
+        # Strictly constrained to foundational thesis domain concepts. Evaluated dynamically.
         self.EN_TL_DICTIONARY = {
-            "education": ["edukasyon", "pag-aaral", "paaralan", "karunungan"],
-            "justice": ["katarungan", "hustisya", "batas"],
-            "oppression": ["pang-aapi", "pang-aabuso", "kalupitan", "api"],
-            "revolution": ["rebolusyon", "himagsikan", "paghihimagsik", "pag-aalsa"],
+            # --- Social / Political ---
+            "oppression": ["pang-aapi", "kalupitan"],
+            "justice": ["katarungan", "hustisya"],
             "corruption": ["korapsyon", "katiwalian", "kasakiman"],
-            "religion": ["relihiyon", "simbahan", "pananampalataya", "prayle"],
-            "colonialism": ["kolonyalismo", "dayuhan", "kastila", "espanya"],
-            "violence": ["karahasan", "dahas", "gulo", "pagpatay"],
-            "greed": ["kasakiman", "katakawan", "hangad"],
-            "suffering": ["paghihirap", "dusa", "pagdurusa", "sakit"],
-            "death": ["kamatayan", "patay", "mamatay"],
-            "love": ["pag-ibig", "mahal", "pagmamahal", "irog"],
-            "family": ["pamilya", "angkan", "mag-anak"],
-            "honor": ["karangalan", "dangal", "puri"],
-            "sacrifice": ["sakripisyo", "alay", "pag-aalay"]
+            "power": ["kapangyarihan", "lakas"],
+            "freedom": ["kalayaan", "laya"],
+            "government": ["pamahalaan", "gobyerno"],
+            "colonialism": ["kolonyalismo", "dayuhan", "kastila"],
+            "violence": ["karahasan", "dahas"],
+            
+            # --- Religion ---
+            "religion": ["relihiyon", "pananampalataya"],
+            "church": ["simbahan", "kumbento"],
+            "faith": ["pananampalataya", "pananalig"],
+            "friar": ["prayle", "kura"],
+            "priest": ["pari", "kura"],
+            
+            # --- Human Experience ---
+            "love": ["pag-ibig", "pagmamahal"],
+            "suffering": ["paghihirap", "dusa"],
+            "sacrifice": ["sakripisyo", "pag-aalay"],
+            "fear": ["takot", "pangamba"],
+            "joy": ["ligaya", "tuwa"],
+            "sadness": ["lungkot", "lumbay"],
+            "greed": ["kasakiman"],
+            
+            # --- Life / Existence ---
+            "death": ["kamatayan", "patay"],
+            "life": ["buhay"],
+            "illness": ["sakit", "karamdaman"],
+            "family": ["pamilya", "mag-anak"],
+            "honor": ["karangalan", "dangal"],
+            "education": ["edukasyon", "pag-aaral", "paaralan"],
+            
+            # --- Time / Setting ---
+            "night": ["gabi", "dilim"],
+            "evening": ["gabi"],
+            "day": ["araw"],
+            "town": ["bayan", "nayon"],
+            "house": ["bahay", "tahanan"]
         }
 
         # Hardcoded blocklist for modern terms that might trigger semantic matches
@@ -488,21 +513,6 @@ class RizalEngine:
             top_anchor_tokens = extracted_tokens[:3] if extracted_tokens else []
             bridge_tokens.update(top_anchor_tokens)
 
-            # --- Dynamic Anchor Enrichment ---
-            # Automatically supply the translation's structural anchor if the query is a standalone OOV concept
-            if is_single_word and bridge_tokens:
-                enrichment_anchor = top_anchor_tokens[0] if top_anchor_tokens else list(bridge_tokens)[0]
-                native_tokens.append(enrichment_anchor)
-                sig_words.append(enrichment_anchor)
-                
-                # Treat as multi-word structurally
-                is_single_word = False
-                
-                # Create independent component vector to power Stage A-2 multi-anchor pooling
-                cv = self.base_model.encode(enrichment_anchor, show_progress_bar=False)
-                cv = cv / np.linalg.norm(cv) if np.linalg.norm(cv) > 0 else cv
-                component_vecs.append(cv)
-                components.append(enrichment_anchor)
 
         if os.getenv("DEBUG_SEARCH"):
             print(f"[DEBUG] is_cross_lingual: {is_cross_lingual} | Native: {native_tokens} | Foreign: {foreign_tokens} | Bridge Tokens: {bridge_tokens} | Discarded: {discarded_words} | Enriched: {enrichment_anchor}")
