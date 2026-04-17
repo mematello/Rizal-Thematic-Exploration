@@ -105,7 +105,12 @@ class RizalEngine:
             "colonialism": ["kolonyalismo", "dayuhan", "kastila", "espanya"],
             "violence": ["karahasan", "dahas", "gulo", "pagpatay"],
             "greed": ["kasakiman", "katakawan", "hangad"],
-            "suffering": ["paghihirap", "dusa", "pagdurusa", "sakit"]
+            "suffering": ["paghihirap", "dusa", "pagdurusa", "sakit"],
+            "death": ["kamatayan", "patay", "mamatay"],
+            "love": ["pag-ibig", "mahal", "pagmamahal", "irog"],
+            "family": ["pamilya", "angkan", "mag-anak"],
+            "honor": ["karangalan", "dangal", "puri"],
+            "sacrifice": ["sakripisyo", "alay", "pag-aalay"]
         }
 
         # Hardcoded blocklist for modern terms that might trigger semantic matches
@@ -599,6 +604,17 @@ class RizalEngine:
             if self.theme_matrix is not None:
                 # Reuse query_list (embedding)
                 q_vec = np.array(query_list)
+                
+                # Proposal A: Bridge-Augmented Similarity Checking
+                # If we have generated valid cross-lingual bridge tokens, their Tagalog vectors
+                # can naturally realign the English query vector into the Tagalog theme space before the gate.
+                if is_cross_lingual and bridge_tokens:
+                    bridge_text = " ".join([bt for bt in bridge_tokens if len(bt) > 3])
+                    if bridge_text:
+                        bridge_embedding = self.base_model.encode(bridge_text, show_progress_bar=False)
+                        # Blend the raw query with its synthesized Tagalog bridge translation
+                        q_vec = (q_vec + bridge_embedding) / 2.0
+                
                 q_norm = np.linalg.norm(q_vec)
                 if q_norm > 0:
                     q_vec = q_vec / q_norm
