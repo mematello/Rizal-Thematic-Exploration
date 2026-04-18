@@ -27,6 +27,8 @@ pyarrow = "^19.0.0"
 spacy = "*"
 numpy = "<2.0.0"
 accelerate = ">=0.26.0"
+svgwrite = "^1.4.3"
+pillow = "^12.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

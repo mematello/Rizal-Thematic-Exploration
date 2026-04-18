@@ -393,7 +393,7 @@ class RizalEngine:
         return count
 
 
-    def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary"):
+    def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both"):
         if not self._validate_query_semantics(db, query):
              return {
                  'results': {'noli': [], 'elfili': []},
@@ -458,10 +458,18 @@ class RizalEngine:
 
         # 2. Candidate Selection (Stage A: Lexical First)
         candidates = []
-        books = {
+        all_books = {
             'noli': 'Noli Me Tangere' if source_type == 'full' else 'noli',
             'elfili': 'El Filibusterismo' if source_type == 'full' else 'elfili'
         }
+        
+        books = {}
+        if novel == "noli":
+            books['noli'] = all_books['noli']
+        elif novel == "elfili":
+            books['elfili'] = all_books['elfili']
+        else:
+            books = all_books
 
         lex_word = sig_words[0] if sig_words else query_words[0]
         for key, book_name in books.items():

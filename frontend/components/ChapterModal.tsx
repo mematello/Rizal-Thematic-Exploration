@@ -32,6 +32,8 @@ interface ChapterModalProps {
     content: ChapterContent[];
     isLoading: boolean;
     highlightSentenceIndex?: number;
+    /** Map View only: anchor sentence + context window to highlight with two-level styling */
+    highlightContext?: { anchor: number; contextMin: number; contextMax: number } | null;
     onNavigate?: (book: string, chapter: number) => void;
 }
 
@@ -51,6 +53,7 @@ export function ChapterModal({
     content,
     isLoading,
     highlightSentenceIndex,
+    highlightContext,
     onNavigate,
 }: ChapterModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -110,7 +113,7 @@ export function ChapterModal({
 
         try {
             const targetMode = mode === 'buod' ? 'full' : 'buod';
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
             const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 
             const res = await fetch(`${apiUrl}/api/v1/chapters/reference`, {
@@ -163,7 +166,7 @@ export function ChapterModal({
         if (showReference && !isLoadingRefs) {
             const fetchRefs = async () => {
                 setIsLoadingRefs(true);
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
                 const results: Record<number, any> = { ...referenceResults };
                 const toFetch = sentences.filter(s => !results[s.id]);
@@ -234,7 +237,7 @@ export function ChapterModal({
         if (isOpen) {
             const fetchMetadata = async () => {
                 try {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                     const res = await fetch(`${apiUrl}/api/v1/chapters?mode=${mode}`);
                     if (res.ok) {
                         const data = await res.json();
@@ -286,7 +289,7 @@ export function ChapterModal({
             setModeError(null);
 
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const targetChapter = isFullscreen ? activeChapterInView : chapterNumber;
                 const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${targetChapter}?mode=${mode}`, { signal: abortController.signal });
 
@@ -401,7 +404,7 @@ export function ChapterModal({
     };
 
     const fetchSpecificChapter = async (num: number, overrideMode?: 'buod' | 'full', signal?: AbortSignal): Promise<ChapterContent[]> => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
         const targetMode = overrideMode || mode;
         const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${num}?mode=${targetMode}`, { signal });
         if (!res.ok) throw new Error("Failed");
@@ -478,7 +481,7 @@ export function ChapterModal({
         setCharLoading(true);
         try {
             const searchTerm = [char.name, ...(char.aliases || [])].join(",");
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
             const res = await fetch(`${apiUrl}/api/v1/characters/chapters?name=${encodeURIComponent(searchTerm)}&sort_by=${sort}&mode=${mode}`);
             if (res.ok) setCharAppearances(await res.json());
         } catch (err) {}
@@ -602,6 +605,25 @@ export function ChapterModal({
                                                             <p key={`${paraIdx}-${showCharacters}-${showReference}`} className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-2 indent-0">
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
+                                                                    // Map View only: context sentences surrounding the anchor (lighter highlight)
+                                                                    const isContextSentence = !isHighlighted && !isFullscreen &&
+                                                                        highlightContext != null &&
+                                                                        sentence.sentence_index >= highlightContext.contextMin &&
+                                                                        sentence.sentence_index <= highlightContext.contextMax;
+                                                                    
+                                                                    // Choose highlight class:
+                                                                    // - Map View anchor: strong amber (highlightContext present + is anchor)
+                                                                    // - Grid View anchor: existing gold style (highlightContext absent)
+                                                                    // - Map View context: lighter amber
+                                                                    // - Unhighlighted: no class
+                                                                    const anchorClass = isHighlighted
+                                                                        ? (highlightContext
+                                                                            ? 'bg-amber-200/80 font-bold border-b-2 border-amber-500 shadow-sm'
+                                                                            : 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold')
+                                                                        : '';
+                                                                    const contextClass = isContextSentence
+                                                                        ? 'bg-amber-100/90 border-b-2 border-amber-400'
+                                                                        : '';
                                                                     
                                                                     let refRender = null;
                                                                     if (showReference && referenceResults[sentence.id]?.has_reference) {
@@ -637,7 +659,7 @@ export function ChapterModal({
                                                                     }
                                                                     
                                                                     return (
-                                                                        <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline ${isHighlighted ? 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold' : ''}`}>
+                                                                        <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline ${anchorClass} ${contextClass}`}>
                                                                             {highlightText(sentence.sentence_text)}
                                                                             {refRender}
                                                                             {" "}
