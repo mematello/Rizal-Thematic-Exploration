@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 
 import { useState, useEffect } from "react";
@@ -39,7 +39,7 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
     useEffect(() => {
         async function fetchThemes() {
             try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const res = await fetch(`${baseUrl}/api/v1/themes`);
                 if (!res.ok) throw new Error("Failed to fetch");
                 const data = await res.json();
