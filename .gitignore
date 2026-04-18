@@ -73,3 +73,6 @@ backend/app/models/rizal-xlm-r-dapt/
 *.safetensors
 *.bin
 *.pt
+
+__pycache__/
+*.pyc
