@@ -99,16 +99,16 @@ class RizalEngine:
             # --- Social / Political ---
             "oppression": ["pang-aapi", "kalupitan"],
             "justice": ["katarungan", "hustisya"],
-            "corruption": ["korapsyon", "katiwalian", "kasakiman"],
-            "power": ["kapangyarihan", "lakas"],
+            "corruption": ["korapsyon", "katiwalian"],
+            "power": ["kapangyarihan"],
             "freedom": ["kalayaan", "laya"],
             "government": ["pamahalaan", "gobyerno"],
-            "colonialism": ["kolonyalismo", "dayuhan", "kastila"],
+            "colonialism": ["kolonyalismo"],
             "violence": ["karahasan", "dahas"],
             
             # --- Religion ---
             "religion": ["relihiyon", "pananampalataya"],
-            "church": ["simbahan", "kumbento"],
+            "church": ["simbahan"],
             "faith": ["pananampalataya", "pananalig"],
             "friar": ["prayle", "kura"],
             "priest": ["pari", "kura"],
@@ -223,7 +223,9 @@ class RizalEngine:
         
         for i, idx in enumerate(top_indices):
             score = scores[idx]
-            if score < 0.45: continue
+            # Use the OOV threshold as a baseline for theme relevance when dealing with concepts
+            # that might be partially foreign or abstract.
+            if score < settings.TEST_GATE_THRESHOLD_OOV: continue
             
             theme = self.theme_cache[idx]
             if i == 0: 
@@ -653,7 +655,7 @@ class RizalEngine:
                 # Gate Threshold
                 query_tokens = extract_words(query.lower())
                 is_oov = any(token not in self.vocabulary for token in query_tokens)
-                gate_oov = float(os.getenv("TEST_GATE_THRESHOLD_OOV", "0.50"))
+                gate_oov = settings.TEST_GATE_THRESHOLD_OOV
                 threshold = gate_oov if is_oov else 0.40
                 
                 if os.getenv("DEBUG_SEARCH"):
@@ -673,8 +675,8 @@ class RizalEngine:
 
             result_mode = "semantic_fallback"
             
-            # Build valid tokens using significant query words (no stopwords) + theme tokens
-            raw_valid_tokens = set(sig_words) | theme_tokens
+            # Build valid tokens using significant query words (no stopwords) + theme tokens + cross-lingual bridge tokens
+            raw_valid_tokens = set(sig_words) | theme_tokens | set(bridge_tokens or [])
             valid_tokens = {t for t in raw_valid_tokens if t.lower() not in self.LOW_INFO_WORDS}
             
             # Pre-compute vectors for each individual significant word to avoid phrase-inflation drift
@@ -826,9 +828,11 @@ class RizalEngine:
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
 
-                # Hard semantic threshold — but bypass for confirmed lexical matches
-                has_query_word = any(sw in text_lower for sw in sig_words) if sig_words else False
-                if sem_score < 0.30 and not has_query_word:
+                # Hard semantic threshold — but bypass for confirmed lexical matches (including cross-lingual bridge tokens)
+                has_native_hit = any(sw in text_lower for sw in sig_words) if sig_words else False
+                has_bridge_hit = any(bt in text_lower for bt in bridge_tokens) if bridge_tokens else False
+                
+                if sem_score < 0.30 and not (has_native_hit or has_bridge_hit):
                     continue
                 
                 if not has_validation:

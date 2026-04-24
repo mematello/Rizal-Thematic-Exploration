@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = "development"
     DEBUG: bool = False
+    TEST_GATE_THRESHOLD_OOV: float = 0.45
     
     # Matching Logic Thresholds (Paksa)
     PAKSA_MIN_KWS_WITH_CHARS: int = 2
