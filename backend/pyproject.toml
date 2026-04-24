@@ -29,6 +29,7 @@ numpy = "<2.0.0"
 accelerate = ">=0.26.0"
 svgwrite = "^1.4.3"
 pillow = "^12.2.0"
+deep-translator = "^1.11.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

@@ -196,7 +196,7 @@ class RizalEngine:
         text, _ = self._get_passage_context_with_embedding(db, center, window)
         return text
 
-    def _expand_query_with_themes(self, query_vec):
+    def _expand_query_with_themes(self, query_vec, is_safely_mapped=False):
         """
         Finds the most relevant Themes for a query vector and returns 
         (expanded_text, set_of_valid_tokens).
@@ -225,7 +225,9 @@ class RizalEngine:
             score = scores[idx]
             # Use the OOV threshold as a baseline for theme relevance when dealing with concepts
             # that might be partially foreign or abstract.
-            if score < settings.TEST_GATE_THRESHOLD_OOV: continue
+            # Bypass strict gate if concept is safely mapped in Tier A
+            thresh = 0.35 if is_safely_mapped else settings.TEST_GATE_THRESHOLD_OOV
+            if score < thresh: continue
             
             theme = self.theme_cache[idx]
             if i == 0: 
@@ -485,6 +487,33 @@ class RizalEngine:
             for w in foreign_tokens:
                 if w in self.EN_TL_DICTIONARY:
                     bridge_tokens.update(self.EN_TL_DICTIONARY[w])
+            
+            # Tier A2: Dynamic Vocabulary Grounding
+            # If any foreign tokens are NOT in EN_TL_DICTIONARY, dynamically translate the full query
+            unmapped_foreign = [w for w in foreign_tokens if w not in self.EN_TL_DICTIONARY]
+            if unmapped_foreign:
+                try:
+                    from deep_translator import GoogleTranslator
+                    # Contextual translation of the full original query
+                    translated_query = GoogleTranslator(source='auto', target='tl').translate(query)
+                    
+                    if translated_query and os.getenv("DEBUG_SEARCH"):
+                        print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
+                        
+                    # Extract words from the translated Tagalog sentence
+                    translated_words = set(extract_words(translated_query.lower()))
+                    
+                    # Security Gate: Only accept translated words if they exist in the corpus vocabulary
+                    valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
+                    
+                    if valid_dynamic_bridges:
+                        bridge_tokens.update(valid_dynamic_bridges)
+                        if os.getenv("DEBUG_SEARCH"):
+                            print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
+                            
+                except Exception as e:
+                    if os.getenv("DEBUG_SEARCH"):
+                        print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
         
         # If there are 2 or more significant words, it's NOT a single-word query
         is_single_word = len(sig_words) < 2
@@ -506,7 +535,10 @@ class RizalEngine:
             cv = cv / np.linalg.norm(cv) if np.linalg.norm(cv) > 0 else cv
             component_vecs.append(cv)
 
-        expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
+        # Determine if safely mapped BEFORE expansion
+        is_safely_mapped = is_cross_lingual and len(foreign_tokens) > 0 and (all(ft in self.EN_TL_DICTIONARY for ft in foreign_tokens) or len(bridge_tokens) > 0)
+        
+        expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
         theme_tokens = set(extracted_tokens) if extracted_tokens else set()
         
         enrichment_anchor = None
@@ -663,13 +695,15 @@ class RizalEngine:
                 # Gate Threshold
                 query_tokens = extract_words(query.lower())
                 is_oov = any(token not in self.vocabulary for token in query_tokens)
+                
+                # If safely mapped, do not use the strict OOV threshold
                 gate_oov = settings.TEST_GATE_THRESHOLD_OOV
-                threshold = gate_oov if is_oov else 0.40
+                threshold = gate_oov if (is_oov and not is_safely_mapped) else 0.40
                 
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"[DEBUG] Theme Anchor Score: {max_theme_score:.3f} | Threshold: {threshold:.2f} | OOV: {is_oov}")
                 
-                if max_theme_score < threshold:
+                if max_theme_score < threshold and not is_safely_mapped:
                     if is_single_word and is_cross_lingual and not bridge_tokens:
                         suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
                         return {
