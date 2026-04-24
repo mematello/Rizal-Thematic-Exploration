@@ -7,9 +7,10 @@ import { ResultCard } from "@/components/ResultCard";
 import { SkeletonLoader } from "@/components/SkeletonLoader";
 import { ChapterModal } from "@/components/ChapterModal";
 import { SuggestionsCard } from "@/components/SuggestionsCard";
+import { ReadingMapViewer } from "@/components/ReadingMapViewer";
 import { useRizalSearch } from "@/hooks/useRizalSearch";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, BarChart2 } from "lucide-react";
+import { ArrowLeft, BarChart2, LayoutGrid, MapPinned } from "lucide-react";
 import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
@@ -28,6 +29,7 @@ function SearchContent() {
     const novelFilter = novelParam || 'both';
 
     const [showScores, setShowScores] = useState(false);
+    const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
     const { mode } = useModeStore();
 
     // Chapter modal state
@@ -36,14 +38,23 @@ function SearchContent() {
     const [chapterContent, setChapterContent] = useState<ChapterContent[]>([]);
     const [loadingContent, setLoadingContent] = useState(false);
     const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
+    // Map View only: stores the anchor + context window from the clicked result
+    const [highlightContext, setHighlightContext] = useState<{ anchor: number; contextMin: number; contextMax: number } | null>(null);
 
-    const { data, isLoading, error } = useRizalSearch(initialQuery);
+    // Determine which novels to fetch based on grid vs map mode
+    const requiredNovels: ('noli' | 'fili')[] = viewMode === 'map' || novelFilter === 'both' 
+        ? ['noli', 'fili'] 
+        : [novelFilter as 'noli' | 'fili'];
+
+    const { data, isLoading, error } = useRizalSearch(initialQuery, requiredNovels);
 
     const handleSearch = (newQuery: string) => {
         router.push(`/search?q=${encodeURIComponent(newQuery)}&novel=${novelFilter}`);
     };
 
+    // Grid View handler — no context highlighting, Grid View is unmodified
     const handleChapterOpen = async (book: string, chapter: number, sentenceIndex: number) => {
+        setHighlightContext(null); // Grid View never sets context highlighting
         setSelectedChapter({ book, chapter, title: `Kabanata ${chapter}` });
         setIsModalOpen(true);
         setLoadingContent(true);
@@ -51,7 +62,35 @@ function SearchContent() {
         setHighlightSentenceIndex(sentenceIndex);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
+            if (!res.ok) throw new Error("Failed to fetch chapter content");
+            const data = await res.json();
+            setChapterContent(data);
+        } catch (err) {
+            console.error("Error fetching chapter:", err);
+        } finally {
+            setLoadingContent(false);
+        }
+    };
+
+    // Map View handler — sets context window from the clicked result's sentenceIndex
+    // Context definition comes from the Grid View convention (sentenceIndex ± 2),
+    // Map View does NOT compute or generate context independently.
+    const handleMapChapterOpen = async (book: string, chapter: number, sentenceIndex: number) => {
+        setHighlightContext({
+            anchor: sentenceIndex,
+            contextMin: sentenceIndex - 2,
+            contextMax: sentenceIndex + 2,
+        });
+        setSelectedChapter({ book, chapter, title: `Kabanata ${chapter}` });
+        setIsModalOpen(true);
+        setLoadingContent(true);
+        setChapterContent([]);
+        setHighlightSentenceIndex(sentenceIndex);
+
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
             const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
             if (!res.ok) throw new Error("Failed to fetch chapter content");
             const data = await res.json();
@@ -66,6 +105,7 @@ function SearchContent() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setHighlightSentenceIndex(undefined);
+        setHighlightContext(null); // Always reset context on close
         setTimeout(() => {
             setSelectedChapter(null);
             setChapterContent([]);
@@ -73,7 +113,7 @@ function SearchContent() {
     };
 
     const handleNavigate = (book: string, chapter: number) => {
-        handleChapterOpen(book, chapter, 0); // Open new chapter, reset highlight
+        handleChapterOpen(book, chapter, 0); // Navigate within modal — clears context (Grid View behavior)
     };
 
     const results = data?.results;
@@ -181,6 +221,26 @@ function SearchContent() {
                                 Buong Kwento
                             </button>
                         </div>
+
+                        {/* Dedicated Map View Button — separate from Grid controls */}
+                        <button
+                            id="map-view-toggle"
+                            onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
+                            className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all h-8 ${
+                                viewMode === 'map'
+                                    ? 'bg-brand-navy text-white border-brand-navy shadow-sm'
+                                    : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy bg-white/80'
+                            }`}
+                            title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
+                        >
+                            {viewMode === 'map'
+                                ? <LayoutGrid size={12} />
+                                : <MapPinned size={12} />}
+                            <span className="hidden sm:inline">
+                                {viewMode === 'map' ? 'Listahan' : 'Gabay na Mapa'}
+                            </span>
+                        </button>
+
                         <button
                             onClick={() => setShowScores(!showScores)}
                             className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all h-8 ${showScores
@@ -230,9 +290,18 @@ function SearchContent() {
                                 </div>
                             )}
 
-                            {/* Both novels: Noli left, Fili right */}
-                            {novelFilter === 'both' && (
-                                <div className="grid md:grid-cols-2 gap-6">
+                            {viewMode === 'map' ? (
+                                <ReadingMapViewer
+                                    noliResults={noliResults}
+                                    filiResults={filiResults}
+                                    showScores={showScores}
+                                    onChapterOpen={handleMapChapterOpen}
+                                />
+                            ) : (
+                                <>
+                                    {/* Both novels: Noli left, Fili right */}
+                                    {novelFilter === 'both' && (
+                                        <div className="grid md:grid-cols-2 gap-6">
                                     <section>
                                         <div className="flex items-center gap-2 mb-4 pb-2 border-b border-noli-gold/40">
                                             <span className="font-serif font-bold text-brand-navy text-sm uppercase tracking-wider">Noli Me Tangere</span>
@@ -518,6 +587,8 @@ function SearchContent() {
                                     )}
                                 </>
                             )}
+                                </>
+                            )}
 
                             {/* Kaugnay na Paghahanap (Suggestions) */}
                             {data?.metadata?.suggestions && data.metadata.suggestions.length > 0 && (
@@ -542,6 +613,7 @@ function SearchContent() {
                     content={chapterContent}
                     isLoading={loadingContent}
                     highlightSentenceIndex={highlightSentenceIndex}
+                    highlightContext={highlightContext}
                     onNavigate={handleNavigate}
                 />
             )}
