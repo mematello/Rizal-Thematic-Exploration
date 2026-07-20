@@ -38,93 +38,84 @@ Follow these steps to set up the project on your local machine. This project is 
 - **Python 3.12+**
 - **Node.js 18+** & **npm**
 
-### 1. Clone the Repository
+### Option 1: First-Time Setup (Bagong Startup)
+Use this if you just cloned the repository or need to reset the environment completely.
+
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/mematello/Rizal-Thematic-Exploration.git
 cd Rizal-Thematic-Exploration
 ```
 
-### 2. Database Setup
+#### 2. Start Infrastructure
 Start the PostgreSQL (with pgvector) and Redis services using Docker.
 > [!NOTE]
 > Ensure Docker Desktop is running.
 
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
-*If `docker compose` is not recognized, try `docker-compose up -d`.*
 
-This will start the database on port `5432`.
+#### 3. Backend Initialization
+The backend uses Python and Poetry. The custom ML model (`rizal-xlm-r-dapt`) is pre-trained and bundled, so no training is required.
 
-### 3. Backend Setup (FastAPI)
-The backend requires Python dependencies managed by Poetry.
+Open a terminal and run:
+```bash
+cd backend
+poetry install
 
-1.  **Navigate to the backend directory:**
-    ```bash
-    cd backend
-    ```
+# Run database migrations
+poetry run python scripts/migrate_source_type.py
+poetry run python scripts/migrate_is_short.py
+poetry run python scripts/migrate_original_index.py
+poetry run python scripts/migrate_dapt_column.py
+poetry run python scripts/character_index.py
 
-2.  **Install Poetry** (if not already installed):
-    
-    *macOS / Linux / WSL:*
-    ```bash
-    curl -sSL https://install.python-poetry.org | python3 -
-    ```
+# Seed the database with base XLM embeddings
+poetry run python scripts/seed_db.py
+poetry run python scripts/seed_full_db.py
 
-    *Windows (PowerShell):*
-    ```powershell
-    python -m pip install --user poetry
-    ```
+# Seed the Sanggunian (DAPT) embeddings
+poetry run python scripts/seed_dapt_db.py
 
-3.  **Configure Poetry & Install Dependencies:**
-    It is recommended to create the virtual environment inside the project directory to avoid conflicts.
-    ```bash
-    # Configure in-project virtualenv
-    python -m poetry config virtualenvs.in-project true
+# Start the API server
+poetry run uvicorn app.main:app --reload
+```
+*The API will be available at `http://localhost:8000`. Explore the interactive API docs at `http://localhost:8000/docs`.*
 
-    # Install dependencies
-    python -m poetry install --no-root
-    ```
-    
-    *Verify installation:*
-    ```bash
-    python -m poetry --version
-    ```
+#### 4. Frontend Initialization
+Open a **new terminal** window:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-4.  **Seed the database** with Noli & Fili chapters and themes:
-    ```bash
-    python -m poetry run python scripts/seed_db.py
-    ```
+---
 
-5.  **Start the backend server:**
-    ```bash
-    python -m poetry run uvicorn app.main:app --reload
-    ```
-   
-The API will be available at `http://localhost:8000`.  
-Explore the interactive API docs at `http://localhost:8000/docs`.
+### Option 2: Subsequent Runs (Kasunod na Startup)
+Use this for daily development after the initial setup is complete.
 
-### 4. Frontend Setup (Next.js)
-1.  **Open a new terminal** and navigate to the frontend directory:
-    ```bash
-    cd frontend
-    ```
+#### 1. Start Docker (If not already running)
+```bash
+docker-compose up -d
+```
 
-2.  **Install Node.js dependencies:**
-    ```bash
-    npm install
-    ```
+#### 2. Start the Backend
+Open a terminal:
+```bash
+cd backend
+poetry run uvicorn app.main:app --reload
+```
 
-3.  **Start the development server:**
-    ```bash
-    npm run dev
-    ```
+#### 3. Start the Frontend
+Open a **new terminal**:
+```bash
+cd frontend
+npm run dev
+```
 
-    > [!TIP]
-    > If you see an error saying `'next' is not recognized`, ensure you ran `npm install` first. Then use `npm run dev` (which uses the local `next` binary) instead of trying to run `next` globally.
-
-    
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+🚀 **Access the application at:** [http://localhost:3000](http://localhost:3000)
 
 ### ⚠️ Windows Setup Notes
 If you are developing on Windows, please keep the following in mind:
