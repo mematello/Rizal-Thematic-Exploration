@@ -76,3 +76,15 @@ backend/app/models/rizal-xlm-r-dapt/
 
 __pycache__/
 *.pyc
+
+# Data Dumps, Research Outputs, and Logs
+*.prof
+*.log
+debug_*.json
+*_results.json
+*_results.txt
+*_output.txt
+custom_queries_results.json
+figure*.json
+multilingual_report.json
+threshold_experiment.json

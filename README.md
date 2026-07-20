@@ -1,31 +1,33 @@
-# Rizal Thematic Analysis
+# 📖 Rizal Thematic Explorer
 
-This repository contains the materials, datasets, and code used for our undergraduate thesis on the thematic analysis of José Rizal's novels *Noli Me Tangere* and *El Filibusterismo*.  
+[![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://python.org)
 
-## 📖 Project Overview
-The study focuses on extracting, categorizing, and analyzing the central themes of Rizal’s works.  
-We aim to present thematic explanations in a way that is accessible to both students and researchers.  
+An intelligent, full-stack search and exploration engine for the thematic analysis of José Rizal's novels *Noli Me Tangere* and *El Filibusterismo*. 
 
-## ⚙️ Features
-- Automated extraction of themes per chapter  
-- CSV dataset containing chapter numbers, titles, and thematic explanations  
-- Tools for enhancing thematic content for academic use  
+
+## 🖼️ Application Showcase
+
+<!-- [MARCUS: Insert a nice GIF or screenshot of the search working here] -->
+![Application Demo](./docs/placeholder.gif)
+
+## ⚙️ Key Engineering Features
+- **Semantic & Lexical Hybrid Search**: Utilizes `pgvector` and a custom-tuned `XLM-RoBERTa` (DAPT) model to allow robust Tagalog querying.
+- **Dynamic Thematic Mapping**: Translates abstract concepts (e.g., "korapsyon", "pag-ibig") to specific novel contexts using TF-IDF and dense embeddings.
+- **Cross-Lingual Support**: Automatically bridges English queries to their Tagalog counterparts via custom dictionary mapping and dynamic fallback.
+- **Modern User Interface**: Built with Next.js, Tailwind CSS, and Framer Motion for a responsive and premium academic reading experience.
 
 ## 🛠️ Tech Stack
-- **Python 3** (Pandas, NLTK, NumPy)  
-- **GitHub** for version control  
+- **Frontend:** Next.js 16 (App Router), TailwindCSS, Zustand, React Query
+- **Backend:** FastAPI, SQLAlchemy, PostgreSQL + `pgvector`, Redis
+- **Machine Learning:** `sentence-transformers`, custom `XLM-R` model, NLTK, spaCy
 
-## 👥 Contributors
-- Marcus Kent Oliver
-- Ian Kurby Placencia
-- Dominic Vilog
-
-## 🎓 Academic Information
-- **Degree Program:** Bachelor of Science in Computer Science (BSCS)  
-- **Section:** CS41S1  
-- **Institution:** Technological Institute of the Philippines – Manila  
-- **Course:** CCS 401 - Thesis 01
-- **Research Adviser:** Dr. Melvin Ballera  
+## 👥 Contributors & Academic Information
+- **Researchers:** Marcus Kent Oliver, Ian Kurby Placencia, Dominic Vilog
+- **Adviser:** Dr. Melvin Ballera 
+- **Institution:** Technological Institute of the Philippines – Manila (BSCS)
 
 
 ## 🚀 Running Locally
