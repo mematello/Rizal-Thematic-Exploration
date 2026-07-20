@@ -111,7 +111,7 @@ class RizalEngine:
             "church": ["simbahan"],
             "faith": ["pananampalataya", "pananalig"],
             "friar": ["prayle", "kura"],
-            "priest": ["pari", "kura"],
+            "priest": ["pari", "kura", "padre"],
             
             # --- Human Experience ---
             "love": ["pag-ibig", "pagmamahal"],
@@ -515,6 +515,16 @@ class RizalEngine:
                     if os.getenv("DEBUG_SEARCH"):
                         print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
         
+        # If a cross-lingual query has NO native tokens and failed ALL mapping (Dictionary + Translator),
+        # it is either an unsupported domain concept or gibberish. Block it immediately to prevent hallucination.
+        if is_cross_lingual and not native_tokens and not bridge_tokens:
+            query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+            suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
+            return {
+                'results': {'noli': [], 'elfili': []},
+                'metadata': {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+            }
+
         # If there are 2 or more significant words, it's NOT a single-word query
         is_single_word = len(sig_words) < 2
         
@@ -543,9 +553,11 @@ class RizalEngine:
         
         enrichment_anchor = None
         if is_cross_lingual:
-            # 2. Add top 2-3 strongest Tagalog anchor tokens from XLM-R expansion
+            # 2. Extract top 2-3 strongest Tagalog anchor tokens from XLM-R expansion
             top_anchor_tokens = extracted_tokens[:3] if extracted_tokens else []
-            bridge_tokens.update(top_anchor_tokens)
+            # We explicitly DO NOT inject semantic expansion tokens into bridge_tokens
+            # This ensures Tier A2 remains bounded and hallucination-proof.
+            # bridge_tokens.update(top_anchor_tokens)  # Removed to fix gibberish bypass
 
 
         if os.getenv("DEBUG_SEARCH"):

@@ -1,6 +1,0 @@
-Loaded 1212 from noli_chapters.csv
-Loaded 974 from elfili_chapters.csv
-Loaded 8168 from fullversion_noli.csv
-Loaded 5296 from fullversion_elfili.csv
-Total sentences before deduplication: 15650
-Total unique training sentences: 15513
