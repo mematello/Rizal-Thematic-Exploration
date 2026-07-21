@@ -16,15 +16,11 @@ import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
 import { ArrowUp } from "lucide-react";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
+import { ChapterContent } from "@/types";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
 
-interface ChapterContent {
-  sentence_index: number;
-  sentence_text: string;
-  themes: any[]; // Using any[] for simplicity in page.tsx as it just passes data through
-}
 
 interface SelectedChapter {
   book: string;

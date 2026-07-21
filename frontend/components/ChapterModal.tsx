@@ -7,21 +7,8 @@ import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
 import { ScoreVisualizer } from "@/components/ScoreVisualizer";
+import { ChapterContent, ThemeMatch } from "@/types";
 
-interface ThemeMatch {
-    id: string;
-    label: string;
-    score: number;
-    explanation: string;
-}
-
-interface ChapterContent {
-    id: number;
-    is_short: boolean;
-    sentence_index: number;
-    sentence_text: string;
-    themes: ThemeMatch[];
-}
 
 interface ChapterModalProps {
     isOpen: boolean;

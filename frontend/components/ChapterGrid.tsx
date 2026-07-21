@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ChapterContent } from "@/types";
+
 
 type Novel = "noli" | "fili";
 
@@ -18,12 +20,8 @@ interface ChapterGridProps {
     onChapterSelect: (book: string, chapter: number, title: string) => void;
 }
 
-interface ChapterContent {
-    sentence_index: number;
-    sentence_text: string;
-}
-
 export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps) {
+
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [loading, setLoading] = useState(true);
 

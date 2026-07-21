@@ -14,12 +14,8 @@ import { ArrowLeft, BarChart2, LayoutGrid, MapPinned } from "lucide-react";
 import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
+import { ChapterContent } from "@/types";
 
-interface ChapterContent {
-    sentence_index: number;
-    sentence_text: string;
-    themes: any[];
-}
 
 function SearchContent() {
     const searchParams = useSearchParams();

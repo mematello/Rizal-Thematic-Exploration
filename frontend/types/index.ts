@@ -42,3 +42,19 @@ export interface ScoreVisualizerProps {
     char?: number;
     ratio?: number;
 }
+
+export interface ThemeMatch {
+    id?: string;
+    label?: string;
+    score?: number;
+    explanation?: string;
+}
+
+export interface ChapterContent {
+    id: number;
+    is_short?: boolean;
+    sentence_index: number;
+    sentence_text: string;
+    themes?: ThemeMatch[];
+}
+
