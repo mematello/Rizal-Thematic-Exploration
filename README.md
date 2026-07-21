@@ -10,14 +10,38 @@ An intelligent, full-stack search and exploration engine for the thematic analys
 
 ## 🖼️ Application Showcase
 
-<!-- [MARCUS: Insert a nice GIF or screenshot of the search working here] -->
-![Application Demo](./docs/placeholder.gif)
+![Landing Page Hero](./docs/snapshots/landing_page.png)
+
+![Search Functionality Demo](./docs/snapshots/searching_demo.gif)
 
 ## ⚙️ Key Engineering Features
 - **Semantic & Lexical Hybrid Search**: Utilizes `pgvector` and a custom-tuned `XLM-RoBERTa` (DAPT) model to allow robust Tagalog querying.
 - **Dynamic Thematic Mapping**: Translates abstract concepts (e.g., "korapsyon", "pag-ibig") to specific novel contexts using TF-IDF and dense embeddings.
 - **Cross-Lingual Support**: Automatically bridges English queries to their Tagalog counterparts via custom dictionary mapping and dynamic fallback.
 - **Modern User Interface**: Built with Next.js, Tailwind CSS, and Framer Motion for a responsive and premium academic reading experience.
+
+### Differentiators
+
+**RobustAligner Pipeline**  
+![RobustAligner Architecture](./docs/snapshots/13-robustaligner-pipeline.png)  
+*The RobustAligner utilizes dynamic-programming sequence alignment to accurately map queries directly to deep contextual passages.*
+
+**Reading Map View**  
+![Reading Map Expanded Context](./docs/snapshots/06-reading-map-view.png)  
+*Contextual expansion allows users to read neighboring sentences, visually mapped to demonstrate thematic continuity within the novel's structure.*
+
+**Staged Retrieval & Dual Scoring**  
+![Dual Scoring Result Cards](./docs/snapshots/05-result-cards-scoring.png)  
+*Search results show both semantic and lexical scores, so users can see exactly why a result ranked where it did.*
+
+**Anti-Hallucination Gate**  
+![Domain Validation Error State](./docs/snapshots/14-empty-state-rejection.png)  
+*Out-of-domain queries are actively blocked by the domain validation gate, preventing AI hallucinations and ensuring rigorous thematic relevance.*
+
+## 🏗️ Architecture
+
+![Detailed Retrieval Architecture](./docs/snapshots/08-detailed-retrieval-architecture.png)
+*This diagram illustrates the staged retrieval flow, demonstrating how initial lexical filtering is combined with deep semantic re-ranking to deliver highly accurate thematic results.*
 
 ## 🛠️ Tech Stack
 - **Frontend:** Next.js 16 (App Router), TailwindCSS, Zustand, React Query
@@ -84,6 +108,8 @@ poetry run python scripts/seed_dapt_db.py
 poetry run uvicorn app.main:app --reload
 ```
 *The API will be available at `http://localhost:8000`. Explore the interactive API docs at `http://localhost:8000/docs`.*
+
+![Swagger UI API Documentation](./docs/snapshots/swagger_ui_api.png)
 
 #### 4. Frontend Initialization
 Open a **new terminal** window:
