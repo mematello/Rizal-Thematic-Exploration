@@ -25,13 +25,13 @@ class RizalEngine:
         dapt_path_2 = os.path.join(base_path, 'app', 'models', 'rizal-xlm-r-dapt')
         
         print(f"Loading base model: {settings.BERT_MODEL_NAME}")
-        self.base_model = SentenceTransformer(settings.BERT_MODEL_NAME)
+        self.base_model = SentenceTransformer(settings.BERT_MODEL_NAME, device="cpu")
         
         dapt_path = dapt_path_1 if os.path.exists(dapt_path_1) else (dapt_path_2 if os.path.exists(dapt_path_2) else None)
         
         if dapt_path:
             print(f"Loading DAPT model from {dapt_path} for Sanggunian")
-            self.dapt_model = SentenceTransformer(dapt_path)
+            self.dapt_model = SentenceTransformer(dapt_path, device="cpu")
             self.has_dapt = True
         else:
             print(f"WARNING: DAPT model not found at {dapt_path_1} or {dapt_path_2}. Falling back to base model for Sanggunian.")
