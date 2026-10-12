@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "created": "2026-10-12 17:57:37",
-  "first_request_time_s": 25.97754900000291,
-  "memory_delta_mb": 0.0546875,
-  "peak_memory_mb": 33.3828125,
+  "created": "2026-10-12 18:31:59",
+  "first_request_time_s": 25.002715499998885,
+  "memory_delta_mb": -11.79296875,
+  "peak_memory_mb": 28.73046875,
   "queries": [
     {
       "query": "kalayaan",
@@ -11,72 +11,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 10499.163900007261,
+          "http_latency_ms": 10692.727200002992,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 10403.734399995301,
+          "http_latency_ms": 10541.056800007937,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 9982.885500008706,
+          "http_latency_ms": 9852.050099987537,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 9962.40800000669,
+          "http_latency_ms": 10320.38439999451,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 9949.285599999712,
+          "http_latency_ms": 18333.806800001184,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 10662.19469999487,
+          "http_latency_ms": 12310.03910000436,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 10397.581899989746,
+          "http_latency_ms": 14476.453800001764,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 10246.73719999555,
+          "http_latency_ms": 13253.544699997292,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 10850.952100008726,
+          "http_latency_ms": 12586.521099990932,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 10784.875500001363,
+          "http_latency_ms": 12261.445999989519,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         }
       ]
@@ -87,72 +87,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 32508.234699998866,
+          "http_latency_ms": 38886.07349999074,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 33242.00239998754,
+          "http_latency_ms": 35392.04239999526,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 34641.34190000186,
+          "http_latency_ms": 32545.21150000801,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 41886.98480000312,
+          "http_latency_ms": 32612.90330000338,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 33412.773299991386,
+          "http_latency_ms": 31749.762300009024,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 31818.178800007445,
+          "http_latency_ms": 32037.97640000994,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 32662.54079999635,
+          "http_latency_ms": 32913.49459999765,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 32817.10899999598,
+          "http_latency_ms": 31662.70749999967,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 34868.53300000075,
+          "http_latency_ms": 31712.63189999445,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 31678.377399992314,
+          "http_latency_ms": 32100.686000005226,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         }
       ]
@@ -163,72 +163,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2720.7683000015095,
+          "http_latency_ms": 2703.5729000053834,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2589.213800005382,
+          "http_latency_ms": 2578.845199997886,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2616.7490999941947,
+          "http_latency_ms": 2585.4603000043426,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2583.2020999951055,
+          "http_latency_ms": 2569.9185999983456,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2602.347199994256,
+          "http_latency_ms": 2593.5500000050524,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2600.403099990217,
+          "http_latency_ms": 2653.6094000039157,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2573.4527000022354,
+          "http_latency_ms": 2615.6822000048123,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2616.0358999914024,
+          "http_latency_ms": 2599.001999988104,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2575.990700002876,
+          "http_latency_ms": 2587.468700003228,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2664.1339999914635,
+          "http_latency_ms": 2568.3158000028925,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         }
       ]
@@ -239,70 +239,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 5097.959399994579,
+          "http_latency_ms": 4465.299799994682,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3392.9232000082266,
+          "http_latency_ms": 4553.548700001556,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3400.045400005183,
+          "http_latency_ms": 3454.0117000142345,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3294.051100005163,
+          "http_latency_ms": 3593.528500001412,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3177.284100005636,
+          "http_latency_ms": 4300.2139999880455,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3474.745100000291,
+          "http_latency_ms": 3255.9376999997767,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3200.313900000765,
+          "http_latency_ms": 3186.0183000098914,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3223.4393999970052,
+          "http_latency_ms": 3757.221499996376,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3133.1951999891317,
+          "http_latency_ms": 3332.290499994997,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3530.328200009535,
+          "http_latency_ms": 3323.8758000079542,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -315,72 +315,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 10448.408800002653,
+          "http_latency_ms": 13354.358800002956,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 10729.946500010556,
+          "http_latency_ms": 12138.07810000435,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 10243.972600001143,
+          "http_latency_ms": 11669.92780000146,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 10688.43310000375,
+          "http_latency_ms": 12648.208600003272,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 10471.31160000572,
+          "http_latency_ms": 12203.572800004622,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 11643.286499995156,
+          "http_latency_ms": 11663.129699998535,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 11962.991899999906,
+          "http_latency_ms": 11522.531099995831,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 11342.528900000616,
+          "http_latency_ms": 11369.335299998056,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 11543.93759999948,
+          "http_latency_ms": 11400.799200011534,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 11988.222100000712,
+          "http_latency_ms": 11801.066100000753,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         }
       ]
@@ -391,72 +391,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 17131.95949999499,
+          "http_latency_ms": 11253.183499997249,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 23354.251500000828,
+          "http_latency_ms": 11011.966500009294,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 13673.606800002744,
+          "http_latency_ms": 11982.813800001168,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 11704.213799996069,
+          "http_latency_ms": 10984.291199987638,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 11295.298999990337,
+          "http_latency_ms": 10490.267999994103,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 13912.49620000599,
+          "http_latency_ms": 10876.526099993498,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 10828.39189999504,
+          "http_latency_ms": 10737.945000000764,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 10999.589799990645,
+          "http_latency_ms": 10888.366600003792,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 11623.612099996535,
+          "http_latency_ms": 11018.782200000715,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 11829.172199999448,
+          "http_latency_ms": 11206.123399999342,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         }
       ]
@@ -467,72 +467,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2474.4893000024604,
+          "http_latency_ms": 2497.1438000065973,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2419.7690000000875,
+          "http_latency_ms": 2530.7419000018854,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2438.2523000094807,
+          "http_latency_ms": 2474.222999997437,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2443.1380000023637,
+          "http_latency_ms": 2492.5822999939555,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2457.666900008917,
+          "http_latency_ms": 2466.7458000039915,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2444.7359000041615,
+          "http_latency_ms": 2558.7606000044616,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2448.564599995734,
+          "http_latency_ms": 2495.1181999931578,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2449.558899999829,
+          "http_latency_ms": 2494.6334999985993,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2503.333200002089,
+          "http_latency_ms": 2468.181199990795,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2604.550299991388,
+          "http_latency_ms": 2437.099600007059,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         }
       ]
@@ -543,72 +543,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2700.844100007089,
+          "http_latency_ms": 2659.175199994934,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2537.998300002073,
+          "http_latency_ms": 2585.2479000022868,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2577.1294000005582,
+          "http_latency_ms": 2591.841600005864,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2586.5339000010863,
+          "http_latency_ms": 2567.614500003401,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2575.861100005568,
+          "http_latency_ms": 2532.268299997668,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2572.3904999904335,
+          "http_latency_ms": 2563.6801999935415,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2561.88559999282,
+          "http_latency_ms": 2522.8974999918137,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2661.0931000031997,
+          "http_latency_ms": 2598.4361000009812,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2537.972499994794,
+          "http_latency_ms": 2575.5011000001105,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2617.799499988905,
+          "http_latency_ms": 2577.482599997893,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         }
       ]
@@ -619,72 +619,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3486.363399992115,
+          "http_latency_ms": 3386.6955999983475,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2814.993799998774,
+          "http_latency_ms": 2787.795799988089,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2862.6068999874406,
+          "http_latency_ms": 2748.236999992514,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2756.8486999953166,
+          "http_latency_ms": 2791.2178999977186,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3238.59779999475,
+          "http_latency_ms": 2959.576499997638,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2779.052900004899,
+          "http_latency_ms": 2764.2944999970496,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2709.0671000041766,
+          "http_latency_ms": 2766.4787999965483,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2784.334800002398,
+          "http_latency_ms": 2758.05560000299,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2742.085300007602,
+          "http_latency_ms": 2771.6309999959776,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2964.032400006545,
+          "http_latency_ms": 2880.0339000008535,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 24
           }
         }
       ]
@@ -695,72 +695,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 4457.273300009547,
+          "http_latency_ms": 4660.94260000682,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3962.1449999976903,
+          "http_latency_ms": 3999.788200002513,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 4045.039299991913,
+          "http_latency_ms": 4192.336000007344,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 4019.1690000065137,
+          "http_latency_ms": 4115.6343999900855,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 4082.852699997602,
+          "http_latency_ms": 4211.413600001833,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 4334.781600002316,
+          "http_latency_ms": 4239.028600000893,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 4351.966900008847,
+          "http_latency_ms": 4138.523200002965,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 4339.309299990418,
+          "http_latency_ms": 4245.635000013863,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 4410.7398000051035,
+          "http_latency_ms": 4077.3392999981297,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 4603.07389999798,
+          "http_latency_ms": 4087.8624000033597,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 52
           }
         }
       ]
@@ -771,72 +771,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2673.2479999918723,
+          "http_latency_ms": 2544.2533000023104,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2666.8709999939892,
+          "http_latency_ms": 2460.4322999948636,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2509.63739999861,
+          "http_latency_ms": 2727.2230999951717,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2544.222399999853,
+          "http_latency_ms": 2551.1570000089705,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2477.5955000077374,
+          "http_latency_ms": 2655.530699994415,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2496.597899997141,
+          "http_latency_ms": 2550.1268000080017,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2550.7911999884527,
+          "http_latency_ms": 2503.7537000025623,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2491.687000001548,
+          "http_latency_ms": 2645.9870999970008,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2821.309199993266,
+          "http_latency_ms": 2521.553099999437,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 4268.503499988583,
+          "http_latency_ms": 2577.455099992221,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         }
       ]
@@ -847,72 +847,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2835.0533000048017,
+          "http_latency_ms": 2671.9988000113517,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2675.09340000106,
+          "http_latency_ms": 2633.639599996968,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2735.7562000106554,
+          "http_latency_ms": 2542.271800004528,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 4688.538800008246,
+          "http_latency_ms": 2580.9287000010954,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2798.690700001316,
+          "http_latency_ms": 2633.282599999802,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2869.779300002847,
+          "http_latency_ms": 2607.182899999316,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2775.7299000077182,
+          "http_latency_ms": 2559.4001999998,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2653.950399995665,
+          "http_latency_ms": 2561.0316999955103,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2740.1375000044936,
+          "http_latency_ms": 2599.9803000013344,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2616.4201999927172,
+          "http_latency_ms": 2634.119800000917,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 10
           }
         }
       ]
@@ -923,72 +923,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2782.036299991887,
+          "http_latency_ms": 2562.5167999969563,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2929.5184000075096,
+          "http_latency_ms": 2538.8610000081826,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2551.939199998742,
+          "http_latency_ms": 2549.4386999926064,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2632.5448999996297,
+          "http_latency_ms": 2539.770400006091,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2630.31680000131,
+          "http_latency_ms": 2555.4509999928996,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2617.7283999859355,
+          "http_latency_ms": 2583.6620000045514,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2618.8813999906415,
+          "http_latency_ms": 2619.488700001966,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2617.0730000012554,
+          "http_latency_ms": 2591.637699995772,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2554.426100003184,
+          "http_latency_ms": 2540.767500002403,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2753.22870000673,
+          "http_latency_ms": 2689.3650999991223,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -999,72 +999,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3046.5250999986893,
+          "http_latency_ms": 2601.5697000111686,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2820.8299999969313,
+          "http_latency_ms": 2532.866900000954,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2570.2583000093,
+          "http_latency_ms": 2527.0510999980615,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2526.9890000054147,
+          "http_latency_ms": 2560.0226999958977,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2571.1556000023847,
+          "http_latency_ms": 2551.4016000088304,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2585.3069000004325,
+          "http_latency_ms": 2556.2459000066156,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2579.4406999921193,
+          "http_latency_ms": 2532.4567000061506,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2511.2704999919515,
+          "http_latency_ms": 2534.3608999974094,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2686.2567999924067,
+          "http_latency_ms": 2578.37690001179,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2549.9150000105146,
+          "http_latency_ms": 2670.56969999976,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -1075,72 +1075,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2562.279599995236,
+          "http_latency_ms": 2639.988800001447,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2524.1264999931445,
+          "http_latency_ms": 2557.056299992837,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2553.6222999944584,
+          "http_latency_ms": 2525.209100000211,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2624.008500002674,
+          "http_latency_ms": 2475.060400000075,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2491.5322000015294,
+          "http_latency_ms": 2555.923099993379,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2566.404799988959,
+          "http_latency_ms": 2507.012999994913,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2583.4592999890447,
+          "http_latency_ms": 2512.216699993587,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2542.6521000044886,
+          "http_latency_ms": 2456.2945000070613,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2490.7030000031227,
+          "http_latency_ms": 2510.7281999953557,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2721.7134999955306,
+          "http_latency_ms": 2518.569599997136,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 14
           }
         }
       ]
@@ -1151,72 +1151,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2543.423499999335,
+          "http_latency_ms": 2476.1051999958,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2518.874200002756,
+          "http_latency_ms": 2447.1424000075785,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2513.9618999965023,
+          "http_latency_ms": 2461.951699995552,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2509.056700000656,
+          "http_latency_ms": 2485.240900001372,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2475.241100008134,
+          "http_latency_ms": 2488.2630000065546,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2545.645100006368,
+          "http_latency_ms": 2458.2624999893596,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2590.3916000097524,
+          "http_latency_ms": 2495.9562000003643,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2485.347300011199,
+          "http_latency_ms": 2644.583400004194,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2515.8547000028193,
+          "http_latency_ms": 2608.6062000103993,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2475.2513999992516,
+          "http_latency_ms": 2519.4096000050195,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 8
           }
         }
       ]
@@ -1227,72 +1227,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2517.7837000082945,
+          "http_latency_ms": 2487.1139000024414,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2396.3541999983136,
+          "http_latency_ms": 2405.4602999967756,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2408.0595999985235,
+          "http_latency_ms": 2410.092000005534,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2658.6676000006264,
+          "http_latency_ms": 2416.9862999988254,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2768.1171000003815,
+          "http_latency_ms": 2451.670099995681,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2597.1219000057317,
+          "http_latency_ms": 2470.7578999950783,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2541.641499992693,
+          "http_latency_ms": 2422.468699995079,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2884.9914000020362,
+          "http_latency_ms": 2411.691700006486,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2748.0319000023883,
+          "http_latency_ms": 2487.8057000023546,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2483.187799996813,
+          "http_latency_ms": 2436.9693999906303,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 4
           }
         }
       ]
@@ -1303,72 +1303,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2649.631699998281,
+          "http_latency_ms": 2447.1982999966713,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2523.896500002593,
+          "http_latency_ms": 2539.8518000001786,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2547.3523999971803,
+          "http_latency_ms": 2576.7224000010174,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2518.6397999932524,
+          "http_latency_ms": 2543.186599999899,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2448.28779999807,
+          "http_latency_ms": 2455.1719000010053,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2758.9497000008123,
+          "http_latency_ms": 2482.5584000063827,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2528.984999997192,
+          "http_latency_ms": 2452.485899993917,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2497.2497999988263,
+          "http_latency_ms": 2481.563199995435,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2476.5976000053342,
+          "http_latency_ms": 2447.6103000051808,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2523.900300002424,
+          "http_latency_ms": 2456.8855999968946,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         }
       ]
@@ -1379,72 +1379,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2443.1783000036376,
+          "http_latency_ms": 2361.4934000070207,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2367.5829999992857,
+          "http_latency_ms": 2398.2523000013316,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2357.9997999913758,
+          "http_latency_ms": 2356.5842999960296,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2383.892600002582,
+          "http_latency_ms": 2373.596000004909,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2561.4074000041,
+          "http_latency_ms": 2348.5171000065748,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2863.75489999773,
+          "http_latency_ms": 2359.55809999723,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2395.3049999981886,
+          "http_latency_ms": 2368.50010001217,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2581.847599998582,
+          "http_latency_ms": 2358.1371000036597,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2388.868800000637,
+          "http_latency_ms": 2493.111100004171,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2466.0106000083033,
+          "http_latency_ms": 2428.2783000089694,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         }
       ]
@@ -1455,72 +1455,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3199.3960999971023,
+          "http_latency_ms": 2706.1745999963023,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2772.5406999961706,
+          "http_latency_ms": 2634.4649999955436,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2904.156500007957,
+          "http_latency_ms": 2664.542300000903,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2681.6914999944856,
+          "http_latency_ms": 2719.8383000068134,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2679.4116999953985,
+          "http_latency_ms": 2663.0333999928553,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2666.388099998585,
+          "http_latency_ms": 2673.775699993712,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2605.304500000784,
+          "http_latency_ms": 2643.0317999911495,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2642.779599991627,
+          "http_latency_ms": 2625.6041000015102,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2809.8347000050126,
+          "http_latency_ms": 2713.2547999935923,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2942.005599994445,
+          "http_latency_ms": 2642.4714000022504,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 34
           }
         }
       ]
@@ -1531,72 +1531,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2470.806800003629,
+          "http_latency_ms": 2460.387700004503,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2404.109899987816,
+          "http_latency_ms": 2392.021999999997,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2435.4363000020385,
+          "http_latency_ms": 2383.387900001253,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2494.1418999951566,
+          "http_latency_ms": 2383.064599998761,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2438.7471999943955,
+          "http_latency_ms": 2414.968900004169,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2441.1437999951886,
+          "http_latency_ms": 2385.2789999946253,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2433.2413999945857,
+          "http_latency_ms": 2388.500999993994,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2406.3221999967936,
+          "http_latency_ms": 2384.3307999923127,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2425.0123999954667,
+          "http_latency_ms": 2445.688899999368,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3707.7456999977585,
+          "http_latency_ms": 2416.1980000062613,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 12
           }
         }
       ]
@@ -1607,72 +1607,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2788.2384000113234,
+          "http_latency_ms": 2396.9660000002477,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2867.5126999878557,
+          "http_latency_ms": 2393.992500001332,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2818.06800000777,
+          "http_latency_ms": 2388.22490000166,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2509.965999997803,
+          "http_latency_ms": 2392.4927999905776,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2504.887899995083,
+          "http_latency_ms": 2403.848100002506,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2463.0090999999084,
+          "http_latency_ms": 2379.0490999963367,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2578.6739000031957,
+          "http_latency_ms": 2390.4677999962587,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2568.1987999996636,
+          "http_latency_ms": 2370.8541999949375,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2528.0467999982648,
+          "http_latency_ms": 2432.3102999915136,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2518.3228999958374,
+          "http_latency_ms": 2393.0451000051107,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         }
       ]
@@ -1683,72 +1683,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2632.741800000076,
+          "http_latency_ms": 2520.1814000029117,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2507.128500001272,
+          "http_latency_ms": 2446.874699991895,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2607.5147000083234,
+          "http_latency_ms": 2456.691100000171,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2568.2789999991655,
+          "http_latency_ms": 2424.9823999998625,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2486.137300002156,
+          "http_latency_ms": 2430.2428999944823,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2436.612100005732,
+          "http_latency_ms": 2438.2411999977194,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2450.07789999363,
+          "http_latency_ms": 2471.408400000655,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2681.121499990695,
+          "http_latency_ms": 2442.073899990646,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2450.6108999921707,
+          "http_latency_ms": 2459.5909000054235,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2469.0692000003764,
+          "http_latency_ms": 2429.377199994633,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 18
           }
         }
       ]
@@ -1759,72 +1759,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2500.7436000014422,
+          "http_latency_ms": 2475.774199992884,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2447.056600009091,
+          "http_latency_ms": 2430.570100012119,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2443.3382999995956,
+          "http_latency_ms": 2428.5501999984263,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2449.400500001502,
+          "http_latency_ms": 2402.3451000102796,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2426.25410000619,
+          "http_latency_ms": 2399.887599996873,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2489.405699991039,
+          "http_latency_ms": 2420.0469000061275,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2422.1366999991005,
+          "http_latency_ms": 2433.4146000037435,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2430.8980999921914,
+          "http_latency_ms": 2389.232000001357,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2448.2794999930775,
+          "http_latency_ms": 2413.2204999914393,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2460.3650999924866,
+          "http_latency_ms": 2424.0721999958623,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 38
           }
         }
       ]
@@ -1835,72 +1835,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2998.457599998801,
+          "http_latency_ms": 2983.284200003254,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2769.6154000004753,
+          "http_latency_ms": 2580.544299999019,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2705.214600006002,
+          "http_latency_ms": 2617.8752000123495,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2718.3488000009675,
+          "http_latency_ms": 2558.6964999965858,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2636.624799997662,
+          "http_latency_ms": 2545.495200000005,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2594.5787000091514,
+          "http_latency_ms": 2700.706600007834,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2839.596399993752,
+          "http_latency_ms": 2578.6914999916917,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2725.271800009068,
+          "http_latency_ms": 2568.089799999143,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2592.2178000037093,
+          "http_latency_ms": 2577.332100001513,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3079.0301999950316,
+          "http_latency_ms": 2554.6349000069313,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 30
           }
         }
       ]
@@ -1911,72 +1911,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2836.456699995324,
+          "http_latency_ms": 2674.907599997823,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2965.8456000033766,
+          "http_latency_ms": 2693.796100007603,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2657.5694999919506,
+          "http_latency_ms": 2633.061999993515,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2945.906599998125,
+          "http_latency_ms": 2709.2783999978565,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2682.716800001799,
+          "http_latency_ms": 2653.025499996147,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2681.1069999967003,
+          "http_latency_ms": 2590.791499998886,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2685.8789999969304,
+          "http_latency_ms": 2705.6861000019126,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2717.159599997103,
+          "http_latency_ms": 2639.40429998911,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2749.222099999315,
+          "http_latency_ms": 2630.1292999996804,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2693.1372999970336,
+          "http_latency_ms": 2633.331000004546,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 44
           }
         }
       ]
@@ -1987,72 +1987,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2613.8193999940995,
+          "http_latency_ms": 2472.0025999995414,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2441.247499999008,
+          "http_latency_ms": 2430.125200000475,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2453.109399997629,
+          "http_latency_ms": 2403.984600008698,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2462.8713999991305,
+          "http_latency_ms": 2414.595599999302,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2444.9093000002904,
+          "http_latency_ms": 2407.877899997402,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2470.644499990158,
+          "http_latency_ms": 2395.8209000120405,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2462.8329999977723,
+          "http_latency_ms": 2498.825400005444,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2467.120300003444,
+          "http_latency_ms": 2411.844400005066,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2417.9246999992756,
+          "http_latency_ms": 2428.3887000055984,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2458.4296999964863,
+          "http_latency_ms": 2440.9887000074377,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -2063,72 +2063,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2379.3317999952706,
+          "http_latency_ms": 2418.2850000070175,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2383.832599996822,
+          "http_latency_ms": 2375.9245999972336,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2357.689399999799,
+          "http_latency_ms": 2367.4089000123786,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2343.408600005205,
+          "http_latency_ms": 2351.4103000052273,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2338.032600004226,
+          "http_latency_ms": 2345.7842000061646,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2347.396999990451,
+          "http_latency_ms": 2349.548700003652,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2344.0699000057066,
+          "http_latency_ms": 2359.5085999986622,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2392.50990000437,
+          "http_latency_ms": 2362.380300008226,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2371.2082999991253,
+          "http_latency_ms": 2355.070200006594,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2381.3430999871343,
+          "http_latency_ms": 2348.8110000034794,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -2139,72 +2139,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2904.819100003806,
+          "http_latency_ms": 2668.562999999267,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2571.1007000063546,
+          "http_latency_ms": 2543.2855999970343,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2573.9864999923157,
+          "http_latency_ms": 2540.2176000061445,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2552.3022999987006,
+          "http_latency_ms": 2554.696299994248,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2655.2814000024227,
+          "http_latency_ms": 2493.5409000026993,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2579.600400000345,
+          "http_latency_ms": 2533.750400005374,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2505.5687999993097,
+          "http_latency_ms": 2559.3812000006437,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2801.0235999972792,
+          "http_latency_ms": 2671.5418999956455,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2716.1699999996927,
+          "http_latency_ms": 2497.7798000036273,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2534.3830000056187,
+          "http_latency_ms": 2541.866099985782,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 26
           }
         }
       ]
@@ -2215,72 +2215,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2619.9618999962695,
+          "http_latency_ms": 2637.1703000040725,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2555.932599992957,
+          "http_latency_ms": 2489.2934000090463,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2501.7852000019047,
+          "http_latency_ms": 2524.0994000050705,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2546.427199995378,
+          "http_latency_ms": 2569.767300010426,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2539.78669999924,
+          "http_latency_ms": 2565.75029999658,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2672.640399992815,
+          "http_latency_ms": 2523.74140000029,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2597.146900006919,
+          "http_latency_ms": 2528.991400002269,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2569.9981000070693,
+          "http_latency_ms": 2514.8359000013443,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2672.7608000073815,
+          "http_latency_ms": 2546.176399991964,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2669.00659998646,
+          "http_latency_ms": 2535.4865999979666,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 42
           }
         }
       ]
@@ -2291,72 +2291,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2458.1925999955274,
+          "http_latency_ms": 2414.222699997481,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2459.4948000012664,
+          "http_latency_ms": 2419.216599999345,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2553.670499997679,
+          "http_latency_ms": 2351.3422000105493,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2416.419000001042,
+          "http_latency_ms": 2393.129300005967,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2435.1722999999765,
+          "http_latency_ms": 2341.907199996058,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2377.2003000049153,
+          "http_latency_ms": 2392.082599995774,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2383.237399990321,
+          "http_latency_ms": 2380.2276000060374,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2397.6755000039702,
+          "http_latency_ms": 2382.300400000531,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2473.059900003136,
+          "http_latency_ms": 2374.2570000031264,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2370.9589000063716,
+          "http_latency_ms": 2415.2565999975195,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -2367,72 +2367,72 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 2446.5009000123246,
+          "http_latency_ms": 2490.8419999992475,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 2369.9185000004945,
+          "http_latency_ms": 2385.060500004329,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 2384.1532000078587,
+          "http_latency_ms": 2362.8956000029575,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 2359.7134000010556,
+          "http_latency_ms": 2356.8528999894625,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 2397.2561999980826,
+          "http_latency_ms": 2365.606299994397,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 2365.564699997776,
+          "http_latency_ms": 2374.766399996588,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 2361.074800006463,
+          "http_latency_ms": 2393.979999993462,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 2402.930900003412,
+          "http_latency_ms": 2363.3870000048773,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 2347.223299992038,
+          "http_latency_ms": 2397.2499999945285,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 2424.1092999873217,
+          "http_latency_ms": 2357.1033000043826,
           "engine_timings": {
-            "db_query_count": 0
+            "db_query_count": 22
           }
         }
       ]
@@ -2443,70 +2443,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3594.394200001261,
+          "http_latency_ms": 3694.3477999884635,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3227.5323000067146,
+          "http_latency_ms": 3336.0914000077173,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3393.272999994224,
+          "http_latency_ms": 3432.4084000108996,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3159.5051000040257,
+          "http_latency_ms": 3455.3560000058496,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3347.371399999247,
+          "http_latency_ms": 3382.9475000093225,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3280.5876999918837,
+          "http_latency_ms": 3632.475100006559,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3644.806399999652,
+          "http_latency_ms": 3537.1988999977475,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3417.1975000062957,
+          "http_latency_ms": 3423.821100004716,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3185.0474000093527,
+          "http_latency_ms": 3401.47729999444,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3349.8340000078315,
+          "http_latency_ms": 3485.6425000034506,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2519,70 +2519,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3267.1179000026314,
+          "http_latency_ms": 3314.993799998774,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3355.2988000010373,
+          "http_latency_ms": 3229.5224999979837,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3284.3740999960573,
+          "http_latency_ms": 3598.4170000010636,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3584.149799993611,
+          "http_latency_ms": 3695.959699995001,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3646.2364999897545,
+          "http_latency_ms": 3225.0065999978688,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3742.674699999043,
+          "http_latency_ms": 3340.2803000062704,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3568.889499991201,
+          "http_latency_ms": 3510.7908000063617,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3610.4170000035083,
+          "http_latency_ms": 3315.495799994096,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3404.7848000045633,
+          "http_latency_ms": 3447.5899999961257,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3340.6929000047967,
+          "http_latency_ms": 3702.739300002577,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2595,70 +2595,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3235.2698000031523,
+          "http_latency_ms": 3204.2878000065684,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3537.9170999949565,
+          "http_latency_ms": 3343.7732000020333,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3649.5234000030905,
+          "http_latency_ms": 3372.5761999958195,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3264.6279000036884,
+          "http_latency_ms": 3485.329900009674,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3330.9889000083786,
+          "http_latency_ms": 3389.7357000096235,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3560.5542000121204,
+          "http_latency_ms": 3287.3473999934504,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3376.91089999862,
+          "http_latency_ms": 3316.9684000022244,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3514.539399999194,
+          "http_latency_ms": 3331.74360000703,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3212.7588000003016,
+          "http_latency_ms": 3424.2035999923246,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3636.966799997026,
+          "http_latency_ms": 3476.1787000024924,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2671,70 +2671,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3370.447099994635,
+          "http_latency_ms": 3399.795700010145,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3375.855899997987,
+          "http_latency_ms": 3421.903399997973,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3443.599100006395,
+          "http_latency_ms": 3292.0203000103356,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3290.099599995301,
+          "http_latency_ms": 3399.5309000019915,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3396.7052000080002,
+          "http_latency_ms": 3628.139699998428,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3355.1357999967877,
+          "http_latency_ms": 3499.881700001424,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3425.871499988716,
+          "http_latency_ms": 3261.9402000127593,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3564.552800002275,
+          "http_latency_ms": 3459.554900007788,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3491.209500003606,
+          "http_latency_ms": 3388.4566000051564,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3716.3899000006495,
+          "http_latency_ms": 3455.596500003594,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2747,70 +2747,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3452.3000000044703,
+          "http_latency_ms": 3387.2128000075463,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3503.253400005633,
+          "http_latency_ms": 3386.0072000097716,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3625.4275999963284,
+          "http_latency_ms": 3129.300200002035,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3415.2827999932924,
+          "http_latency_ms": 3379.366500012111,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3410.5910000071162,
+          "http_latency_ms": 3533.2936000049813,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3462.5255999999354,
+          "http_latency_ms": 3399.2053999972995,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3172.314900002675,
+          "http_latency_ms": 3360.1918000058504,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3291.7643999971915,
+          "http_latency_ms": 3283.907500008354,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3280.5775000015274,
+          "http_latency_ms": 3542.309500000556,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3436.1994999926537,
+          "http_latency_ms": 3411.3068000006024,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2823,70 +2823,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3536.60530000343,
+          "http_latency_ms": 3487.1544999914477,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3257.7296000090428,
+          "http_latency_ms": 3207.174399998621,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3346.02630000154,
+          "http_latency_ms": 3252.3752999986755,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3369.522599998163,
+          "http_latency_ms": 3394.7942000086186,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3379.1742000030354,
+          "http_latency_ms": 3460.210699995514,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3460.878700003377,
+          "http_latency_ms": 3432.0038000005297,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3114.560599991819,
+          "http_latency_ms": 3395.578999989084,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3339.1783999977633,
+          "http_latency_ms": 3388.9727000059793,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 9,
-          "http_latency_ms": 3227.5896000064677,
+          "http_latency_ms": 3480.1189999998314,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 10,
-          "http_latency_ms": 3294.6602999872994,
+          "http_latency_ms": 3377.1222999930615,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2899,56 +2899,70 @@
       "runs": [
         {
           "run": 1,
-          "http_latency_ms": 3351.5112999884877,
+          "http_latency_ms": 3452.020500000799,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 2,
-          "http_latency_ms": 3579.911100008758,
+          "http_latency_ms": 3435.89740000607,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 3,
-          "http_latency_ms": 3441.525400005048,
+          "http_latency_ms": 3371.374800000922,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 4,
-          "http_latency_ms": 3611.617500006105,
+          "http_latency_ms": 3487.2114999889163,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 5,
-          "http_latency_ms": 3325.951899998472,
+          "http_latency_ms": 3376.418100000592,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 6,
-          "http_latency_ms": 3417.538499998045,
+          "http_latency_ms": 3180.1336000062292,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 7,
-          "http_latency_ms": 3415.770799998427,
+          "http_latency_ms": 3148.2487000030233,
           "engine_timings": {
             "db_query_count": 0
           }
         },
         {
           "run": 8,
-          "http_latency_ms": 3310.966799996095,
+          "http_latency_ms": 3222.152800008189,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3515.6941000022925,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3416.313800000353,
           "engine_timings": {
             "db_query_count": 0
           }
@@ -2958,7 +2972,78 @@
     {
       "query": "online",
       "category": "out_of_domain",
-      "runs": []
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3161.1708999989787,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3701.530799997272,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3202.972299986868,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3266.7283000046154,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3477.912899994408,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3475.9211000055075,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3262.5540000008186,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3434.7147999942536,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3453.61560001038,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3803.9471999945818,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
     }
   ]
 }

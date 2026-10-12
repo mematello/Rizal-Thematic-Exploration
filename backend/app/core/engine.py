@@ -459,12 +459,18 @@ class RizalEngine:
 
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both"):
+        # Initialize timing collection if benchmarking
+        timings = {} if PERF_BENCHMARK else None
+        t_start = time.perf_counter() if PERF_BENCHMARK else None
+
         if not self._validate_query_semantics(db, query):
              return {
                  'results': {'noli': [], 'elfili': []},
                  'metadata': {'result_mode': 'none', 'reason': 'invalid_query'}
              }
-             
+
+        # Stage 1: Query preprocessing and analysis
+        t0 = time.perf_counter() if PERF_BENCHMARK else None
         query_words = extract_words(query.lower())
         
         # Query Analysis for dynamic behavior

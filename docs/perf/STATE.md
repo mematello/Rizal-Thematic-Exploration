@@ -7,7 +7,7 @@
 ---
 
 ## Current Status
-Phase 1 COMPLETE. Baseline measurements captured and analyzed. **Awaiting approval before Phase 2.**
+Phase 1 baseline complete; Phase 1b instrumentation in progress. Stage-level timing and EXPLAIN plans missing.
 
 ---
 
@@ -22,30 +22,46 @@ Phase 1 COMPLETE. Baseline measurements captured and analyzed. **Awaiting approv
 - ✅ Fixed explain_queries.py with proper vector syntax and UTF-8 output
 - ✅ Updated PLAN.md with refined hypotheses
 - ✅ Created BENCHMARK_INSTRUCTIONS.md with exact commands
-- ✅ **RAN BENCHMARK**: 39/40 queries completed (server crashed on last query)
-- ✅ **ANALYZED RESULTS**: BASELINE.md populated with findings
+- ✅ **RAN BENCHMARK**: 40/40 queries completed successfully (10 runs each)
+- ✅ **ANALYZED RESULTS**: BASELINE.md corrected with accurate data from JSON
 
 ---
 
 ## Key Findings from Phase 1
 
 **🚨 CRITICAL ISSUES:**
-- Single-word Tagalog queries: **10.4s average** (target: <1s)
-- "edukasyon" anomaly: **32-34s** per query
-- Theme classification likely bottleneck (latency correlates with result count)
-- DB query instrumentation failed (PERF_BENCHMARK not set in server)
+- Single-word Tagalog queries: **10.8s average** (target: <1s)
+- "edukasyon" anomaly: **38.9s cold, 32.1s warm** per query
+- **2.4s floor** on every query, even with 0 DB work
+- Out-of-domain rejection (0 DB queries) takes **3.4s** - slower than valid queries
 
-**Phase 2 Priorities:**
-1. Re-run with proper instrumentation to confirm bottleneck
-2. Optimize theme classification (batch processing, reduce context queries)
-3. Add Redis result caching
-4. Investigate "edukasyon" anomaly
+**Key Observations:**
+- DB query counts are identical (38-44) for fast and slow queries → N+1 hypothesis REFUTED
+- Slow queries are `semantic_fallback` mode; fast queries are `lexical`
+- English fallback queries (education, oppression) are FAST (2.5s), so fallback itself is not the cause
+- Warm == cold (no effective caching)
+
+**Phase 1b Requirements:**
+1. Add stage-level timing instrumentation to engine.py
+2. Fix explain_queries.py (vector syntax error)
+3. Targeted re-run: kalayaan, edukasyon, bayan, tiktok, oppression (5 runs each)
 
 ---
 
-## Next Actions - AWAITING USER APPROVAL
+## Next Actions - IN PROGRESS
 
-**Review BASELINE.md** (`docs/perf/BASELINE.md`) before proceeding to Phase 2 optimizations.
+**Adding stage-level timing** to capture:
+- Query preprocessing, translator, model encoding
+- Theme expansion (time + keyword count)
+- Lexical/semantic retrieval (candidate counts)
+- Re-ranking, theme classification, context expansion
+- Serialization
+
+**Fix EXPLAIN queries** with proper vector literal formatting
+
+**Targeted re-run** with instrumentation to identify:
+- Which stage causes the 2.4s floor
+- Which stage explains kalayaan/edukasyon slowness
 
 ---
 

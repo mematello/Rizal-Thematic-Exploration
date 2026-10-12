@@ -3,19 +3,22 @@
 **Measurement Date**: 2026-10-12  
 **Branch**: `perf/speed-optimization`  
 **API Version**: 1.0.0  
-**Queries Tested**: 40 (39 completed, 1 failed due to server crash)
+**Queries Tested**: 40 (all completed successfully)
 
 ---
 
 ## Executive Summary
 
 **🚨 CRITICAL FINDINGS:**
-- Single-word Tagalog queries are **10+ seconds** (unacceptable for production)
-- "edukasyon" query is **32-34 seconds** (severe outlier)
-- First request cold start: **26 seconds**
-- DB query instrumentation returned 0 counts (PERF_BENCHMARK flag issue)
+- Single-word Tagalog queries average **10.8 seconds** (unacceptable for production)
+- "edukasyon" query is **38.9 seconds cold, 32.1s warm** (severe outlier)
+- **~2.4s floor** on every query, even with minimal DB work
+- **Out-of-domain rejection (0 DB queries) takes 3.4s** - slower than valid queries
+- **No effective caching**: warm == cold across all queries
+- **Slow queries are semantic_fallback mode**; fast queries are lexical mode
 
-**Target for public deployment**: P95 latency < 1000ms
+**Target for public deployment**: P95 latency < 1000ms  
+**Current performance**: 10-12x too slow for critical queries
 
 ---
 
@@ -23,11 +26,11 @@
 
 | Metric | Value |
 |--------|-------|
-| First request (cold start) | 25.98s |
-| Memory footprint (delta) | 0.05 MB |
-| Peak memory | 33.4 MB |
+| First request (cold start) | 25.00s |
+| Memory delta | -11.79 MB (client-side measurement, not meaningful) |
+| Peak memory | 28.73 MB (client-side measurement, not meaningful) |
 
-**Analysis**: 26-second cold start is acceptable for server initialization, but NOT for per-request behavior. Memory footprint is surprisingly low (suggests measurement captured script memory, not server process).
+**Note**: Memory measurements were captured in the benchmark client script, not the server process, so they do not reflect actual server memory usage.
 
 ---
 
@@ -37,38 +40,103 @@
 
 | Category | Cold (ms) | Warm P50 (ms) | Warm P95 (ms) | Status |
 |----------|-----------|---------------|---------------|--------|
-| **Single-word Tagalog** | 10,448 | 9,701 | 13,493 | 🚨 **CRITICAL** |
-| Multi-word Tagalog | 3,048 | 2,833 | 3,744 | ⚠️ Slow |
-| English cross-lingual | 2,650 | 2,512 | 3,025 | ⚠️ Slow |
-| Character names | 2,657 | 2,520 | 2,699 | ⚠️ Slow |
-| Out-of-domain (reject) | 3,401 | 3,433 | 3,689 | ⚠️ Should be fast |
+| **Single-word Tagalog** | 10,814 | 9,772 | 11,833 | 🚨 **CRITICAL** |
+| Multi-word Tagalog | 2,943 | 2,771 | 2,913 | ⚠️ Slow |
+| English cross-lingual | 2,482 | 2,447 | 2,520 | ⚠️ Slow |
+| Character names | 2,595 | 2,476 | 2,560 | ⚠️ Slow |
+| Out-of-domain (reject) | 3,388 | 3,411 | 3,624 | ⚠️ Should be fast |
 
-### Individual Query Analysis
+### Key Individual Queries
 
-**🔴 Severe Outliers (>30s):**
-- `edukasyon`: 32.5s cold, 33.2s warm P50 (**REGRESSION or ANOMALY**)
+| Query | Cold (ms) | Warm P50 (ms) | DB Queries | Result Mode | Observation |
+|-------|-----------|---------------|------------|-------------|-------------|
+| **edukasyon** | 38,886 | 32,101 | 44 | semantic_fallback | 🚨 Severe outlier (12x slower than similar queries) |
+| **kalayaan** | 10,693 | 12,310 | 44 | semantic_fallback | 🚨 Critical slow |
+| **pag-ibig** | 10,542 | 11,506 | 44 | semantic_fallback | 🚨 Critical slow |
+| **kamatayan** | 11,278 | 10,862 | 44 | semantic_fallback | 🚨 Critical slow |
+| simbahan | 2,704 | 2,588 | 38 | lexical | ✅ Fast (lexical mode) |
+| bayan | 2,497 | 2,493 | 42 | lexical | ✅ Fast (lexical mode) |
+| paaralan | 2,659 | 2,576 | 42 | lexical | ✅ Fast (lexical mode) |
+| education | 2,447 | 2,482 | 42 | lexical | ✅ Fast (lexical + cross-lingual) |
+| oppression | 2,706 | 2,663 | 34 | lexical | ✅ Fast (English fallback) |
+| **korapsyon** | 4,465 | 3,454 | **0** | early reject | ⚠️ Rejected before DB |
+| **tiktok** | 3,694 | 3,432 | **0** | early reject | ⚠️ Out-of-domain slower than valid queries |
+| **online** | 3,161 | 3,454 | **0** | early reject | ⚠️ Out-of-domain slower than valid queries |
 
-**🔴 Critical Slow Queries (>10s):**
-- `kalayaan`: 10.5s cold, 10.4s warm P50
-- `pag-ibig`: 10.4s cold, 11.3s warm P50
-- `kamatayan`: 17.1s cold, 11.7s warm P50
+---
 
-**🟢 Acceptable Queries (<3s):**
-- `bayan`: 2.5s
-- `simbahan`: 2.7s
-- `paaralan`: 2.7s
-- Most character names: 2.4-2.9s
-- English cross-lingual: 2.4-3.2s
+## Critical Observations
+
+### 1. DB Query Count vs Latency (Refutes N+1 Hypothesis)
+
+DB query counts are nearly identical across fast and slow queries, but latency differs by 4-12x:
+
+| Query | DB Queries | Latency (warm P50) | Ratio |
+|-------|------------|--------------------|-------|
+| bayan | 42 | 2.5s | 1x (baseline) |
+| simbahan | 38 | 2.6s | 1x |
+| education | 42 | 2.5s | 1x |
+| **kalayaan** | 44 | **12.3s** | **4.9x** |
+| **pag-ibig** | 44 | **11.5s** | **4.6x** |
+| **edukasyon** | 44 | **32.1s** | **12.8x** |
+
+**Conclusion**: The extra time is NOT from DB round-trips or N+1 queries. Theme classification / context expansion N+1 hypothesis is **REFUTED**.
+
+### 2. The 2.4-Second Floor
+
+Every query has a baseline cost of ~2.4-2.6 seconds, regardless of:
+- DB work (korapsyon: 4 DB queries, still 3.5s)
+- Result count (out-of-domain: 0 results, 3.4s)
+- Query complexity (single-word vs multi-word)
+
+**Candidates for the floor**:
+- Model encoding (base + DAPT)
+- Theme expansion / matrix operations
+- Query preprocessing / analysis
+- Translator network calls (for cross-lingual queries)
+- Response serialization
+
+### 3. Semantic Fallback Correlation
+
+**Slow queries** (10+ seconds): kalayaan, pag-ibig, edukasyon, kamatayan  
+**Fast queries** (2-3 seconds): bayan, simbahan, paaralan, education, oppression
+
+From `golden_snapshot.json` metadata:
+- Slow queries have `result_mode: "semantic_fallback"`
+- Fast queries have `result_mode: "lexical"`
+
+**But**: English cross-lingual queries (education, oppression) also trigger fallback yet remain fast (2.4-2.7s).
+
+**Hypothesis**: The bottleneck is NOT "semantic fallback" itself, but something specific to certain Tagalog terms during fallback:
+- Theme expansion keyword generation
+- Semantic candidate pool size
+- Validation/filtering passes
+
+### 4. No Effective Caching
+
+Warm queries show NO improvement over cold:
+- kalayaan: 10.7s cold → 12.3s warm (actually slower!)
+- edukasyon: 38.9s cold → 32.1s warm (marginal improvement, but still slow)
+- bayan: 2.5s cold → 2.5s warm (identical)
+
+**Conclusion**: No query result caching, no model output caching, no meaningful warm-up effect.
+
+### 5. Out-of-Domain Queries Are Slow
+
+Queries that reject early (korapsyon, tiktok, bitcoin, etc.) with 0 DB queries still take **3.4 seconds** on average - SLOWER than valid lexical queries (2.5s).
+
+**Implication**: The early-reject path is NOT cheap. Likely costs:
+- Full query preprocessing
+- Model encoding
+- Theme expansion (to check domain relevance)
+- Translation API calls
 
 ---
 
 ## Database Performance
 
-### Query Plans (from EXPLAIN ANALYZE)
+### Statistics
 
-**⚠️ WARNING**: EXPLAIN queries failed due to vector syntax error in initial run.
-
-**Database Statistics:**
 - Total sentences: 16,402
 - Summary sentences: 2,186 (primary search target)
 - Full text sentences: 14,216
@@ -76,119 +144,137 @@
 - Sentences with embeddings: 16,402 (100%)
 - Sentences with DAPT embeddings: 11,822 (72%)
 
-**Existing Indexes:**
+### Existing Indexes
+
 - `ix_sentences_book` (B-tree)
 - `ix_sentences_chapter_number` (B-tree)
 - `ix_sentences_id` (B-tree, primary key)
 - `ix_sentences_passage_id` (B-tree)
 
-**Missing Indexes:**
+### Missing Indexes
+
 - ❌ No `source_type` index
 - ❌ No composite index on `(book, source_type, chapter_number)`
 - ❌ No GIN index on `sentence_text` for ILIKE queries (pg_trgm)
-- ❌ No HNSW or IVFFlat index on `embedding` vector column
+- ❌ No vector index (HNSW or IVFFlat) on `embedding` column
+
+### Query Plans
+
+**❌ ALL EXPLAIN QUERIES FAILED**: Vector embedding syntax error. The embedding was being stringified character-by-character (`'[', '0', '.', ...`) instead of as a proper array literal.
+
+**Status**: `explain_queries.py` needs to be fixed and re-run (see Phase 1b tasks below).
 
 ---
 
 ## Stage-Level Timing Breakdown
 
-**❌ NOT CAPTURED**: DB query counts and engine-level timings returned 0.
+**❌ NOT CAPTURED**: Only `db_query_count` was returned in `engine_timings`. Stage-level timing (preprocessing, model encoding, theme expansion, retrieval, re-ranking, etc.) was not instrumented.
 
-**Root Cause**: `PERF_BENCHMARK=1` environment variable was likely not set in the server process, only in the benchmark script. The instrumentation in `backend/app/api/v1/search.py` requires the server to have this flag set.
+**Why**: The instrumentation was not added to `backend/app/core/engine.py`. Only the DB query counter was active.
 
-**Impact**: Cannot determine which stage (preprocessing, model encoding, lexical retrieval, semantic fallback, theme classification, context expansion) is the bottleneck without re-running with proper instrumentation.
+**Impact**: Cannot determine which specific stage (theme expansion vs model encoding vs candidate pool processing) is the bottleneck for kalayaan/edukasyon without stage-level timing.
 
 ---
 
-## Confirmed Bottlenecks (Pre-Measurement Hypotheses)
+## Phase 1b: Required Corrections
 
-Based on HTTP end-to-end latency patterns:
+### Tasks Before Phase 2
 
-### 🔴 Hypothesis #1: Theme Classification + Context Expansion (LIKELY CONFIRMED)
-**Evidence**: 
-- Single-word queries (which return 10-20 results) are 4x slower than multi-word queries (which return 0-7 results)
-- Latency correlates with result count, not query complexity
-- Each result triggers `_classify_themes()` + `_expand_context()` with neighbor lookups
+1. **Add stage-level timing instrumentation** (behind `PERF_BENCHMARK` flag):
+   - Query preprocessing / analysis
+   - Translator call (network vs cache)
+   - Base model encode
+   - DAPT model encode  
+   - Theme expansion (time + keyword count)
+   - Lexical retrieval (candidate count)
+   - Semantic fallback retrieval (requested vs returned count)
+   - Re-ranking loop
+   - `_classify_themes` total
+   - `_expand_context` total
+   - Precision scoring
+   - Response serialization
 
-**Calculation**: 
-- `kalayaan` returns 20 results × ~500ms per result = ~10s ✅ matches observed latency
+2. **Fix `explain_queries.py`**:
+   - Format embedding as proper array literal for PostgreSQL
+   - Run each EXPLAIN in its own transaction to avoid abort cascade
+   - Regenerate `docs/perf/query_plans.txt`
 
-### 🔴 Hypothesis #2: Model Inference (PARTIALLY CONFIRMED)
+3. **Targeted re-run** (5 queries × 5 runs each):
+   - kalayaan (slow semantic fallback)
+   - edukasyon (severe outlier)
+   - bayan (fast lexical)
+   - tiktok (out-of-domain early reject)
+   - oppression (fast English fallback)
+
+4. **Deliverable**: Short report with per-stage timing, explaining:
+   - Which stage causes the 2.4s floor
+   - Which stage explains kalayaan/edukasyon slowness
+   - Database query plans (EXPLAIN ANALYZE)
+   - Revised ranked bottleneck list
+
+---
+
+## Revised Bottleneck Hypotheses (Pre-Instrumentation)
+
+Based on the corrected data analysis:
+
+### 🔴 Hypothesis #1: Theme Expansion for Specific Terms (NEW)
 **Evidence**:
-- Cold vs warm timing shows minimal difference (10.4s cold vs 10.4s warm P50 for `kalayaan`)
-- Suggests model is not the primary bottleneck once loaded
-- But 26s first request indicates heavy model initialization
+- Slow queries are semantic_fallback with identical DB counts (44) as fast queries
+- English fallback queries (education, oppression) are fast, so "fallback" itself is not the cause
+- Likely: certain Tagalog terms generate massive theme expansion keyword sets or expensive matrix operations
 
-### 🔴 Hypothesis #3: Semantic Fallback Retrieval (NEEDS VERIFICATION)
+**Test**: Capture theme expansion timing + keyword count for kalayaan vs bayan
+
+### 🔴 Hypothesis #2: Semantic Candidate Pool Processing (NEW)
 **Evidence**:
-- Out-of-domain queries (which trigger fallback but return 0 results) are 3.4s
-- If semantic fallback is expensive, we'd expect longer latency even with 0 results
-- Unclear without stage-level timing
+- Semantic fallback queries retrieve `top_k * 15` candidates for re-ranking
+- If kalayaan retrieves a huge candidate pool (e.g., 3000 rows) vs bayan (200 rows), the re-ranking loop would be expensive
 
-### ⚠️ "edukasyon" Anomaly (INVESTIGATE)
-**Observation**: This query is 10x slower than similar queries (32s vs 2-3s)
-**Possible causes**:
-- Theme expansion returns massive keyword set
-- Fallback retrieves huge candidate pool
-- Database query plan degrades for this specific term
-- Network timeout or external API call (translator?)
+**Test**: Log semantic candidate pool size (requested vs returned)
 
----
+### 🔴 Hypothesis #3: Model Encoding (Floor Contributor)
+**Evidence**:
+- 2.4s floor on every query, including 0-DB-query rejects
+- Out-of-domain queries still encode the query with base + DAPT models
 
-## Preliminary Optimization Priorities
+**Test**: Measure base_model.encode() and dapt_model.encode() timing
 
-### Phase 2 Immediate Actions:
+### 🟡 Hypothesis #4: Translator Network Calls (Floor Contributor)
+**Evidence**:
+- 2.4s floor includes cross-lingual queries
+- Translator cache was client-side only; server-side translation not frozen
 
-**Priority 1: Fix Instrumentation and Re-Run**
-- Set `PERF_BENCHMARK=1` in server terminal
-- Re-run benchmark with stage-level timing
-- Confirm theme classification is the bottleneck
+**Test**: Log translator timing + cache hit/miss
 
-**Priority 2: Optimize Theme Classification**
-1. Batch theme classification (one query for all results, not N queries)
-2. Remove or optimize context expansion (8-sentence window × 20 results = 160 DB queries)
-3. Add composite indexes: `(book, chapter_number, source_type, sentence_index)`
-4. Consider caching theme classifications per sentence_id
+### 🟢 Hypothesis #5: Theme Classification / Context Expansion (REFUTED)
+**Evidence**:
+- DB query counts are identical (38-44) for fast and slow queries
+- If N+1 context expansion was the culprit, bayan (42 queries) would be as slow as kalayaan (44 queries)
+- Slow queries spend extra time elsewhere, NOT in DB round-trips
 
-**Priority 3: Add Result Caching**
-- Redis cache for full search results (key: query hash)
-- TTL: 1 hour
-- Expected impact: 90%+ cache hit rate for common queries
-
-**Priority 4: Investigate "edukasyon" Anomaly**
-- Run with `DEBUG_SEARCH=1` to see execution path
-- Check theme expansion output
-- Profile database query for this term
-- May reveal systemic issue affecting other queries
-
----
-
-## Golden Snapshot Status
-
-✅ **Golden snapshot captured**: `docs/perf/golden_snapshot.json` (181 KB)
-- 39 queries with full ranked output
-- Result IDs, scores (semantic, lexical, final, precision)
-- Theme labels per result
-- Ready for correctness verification with `compare_golden.py`
+**Status**: **REFUTED** by the data
 
 ---
 
 ## Next Steps
 
-1. ✅ **COMPLETED**: Baseline measurements captured
-2. ⚠️ **TODO**: Re-run with proper `PERF_BENCHMARK=1` in server to capture stage timings
-3. ⚠️ **TODO**: Fix and re-run `explain_queries.py` for database query plans
-4. **DECISION POINT**: Review this baseline before proceeding to Phase 2 optimizations
+1. ✅ **COMPLETED**: Baseline measurements captured, corrected analysis
+2. ⚠️ **IN PROGRESS**: Add stage-level timing instrumentation
+3. ⚠️ **IN PROGRESS**: Fix EXPLAIN queries
+4. ⚠️ **TODO**: Targeted re-run (5 queries × 5 runs)
+5. **DECISION POINT**: Review instrumented results before Phase 2 optimizations
 
 ---
 
 ## Notes
 
-- Server crashed during "online" query (run 9/10) - likely memory/resource exhaustion after 39 consecutive searches
-- Deep_translator not available during benchmark (but engine has it)
-- Translator caching is client-side only; server-side translation calls still occur
-- Warm query performance shows no improvement over cold (suggests no effective caching)
+- All 40 queries completed successfully (10 runs each)
+- Golden snapshot contains full ranked results for all queries
+- DB query counting worked correctly (PERF_BENCHMARK was set properly)
+- Stage-level timing is the missing piece for root cause analysis
+- Memory measurements from client script are not meaningful for server analysis
 
 ---
 
-**Conclusion**: Search is **10-30x slower** than production targets. Theme classification per result is the likely culprit. Must re-run with full instrumentation to confirm before optimizing.
+**Status**: Phase 1 baseline complete; Phase 1b instrumentation required before Phase 2.

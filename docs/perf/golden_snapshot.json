@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "created": "2026-10-12 17:57:37",
+  "created": "2026-10-12 18:31:59",
   "queries": {
     "kalayaan": {
       "query": "kalayaan",
@@ -11,11 +11,11 @@
           "chapter_number": 60,
           "sentence_text": "Saglit na dumaan si Ibarra sa bahay ng dalaga upang ibigay ang kalayaan ng dalaga.",
           "scores": {
-            "semantic": 73,
+            "semantic": 74,
             "lexical": 100,
-            "final": 78,
+            "final": 79,
             "precision": 0,
-            "rerank": 63,
+            "rerank": 64,
             "initial_rank": 1
           },
           "themes": [
@@ -27,14 +27,14 @@
           ]
         },
         {
-          "id": 38386,
-          "sentence_index": 13,
-          "chapter_number": 64,
-          "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
+          "id": 37600,
+          "sentence_index": 1,
+          "chapter_number": 24,
+          "sentence_text": "Umaga palang nang makatapos na si Padre Salvi sa kanyang pagmimisa.",
           "scores": {
             "semantic": 84,
             "lexical": 50,
-            "final": 78,
+            "final": 77,
             "precision": 0,
             "rerank": 74,
             "initial_rank": 2
@@ -42,47 +42,17 @@
           "themes": []
         },
         {
-          "id": 37677,
-          "sentence_index": 12,
-          "chapter_number": 27,
-          "sentence_text": "Isinama din nila si Sinang ng mapadaan ang mga ito sa kanila.",
+          "id": 38386,
+          "sentence_index": 13,
+          "chapter_number": 64,
+          "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
           "scores": {
-            "semantic": 84,
+            "semantic": 83,
             "lexical": 50,
             "final": 77,
             "precision": 0,
-            "rerank": 74,
+            "rerank": 73,
             "initial_rank": 3
-          },
-          "themes": []
-        },
-        {
-          "id": 38071,
-          "sentence_index": 25,
-          "chapter_number": 50,
-          "sentence_text": "Nakakilala siya ng isang dalaga na may mahigpit na magulang.",
-          "scores": {
-            "semantic": 84,
-            "lexical": 50,
-            "final": 77,
-            "precision": 0,
-            "rerank": 74,
-            "initial_rank": 4
-          },
-          "themes": []
-        },
-        {
-          "id": 37618,
-          "sentence_index": 19,
-          "chapter_number": 24,
-          "sentence_text": "Aniya mas malaking pagkakasala ang mangialam sa pag-aari ng iba.",
-          "scores": {
-            "semantic": 84,
-            "lexical": 50,
-            "final": 77,
-            "precision": 0,
-            "rerank": 74,
-            "initial_rank": 5
           },
           "themes": []
         },
@@ -94,7 +64,37 @@
           "scores": {
             "semantic": 83,
             "lexical": 50,
-            "final": 77,
+            "final": 76,
+            "precision": 0,
+            "rerank": 73,
+            "initial_rank": 4
+          },
+          "themes": []
+        },
+        {
+          "id": 37677,
+          "sentence_index": 12,
+          "chapter_number": 27,
+          "sentence_text": "Isinama din nila si Sinang ng mapadaan ang mga ito sa kanila.",
+          "scores": {
+            "semantic": 83,
+            "lexical": 50,
+            "final": 76,
+            "precision": 0,
+            "rerank": 73,
+            "initial_rank": 5
+          },
+          "themes": []
+        },
+        {
+          "id": 37618,
+          "sentence_index": 19,
+          "chapter_number": 24,
+          "sentence_text": "Aniya mas malaking pagkakasala ang mangialam sa pag-aari ng iba.",
+          "scores": {
+            "semantic": 83,
+            "lexical": 50,
+            "final": 76,
             "precision": 0,
             "rerank": 73,
             "initial_rank": 6
@@ -102,10 +102,10 @@
           "themes": []
         },
         {
-          "id": 38388,
-          "sentence_index": 15,
-          "chapter_number": 64,
-          "sentence_text": "Ang alperes ay nakipaghiwalay sa nangangamoy niyang asawa.",
+          "id": 37644,
+          "sentence_index": 22,
+          "chapter_number": 25,
+          "sentence_text": "Dagdag pa ng pilosopo, hindi sapat ang kayamanan at kabutihan ng loob.",
           "scores": {
             "semantic": 83,
             "lexical": 50,
@@ -113,21 +113,6 @@
             "precision": 0,
             "rerank": 73,
             "initial_rank": 7
-          },
-          "themes": []
-        },
-        {
-          "id": 37600,
-          "sentence_index": 1,
-          "chapter_number": 24,
-          "sentence_text": "Umaga palang nang makatapos na si Padre Salvi sa kanyang pagmimisa.",
-          "scores": {
-            "semantic": 83,
-            "lexical": 50,
-            "final": 76,
-            "precision": 0,
-            "rerank": 73,
-            "initial_rank": 8
           },
           "themes": []
         },
@@ -142,7 +127,7 @@
             "final": 76,
             "precision": 0,
             "rerank": 72,
-            "initial_rank": 9
+            "initial_rank": 8
           },
           "themes": [
             {
@@ -153,14 +138,29 @@
           ]
         },
         {
-          "id": 37705,
-          "sentence_index": 4,
-          "chapter_number": 30,
-          "sentence_text": "Sa kamahalan ay hindi nalalayo ang binabayad sa komedya na nagtatanghal ng tatlong araw.",
+          "id": 38071,
+          "sentence_index": 25,
+          "chapter_number": 50,
+          "sentence_text": "Nakakilala siya ng isang dalaga na may mahigpit na magulang.",
           "scores": {
             "semantic": 82,
             "lexical": 50,
             "final": 76,
+            "precision": 0,
+            "rerank": 72,
+            "initial_rank": 9
+          },
+          "themes": []
+        },
+        {
+          "id": 38383,
+          "sentence_index": 10,
+          "chapter_number": 64,
+          "sentence_text": "Humuhusay narin siya sa pagsasalita ng Espanyol.",
+          "scores": {
+            "semantic": 82,
+            "lexical": 50,
+            "final": 75,
             "precision": 0,
             "rerank": 72,
             "initial_rank": 10
@@ -170,14 +170,14 @@
       ],
       "elfili": [
         {
-          "id": 39324,
-          "sentence_index": 29,
+          "id": 39345,
+          "sentence_index": 50,
           "chapter_number": 39,
-          "sentence_text": "Ngunit isang kaguluhan ang dumating sa kanyang buhay at sa isang iglap ay nawala sa kanya ang kanyan",
+          "sentence_text": "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong ng patalim.",
           "scores": {
             "semantic": 84,
-            "lexical": 95,
-            "final": 86,
+            "lexical": 100,
+            "final": 87,
             "precision": 0,
             "rerank": 74,
             "initial_rank": 1
@@ -185,14 +185,14 @@
           "themes": []
         },
         {
-          "id": 39345,
-          "sentence_index": 50,
+          "id": 39324,
+          "sentence_index": 29,
           "chapter_number": 39,
-          "sentence_text": "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong ng patalim.",
+          "sentence_text": "Ngunit isang kaguluhan ang dumating sa kanyang buhay at sa isang iglap ay nawala sa kanya ang kanyan",
           "scores": {
             "semantic": 83,
-            "lexical": 100,
-            "final": 86,
+            "lexical": 95,
+            "final": 85,
             "precision": 0,
             "rerank": 73,
             "initial_rank": 2
@@ -205,27 +205,12 @@
           "chapter_number": 39,
           "sentence_text": "Inaming siya’y nagkamali at naitanong na dahil ba sa pagkakamaling iyon ay ipagkakait na ng Diyos an",
           "scores": {
-            "semantic": 79,
+            "semantic": 78,
             "lexical": 94,
-            "final": 82,
+            "final": 81,
             "precision": 0,
-            "rerank": 69,
+            "rerank": 68,
             "initial_rank": 3
-          },
-          "themes": []
-        },
-        {
-          "id": 39110,
-          "sentence_index": 11,
-          "chapter_number": 31,
-          "sentence_text": "Kapag itinanggi umano sa isang bayan ang liwanag, tahanan, katarungan at kalayaan ay ituturing ng ba",
-          "scores": {
-            "semantic": 77,
-            "lexical": 96,
-            "final": 80,
-            "precision": 0,
-            "rerank": 67,
-            "initial_rank": 5
           },
           "themes": []
         },
@@ -241,6 +226,21 @@
             "precision": 0,
             "rerank": 66,
             "initial_rank": 4
+          },
+          "themes": []
+        },
+        {
+          "id": 39110,
+          "sentence_index": 11,
+          "chapter_number": 31,
+          "sentence_text": "Kapag itinanggi umano sa isang bayan ang liwanag, tahanan, katarungan at kalayaan ay ituturing ng ba",
+          "scores": {
+            "semantic": 76,
+            "lexical": 96,
+            "final": 80,
+            "precision": 0,
+            "rerank": 66,
+            "initial_rank": 5
           },
           "themes": []
         },
@@ -267,7 +267,7 @@
           "scores": {
             "semantic": 60,
             "lexical": 99,
-            "final": 67,
+            "final": 68,
             "precision": 0,
             "rerank": 50,
             "initial_rank": 7
@@ -275,10 +275,10 @@
           "themes": []
         },
         {
-          "id": 39325,
-          "sentence_index": 30,
-          "chapter_number": 39,
-          "sentence_text": "Naligtas lamang siya sa kamatayan sa tulong ng isang kaibigan.",
+          "id": 38706,
+          "sentence_index": 14,
+          "chapter_number": 14,
+          "sentence_text": "Napagkasunduan nila na kay Ginoong Pasta lumapit upang maging marangal ang kapamaraanan.",
           "scores": {
             "semantic": 85,
             "lexical": 50,
@@ -290,31 +290,31 @@
           "themes": []
         },
         {
-          "id": 38884,
-          "sentence_index": 4,
-          "chapter_number": 24,
-          "sentence_text": "Para sa kanya, ang bayang iyon ang tangi niyang kaligayahan bago pa nakilala at nakita si Paulita.",
-          "scores": {
-            "semantic": 85,
-            "lexical": 50,
-            "final": 78,
-            "precision": 0,
-            "rerank": 75,
-            "initial_rank": 9
-          },
-          "themes": []
-        },
-        {
           "id": 38809,
           "sentence_index": 12,
           "chapter_number": 21,
           "sentence_text": "Pagkaraan ay masiglang lumapit ang kagawad sa isang karwahe na lulan si Simoun.",
           "scores": {
-            "semantic": 85,
+            "semantic": 84,
             "lexical": 50,
-            "final": 78,
+            "final": 77,
             "precision": 0,
-            "rerank": 75,
+            "rerank": 74,
+            "initial_rank": 9
+          },
+          "themes": []
+        },
+        {
+          "id": 38884,
+          "sentence_index": 4,
+          "chapter_number": 24,
+          "sentence_text": "Para sa kanya, ang bayang iyon ang tangi niyang kaligayahan bago pa nakilala at nakita si Paulita.",
+          "scores": {
+            "semantic": 84,
+            "lexical": 50,
+            "final": 77,
+            "precision": 0,
+            "rerank": 74,
             "initial_rank": 10
           },
           "themes": []
@@ -330,7 +330,8 @@
           "pag-aalsa laban sa kastila",
           "pangarap ng bayan"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 44
       }
     },
     "edukasyon": {
@@ -342,11 +343,11 @@
           "chapter_number": 19,
           "sentence_text": "Ibinahagi din ng guro ang iba’t-ibang problemang kinaharap ng mga guro at ng edukasyon.",
           "scores": {
-            "semantic": 80,
+            "semantic": 78,
             "lexical": 100,
-            "final": 84,
+            "final": 83,
             "precision": 0,
-            "rerank": 70,
+            "rerank": 68,
             "initial_rank": 1
           },
           "themes": [
@@ -363,11 +364,11 @@
           "chapter_number": 19,
           "sentence_text": "Sisikapin niyang paunladin ang sistema ng edukasyon sa kanilang lugar.",
           "scores": {
-            "semantic": 74,
+            "semantic": 73,
             "lexical": 100,
-            "final": 79,
+            "final": 78,
             "precision": 0,
-            "rerank": 64,
+            "rerank": 63,
             "initial_rank": 2
           },
           "themes": [
@@ -384,11 +385,11 @@
           "chapter_number": 19,
           "sentence_text": "Isa din sa balakid sa edukasyon ay ang kakaibang pananaw ng mga pari sa paraan ng pagtuturo ng mga g",
           "scores": {
-            "semantic": 71,
+            "semantic": 70,
             "lexical": 99,
-            "final": 77,
+            "final": 76,
             "precision": 0,
-            "rerank": 61,
+            "rerank": 60,
             "initial_rank": 3
           },
           "themes": [
@@ -405,11 +406,11 @@
           "chapter_number": 19,
           "sentence_text": "Nagtanong si Ibarra kung ano ang kinahinatnat ng pagtulong ng ama sa mga mahihiraP. Sinabi ng guro n",
           "scores": {
-            "semantic": 66,
+            "semantic": 64,
             "lexical": 95,
-            "final": 71,
+            "final": 70,
             "precision": 0,
-            "rerank": 56,
+            "rerank": 54,
             "initial_rank": 4
           },
           "themes": [
@@ -426,11 +427,11 @@
           "chapter_number": 19,
           "sentence_text": "Kabilang na dito ang kawalan ng motibasyon at interes ng mga estudyante sa pag-aaral, kakulangan sa ",
           "scores": {
-            "semantic": 60,
+            "semantic": 58,
             "lexical": 50,
-            "final": 58,
+            "final": 56,
             "precision": 0,
-            "rerank": 50,
+            "rerank": 48,
             "initial_rank": 5
           },
           "themes": []
@@ -441,11 +442,11 @@
           "chapter_number": 19,
           "sentence_text": "Kahit pa masikap ang mga guro sa pagtuturo ay hindi parin matututo ang mga estudyante kung patuloy n",
           "scores": {
-            "semantic": 56,
+            "semantic": 55,
             "lexical": 50,
-            "final": 55,
+            "final": 54,
             "precision": 0,
-            "rerank": 46,
+            "rerank": 45,
             "initial_rank": 6
           },
           "themes": []
@@ -456,11 +457,11 @@
           "chapter_number": 53,
           "sentence_text": "Kinabukasan ay kalat na sa komunidad ang balitang may nakitang maraming ilaw sa libingan.",
           "scores": {
-            "semantic": 55,
+            "semantic": 54,
             "lexical": 50,
-            "final": 54,
+            "final": 53,
             "precision": 0,
-            "rerank": 45,
+            "rerank": 44,
             "initial_rank": 7
           },
           "themes": []
@@ -471,12 +472,27 @@
           "chapter_number": 8,
           "sentence_text": "Habang patuloy na nagmamasid si Ibarra sa paligid ay may natanaw siyang isang karwaheng papalapit sa",
           "scores": {
-            "semantic": 55,
+            "semantic": 53,
             "lexical": 50,
-            "final": 54,
+            "final": 52,
             "precision": 0,
-            "rerank": 45,
+            "rerank": 43,
             "initial_rank": 8
+          },
+          "themes": []
+        },
+        {
+          "id": 37995,
+          "sentence_index": 3,
+          "chapter_number": 46,
+          "sentence_text": "Para sa pamahalaan, hindi mahalaga kung sino ang nananalo dahil ang importante ay ang makokolektang ",
+          "scores": {
+            "semantic": 52,
+            "lexical": 50,
+            "final": 52,
+            "precision": 0,
+            "rerank": 42,
+            "initial_rank": 9
           },
           "themes": []
         },
@@ -486,26 +502,11 @@
           "chapter_number": 44,
           "sentence_text": "Nalaman ni Maria Clara sa kaibigang si Sinang na hindi pa makasulat si Ibarra dahil abala pa ito sa ",
           "scores": {
-            "semantic": 53,
+            "semantic": 52,
             "lexical": 50,
-            "final": 53,
+            "final": 52,
             "precision": 0,
-            "rerank": 43,
-            "initial_rank": 9
-          },
-          "themes": []
-        },
-        {
-          "id": 37543,
-          "sentence_index": 10,
-          "chapter_number": 19,
-          "sentence_text": "Nangako naman si Ibarra na tutulong sa abot ng kaniyang makakaya.",
-          "scores": {
-            "semantic": 53,
-            "lexical": 50,
-            "final": 53,
-            "precision": 0,
-            "rerank": 43,
+            "rerank": 42,
             "initial_rank": 10
           },
           "themes": []
@@ -539,12 +540,27 @@
           "chapter_number": 2,
           "sentence_text": "Naroon sa ilalim ng kubyerta ang dalawang estudyate na sina Basilio na nag- aaral ng medisina at mah",
           "scores": {
-            "semantic": 58,
+            "semantic": 57,
             "lexical": 50,
-            "final": 57,
+            "final": 56,
             "precision": 0,
-            "rerank": 48,
+            "rerank": 47,
             "initial_rank": 2
+          },
+          "themes": []
+        },
+        {
+          "id": 38966,
+          "sentence_index": 8,
+          "chapter_number": 27,
+          "sentence_text": "Sinabi ng pari na ‘di niya inuusig si Isagani at malaya itong nakapagsasalita ng anuman sa kanyang k",
+          "scores": {
+            "semantic": 55,
+            "lexical": 50,
+            "final": 54,
+            "precision": 0,
+            "rerank": 45,
+            "initial_rank": 3
           },
           "themes": []
         },
@@ -554,12 +570,12 @@
           "chapter_number": 39,
           "sentence_text": "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong ng patalim.",
           "scores": {
-            "semantic": 56,
+            "semantic": 54,
             "lexical": 50,
-            "final": 55,
+            "final": 53,
             "precision": 0,
-            "rerank": 46,
-            "initial_rank": 3
+            "rerank": 44,
+            "initial_rank": 4
           },
           "themes": [
             {
@@ -570,62 +586,17 @@
           ]
         },
         {
-          "id": 38966,
-          "sentence_index": 8,
-          "chapter_number": 27,
-          "sentence_text": "Sinabi ng pari na ‘di niya inuusig si Isagani at malaya itong nakapagsasalita ng anuman sa kanyang k",
-          "scores": {
-            "semantic": 56,
-            "lexical": 50,
-            "final": 54,
-            "precision": 0,
-            "rerank": 46,
-            "initial_rank": 4
-          },
-          "themes": []
-        },
-        {
           "id": 39113,
           "sentence_index": 2,
           "chapter_number": 32,
           "sentence_text": "Sa unibersidad naman ay maraming bumagsak at bihira ang pumasa sa mga eksamen at sa kanilang kurso.",
           "scores": {
-            "semantic": 55,
+            "semantic": 54,
             "lexical": 50,
-            "final": 54,
+            "final": 53,
             "precision": 0,
-            "rerank": 45,
+            "rerank": 44,
             "initial_rank": 5
-          },
-          "themes": []
-        },
-        {
-          "id": 39305,
-          "sentence_index": 10,
-          "chapter_number": 39,
-          "sentence_text": "Ngunit paliwanag ni Simoun ay nagkasugat lamang siya dahil sa kawalan ng pag-iingat.",
-          "scores": {
-            "semantic": 53,
-            "lexical": 50,
-            "final": 53,
-            "precision": 0,
-            "rerank": 43,
-            "initial_rank": 6
-          },
-          "themes": []
-        },
-        {
-          "id": 39353,
-          "sentence_index": 58,
-          "chapter_number": 39,
-          "sentence_text": "Upang karapatdapat ang pagpapakasakit ito’y kailangang malinis at busilak.",
-          "scores": {
-            "semantic": 53,
-            "lexical": 50,
-            "final": 53,
-            "precision": 0,
-            "rerank": 43,
-            "initial_rank": 7
           },
           "themes": []
         },
@@ -635,12 +606,12 @@
           "chapter_number": 31,
           "sentence_text": "Dapat daw ay magkaroon ng halimbawang ‘di dapat tularan ang mga mahilig sa pagbabago.",
           "scores": {
-            "semantic": 53,
+            "semantic": 52,
             "lexical": 50,
-            "final": 52,
+            "final": 51,
             "precision": 0,
-            "rerank": 43,
-            "initial_rank": 8
+            "rerank": 42,
+            "initial_rank": 6
           },
           "themes": [
             {
@@ -651,16 +622,46 @@
           ]
         },
         {
-          "id": 38598,
-          "sentence_index": 13,
-          "chapter_number": 10,
-          "sentence_text": "Nang lumabas ng bahay si Kabesang Tales ay natanawan niya ang prayle at ang bagong may-ari ng kanyan",
+          "id": 39305,
+          "sentence_index": 10,
+          "chapter_number": 39,
+          "sentence_text": "Ngunit paliwanag ni Simoun ay nagkasugat lamang siya dahil sa kawalan ng pag-iingat.",
           "scores": {
-            "semantic": 52,
+            "semantic": 51,
             "lexical": 50,
-            "final": 52,
+            "final": 51,
             "precision": 0,
-            "rerank": 42,
+            "rerank": 41,
+            "initial_rank": 7
+          },
+          "themes": []
+        },
+        {
+          "id": 38987,
+          "sentence_index": 29,
+          "chapter_number": 27,
+          "sentence_text": "Muling nangatwiran ang pari at sinabing ang ibig daw niyang sabihin ay may mga batas na mabuti ang l",
+          "scores": {
+            "semantic": 51,
+            "lexical": 50,
+            "final": 51,
+            "precision": 0,
+            "rerank": 41,
+            "initial_rank": 8
+          },
+          "themes": []
+        },
+        {
+          "id": 39353,
+          "sentence_index": 58,
+          "chapter_number": 39,
+          "sentence_text": "Upang karapatdapat ang pagpapakasakit ito’y kailangang malinis at busilak.",
+          "scores": {
+            "semantic": 51,
+            "lexical": 50,
+            "final": 51,
+            "precision": 0,
+            "rerank": 41,
             "initial_rank": 9
           },
           "themes": []
@@ -671,11 +672,11 @@
           "chapter_number": 19,
           "sentence_text": "Nadaanan din niya ang dalawang kadete na nakikipag-usap sa isang kawani saka sinagasa mga ito.",
           "scores": {
-            "semantic": 52,
+            "semantic": 51,
             "lexical": 50,
-            "final": 52,
+            "final": 51,
             "precision": 0,
-            "rerank": 42,
+            "rerank": 41,
             "initial_rank": 10
           },
           "themes": []
@@ -691,7 +692,8 @@
           "paaralan at guro",
           "edukasyon ng mga pilipino"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 44
       }
     },
     "simbahan": {
@@ -944,7 +946,8 @@
           "impluwensya ng prayle",
           "simbahan at pamahalaan"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 38
       }
     },
     "korapsyon": {
@@ -959,7 +962,8 @@
           "korapsyon ng bayan",
           "korapsyon sa simbahan",
           "korapsyon laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "pag-ibig": {
@@ -1284,7 +1288,8 @@
           "pag-ibig sa bayan",
           "kasawian sa pag-ibig"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 44
       }
     },
     "kamatayan": {
@@ -1599,7 +1604,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 44
       }
     },
     "bayan": {
@@ -1928,7 +1934,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 42
       }
     },
     "paaralan": {
@@ -2203,7 +2210,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 42
       }
     },
     "pag-ibig ni Maria Clara": {
@@ -2294,7 +2302,8 @@
           "ni",
           "Maria",
           "Clara"
-        ]
+        ],
+        "db_query_count": 24
       }
     },
     "karahasan ng mga prayle": {
@@ -2619,7 +2628,8 @@
           "ng",
           "mga",
           "prayle"
-        ]
+        ],
+        "db_query_count": 52
       }
     },
     "paghihirap ng bayan": {
@@ -2654,7 +2664,8 @@
           "paghihirap",
           "bayan",
           "ng"
-        ]
+        ],
+        "db_query_count": 10
       }
     },
     "edukasyon para sa kalayaan": {
@@ -2672,7 +2683,8 @@
           "kalayaan",
           "para",
           "sa"
-        ]
+        ],
+        "db_query_count": 10
       }
     },
     "kamatayan ni Elias": {
@@ -2786,7 +2798,8 @@
           "kamatayan",
           "Elias",
           "ni"
-        ]
+        ],
+        "db_query_count": 22
       }
     },
     "kapangyarihan ng simbahan": {
@@ -2798,7 +2811,7 @@
           "chapter_number": 11,
           "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
           "scores": {
-            "semantic": 13,
+            "semantic": 12,
             "lexical": 76,
             "final": 53,
             "precision": 80
@@ -2865,7 +2878,7 @@
           "chapter_number": 28,
           "sentence_text": "Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa si",
           "scores": {
-            "semantic": 6,
+            "semantic": 5,
             "lexical": 10,
             "final": 8,
             "precision": 64
@@ -2893,7 +2906,7 @@
           "chapter_number": 11,
           "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
           "scores": {
-            "semantic": 13,
+            "semantic": 12,
             "lexical": 76,
             "final": 53,
             "precision": 80
@@ -2910,7 +2923,8 @@
           "kapangyarihan",
           "simbahan",
           "ng"
-        ]
+        ],
+        "db_query_count": 22
       }
     },
     "kalayaan ng Pilipinas": {
@@ -2937,7 +2951,7 @@
           "chapter_number": 7,
           "sentence_text": "Ayon kay Simoun, magbibigay lamang daw ito ng daan sa Pilipinas sa pagiging bayang walang sariling p",
           "scores": {
-            "semantic": 13,
+            "semantic": 14,
             "lexical": 82,
             "final": 55,
             "precision": 80
@@ -2965,7 +2979,7 @@
           "chapter_number": 7,
           "sentence_text": "Ayon kay Simoun, magbibigay lamang daw ito ng daan sa Pilipinas sa pagiging bayang walang sariling p",
           "scores": {
-            "semantic": 13,
+            "semantic": 14,
             "lexical": 82,
             "final": 55,
             "precision": 80
@@ -2986,7 +3000,8 @@
           "kalayaan",
           "Pilipinas",
           "ng"
-        ]
+        ],
+        "db_query_count": 14
       }
     },
     "katarungan sa lipunan": {
@@ -3003,7 +3018,8 @@
           "katarungan",
           "lipunan",
           "sa"
-        ]
+        ],
+        "db_query_count": 8
       }
     },
     "corruption": {
@@ -3016,7 +3032,8 @@
         "reason": "filtered_by_ranker",
         "has_lexical_hits": false,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 4
       }
     },
     "education": {
@@ -3028,7 +3045,7 @@
           "chapter_number": 19,
           "sentence_text": "Ibinahagi din ng guro ang iba’t-ibang problemang kinaharap ng mga guro at ng edukasyon.",
           "scores": {
-            "semantic": 65,
+            "semantic": 64,
             "lexical": 85,
             "final": 84,
             "precision": 0
@@ -3041,7 +3058,7 @@
           "chapter_number": 19,
           "sentence_text": "Isa din sa balakid sa edukasyon ay ang kakaibang pananaw ng mga pari sa paraan ng pagtuturo ng mga g",
           "scores": {
-            "semantic": 57,
+            "semantic": 56,
             "lexical": 85,
             "final": 84,
             "precision": 0
@@ -3054,7 +3071,7 @@
           "chapter_number": 19,
           "sentence_text": "Sisikapin niyang paunladin ang sistema ng edukasyon sa kanilang lugar.",
           "scores": {
-            "semantic": 61,
+            "semantic": 60,
             "lexical": 85,
             "final": 84,
             "precision": 0
@@ -3080,7 +3097,7 @@
           "chapter_number": 19,
           "sentence_text": "Nagtanong si Ibarra kung ano ang kinahinatnat ng pagtulong ng ama sa mga mahihiraP. Sinabi ng guro n",
           "scores": {
-            "semantic": 51,
+            "semantic": 50,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -3093,7 +3110,7 @@
           "chapter_number": 19,
           "sentence_text": "Kabilang na dito ang kawalan ng motibasyon at interes ng mga estudyante sa pag-aaral, kakulangan sa ",
           "scores": {
-            "semantic": 45,
+            "semantic": 44,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -3106,7 +3123,7 @@
           "chapter_number": 35,
           "sentence_text": "Naniniwala sila na ang paaralan na iyon ang magiging daan upang magkaroon ng magandang kinabukasn an",
           "scores": {
-            "semantic": 37,
+            "semantic": 36,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -3119,7 +3136,7 @@
           "chapter_number": 20,
           "sentence_text": "Kabilang din sa pagpupulong ang pagtatayo ng paaralan sa bayan.",
           "scores": {
-            "semantic": 25,
+            "semantic": 24,
             "lexical": 85,
             "final": 82,
             "precision": 0
@@ -3160,7 +3177,7 @@
           "chapter_number": 2,
           "sentence_text": "Napunta naman ang usapan sa paaralang balak ng mga estudyante tungkol sa pagtuturo ng mga Kastila.",
           "scores": {
-            "semantic": 37,
+            "semantic": 36,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -3199,7 +3216,7 @@
           "chapter_number": 6,
           "sentence_text": "Nasa huling taon na ng pag-aaral ng medisina si Basilio at kapag nakatapos ng pag-aaral ay pakakasal",
           "scores": {
-            "semantic": 22,
+            "semantic": 21,
             "lexical": 85,
             "final": 82,
             "precision": 0
@@ -3212,7 +3229,7 @@
           "chapter_number": 7,
           "sentence_text": "Napalagda lamang siya sa kahilingang tungkol sa paaralan dahil inaakala niyang iyon ang mabuti.",
           "scores": {
-            "semantic": 24,
+            "semantic": 23,
             "lexical": 85,
             "final": 82,
             "precision": 0
@@ -3225,7 +3242,7 @@
           "chapter_number": 7,
           "sentence_text": "Saka ipinaalala ni Simoun na sa pag-aaral ni Basilio ay maaaring danasin nito ang dinanas ni Ibarra.",
           "scores": {
-            "semantic": 20,
+            "semantic": 19,
             "lexical": 85,
             "final": 82,
             "precision": 0
@@ -3251,7 +3268,7 @@
           "chapter_number": 12,
           "sentence_text": "Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung ",
           "scores": {
-            "semantic": 32,
+            "semantic": 31,
             "lexical": 85,
             "final": 82,
             "precision": 0
@@ -3291,7 +3308,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 42
       }
     },
     "freedom": {
@@ -3514,38 +3532,39 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 34
       }
     },
     "oppression": {
       "query": "oppression",
       "noli": [
         {
-          "id": 38386,
-          "sentence_index": 13,
-          "chapter_number": 64,
-          "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
-          "scores": {
-            "semantic": 72,
-            "lexical": 50,
-            "final": 68,
-            "precision": 0,
-            "rerank": 62,
-            "initial_rank": 1
-          },
-          "themes": []
-        },
-        {
           "id": 38070,
           "sentence_index": 24,
           "chapter_number": 50,
           "sentence_text": "Paglaon ay unti-unting nakaipon ng salapi at napaunlad ang sarili.",
           "scores": {
-            "semantic": 72,
+            "semantic": 73,
             "lexical": 50,
-            "final": 67,
+            "final": 69,
             "precision": 0,
-            "rerank": 62,
+            "rerank": 63,
+            "initial_rank": 1
+          },
+          "themes": []
+        },
+        {
+          "id": 38386,
+          "sentence_index": 13,
+          "chapter_number": 64,
+          "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
+          "scores": {
+            "semantic": 73,
+            "lexical": 50,
+            "final": 68,
+            "precision": 0,
+            "rerank": 63,
             "initial_rank": 2
           },
           "themes": []
@@ -3556,12 +3575,27 @@
           "chapter_number": 38,
           "sentence_text": "Aniya hindi mahalaga kung ano ang dinadamit mo o kung ano ang mga nakadisenyo sa paligid.",
           "scores": {
+            "semantic": 70,
+            "lexical": 50,
+            "final": 66,
+            "precision": 0,
+            "rerank": 60,
+            "initial_rank": 3
+          },
+          "themes": []
+        },
+        {
+          "id": 38034,
+          "sentence_index": 15,
+          "chapter_number": 48,
+          "sentence_text": "Sinabi ni Elias kay Ibarra na magkita sila sa bangka nito sa may tabi ng lawa paglubog ng araw dahil",
+          "scores": {
             "semantic": 69,
             "lexical": 50,
             "final": 65,
             "precision": 0,
             "rerank": 59,
-            "initial_rank": 3
+            "initial_rank": 4
           },
           "themes": []
         },
@@ -3576,42 +3610,57 @@
             "final": 65,
             "precision": 0,
             "rerank": 58,
-            "initial_rank": 4
+            "initial_rank": 5
           },
           "themes": []
         },
         {
-          "id": 38034,
-          "sentence_index": 15,
-          "chapter_number": 48,
-          "sentence_text": "Sinabi ni Elias kay Ibarra na magkita sila sa bangka nito sa may tabi ng lawa paglubog ng araw dahil",
+          "id": 38149,
+          "sentence_index": 12,
+          "chapter_number": 54,
+          "sentence_text": "Pinatulong ni Ibarra si Elias na pagsama-samahin ang mahahalagang dokumento at nakita nito ang nakap",
+          "scores": {
+            "semantic": 68,
+            "lexical": 50,
+            "final": 64,
+            "precision": 0,
+            "rerank": 58,
+            "initial_rank": 6
+          },
+          "themes": []
+        },
+        {
+          "id": 38308,
+          "sentence_index": 2,
+          "chapter_number": 61,
+          "sentence_text": "Huhukayin niya ang mga salapi at alahas na itinago niya sa puno ng balite na nasa libingan ng mga ni",
           "scores": {
             "semantic": 67,
             "lexical": 50,
             "final": 64,
             "precision": 0,
             "rerank": 57,
-            "initial_rank": 5
-          },
-          "themes": []
-        },
-        {
-          "id": 37839,
-          "sentence_index": 10,
-          "chapter_number": 38,
-          "sentence_text": "Ang mahalaga ay ang mabuting gawa hindi lamang garbo ng mga salita.",
-          "scores": {
-            "semantic": 67,
-            "lexical": 50,
-            "final": 63,
-            "precision": 0,
-            "rerank": 57,
-            "initial_rank": 6
+            "initial_rank": 7
           },
           "themes": []
         }
       ],
       "elfili": [
+        {
+          "id": 39047,
+          "sentence_index": 53,
+          "chapter_number": 28,
+          "sentence_text": "Pinadulasan ang mga kawani sa adwana at nakalusot ang salapi.",
+          "scores": {
+            "semantic": 72,
+            "lexical": 50,
+            "final": 68,
+            "precision": 0,
+            "rerank": 62,
+            "initial_rank": 2
+          },
+          "themes": []
+        },
         {
           "id": 39331,
           "sentence_index": 36,
@@ -3620,25 +3669,40 @@
           "scores": {
             "semantic": 72,
             "lexical": 50,
-            "final": 67,
+            "final": 68,
             "precision": 0,
             "rerank": 62,
-            "initial_rank": 2
+            "initial_rank": 3
           },
           "themes": []
         },
         {
-          "id": 39047,
-          "sentence_index": 53,
+          "id": 39002,
+          "sentence_index": 8,
           "chapter_number": 28,
-          "sentence_text": "Pinadulasan ang mga kawani sa adwana at nakalusot ang salapi.",
+          "sentence_text": "Maraming madarakip lalo sa mga mayayaman at ito ay magpapatulong sa kanila na mangangahulugan ng mal",
+          "scores": {
+            "semantic": 72,
+            "lexical": 50,
+            "final": 67,
+            "precision": 0,
+            "rerank": 62,
+            "initial_rank": 4
+          },
+          "themes": []
+        },
+        {
+          "id": 38581,
+          "sentence_index": 8,
+          "chapter_number": 9,
+          "sentence_text": "Samantala, nakauwi na si Kabesang Tales dahil sa tulong ng salaping napagbilhan ng mga alahas ni Jul",
           "scores": {
             "semantic": 71,
             "lexical": 50,
             "final": 67,
             "precision": 0,
             "rerank": 61,
-            "initial_rank": 3
+            "initial_rank": 5
           },
           "themes": []
         },
@@ -3650,39 +3714,9 @@
           "scores": {
             "semantic": 71,
             "lexical": 50,
-            "final": 66,
+            "final": 67,
             "precision": 0,
             "rerank": 61,
-            "initial_rank": 4
-          },
-          "themes": []
-        },
-        {
-          "id": 38581,
-          "sentence_index": 8,
-          "chapter_number": 9,
-          "sentence_text": "Samantala, nakauwi na si Kabesang Tales dahil sa tulong ng salaping napagbilhan ng mga alahas ni Jul",
-          "scores": {
-            "semantic": 70,
-            "lexical": 50,
-            "final": 66,
-            "precision": 0,
-            "rerank": 60,
-            "initial_rank": 5
-          },
-          "themes": []
-        },
-        {
-          "id": 39002,
-          "sentence_index": 8,
-          "chapter_number": 28,
-          "sentence_text": "Maraming madarakip lalo sa mga mayayaman at ito ay magpapatulong sa kanila na mangangahulugan ng mal",
-          "scores": {
-            "semantic": 70,
-            "lexical": 50,
-            "final": 66,
-            "precision": 0,
-            "rerank": 60,
             "initial_rank": 6
           },
           "themes": []
@@ -3693,11 +3727,11 @@
           "chapter_number": 26,
           "sentence_text": "Ani Isagani ay hindi na daw mahalaga kung sino ang sumulat sa mga paskil dahil tungkulin ng mga pari",
           "scores": {
-            "semantic": 67,
+            "semantic": 68,
             "lexical": 50,
-            "final": 63,
+            "final": 64,
             "precision": 0,
-            "rerank": 57,
+            "rerank": 58,
             "initial_rank": 7
           },
           "themes": []
@@ -3708,27 +3742,12 @@
           "chapter_number": 39,
           "sentence_text": "Ngunit sa kabila ng lahat ng ito maging ang pagtulong ni Padre Florentino kay Simoun ay tila ba wala",
           "scores": {
-            "semantic": 66,
+            "semantic": 67,
             "lexical": 50,
             "final": 63,
             "precision": 0,
-            "rerank": 56,
+            "rerank": 57,
             "initial_rank": 8
-          },
-          "themes": []
-        },
-        {
-          "id": 39123,
-          "sentence_index": 12,
-          "chapter_number": 32,
-          "sentence_text": "Mamamahala umano ito ng isang piging sa bahay ni Kapitan Tiyago na nakuha ni Don Timoteo Pelaez sa m",
-          "scores": {
-            "semantic": 66,
-            "lexical": 50,
-            "final": 63,
-            "precision": 0,
-            "rerank": 56,
-            "initial_rank": 9
           },
           "themes": []
         },
@@ -3738,11 +3757,11 @@
           "chapter_number": 7,
           "sentence_text": "Ngunit tinugon siya ni Simoun na ang pagpapaumanhin ay ‘di laging kabaitan, ito’y kasalanan kung nag",
           "scores": {
-            "semantic": 64,
+            "semantic": 65,
             "lexical": 85,
-            "final": 68,
+            "final": 69,
             "precision": 0,
-            "rerank": 54,
+            "rerank": 55,
             "initial_rank": 1
           },
           "themes": []
@@ -3754,7 +3773,8 @@
         "reason": "validation_passed",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 34
       }
     },
     "love": {
@@ -3829,7 +3849,8 @@
         "reason": "validation_passed",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 12
       }
     },
     "death": {
@@ -4104,7 +4125,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 42
       }
     },
     "justice": {
@@ -4224,7 +4246,8 @@
         "reason": "validation_passed",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 18
       }
     },
     "church": {
@@ -4236,7 +4259,7 @@
           "chapter_number": 15,
           "sentence_text": "Sila ay nagtutulungan sa pagpapatunog ng kampanaryo ng simbahan.",
           "scores": {
-            "semantic": 63,
+            "semantic": 61,
             "lexical": 85,
             "final": 84,
             "precision": 0
@@ -4275,7 +4298,7 @@
           "chapter_number": 10,
           "sentence_text": "Ito ay katulad ng ilang bayan sa Pilipinas na pinamumunuan ng simbahan.",
           "scores": {
-            "semantic": 49,
+            "semantic": 48,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4288,7 +4311,7 @@
           "chapter_number": 11,
           "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
           "scores": {
-            "semantic": 42,
+            "semantic": 39,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4314,7 +4337,7 @@
           "chapter_number": 25,
           "sentence_text": "Batid pa niya na kayang kayang durugin ng simbahan ang mga pangarap na ito.",
           "scores": {
-            "semantic": 44,
+            "semantic": 42,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4327,7 +4350,7 @@
           "chapter_number": 25,
           "sentence_text": "Ayon pa kay Pilosopo Tasyo, ang gobyerno ay kagamitan lang ng simbahan.",
           "scores": {
-            "semantic": 51,
+            "semantic": 50,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4340,7 +4363,7 @@
           "chapter_number": 25,
           "sentence_text": "Matatag ito ngunit sa sandaling iwanan ito ng simbahan ay babagsak din.",
           "scores": {
-            "semantic": 44,
+            "semantic": 43,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4353,7 +4376,7 @@
           "chapter_number": 36,
           "sentence_text": "Napuno ng kalungkutan si Maria Clara nang malaman na ekskomunikado sa simbahan si Ibarra.",
           "scores": {
-            "semantic": 47,
+            "semantic": 46,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4368,7 +4391,7 @@
           "chapter_number": 2,
           "sentence_text": "Paliwanag niya, dukha daw ang lalawigang nabanggit niya dahil ang mga pari sa simbahan ay Pilipino.",
           "scores": {
-            "semantic": 47,
+            "semantic": 46,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4394,7 +4417,7 @@
           "chapter_number": 7,
           "sentence_text": "Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa paghihimagsik laban sa pagmamalabis ng t",
           "scores": {
-            "semantic": 38,
+            "semantic": 36,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4407,7 +4430,7 @@
           "chapter_number": 12,
           "sentence_text": "Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung ",
           "scores": {
-            "semantic": 43,
+            "semantic": 42,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4420,7 +4443,7 @@
           "chapter_number": 22,
           "sentence_text": "Ang una ay hinahamon diumano ito ng simbahan at ang pangalawa ay dahil ito ay may pagnanasa lamang n",
           "scores": {
-            "semantic": 40,
+            "semantic": 37,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4433,7 +4456,7 @@
           "chapter_number": 28,
           "sentence_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan.",
           "scores": {
-            "semantic": 48,
+            "semantic": 46,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4446,7 +4469,7 @@
           "chapter_number": 28,
           "sentence_text": "Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa si",
           "scores": {
-            "semantic": 52,
+            "semantic": 51,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4459,7 +4482,7 @@
           "chapter_number": 33,
           "sentence_text": "Sinabihan ni Simoun si Basilio na sa ikasampu ng gabi ay magkikita sila sa tapat ng simbahan ng San ",
           "scores": {
-            "semantic": 37,
+            "semantic": 36,
             "lexical": 85,
             "final": 83,
             "precision": 0
@@ -4473,7 +4496,8 @@
         "reason": "matches_found",
         "has_lexical_hits": true,
         "suggestions": [],
-        "components": []
+        "components": [],
+        "db_query_count": 38
       }
     },
     "Crisostomo Ibarra": {
@@ -4511,7 +4535,7 @@
           "chapter_number": 59,
           "sentence_text": "Sa bahay naman ni Kapitan Tinong na noo’y laging bukas kay Crisostomo Ibarra ay nakarating na din an",
           "scores": {
-            "semantic": 11,
+            "semantic": 10,
             "lexical": 100,
             "final": 82,
             "precision": 80
@@ -4524,7 +4548,7 @@
           "chapter_number": 59,
           "sentence_text": "Si Crisostomo Ibarra ang paksa ng kanilang usapan.",
           "scores": {
-            "semantic": 16,
+            "semantic": 15,
             "lexical": 100,
             "final": 81,
             "precision": 80
@@ -4537,7 +4561,7 @@
           "chapter_number": 2,
           "sentence_text": "Nagpakilala siya bilang si Crisostomo Ibarra Y Magsalin.",
           "scores": {
-            "semantic": 18,
+            "semantic": 17,
             "lexical": 100,
             "final": 81,
             "precision": 80
@@ -4550,7 +4574,7 @@
           "chapter_number": 2,
           "sentence_text": "Siya ang anak ng yumaong kaibigan ni Kapitan Tiago, si Don Crisostomo Ibarra, na galing pang Europa.",
           "scores": {
-            "semantic": 15,
+            "semantic": 14,
             "lexical": 100,
             "final": 80,
             "precision": 80
@@ -4563,7 +4587,7 @@
           "chapter_number": 27,
           "sentence_text": "Patuloy sa paglalakad ang mga dalaga kasama ang magkasintahan na sina Maria Clara at Crisostomo Ibar",
           "scores": {
-            "semantic": 10,
+            "semantic": 9,
             "lexical": 100,
             "final": 79,
             "precision": 80
@@ -4576,7 +4600,7 @@
           "chapter_number": 56,
           "sentence_text": "Ayon dito, nagtapat si Bruno at nagpatunay sa bali-balita tungkol kina Maria Clara at Crisostomo Iba",
           "scores": {
-            "semantic": 10,
+            "semantic": 9,
             "lexical": 100,
             "final": 79,
             "precision": 80
@@ -4589,7 +4613,7 @@
           "chapter_number": 6,
           "sentence_text": "Nang pumasok sa beateryo si Maria Clara ay siya namang alis ni Crisostomo Ibarra.",
           "scores": {
-            "semantic": 13,
+            "semantic": 12,
             "lexical": 100,
             "final": 78,
             "precision": 80
@@ -4617,7 +4641,7 @@
           "chapter_number": 35,
           "sentence_text": "Ani Don Custodio ay isang biro lamang iyon dahil matagal nang patay si Crisostomo Ibarra.",
           "scores": {
-            "semantic": 17,
+            "semantic": 16,
             "lexical": 100,
             "final": 79,
             "precision": 80
@@ -4630,7 +4654,7 @@
           "chapter_number": 35,
           "sentence_text": "MANE THACEL PHARES JUAN CRISOSTOMO IBARRA  Maya-maya’y nagsalita si Don Custodio.",
           "scores": {
-            "semantic": 11,
+            "semantic": 10,
             "lexical": 100,
             "final": 75,
             "precision": 80
@@ -4671,7 +4695,7 @@
           "chapter_number": 59,
           "sentence_text": "Sa bahay naman ni Kapitan Tinong na noo’y laging bukas kay Crisostomo Ibarra ay nakarating na din an",
           "scores": {
-            "semantic": 11,
+            "semantic": 10,
             "lexical": 100,
             "final": 82,
             "precision": 80
@@ -4684,7 +4708,7 @@
           "chapter_number": 59,
           "sentence_text": "Si Crisostomo Ibarra ang paksa ng kanilang usapan.",
           "scores": {
-            "semantic": 16,
+            "semantic": 15,
             "lexical": 100,
             "final": 81,
             "precision": 80
@@ -4697,7 +4721,7 @@
           "chapter_number": 2,
           "sentence_text": "Nagpakilala siya bilang si Crisostomo Ibarra Y Magsalin.",
           "scores": {
-            "semantic": 18,
+            "semantic": 17,
             "lexical": 100,
             "final": 81,
             "precision": 80
@@ -4718,7 +4742,8 @@
         "components": [
           "Crisostomo",
           "Ibarra"
-        ]
+        ],
+        "db_query_count": 30
       }
     },
     "Maria Clara": {
@@ -5054,7 +5079,8 @@
         "components": [
           "Maria",
           "Clara"
-        ]
+        ],
+        "db_query_count": 44
       }
     },
     "Simoun": {
@@ -5062,51 +5088,12 @@
       "noli": [],
       "elfili": [
         {
-          "id": 39156,
-          "sentence_index": 4,
-          "chapter_number": 34,
-          "sentence_text": "Dalawang oras na lang at sasabog na ang ilawan ni Simoun.",
-          "scores": {
-            "semantic": 70,
-            "lexical": 100,
-            "final": 99,
-            "precision": 0
-          },
-          "themes": []
-        },
-        {
-          "id": 39301,
-          "sentence_index": 6,
-          "chapter_number": 39,
-          "sentence_text": "Si Simoun talaga ang tinutukoy sa telegrama.",
-          "scores": {
-            "semantic": 72,
-            "lexical": 100,
-            "final": 99,
-            "precision": 0
-          },
-          "themes": []
-        },
-        {
-          "id": 39308,
-          "sentence_index": 13,
-          "chapter_number": 39,
-          "sentence_text": "Malubha ang sugat na natamo ni Simoun.",
-          "scores": {
-            "semantic": 71,
-            "lexical": 100,
-            "final": 99,
-            "precision": 0
-          },
-          "themes": []
-        },
-        {
           "id": 39317,
           "sentence_index": 22,
           "chapter_number": 39,
           "sentence_text": "Dito na ipinagtapat ni Simoun ang tunay niyang katauhan.",
           "scores": {
-            "semantic": 73,
+            "semantic": 71,
             "lexical": 100,
             "final": 99,
             "precision": 0
@@ -5119,7 +5106,7 @@
           "chapter_number": 39,
           "sentence_text": "Isinalaysay ni Simoun ang kanyang buhay.",
           "scores": {
-            "semantic": 82,
+            "semantic": 80,
             "lexical": 100,
             "final": 99,
             "precision": 0
@@ -5132,7 +5119,7 @@
           "chapter_number": 39,
           "sentence_text": "Tinanggap ni Simoun ang mga sinabi ng pari.",
           "scores": {
-            "semantic": 76,
+            "semantic": 74,
             "lexical": 100,
             "final": 99,
             "precision": 0
@@ -5145,7 +5132,7 @@
           "chapter_number": 10,
           "sentence_text": "Sinabi rin ni Simoun na namimili rin siya ng alahas.",
           "scores": {
-            "semantic": 80,
+            "semantic": 79,
             "lexical": 100,
             "final": 99,
             "precision": 0
@@ -5171,7 +5158,7 @@
           "chapter_number": 36,
           "sentence_text": "Si Simoun naman ay hindi matagpuan sa kanyang bahay.",
           "scores": {
-            "semantic": 76,
+            "semantic": 75,
             "lexical": 100,
             "final": 99,
             "precision": 0
@@ -5184,7 +5171,46 @@
           "chapter_number": 2,
           "sentence_text": "Pumunta si Simoun sa ilalim ng kubyerta.",
           "scores": {
-            "semantic": 55,
+            "semantic": 53,
+            "lexical": 100,
+            "final": 98,
+            "precision": 0
+          },
+          "themes": []
+        },
+        {
+          "id": 38523,
+          "sentence_index": 5,
+          "chapter_number": 7,
+          "sentence_text": "Ang taong dumating ay ang mag-aalahas na si Simoun.",
+          "scores": {
+            "semantic": 60,
+            "lexical": 100,
+            "final": 98,
+            "precision": 0
+          },
+          "themes": []
+        },
+        {
+          "id": 38410,
+          "sentence_index": 13,
+          "chapter_number": 2,
+          "sentence_text": "Ilang sandali pa’y dumating si Simoun at kinausap ng magkabigan.",
+          "scores": {
+            "semantic": 66,
+            "lexical": 99,
+            "final": 98,
+            "precision": 0
+          },
+          "themes": []
+        },
+        {
+          "id": 38411,
+          "sentence_index": 14,
+          "chapter_number": 2,
+          "sentence_text": "Agad na ipinakilala ni Basilio kay Simoun si Isagani.",
+          "scores": {
+            "semantic": 57,
             "lexical": 100,
             "final": 98,
             "precision": 0
@@ -5203,7 +5229,8 @@
           "plano ni simoun",
           "simoun at basilio"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 22
       }
     },
     "Elias": {
@@ -5352,58 +5379,20 @@
           "paghihiganti ni elias",
           "nakaraan ni elias"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 22
       }
     },
     "Padre Damaso": {
       "query": "Padre Damaso",
       "noli": [
         {
-          "id": 37235,
-          "sentence_index": 13,
-          "chapter_number": 3,
-          "sentence_text": "Mas lalo namang tumindi ang galit ni Padre Damaso ng inihanda sa kaniya ang tinola na puro upo, leeg",
-          "scores": {
-            "semantic": 18,
-            "lexical": 100,
-            "final": 84,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
-          "id": 37710,
-          "sentence_index": 1,
-          "chapter_number": 31,
-          "sentence_text": "Nagsimula na si Padre Damaso sa kanyang sermon nang makita niyang nakatuon na ang paningin ng lahat ",
-          "scores": {
-            "semantic": 18,
-            "lexical": 100,
-            "final": 84,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
-          "id": 37423,
-          "sentence_index": 10,
-          "chapter_number": 12,
-          "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote",
-          "scores": {
-            "semantic": 15,
-            "lexical": 99,
-            "final": 83,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
           "id": 37798,
           "sentence_index": 5,
           "chapter_number": 36,
           "sentence_text": "Bilin ni Padre Damaso na putulin na ang relasyon ng magkasintahan dahil kung hindi ay si Kapitan Tia",
           "scores": {
-            "semantic": 16,
+            "semantic": 15,
             "lexical": 100,
             "final": 83,
             "precision": 80
@@ -5416,6 +5405,32 @@
           "chapter_number": 1,
           "sentence_text": "Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhi",
           "scores": {
+            "semantic": 15,
+            "lexical": 100,
+            "final": 83,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37235,
+          "sentence_index": 13,
+          "chapter_number": 3,
+          "sentence_text": "Mas lalo namang tumindi ang galit ni Padre Damaso ng inihanda sa kaniya ang tinola na puro upo, leeg",
+          "scores": {
+            "semantic": 17,
+            "lexical": 100,
+            "final": 83,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37710,
+          "sentence_index": 1,
+          "chapter_number": 31,
+          "sentence_text": "Nagsimula na si Padre Damaso sa kanyang sermon nang makita niyang nakatuon na ang paningin ng lahat ",
+          "scores": {
             "semantic": 16,
             "lexical": 100,
             "final": 83,
@@ -5424,27 +5439,14 @@
           "themes": []
         },
         {
-          "id": 37309,
-          "sentence_index": 26,
-          "chapter_number": 6,
-          "sentence_text": "Pinayuhan siya ni Padre Damaso na magpunta sa Obando, sumayaw at humingi ng isang sanggol na lalaki ",
-          "scores": {
-            "semantic": 17,
-            "lexical": 99,
-            "final": 83,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
-          "id": 38344,
-          "sentence_index": 7,
-          "chapter_number": 62,
-          "sentence_text": "Alam ni Padre Damaso na buo na ang loob ni Maria Clara na pumasok sa kumbento at wala na itong magag",
+          "id": 37423,
+          "sentence_index": 10,
+          "chapter_number": 12,
+          "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote",
           "scores": {
             "semantic": 13,
-            "lexical": 100,
-            "final": 83,
+            "lexical": 99,
+            "final": 82,
             "precision": 80
           },
           "themes": []
@@ -5455,7 +5457,7 @@
           "chapter_number": 40,
           "sentence_text": "Habang abala sa panonood ang lahat napansin naman ni Padre Damaso ang noo’y matamlay at may dinaramd",
           "scores": {
-            "semantic": 13,
+            "semantic": 11,
             "lexical": 100,
             "final": 82,
             "precision": 80
@@ -5468,8 +5470,21 @@
           "chapter_number": 3,
           "sentence_text": "Para kay Padre Sibyla, si Padre Damaso dapat ang maupo doon dahil siya ang matagal nang kaibigan ni ",
           "scores": {
-            "semantic": 18,
+            "semantic": 17,
             "lexical": 98,
+            "final": 82,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37309,
+          "sentence_index": 26,
+          "chapter_number": 6,
+          "sentence_text": "Pinayuhan siya ni Padre Damaso na magpunta sa Obando, sumayaw at humingi ng isang sanggol na lalaki ",
+          "scores": {
+            "semantic": 16,
+            "lexical": 99,
             "final": 82,
             "precision": 80
           },
@@ -5481,7 +5496,20 @@
           "chapter_number": 9,
           "sentence_text": "Naabutan ni Padre Damaso si Maria Clara at Tiya Isabel na papunta sa beateryo upang kuhanin ang mga ",
           "scores": {
-            "semantic": 11,
+            "semantic": 10,
+            "lexical": 100,
+            "final": 82,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37193,
+          "sentence_index": 17,
+          "chapter_number": 1,
+          "sentence_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga ere",
+          "scores": {
+            "semantic": 18,
             "lexical": 100,
             "final": 82,
             "precision": 80
@@ -5492,51 +5520,12 @@
       "elfili": [],
       "precise_matches": [
         {
-          "id": 37235,
-          "sentence_index": 13,
-          "chapter_number": 3,
-          "sentence_text": "Mas lalo namang tumindi ang galit ni Padre Damaso ng inihanda sa kaniya ang tinola na puro upo, leeg",
-          "scores": {
-            "semantic": 18,
-            "lexical": 100,
-            "final": 84,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
-          "id": 37710,
-          "sentence_index": 1,
-          "chapter_number": 31,
-          "sentence_text": "Nagsimula na si Padre Damaso sa kanyang sermon nang makita niyang nakatuon na ang paningin ng lahat ",
-          "scores": {
-            "semantic": 18,
-            "lexical": 100,
-            "final": 84,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
-          "id": 37423,
-          "sentence_index": 10,
-          "chapter_number": 12,
-          "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote",
-          "scores": {
-            "semantic": 15,
-            "lexical": 99,
-            "final": 83,
-            "precision": 80
-          },
-          "themes": []
-        },
-        {
           "id": 37798,
           "sentence_index": 5,
           "chapter_number": 36,
           "sentence_text": "Bilin ni Padre Damaso na putulin na ang relasyon ng magkasintahan dahil kung hindi ay si Kapitan Tia",
           "scores": {
-            "semantic": 16,
+            "semantic": 15,
             "lexical": 100,
             "final": 83,
             "precision": 80
@@ -5549,9 +5538,48 @@
           "chapter_number": 1,
           "sentence_text": "Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhi",
           "scores": {
+            "semantic": 15,
+            "lexical": 100,
+            "final": 83,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37235,
+          "sentence_index": 13,
+          "chapter_number": 3,
+          "sentence_text": "Mas lalo namang tumindi ang galit ni Padre Damaso ng inihanda sa kaniya ang tinola na puro upo, leeg",
+          "scores": {
+            "semantic": 17,
+            "lexical": 100,
+            "final": 83,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37710,
+          "sentence_index": 1,
+          "chapter_number": 31,
+          "sentence_text": "Nagsimula na si Padre Damaso sa kanyang sermon nang makita niyang nakatuon na ang paningin ng lahat ",
+          "scores": {
             "semantic": 16,
             "lexical": 100,
             "final": 83,
+            "precision": 80
+          },
+          "themes": []
+        },
+        {
+          "id": 37423,
+          "sentence_index": 10,
+          "chapter_number": 12,
+          "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote",
+          "scores": {
+            "semantic": 13,
+            "lexical": 99,
+            "final": 82,
             "precision": 80
           },
           "themes": []
@@ -5570,7 +5598,8 @@
         "components": [
           "Padre",
           "Damaso"
-        ]
+        ],
+        "db_query_count": 26
       }
     },
     "Basilio": {
@@ -5850,7 +5879,8 @@
           "kasawian ni sisa",
           "pag-aaral ni basilio"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 42
       }
     },
     "Sisa": {
@@ -5875,20 +5905,7 @@
           "chapter_number": 18,
           "sentence_text": "Ipinagpatuloy ni Sisa ang pagluha sa kalsada.",
           "scores": {
-            "semantic": 56,
-            "lexical": 99,
-            "final": 97,
-            "precision": 0
-          },
-          "themes": []
-        },
-        {
-          "id": 37680,
-          "sentence_index": 15,
-          "chapter_number": 27,
-          "sentence_text": "Lumapit naman ang baliw na si Sisa sa ketongin.",
-          "scores": {
-            "semantic": 59,
+            "semantic": 55,
             "lexical": 99,
             "final": 97,
             "precision": 0
@@ -5914,7 +5931,20 @@
           "chapter_number": 16,
           "sentence_text": "Si Sisa ang ina nina Crispin at Basilio.",
           "scores": {
-            "semantic": 50,
+            "semantic": 49,
+            "lexical": 100,
+            "final": 97,
+            "precision": 0
+          },
+          "themes": []
+        },
+        {
+          "id": 37488,
+          "sentence_index": 5,
+          "chapter_number": 16,
+          "sentence_text": "Madalas pang bugbugin ang asawang si Sisa.",
+          "scores": {
+            "semantic": 40,
             "lexical": 100,
             "final": 97,
             "precision": 0
@@ -5935,13 +5965,13 @@
           "themes": []
         },
         {
-          "id": 37488,
-          "sentence_index": 5,
-          "chapter_number": 16,
-          "sentence_text": "Madalas pang bugbugin ang asawang si Sisa.",
+          "id": 37680,
+          "sentence_index": 15,
+          "chapter_number": 27,
+          "sentence_text": "Lumapit naman ang baliw na si Sisa sa ketongin.",
           "scores": {
-            "semantic": 38,
-            "lexical": 100,
+            "semantic": 58,
+            "lexical": 99,
             "final": 96,
             "precision": 0
           },
@@ -5966,7 +5996,7 @@
           "chapter_number": 24,
           "sentence_text": "Napadaan si Sisa sa piknik ngunit umalis din agad.",
           "scores": {
-            "semantic": 54,
+            "semantic": 56,
             "lexical": 98,
             "final": 96,
             "precision": 0
@@ -5979,7 +6009,7 @@
           "chapter_number": 39,
           "sentence_text": "Nagalit muli ang Donya at pinaglalatigo si Sisa.",
           "scores": {
-            "semantic": 35,
+            "semantic": 34,
             "lexical": 98,
             "final": 95,
             "precision": 0
@@ -5999,7 +6029,8 @@
           "kasawian ni sisa",
           "pagkamatay ni sisa"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 22
       }
     },
     "Isagani": {
@@ -6148,7 +6179,8 @@
           "pangarap ni isagani",
           "kalayaan ng bayan"
         ],
-        "components": []
+        "components": [],
+        "db_query_count": 22
       }
     },
     "tiktok": {
@@ -6163,7 +6195,8 @@
           "tiktok ng bayan",
           "tiktok sa simbahan",
           "tiktok laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "bitcoin": {
@@ -6178,7 +6211,8 @@
           "bitcoin ng bayan",
           "bitcoin sa simbahan",
           "bitcoin laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "covid": {
@@ -6193,7 +6227,8 @@
           "covid ng bayan",
           "covid sa simbahan",
           "covid laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "facebook": {
@@ -6208,7 +6243,8 @@
           "facebook ng bayan",
           "facebook sa simbahan",
           "facebook laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "internet": {
@@ -6223,7 +6259,8 @@
           "internet ng bayan",
           "internet sa simbahan",
           "internet laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "computer": {
@@ -6238,7 +6275,8 @@
           "computer ng bayan",
           "computer sa simbahan",
           "computer laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
       }
     },
     "cellphone": {
@@ -6253,7 +6291,24 @@
           "cellphone ng bayan",
           "cellphone sa simbahan",
           "cellphone laban sa kastila"
-        ]
+        ],
+        "db_query_count": 0
+      }
+    },
+    "online": {
+      "query": "online",
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "online ng bayan",
+          "online sa simbahan",
+          "online laban sa kastila"
+        ],
+        "db_query_count": 0
       }
     }
   }
