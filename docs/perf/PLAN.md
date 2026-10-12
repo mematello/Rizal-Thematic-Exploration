@@ -54,28 +54,36 @@
 
 ---
 
-## Ranked Hypotheses for Slowness
+## Ranked Hypotheses for Slowness (Pre-Measurement)
 
-### High Confidence (Likely Bottlenecks)
-1. **Model inference on every request** — No caching, encoding happens per query
-2. **Expensive semantic fallback** — Fetches top_k * 15 candidates for semantic search
-3. **Theme classification per result** — Calls `_classify_themes()` for every returned sentence with full context expansion
-4. **N+1 context expansion queries** — Each result triggers separate DB queries for neighbor sentences
-5. **No query result caching** — Identical queries recompute everything
+### 🔴 High Confidence (Likely Top 3 Bottlenecks)
+1. **Theme classification + context expansion** — Runs `_classify_themes()` with 8-sentence context window per result (10-20 results × multiple DB queries each)
+2. **Model inference on every request** — No caching; base + DAPT models encode query every time (cold start + per-query overhead)
+3. **Semantic fallback retrieval** — When lexical insufficient, fetches `top_k × 15` candidates with pgvector cosine_distance
 
-### Medium Confidence
-6. **Large theme matrix dot products** — Computed multiple times per search
-7. **Character regex matching** — Runs pattern matching against all character aliases
-8. **Unindexed filtering** — ILIKE queries on sentence_text without proper indexes
-9. **Cross-lingual translation overhead** — Google Translator API calls for unmapped terms
-10. **Passage context embedding** — Averages embeddings from 8-sentence windows per result
+### 🟡 Medium Confidence
+4. **Theme expansion preprocessing** — Computes dot product with theme_matrix (~100s of themes) before candidate retrieval
+5. **Character regex matching** — Runs compiled patterns against all aliases for 4-step theme gating
+6. **Cross-lingual translation API** — Google Translator calls for unmapped English terms (network latency)
+7. **N+1 query patterns** — Context expansion triggers separate DB calls per result for neighbor sentences
+8. **No result caching** — Identical queries recompute everything from scratch
 
-### Low Confidence (Needs Profiling)
-11. **Frontend bundle size** — May delay initial page load
-12. **Sanggunian alignment** — RobustAligner runs DP algorithm on full chapters
-13. **Database connection overhead** — No connection pooling configured
-14. **JSON serialization** — Large embedding vectors in responses
-15. **Stopword/vocabulary checks** — Multiple set membership tests per query token
+### 🟢 Low Confidence (Probably Not Primary Bottlenecks)
+9. **ILIKE queries** — Note: `WHERE sentence_text ILIKE '%x%'` cannot use B-tree index; pg_trgm GIN index candidate
+10. **HNSW vector index with WHERE filters** — Potential recall risk if filters applied after vector search
+11. **Query analysis tokenization** — Pure Python but minimal work
+12. **JSON serialization overhead** — Embeddings are large but typically not the blocker
+13. **Stopword/vocabulary set membership** — Multiple checks but in-memory and fast
+14. **Connection pooling** — SQLAlchemy default may not be tuned
+15. **Sanggunian alignment** — RobustAligner DP algorithm (cached per chapter)
+
+### Phase 1 Measurement Goals
+- Validate top 3 hypotheses with timing data
+- Identify if bottlenecks are consistent across query types
+- Quantify cold vs warm start impact
+- Count DB queries per request (N+1 patterns)
+- Profile memory usage and model load time
+- Check EXPLAIN plans for index usage and row counts
 
 ---
 

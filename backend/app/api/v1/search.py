@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.models.database import SessionLocal
 from app.core.engine import get_engine, RizalEngine
+from app.core.query_counter import reset_query_count, get_query_count
+import os
 
 router = APIRouter()
+PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
 
 def get_db():
     db = SessionLocal()
@@ -25,6 +28,10 @@ async def search_novels(
     Returns ranked results using hybrid semantic + lexical search.
     """
     try:
+        # Reset query counter for this request
+        if PERF_BENCHMARK:
+            reset_query_count()
+
         # Map frontend mode to backend source_type
         db_source_type = "summary" if source_type == "buod" else source_type
         
@@ -113,7 +120,11 @@ async def search_novels(
             "precise_matches": combined_precise,
             "metadata": metadata if metadata else {"result_mode": "none", "reason": "matches_found"}
         }
-        
+
+        # Add DB query count if in benchmark mode
+        if PERF_BENCHMARK and final_res.get("metadata"):
+            final_res["metadata"]["db_query_count"] = get_query_count()
+
         return final_res
     except Exception as e:
         print(f"Search error: {e}")

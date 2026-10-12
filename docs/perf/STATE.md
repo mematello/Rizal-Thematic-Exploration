@@ -7,7 +7,7 @@
 ---
 
 ## Current Status
-Initial planning phase. Memory system created, awaiting approval to begin Phase 1 measurement setup.
+Phase 1 instrumentation complete. Ready to run baseline measurements.
 
 ---
 
@@ -15,15 +15,21 @@ Initial planning phase. Memory system created, awaiting approval to begin Phase 
 - ✅ Created branch `perf/speed-optimization`
 - ✅ Analyzed codebase and mapped request flow
 - ✅ Created memory system (CLAUDE.md, PLAN.md, STATE.md, DECISIONS.md, BASELINE.md, HANDOFF.md)
+- ✅ Created golden query set (40 queries across 5 categories)
+- ✅ Built benchmark.py with 10-run cold/warm measurement
+- ✅ Built compare_golden.py for result verification
+- ✅ Added DB query counter middleware
+- ✅ Created explain_queries.py for EXPLAIN ANALYZE profiling
+- ✅ Updated PLAN.md with refined hypotheses
 
 ---
 
 ## Next Actions
-1. User approval of Phase 1 measurement plan
-2. Create golden query set (~40 queries)
-3. Add timing instrumentation to search pipeline
-4. Run baseline performance measurements
-5. Execute EXPLAIN ANALYZE on identified slow queries
+1. **Run baseline benchmark**: `cd scripts && python benchmark.py`
+2. **Run EXPLAIN ANALYZE**: `python explain_queries.py`
+3. Review baseline results and fill BASELINE.md
+4. Identify confirmed bottlenecks from timing data
+5. Get approval before proceeding to Phase 2 optimizations
 
 ---
 

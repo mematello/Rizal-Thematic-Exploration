@@ -20,6 +20,33 @@
 
 ---
 
+### 2026-10-12: Phase 1 Instrumentation
+**Context**: Need to identify actual bottlenecks before optimizing.
+
+**Decision**: Add comprehensive measurement infrastructure with minimal behavior changes:
+- Golden query set (40 queries) with full result snapshot
+- Cold vs warm timing (10 runs per query)
+- DB query counter via SQLAlchemy event listener
+- EXPLAIN ANALYZE profiling script
+- Comparison tool to detect ranking changes
+
+**Implementation**:
+- Created `scripts/benchmark.py` for automated performance measurement
+- Created `scripts/compare_golden.py` for correctness verification
+- Created `scripts/golden_queries.json` with 5 categories × 8 queries
+- Created `scripts/explain_queries.py` for database query plan analysis
+- Added `backend/app/core/query_counter.py` for DB query tracking
+- Modified `backend/app/api/v1/search.py` to expose query count in benchmark mode
+
+**Impact**:
+- Performance: None (measurement only, no optimization yet)
+- Correctness: Unchanged (instrumentation behind PERF_BENCHMARK flag)
+- Trade-offs: None
+
+**Verification**: All changes are read-only instrumentation or behind environment flag
+
+---
+
 ## Template for Future Entries
 
 ### YYYY-MM-DD: [Brief Title]

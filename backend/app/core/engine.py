@@ -1,10 +1,11 @@
 import numpy as np
 import re
 import os
+import time
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, event
 from pgvector.sqlalchemy import Vector
 
 from app.core.config import get_settings
@@ -16,6 +17,9 @@ from app.core.sequence_aligner import SequenceAligner
 from app.core.robust_aligner import RobustAligner
 
 settings = get_settings()
+
+# Performance monitoring flag
+PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
 
 class RizalEngine:
     def __init__(self):
