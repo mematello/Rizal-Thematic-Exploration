@@ -15,6 +15,7 @@ from app.core.tagalog_parser import TagalogRoleParser
 from app.services.suggestions import DynamicSuggestionGenerator
 from app.core.sequence_aligner import SequenceAligner
 from app.core.robust_aligner import RobustAligner
+from app.core.perf_instrumentation import PerfTimer
 
 settings = get_settings()
 
@@ -459,9 +460,8 @@ class RizalEngine:
 
 
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both"):
-        # Initialize timing collection if benchmarking
-        timings = {} if PERF_BENCHMARK else None
-        t_start = time.perf_counter() if PERF_BENCHMARK else None
+        # Initialize performance timer
+        timer = PerfTimer() if PERF_BENCHMARK else None
 
         if not self._validate_query_semantics(db, query):
              return {
@@ -470,23 +470,27 @@ class RizalEngine:
              }
 
         # Stage 1: Query preprocessing and analysis
-        t0 = time.perf_counter() if PERF_BENCHMARK else None
-        query_words = extract_words(query.lower())
-        
-        # Query Analysis for dynamic behavior
-        query_analysis = self.query_analyzer.analyze_query_words(query)
-        stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
-        sig_items = [item for item in query_analysis if not item['is_stopword']]
-        sig_words = [item['word'].lower() for item in sig_items]
-
-        # --- English Stopword Preprocessing ---
-        discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
-        sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
-
-        # --- Multilingual & Categorical Token Splitting ---
-        # Instead of generic OOV ratio, explicitly split words
-        native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
-        foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
+        if timer:
+            with timer.stage("preprocessing"):
+                query_words = extract_words(query.lower())
+                query_analysis = self.query_analyzer.analyze_query_words(query)
+                stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+                sig_items = [item for item in query_analysis if not item['is_stopword']]
+                sig_words = [item['word'].lower() for item in sig_items]
+                discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
+                sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
+                native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
+                foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
+        else:
+            query_words = extract_words(query.lower())
+            query_analysis = self.query_analyzer.analyze_query_words(query)
+            stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+            sig_items = [item for item in query_analysis if not item['is_stopword']]
+            sig_words = [item['word'].lower() for item in sig_items]
+            discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
+            sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
+            native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
+            foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
         
         is_cross_lingual = len(foreign_tokens) > 0
         
@@ -502,28 +506,40 @@ class RizalEngine:
             # If any foreign tokens are NOT in EN_TL_DICTIONARY, dynamically translate the full query
             unmapped_foreign = [w for w in foreign_tokens if w not in self.EN_TL_DICTIONARY]
             if unmapped_foreign:
-                try:
-                    from deep_translator import GoogleTranslator
-                    # Contextual translation of the full original query
-                    translated_query = GoogleTranslator(source='auto', target='tl').translate(query)
-                    
-                    if translated_query and os.getenv("DEBUG_SEARCH"):
-                        print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
-                        
-                    # Extract words from the translated Tagalog sentence
-                    translated_words = set(extract_words(translated_query.lower()))
-                    
-                    # Security Gate: Only accept translated words if they exist in the corpus vocabulary
-                    valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
-                    
-                    if valid_dynamic_bridges:
-                        bridge_tokens.update(valid_dynamic_bridges)
+                translator_hit = False
+                if timer:
+                    with timer.stage("translator"):
+                        try:
+                            from deep_translator import GoogleTranslator
+                            translated_query = GoogleTranslator(source='auto', target='tl').translate(query)
+                            translator_hit = True
+                            if translated_query and os.getenv("DEBUG_SEARCH"):
+                                print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
+                            translated_words = set(extract_words(translated_query.lower()))
+                            valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
+                            if valid_dynamic_bridges:
+                                bridge_tokens.update(valid_dynamic_bridges)
+                                if os.getenv("DEBUG_SEARCH"):
+                                    print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
+                        except Exception as e:
+                            if os.getenv("DEBUG_SEARCH"):
+                                print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
+                    timer.record_metadata("translator_network_call", translator_hit)
+                else:
+                    try:
+                        from deep_translator import GoogleTranslator
+                        translated_query = GoogleTranslator(source='auto', target='tl').translate(query)
+                        if translated_query and os.getenv("DEBUG_SEARCH"):
+                            print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
+                        translated_words = set(extract_words(translated_query.lower()))
+                        valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
+                        if valid_dynamic_bridges:
+                            bridge_tokens.update(valid_dynamic_bridges)
+                            if os.getenv("DEBUG_SEARCH"):
+                                print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
+                    except Exception as e:
                         if os.getenv("DEBUG_SEARCH"):
-                            print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
-                            
-                except Exception as e:
-                    if os.getenv("DEBUG_SEARCH"):
-                        print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
+                            print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
         
         # If a cross-lingual query has NO native tokens and failed ALL mapping (Dictionary + Translator),
         # it is either an unsupported domain concept or gibberish. Block it immediately to prevent hallucination.
@@ -545,7 +561,11 @@ class RizalEngine:
         # Always attempt to expand query using Themes (both single and multi-word)
         self._ensure_themes_loaded(db)
         # Use base model for initial concept embedding
-        query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        if timer:
+            with timer.stage("base_model_encode"):
+                query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        else:
+            query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
         
         # --- CWPR: Component Decomposition ---
         components = self._get_query_components(query)
@@ -557,8 +577,13 @@ class RizalEngine:
 
         # Determine if safely mapped BEFORE expansion
         is_safely_mapped = is_cross_lingual and len(foreign_tokens) > 0 and (all(ft in self.EN_TL_DICTIONARY for ft in foreign_tokens) or len(bridge_tokens) > 0)
-        
-        expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
+
+        if timer:
+            with timer.stage("theme_expansion"):
+                expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
+            timer.record_metadata("theme_keywords_count", len(extracted_tokens))
+        else:
+            expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
         theme_tokens = set(extracted_tokens) if extracted_tokens else set()
         
         enrichment_anchor = None
@@ -586,14 +611,18 @@ class RizalEngine:
             
         if is_single_word:
             query_embedding = query_embedding_base
-            dapt_query_embedding = None 
+            dapt_query_embedding = None
         else:
             # Dynamic Mix for multi-word
             # Use structured info + DAPT for adaptive mix
             structured_info = self.parser.structured_string(query)
             combined_query = f"{query} [SEP] {structured_info}"
-            dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
-            
+            if timer:
+                with timer.stage("dapt_model_encode"):
+                    dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
+            else:
+                dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
+
             # Hybrid selection embedding (mix base concept with DAPT syntax)
             query_embedding = (query_embedding_base + dapt_query_embedding) / 2
 
@@ -615,36 +644,69 @@ class RizalEngine:
             books = all_books
 
         lex_word = sig_words[0] if sig_words else query_words[0]
-        
-        for key, book_name in books.items():
-            stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
-            
-            if is_cross_lingual:
-                # Mandate native entities/tokens
-                for nt in native_tokens:
-                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
-                
-                # Expand foreign tokens via bridge tokens
-                if bridge_tokens:
-                    filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
-                    if filters:
-                        stmt = stmt.filter(or_(*filters))
-                elif foreign_tokens:
+
+        if timer:
+            with timer.stage("lexical_retrieval"):
+                for key, book_name in books.items():
+                    stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+
+                    if is_cross_lingual:
+                        # Mandate native entities/tokens
+                        for nt in native_tokens:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
+
+                        # Expand foreign tokens via bridge tokens
+                        if bridge_tokens:
+                            filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
+                            if filters:
+                                stmt = stmt.filter(or_(*filters))
+                        elif foreign_tokens:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+                    elif not is_single_word and sig_words:
+                        # Require all significant words to appear for a true lexical phrase match
+                        for w in sig_words:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+                    else:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+
+                    lex_results = db.scalars(stmt.limit(top_k * 20)).all()
+
+                    seen = set([c.id for c in candidates])
+                    for c in lex_results:
+                        if c.id not in seen:
+                            candidates.append(c)
+                            seen.add(c.id)
+            timer.record_metadata("lexical_candidates", len(candidates))
+        else:
+            for key, book_name in books.items():
+                stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+
+                if is_cross_lingual:
+                    # Mandate native entities/tokens
+                    for nt in native_tokens:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
+
+                    # Expand foreign tokens via bridge tokens
+                    if bridge_tokens:
+                        filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
+                        if filters:
+                            stmt = stmt.filter(or_(*filters))
+                    elif foreign_tokens:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+                elif not is_single_word and sig_words:
+                    # Require all significant words to appear for a true lexical phrase match
+                    for w in sig_words:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+                else:
                     stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
-            elif not is_single_word and sig_words:
-                # Require all significant words to appear for a true lexical phrase match
-                for w in sig_words:
-                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
-            else:
-                stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
-                
-            lex_results = db.scalars(stmt.limit(top_k * 20)).all()
-            
-            seen = set([c.id for c in candidates])
-            for c in lex_results:
-                if c.id not in seen:
-                    candidates.append(c)
-                    seen.add(c.id)
+
+                lex_results = db.scalars(stmt.limit(top_k * 20)).all()
+
+                seen = set([c.id for c in candidates])
+                for c in lex_results:
+                    if c.id not in seen:
+                        candidates.append(c)
+                        seen.add(c.id)
 
         # --- Stage A-2: Multi-Anchor Semantic Retrieval ---
         # If multi-word, fetch neighbors for each component to ensure we don't miss 
@@ -738,11 +800,11 @@ class RizalEngine:
                     }
 
             result_mode = "semantic_fallback"
-            
+
             # Build valid tokens using significant query words (no stopwords) + theme tokens + cross-lingual bridge tokens
             raw_valid_tokens = set(sig_words) | theme_tokens | set(bridge_tokens or [])
             valid_tokens = {t for t in raw_valid_tokens if t.lower() not in self.LOW_INFO_WORDS}
-            
+
             # Pre-compute vectors for each individual significant word to avoid phrase-inflation drift
             sig_word_vecs = []
             for sw in sig_words:
@@ -750,25 +812,45 @@ class RizalEngine:
                 if np.linalg.norm(vec) > 0:
                     vec = vec / np.linalg.norm(vec)
                 sig_word_vecs.append((sw, vec))
-            
+
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Valid tokens for validation: {list(valid_tokens)[:10]}")
 
-            for key, book_name in books.items():
-                sem_results = db.scalars(
-                    select(Sentence)
-                    .filter(Sentence.book == book_name)
-                    .filter(Sentence.source_type == source_type)
-                    .order_by(Sentence.embedding.cosine_distance(query_list))
-                    .limit(top_k * 15)
-                ).all()
-                
-                # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
-                seen = set([c.id for c in candidates])
-                for c in sem_results:
-                    if c.id not in seen:
-                        candidates.append(c)
-                        seen.add(c.id)
+            if timer:
+                with timer.stage("semantic_fallback"):
+                    for key, book_name in books.items():
+                        sem_results = db.scalars(
+                            select(Sentence)
+                            .filter(Sentence.book == book_name)
+                            .filter(Sentence.source_type == source_type)
+                            .order_by(Sentence.embedding.cosine_distance(query_list))
+                            .limit(top_k * 15)
+                        ).all()
+
+                        # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
+                        seen = set([c.id for c in candidates])
+                        for c in sem_results:
+                            if c.id not in seen:
+                                candidates.append(c)
+                                seen.add(c.id)
+                timer.record_metadata("semantic_candidates_requested", top_k * 15 * len(books))
+                timer.record_metadata("semantic_candidates_returned", len(candidates))
+            else:
+                for key, book_name in books.items():
+                    sem_results = db.scalars(
+                        select(Sentence)
+                        .filter(Sentence.book == book_name)
+                        .filter(Sentence.source_type == source_type)
+                        .order_by(Sentence.embedding.cosine_distance(query_list))
+                        .limit(top_k * 15)
+                    ).all()
+
+                    # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
+                    seen = set([c.id for c in candidates])
+                    for c in sem_results:
+                        if c.id not in seen:
+                            candidates.append(c)
+                            seen.add(c.id)
 
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Raw semantic candidates retrieved: {len(candidates)}")
@@ -778,7 +860,9 @@ class RizalEngine:
 
         # 3. Hybrid Re-ranking
         results = {'noli': [], 'elfili': []}
-        
+
+        rerank_start = time.perf_counter() if timer else None
+
         if sig_words:
             sig_vecs = self.base_model.encode(sig_words, show_progress_bar=False)
             norm_sig_vecs = [v / np.linalg.norm(v) if np.linalg.norm(v) > 0 else v for v in sig_vecs]
@@ -1019,11 +1103,15 @@ class RizalEngine:
             }
             if not is_single_word:
                 result_item['concept_match_type'] = 'strong' if is_strong_match else 'partial'
-            
+
             if 'noli' in sent.book.lower():
                 results['noli'].append(result_item)
             else:
                 results['elfili'].append(result_item)
+
+        if timer:
+            rerank_elapsed = (time.perf_counter() - rerank_start) * 1000
+            timer.timings["rerank_loop"] = round(rerank_elapsed, 2)
         
         def finalize(lst, label):
             # Sort by final score primarily, but use precision as a tie-breaker or boost
@@ -1081,11 +1169,19 @@ class RizalEngine:
                 sent = item.pop('sent_obj')
                 # Remove embedding early to prevent serialization issues in precise_matches
                 item.pop('embedding', None)
-                
+
                 # Add context
-                item['context_text'] = self._expand_context(db, sent)
+                if timer:
+                    with timer.stage("context_expansion"):
+                        item['context_text'] = self._expand_context(db, sent)
+                else:
+                    item['context_text'] = self._expand_context(db, sent)
                 # Add themes (using pre-computed query embedding)
-                item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
+                if timer:
+                    with timer.stage("theme_classification"):
+                        item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
+                else:
+                    item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
                 
                 # Check for Precision Threshold (Tumpak na Tugma)
                 if not is_single_word and item['scores'].get('precision', 0) >= 70:
@@ -1138,15 +1234,21 @@ class RizalEngine:
             reason = "unmapped_standalone_concept"
             suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
 
+        if timer:
+            with timer.stage("serialization"):
+                import json
+                json.dumps(results, default=str)
+
         return {
             "results": results,
-            "precise_matches": precise_matches[:5], # Return top 5 precise matches
+            "precise_matches": precise_matches[:5],  # Return top 5 precise matches
             "metadata": {
                 "result_mode": result_mode,
                 "reason": reason,
                 "has_lexical_hits": has_lexical_hits,
                 "suggestions": suggestions,
-                "components": components if not is_single_word else []
+                "components": components if not is_single_word else [],
+                **({"engine_timings": timer.get_timings()} if timer else {})
             }
         }
 

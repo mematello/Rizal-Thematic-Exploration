@@ -45,28 +45,33 @@ def get_sample_embedding():
 def run_explain_query(conn, query_name, sql):
     """Execute EXPLAIN (ANALYZE, BUFFERS) and return formatted output"""
     cur = conn.cursor()
-
+    # Wrap each EXPLAIN in its own transaction; rollback on error so failures don't cascade
+    conn.set_isolation_level(0)  # autocommit off for explicit rollback control
     try:
+        cur.execute("BEGIN")
         cur.execute(sql)
         plan = cur.fetchall()
-
-        output = [f"\n{'=' * 80}"]
-        output.append(f"Query: {query_name}")
-        output.append('=' * 80)
-        output.append(sql)
-        output.append('-' * 80)
-        output.append("EXPLAIN Output:")
-        output.append('-' * 80)
-
-        for row in plan:
-            output.append(row[0])
-
-        return "\n".join(output)
-
+        cur.execute("COMMIT")
+        conn.rollback()  # rollback to clean any session-level state
     except Exception as e:
+        conn.rollback()
         return f"\nError executing {query_name}: {e}\n"
     finally:
         cur.close()
+
+    # Format results safely
+    output = [f"\n{'=' * 80}"]
+    output.append(f"Query: {query_name}")
+    output.append('=' * 80)
+    output.append(sql)
+    output.append('-' * 80)
+    output.append("EXPLAIN Output:")
+    output.append('-' * 80)
+
+    for row in plan:
+        output.append(str(row[0]))
+
+    return "\n".join(output)
 
 
 def get_table_stats(conn):
@@ -268,7 +273,7 @@ def main():
     with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
         f.write("\n\n".join(results))
 
-    print(f"\n✓ Query plans saved to: {OUTPUT_PATH}")
+    print(f"\n[OK] Query plans saved to: {OUTPUT_PATH}")
     print("\nKey findings to look for:")
     print("  - Sequential scans vs index scans")
     print("  - ILIKE queries cannot use B-tree indexes (consider pg_trgm GIN)")

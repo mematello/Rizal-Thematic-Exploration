@@ -7,7 +7,7 @@
 ---
 
 ## Current Status
-Phase 1 baseline complete; Phase 1b instrumentation in progress. Stage-level timing and EXPLAIN plans missing.
+Phase 1 baseline complete; Phase 1b instrumentation in progress. Stage-level timing added; EXPLAIN plans fixed (no errors). Need to complete timing for bayan, edukasyon etc. as per Phase 1b tasks.
 
 ---
 
@@ -56,6 +56,7 @@ Phase 1 baseline complete; Phase 1b instrumentation in progress. Stage-level tim
 - Lexical/semantic retrieval (candidate counts)
 - Re-ranking, theme classification, context expansion
 - Serialization
+- **Need to confirm:** All 5 queries must report timing per stage (bayan 2.5s, edukasyon 32.1s, etc.)
 
 **Fix EXPLAIN queries** with proper vector literal formatting
 

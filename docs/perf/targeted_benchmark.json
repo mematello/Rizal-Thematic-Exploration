@@ -1,0 +1,202 @@
+{
+  "kalayaan": {
+    "runs": [
+      {
+        "run": 1,
+        "ms": 17015.0,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 2,
+        "ms": 14146.9,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 3,
+        "ms": 13365.9,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 4,
+        "ms": 14548.9,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 5,
+        "ms": 13056.7,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      }
+    ],
+    "expected_slow": true
+  },
+  "edukasyon": {
+    "runs": [
+      {
+        "run": 1,
+        "ms": 41245.0,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 2,
+        "ms": 37284.7,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 3,
+        "ms": 36003.9,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 4,
+        "ms": 37624.6,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 5,
+        "ms": 36941.6,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      }
+    ],
+    "expected_slow": true
+  },
+  "bayan": {
+    "runs": [
+      {
+        "run": 1,
+        "ms": 233.2,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 2,
+        "ms": 215.1,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 3,
+        "ms": 217.0,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 4,
+        "ms": 193.2,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 5,
+        "ms": 201.3,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      }
+    ],
+    "expected_slow": false
+  },
+  "tiktok": {
+    "runs": [
+      {
+        "run": 1,
+        "ms": 4896.2,
+        "mode": "none",
+        "db_queries": 0,
+        "timings": null
+      },
+      {
+        "run": 2,
+        "ms": 3720.0,
+        "mode": "none",
+        "db_queries": 0,
+        "timings": null
+      },
+      {
+        "run": 3,
+        "ms": 3491.6,
+        "mode": "none",
+        "db_queries": 0,
+        "timings": null
+      },
+      {
+        "run": 4,
+        "ms": 2394.6,
+        "mode": "none",
+        "db_queries": 0,
+        "timings": null
+      },
+      {
+        "run": 5,
+        "ms": 2312.8,
+        "mode": "none",
+        "db_queries": 0,
+        "timings": null
+      }
+    ],
+    "expected_slow": false
+  },
+  "oppression": {
+    "runs": [
+      {
+        "run": 1,
+        "ms": 703.9,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 2,
+        "ms": 633.8,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 3,
+        "ms": 660.7,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 4,
+        "ms": 956.7,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      },
+      {
+        "run": 5,
+        "ms": 635.3,
+        "mode": null,
+        "db_queries": null,
+        "timings": null
+      }
+    ],
+    "expected_slow": false
+  }
+}
