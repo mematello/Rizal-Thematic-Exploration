@@ -7,7 +7,7 @@
 ---
 
 ## Current Status
-Phase 1 instrumentation complete. Benchmark NOT yet run; awaiting user to run it locally.
+Phase 1 COMPLETE. Baseline measurements captured and analyzed. **Awaiting approval before Phase 2.**
 
 ---
 
@@ -22,37 +22,30 @@ Phase 1 instrumentation complete. Benchmark NOT yet run; awaiting user to run it
 - ✅ Fixed explain_queries.py with proper vector syntax and UTF-8 output
 - ✅ Updated PLAN.md with refined hypotheses
 - ✅ Created BENCHMARK_INSTRUCTIONS.md with exact commands
+- ✅ **RAN BENCHMARK**: 39/40 queries completed (server crashed on last query)
+- ✅ **ANALYZED RESULTS**: BASELINE.md populated with findings
 
 ---
 
-## Next Actions - USER TO PERFORM
+## Key Findings from Phase 1
 
-**Terminal 1 - Start API server with instrumentation:**
-```powershell
-cd backend
-$env:PERF_BENCHMARK="1"
-poetry run uvicorn app.main:app
-```
-⚠️ IMPORTANT: Set `PERF_BENCHMARK=1` in the SERVER terminal (process that runs the engine)
+**🚨 CRITICAL ISSUES:**
+- Single-word Tagalog queries: **10.4s average** (target: <1s)
+- "edukasyon" anomaly: **32-34s** per query
+- Theme classification likely bottleneck (latency correlates with result count)
+- DB query instrumentation failed (PERF_BENCHMARK not set in server)
 
-**Terminal 2 - Run benchmark:**
-```powershell
-poetry run python scripts/benchmark.py
-```
-Expected duration: 10-15 minutes
-
-**Also run EXPLAIN ANALYZE:**
-```powershell
-poetry run python scripts/explain_queries.py
-```
+**Phase 2 Priorities:**
+1. Re-run with proper instrumentation to confirm bottleneck
+2. Optimize theme classification (batch processing, reduce context queries)
+3. Add Redis result caching
+4. Investigate "edukasyon" anomaly
 
 ---
 
-## After Benchmark Completes
+## Next Actions - AWAITING USER APPROVAL
 
-1. Send generated files: `docs/perf/golden_snapshot.json`, `baseline_timings.json`, console output
-2. I'll analyze results and populate BASELINE.md with findings
-3. Review BASELINE.md before proceeding to Phase 2 optimizations
+**Review BASELINE.md** (`docs/perf/BASELINE.md`) before proceeding to Phase 2 optimizations.
 
 ---
 

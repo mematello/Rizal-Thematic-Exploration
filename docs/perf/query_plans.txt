@@ -1,0 +1,83 @@
+
+================================================================================
+DATABASE STATISTICS
+================================================================================
+Total sentences                         16,402
+Summary sentences                        2,186
+Full text sentences                     14,216
+Noli sentences                           8,673
+Fili sentences                           5,543
+Total themes                               545
+Sentences with embeddings               16,402
+Sentences with DAPT embeddings          11,822
+
+--------------------------------------------------------------------------------
+INDEXES
+--------------------------------------------------------------------------------
+
+sentences.ix_sentences_book:
+  CREATE INDEX ix_sentences_book ON public.sentences USING btree (book)
+
+sentences.ix_sentences_chapter_number:
+  CREATE INDEX ix_sentences_chapter_number ON public.sentences USING btree (chapter_number)
+
+sentences.ix_sentences_id:
+  CREATE INDEX ix_sentences_id ON public.sentences USING btree (id)
+
+sentences.ix_sentences_passage_id:
+  CREATE INDEX ix_sentences_passage_id ON public.sentences USING btree (passage_id)
+
+sentences.sentences_pkey:
+  CREATE UNIQUE INDEX sentences_pkey ON public.sentences USING btree (id)
+
+themes.ix_themes_book:
+  CREATE INDEX ix_themes_book ON public.themes USING btree (book)
+
+themes.ix_themes_id:
+  CREATE INDEX ix_themes_id ON public.themes USING btree (id)
+
+themes.themes_pkey:
+  CREATE UNIQUE INDEX themes_pkey ON public.themes USING btree (id)
+
+
+Error executing Semantic Search - Vector Similarity: syntax error at or near "["
+LINE 7:         ORDER BY embedding <=> '['[', '0', '.', '0', '3', '9...
+                                          ^
+
+
+
+
+Error executing Lexical Search - Single ILIKE: current transaction is aborted, commands ignored until end of transaction block
+
+
+
+
+Error executing Lexical Search - Multi-word (multiple ILIKE): current transaction is aborted, commands ignored until end of transaction block
+
+
+
+
+Error executing Context Expansion - Neighbor Sentences: current transaction is aborted, commands ignored until end of transaction block
+
+
+
+
+Error executing Theme Lookup - All Themes: current transaction is aborted, commands ignored until end of transaction block
+
+
+
+
+Error executing Cross-lingual Search - OR filters: current transaction is aborted, commands ignored until end of transaction block
+
+
+
+
+Error executing Semantic + Filters - HNSW Recall Test: syntax error at or near "["
+LINE 8:         ORDER BY embedding <=> '['[', '0', '.', '0', '3', '9...
+                                          ^
+
+
+
+
+Error executing Character Search - Text Match: current transaction is aborted, commands ignored until end of transaction block
+

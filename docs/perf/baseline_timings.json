@@ -1,0 +1,2964 @@
+{
+  "version": "1.0",
+  "created": "2026-10-12 17:57:37",
+  "first_request_time_s": 25.97754900000291,
+  "memory_delta_mb": 0.0546875,
+  "peak_memory_mb": 33.3828125,
+  "queries": [
+    {
+      "query": "kalayaan",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 10499.163900007261,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 10403.734399995301,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 9982.885500008706,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 9962.40800000669,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 9949.285599999712,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 10662.19469999487,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 10397.581899989746,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 10246.73719999555,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 10850.952100008726,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 10784.875500001363,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "edukasyon",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 32508.234699998866,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 33242.00239998754,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 34641.34190000186,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 41886.98480000312,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 33412.773299991386,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 31818.178800007445,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 32662.54079999635,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 32817.10899999598,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 34868.53300000075,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 31678.377399992314,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "simbahan",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2720.7683000015095,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2589.213800005382,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2616.7490999941947,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2583.2020999951055,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2602.347199994256,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2600.403099990217,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2573.4527000022354,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2616.0358999914024,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2575.990700002876,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2664.1339999914635,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "korapsyon",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 5097.959399994579,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3392.9232000082266,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3400.045400005183,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3294.051100005163,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3177.284100005636,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3474.745100000291,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3200.313900000765,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3223.4393999970052,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3133.1951999891317,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3530.328200009535,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "pag-ibig",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 10448.408800002653,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 10729.946500010556,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 10243.972600001143,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 10688.43310000375,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 10471.31160000572,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 11643.286499995156,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 11962.991899999906,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 11342.528900000616,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 11543.93759999948,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 11988.222100000712,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "kamatayan",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 17131.95949999499,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 23354.251500000828,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 13673.606800002744,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 11704.213799996069,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 11295.298999990337,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 13912.49620000599,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 10828.39189999504,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 10999.589799990645,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 11623.612099996535,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 11829.172199999448,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "bayan",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2474.4893000024604,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2419.7690000000875,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2438.2523000094807,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2443.1380000023637,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2457.666900008917,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2444.7359000041615,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2448.564599995734,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2449.558899999829,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2503.333200002089,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2604.550299991388,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "paaralan",
+      "category": "single_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2700.844100007089,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2537.998300002073,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2577.1294000005582,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2586.5339000010863,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2575.861100005568,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2572.3904999904335,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2561.88559999282,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2661.0931000031997,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2537.972499994794,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2617.799499988905,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "pag-ibig ni Maria Clara",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3486.363399992115,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2814.993799998774,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2862.6068999874406,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2756.8486999953166,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3238.59779999475,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2779.052900004899,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2709.0671000041766,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2784.334800002398,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2742.085300007602,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2964.032400006545,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "karahasan ng mga prayle",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 4457.273300009547,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3962.1449999976903,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 4045.039299991913,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 4019.1690000065137,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 4082.852699997602,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 4334.781600002316,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 4351.966900008847,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 4339.309299990418,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 4410.7398000051035,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 4603.07389999798,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "paghihirap ng bayan",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2673.2479999918723,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2666.8709999939892,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2509.63739999861,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2544.222399999853,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2477.5955000077374,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2496.597899997141,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2550.7911999884527,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2491.687000001548,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2821.309199993266,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 4268.503499988583,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "edukasyon para sa kalayaan",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2835.0533000048017,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2675.09340000106,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2735.7562000106554,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 4688.538800008246,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2798.690700001316,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2869.779300002847,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2775.7299000077182,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2653.950399995665,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2740.1375000044936,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2616.4201999927172,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "kamatayan ni Elias",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2782.036299991887,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2929.5184000075096,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2551.939199998742,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2632.5448999996297,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2630.31680000131,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2617.7283999859355,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2618.8813999906415,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2617.0730000012554,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2554.426100003184,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2753.22870000673,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "kapangyarihan ng simbahan",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3046.5250999986893,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2820.8299999969313,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2570.2583000093,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2526.9890000054147,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2571.1556000023847,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2585.3069000004325,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2579.4406999921193,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2511.2704999919515,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2686.2567999924067,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2549.9150000105146,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "kalayaan ng Pilipinas",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2562.279599995236,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2524.1264999931445,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2553.6222999944584,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2624.008500002674,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2491.5322000015294,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2566.404799988959,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2583.4592999890447,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2542.6521000044886,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2490.7030000031227,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2721.7134999955306,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "katarungan sa lipunan",
+      "category": "multi_word_tagalog",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2543.423499999335,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2518.874200002756,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2513.9618999965023,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2509.056700000656,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2475.241100008134,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2545.645100006368,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2590.3916000097524,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2485.347300011199,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2515.8547000028193,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2475.2513999992516,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "corruption",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2517.7837000082945,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2396.3541999983136,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2408.0595999985235,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2658.6676000006264,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2768.1171000003815,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2597.1219000057317,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2541.641499992693,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2884.9914000020362,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2748.0319000023883,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2483.187799996813,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "education",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2649.631699998281,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2523.896500002593,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2547.3523999971803,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2518.6397999932524,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2448.28779999807,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2758.9497000008123,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2528.984999997192,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2497.2497999988263,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2476.5976000053342,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2523.900300002424,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "freedom",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2443.1783000036376,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2367.5829999992857,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2357.9997999913758,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2383.892600002582,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2561.4074000041,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2863.75489999773,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2395.3049999981886,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2581.847599998582,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2388.868800000637,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2466.0106000083033,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "oppression",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3199.3960999971023,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2772.5406999961706,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2904.156500007957,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2681.6914999944856,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2679.4116999953985,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2666.388099998585,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2605.304500000784,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2642.779599991627,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2809.8347000050126,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2942.005599994445,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "love",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2470.806800003629,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2404.109899987816,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2435.4363000020385,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2494.1418999951566,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2438.7471999943955,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2441.1437999951886,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2433.2413999945857,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2406.3221999967936,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2425.0123999954667,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3707.7456999977585,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "death",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2788.2384000113234,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2867.5126999878557,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2818.06800000777,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2509.965999997803,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2504.887899995083,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2463.0090999999084,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2578.6739000031957,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2568.1987999996636,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2528.0467999982648,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2518.3228999958374,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "justice",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2632.741800000076,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2507.128500001272,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2607.5147000083234,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2568.2789999991655,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2486.137300002156,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2436.612100005732,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2450.07789999363,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2681.121499990695,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2450.6108999921707,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2469.0692000003764,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "church",
+      "category": "english_cross_lingual",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2500.7436000014422,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2447.056600009091,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2443.3382999995956,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2449.400500001502,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2426.25410000619,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2489.405699991039,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2422.1366999991005,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2430.8980999921914,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2448.2794999930775,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2460.3650999924866,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Crisostomo Ibarra",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2998.457599998801,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2769.6154000004753,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2705.214600006002,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2718.3488000009675,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2636.624799997662,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2594.5787000091514,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2839.596399993752,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2725.271800009068,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2592.2178000037093,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3079.0301999950316,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Maria Clara",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2836.456699995324,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2965.8456000033766,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2657.5694999919506,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2945.906599998125,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2682.716800001799,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2681.1069999967003,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2685.8789999969304,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2717.159599997103,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2749.222099999315,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2693.1372999970336,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Simoun",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2613.8193999940995,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2441.247499999008,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2453.109399997629,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2462.8713999991305,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2444.9093000002904,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2470.644499990158,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2462.8329999977723,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2467.120300003444,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2417.9246999992756,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2458.4296999964863,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Elias",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2379.3317999952706,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2383.832599996822,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2357.689399999799,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2343.408600005205,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2338.032600004226,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2347.396999990451,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2344.0699000057066,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2392.50990000437,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2371.2082999991253,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2381.3430999871343,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Padre Damaso",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2904.819100003806,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2571.1007000063546,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2573.9864999923157,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2552.3022999987006,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2655.2814000024227,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2579.600400000345,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2505.5687999993097,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2801.0235999972792,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2716.1699999996927,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2534.3830000056187,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Basilio",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2619.9618999962695,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2555.932599992957,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2501.7852000019047,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2546.427199995378,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2539.78669999924,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2672.640399992815,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2597.146900006919,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2569.9981000070693,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2672.7608000073815,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2669.00659998646,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Sisa",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2458.1925999955274,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2459.4948000012664,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2553.670499997679,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2416.419000001042,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2435.1722999999765,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2377.2003000049153,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2383.237399990321,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2397.6755000039702,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2473.059900003136,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2370.9589000063716,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "Isagani",
+      "category": "character_names",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 2446.5009000123246,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 2369.9185000004945,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 2384.1532000078587,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 2359.7134000010556,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 2397.2561999980826,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 2365.564699997776,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 2361.074800006463,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 2402.930900003412,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 2347.223299992038,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 2424.1092999873217,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "tiktok",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3594.394200001261,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3227.5323000067146,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3393.272999994224,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3159.5051000040257,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3347.371399999247,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3280.5876999918837,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3644.806399999652,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3417.1975000062957,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3185.0474000093527,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3349.8340000078315,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "bitcoin",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3267.1179000026314,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3355.2988000010373,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3284.3740999960573,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3584.149799993611,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3646.2364999897545,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3742.674699999043,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3568.889499991201,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3610.4170000035083,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3404.7848000045633,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3340.6929000047967,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "covid",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3235.2698000031523,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3537.9170999949565,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3649.5234000030905,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3264.6279000036884,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3330.9889000083786,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3560.5542000121204,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3376.91089999862,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3514.539399999194,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3212.7588000003016,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3636.966799997026,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "facebook",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3370.447099994635,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3375.855899997987,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3443.599100006395,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3290.099599995301,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3396.7052000080002,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3355.1357999967877,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3425.871499988716,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3564.552800002275,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3491.209500003606,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3716.3899000006495,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "internet",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3452.3000000044703,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3503.253400005633,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3625.4275999963284,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3415.2827999932924,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3410.5910000071162,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3462.5255999999354,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3172.314900002675,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3291.7643999971915,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3280.5775000015274,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3436.1994999926537,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "computer",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3536.60530000343,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3257.7296000090428,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3346.02630000154,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3369.522599998163,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3379.1742000030354,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3460.878700003377,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3114.560599991819,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3339.1783999977633,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 9,
+          "http_latency_ms": 3227.5896000064677,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 10,
+          "http_latency_ms": 3294.6602999872994,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "cellphone",
+      "category": "out_of_domain",
+      "runs": [
+        {
+          "run": 1,
+          "http_latency_ms": 3351.5112999884877,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 2,
+          "http_latency_ms": 3579.911100008758,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 3,
+          "http_latency_ms": 3441.525400005048,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 4,
+          "http_latency_ms": 3611.617500006105,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 5,
+          "http_latency_ms": 3325.951899998472,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 6,
+          "http_latency_ms": 3417.538499998045,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 7,
+          "http_latency_ms": 3415.770799998427,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        },
+        {
+          "run": 8,
+          "http_latency_ms": 3310.966799996095,
+          "engine_timings": {
+            "db_query_count": 0
+          }
+        }
+      ]
+    },
+    {
+      "query": "online",
+      "category": "out_of_domain",
+      "runs": []
+    }
+  ]
+}
