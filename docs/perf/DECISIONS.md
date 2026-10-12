@@ -34,9 +34,20 @@
 - Created `scripts/benchmark.py` for automated performance measurement
 - Created `scripts/compare_golden.py` for correctness verification
 - Created `scripts/golden_queries.json` with 5 categories × 8 queries
-- Created `scripts/explain_queries.py` for database query plan analysis
+- Created `scripts/explain_queries.py` for database query plan analysis (fixed vector syntax)
 - Added `backend/app/core/query_counter.py` for DB query tracking
 - Modified `backend/app/api/v1/search.py` to expose query count in benchmark mode
+
+**Translator Caching**: 
+- Benchmark script pre-warms client-side translator cache
+- Server-side translator calls in engine.py (lines ~496-502) are NOT frozen/cached
+- For fully deterministic runs, dynamic translation should be disabled during benchmarking
+
+**Benchmark Execution**:
+- Background task timed out after 10 minutes
+- User must run benchmark locally in their terminal
+- `PERF_BENCHMARK=1` must be set in the SERVER terminal (not client script)
+- Use `poetry run python scripts/benchmark.py` from project root
 
 **Impact**:
 - Performance: None (measurement only, no optimization yet)

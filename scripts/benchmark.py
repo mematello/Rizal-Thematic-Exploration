@@ -56,6 +56,13 @@ def freeze_translator_cache():
     """
     Pre-populate translator cache with known English terms to make runs deterministic.
     This avoids network calls during benchmarking.
+
+    NOTE: The translator is called by the ENGINE (backend/app/core/engine.py), not by this script.
+    This function just pre-warms any client-side cache, but the real caching happens
+    server-side within the engine's cross-lingual mapping logic.
+
+    For true deterministic runs, the engine's dynamic translator calls should be disabled
+    or cached at the server level.
     """
     try:
         from deep_translator import GoogleTranslator
@@ -68,7 +75,8 @@ def freeze_translator_cache():
         ]
 
         cache = {}
-        print("Pre-caching translations for deterministic runs...")
+        print("Pre-caching translations (client-side warmup)...")
+        print("NOTE: Engine-side translator calls may still occur during search.")
         for term in english_terms:
             try:
                 translation = translator.translate(term)

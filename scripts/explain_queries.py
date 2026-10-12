@@ -28,14 +28,17 @@ def get_sample_embedding():
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
 
-    cur.execute("SELECT embedding FROM sentences WHERE embedding IS NOT NULL LIMIT 1")
+    # Get embedding as text representation
+    cur.execute("SELECT embedding::text FROM sentences WHERE embedding IS NOT NULL LIMIT 1")
     result = cur.fetchone()
 
     cur.close()
     conn.close()
 
     if result:
-        return result[0]  # Returns the vector
+        # PostgreSQL returns the vector as a string like '[0.1,0.2,...]'
+        # This is the correct format for the query
+        return result[0]
     return None
 
 
@@ -125,9 +128,8 @@ def main():
     if not sample_embedding:
         print("Warning: Could not retrieve sample embedding")
         sample_embedding = "[" + ",".join(["0.1"] * 768) + "]"
-    else:
-        # Convert to string format for SQL
-        sample_embedding = str(sample_embedding.tolist() if hasattr(sample_embedding, 'tolist') else list(sample_embedding))
+
+    print(f"Using embedding vector (first 50 chars): {sample_embedding[:50]}...")
 
     print(f"Running EXPLAIN ANALYZE queries...")
 
@@ -148,7 +150,7 @@ def main():
         FROM sentences
         WHERE book = 'noli'
           AND source_type = 'summary'
-        ORDER BY embedding <=> '{sample_embedding}'::vector
+        ORDER BY embedding <=> {sample_embedding!r}::vector
         LIMIT 150;
         """
     ))
@@ -239,7 +241,7 @@ def main():
         WHERE book = 'El Filibusterismo'
           AND source_type = 'summary'
           AND chapter_number BETWEEN 10 AND 20
-        ORDER BY embedding <=> '{sample_embedding}'::vector
+        ORDER BY embedding <=> {sample_embedding!r}::vector
         LIMIT 100;
         """
     ))
