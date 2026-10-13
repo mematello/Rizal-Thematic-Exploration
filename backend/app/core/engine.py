@@ -24,9 +24,12 @@ settings = get_settings()
 # Performance monitoring flag
 PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
 
-# Process-level word embedding cache (persists across requests)
+# Process-level word embedding cache (persists across requests, bounded)
+_MAX_WORD_VEC_CACHE_SIZE = 50000
 _word_vec_cache: Dict[str, np.ndarray] = {}
 _word_vec_cache_lock = threading.Lock()
+# Track insertion to implement simple FIFO eviction beyond max size
+_word_vec_cache_order: list[str] = []
 
 class RizalEngine:
     def __init__(self):
@@ -998,6 +1001,13 @@ class RizalEngine:
                                 # Store in process-level cache with thread safety
                                 with _word_vec_cache_lock:
                                     _word_vec_cache[w] = w_vec
+                                    # Add to order and evict if too large
+                                    _word_vec_cache_order.append(w)
+                                    if len(_word_vec_cache_order) > _MAX_WORD_VEC_CACHE_SIZE:
+                                        # Evict oldest item
+                                        oldest = _word_vec_cache_order.pop(0)
+                                        if w != oldest and oldest in _word_vec_cache:
+                                            del _word_vec_cache[oldest]
 
                             if np.linalg.norm(w_vec) > 0:
                                 w_vec = w_vec / np.linalg.norm(w_vec)

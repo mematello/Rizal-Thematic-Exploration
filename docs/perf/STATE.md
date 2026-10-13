@@ -7,7 +7,7 @@
 ---
 
 ## Current Status
-Phase 1 complete; Phase 2 Step 1 implemented. Process-level word embedding cache now persists across search() calls, reducing encode calls from 622→0 warm, 166→0 cold for edukasyon. Rankings verified identical via compare_golden across all 40 queries. Remaining optimization phases: HNSW index, query expansion pruning.
+Phase 1 complete; Phase 2 Step 1 implemented. Process-level word embedding cache now persists across search() calls, reducing encode calls from 622→0 warm, 166→0 cold for edukasyon. Actual measured rerank: 77ms (edukasyon), 62ms (kalayaan). No estimates retained. Awaiting user approval before any further optimization (no HNSW, no query-expansion pruning, no precompute, no validation-skipping).
 
 ---
 

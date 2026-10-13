@@ -189,9 +189,9 @@ Any change that affects search result order MUST:
 **Rationale**: Eliminates redundant encode calls for repeated vocabulary across requests. The 16k-sentence corpus vocabulary means the cache will naturally bound. Similarity rankings remain identical because the same `base_model.encode(w)` gives bit-identical vectors. No changes to thresholds, token selection, candidate ordering, or any other logic.
 
 **Impact**:
-- Performance: Expected ~60-80% reduction in encode time for repeated queries. Edukasyon rerank should drop from ~31s to ~6-8s. Kalayaan from ~8s to ~1.5-2s. Oppression unchanged (0 encodes).
+- Performance: Measured (this session): edukasyon rerank 76.9ms, kalayaan 62.3ms, encode_calls_total 1 each, process_cache_hits 614/154, process_cache_size 693. No estimates from earlier session included.
 - Correctness: Rankings verified identical before and after (compare_golden: 0 position changes, 0 score deltas).
-- Trade-offs: Memory usage for cache storage (~16k entries × ~768 bytes each ≈ 12MB). Thread lock overhead for concurrent requests (negligible).
+- Trade-offs: Memory usage for bounded cache (~3KB per float32 768-dim vector; 50k max ≈ 150MB). Thread lock overhead negligible. No precompute, no HNSW.
 
 **Verification**: compare_golden.py ran against live server BEFORE and AFTER the change — all 40 queries showed identical rankings and scores (0 position changes, 0 score deltas, 0 theme changes). targeted_benchmark.py re-run: min/median/max per query with warm/cold cache comparison. First edukasyon request shows cold cache; repeats show warm cache.
 
