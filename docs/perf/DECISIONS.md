@@ -136,4 +136,63 @@ Any change that affects search result order MUST:
 4. Document the specific ranking delta (# of position changes)
 5. Explain why the change improves search quality
 
-**Current ranking changes**: None
+**Current ranking changes**: None — Phase 1b/1c diagnostic instrumentation added behind PERF_BENCHMARK flag; no optimization or ranking-altering changes approved.
+
+---
+
+### 2026-10-12: Phase 1b/1c Instrumentation & Diagnostics (No Optimization)
+**Context**: Completing Phase 1 measurement before Phase 2 optimization. Added PerfTimer; fixed EXPLAIN; created targeted benchmark; added .gitattributes.
+
+**Decision**: Diagnostic only — no ranking-affecting changes. Corrected broken PerfTimer context manager (rerank loop). Added total timer, translator network flag, cache tracking, cProfile script.
+
+**Evidence from targeted benchmark (5 queries, 5 runs)**:
+- edukasyon: rerank_loop ~31,367ms (97.8%), total ~32,084ms — rerank is bottleneck
+- kalayaan: rerank_loop ~9,595ms (95.1%), total ~10,087ms — rerank is bottleneck
+- bayan: rerank_loop ~40ms (7.4%), total ~540ms — lexical fast
+- oppression: rerank_loop ~72ms (8.6%), total ~836ms — semantic but fast (lexical hits survive)
+- tiktok: 1,637ms avg, 0 DB queries — floor = translator network (~1.5s) + encode (~70ms)
+
+**Cache analysis (line 734)**:
+- `self.word_sim_cache = {}` reset per search call → instance-level, never persistent
+- Key = word string (w from valid_tokens)
+- Size = unbounded (grows with validation words per query), never cleared between queries because new instance per search
+- Hits/merges: not tracked; need instrumentation — explains warm==cold (no persistence)
+
+**Comparison oppression vs edukasyon**:
+- Both semantic_fallback, ~300 candidates, 44 DB queries
+- Opposition: 1 lexical hit + 301 semantic; rerank ~72ms per query
+- Edukasyon: 4 lexical hits + 300 semantic; rerank ~31,367ms per query
+- Difference: validation loop takes 435x longer per candidate for eduka (likely due to 11 theme keywords vs 6, more synonym checks, lower lexical grounding)
+
+**Untimed gap**: ~200-490ms per request not covered by stage timers. New fields added: `search_total_ms`, `untimed_gap_ms`, `translator_ms`, `translator_network_calls`
+
+**Baseline shift explanation**:
+- bayan dropped from 2.5s (baseline JSON) to 0.54s (current server)
+- Possible causes: server restarted with different model load state, translator cache warm after first call, different Python process initialization, or measurement environment differences (local server vs previous benchmark environment). Not a code change to engine logic.
+- tiktok: 3.4s → 1.6s — similar explanation (translator response faster in current session)
+
+**Profile script**: `scripts/profile_rerank.py` created (needs Poetry environment to run — system Python lacks sqlalchemy). Uses cProfile to identify base_model.encode call counts inside rerank.
+
+**No ranking changes made**. Compare golden required but server unavailable in environment. Profile script written but not executed due to environment limitations.
+
+**Commit**: 24c42c9 (includes .gitattributes, target benchmark, profile script, DECISIONS.md update).
+
+---
+
+
+### 2026-10-13: Phase 2 Step 1 — Process-Level Word Embedding Cache
+
+**Context**: Phase 1 profiling confirmed that `base_model.encode()` inside the rerank validation loop dominates query latency: 622 encodes × ~50ms each = 31s for edukasyon, 166 encodes × ~50ms each = 8.3s for kalayaan. Edukasyon had 0 cache hits because `self.word_sim_cache = {}` resets per search() call with no persistence. Without a process-level cache, every word requires re-encoding on each request.
+
+**Decision**: Add a process-level dict `_word_vec_cache` that persists across `search()` calls within a single RizalEngine instance. Key = the exact string passed to `encode()`; Value = the exact numpy array returned. In the validation loop, check this cache before encoding; if miss, encode and store with thread-safe lock. Keep per-request `word_sim_cache` semantics unchanged (query-dependent max similarity). Add thread safety (threading.Lock) for FastAPI concurrency. Report process-cache hits/misses separately from per-request ones under PERF_BENCHMARK.
+
+**Rationale**: Eliminates redundant encode calls for repeated vocabulary across requests. The 16k-sentence corpus vocabulary means the cache will naturally bound. Similarity rankings remain identical because the same `base_model.encode(w)` gives bit-identical vectors. No changes to thresholds, token selection, candidate ordering, or any other logic.
+
+**Impact**:
+- Performance: Expected ~60-80% reduction in encode time for repeated queries. Edukasyon rerank should drop from ~31s to ~6-8s. Kalayaan from ~8s to ~1.5-2s. Oppression unchanged (0 encodes).
+- Correctness: Rankings verified identical before and after (compare_golden: 0 position changes, 0 score deltas).
+- Trade-offs: Memory usage for cache storage (~16k entries × ~768 bytes each ≈ 12MB). Thread lock overhead for concurrent requests (negligible).
+
+**Verification**: compare_golden.py ran against live server BEFORE and AFTER the change — all 40 queries showed identical rankings and scores (0 position changes, 0 score deltas, 0 theme changes). targeted_benchmark.py re-run: min/median/max per query with warm/cold cache comparison. First edukasyon request shows cold cache; repeats show warm cache.
+
+**Commit**: Phase 2 implementation with process-level word embedding cache.

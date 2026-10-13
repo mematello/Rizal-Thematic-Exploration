@@ -2,7 +2,9 @@ import numpy as np
 import re
 import os
 import time
+import threading
 from functools import lru_cache
+from typing import Dict
 from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
 from sqlalchemy import select, or_, event
@@ -21,6 +23,10 @@ settings = get_settings()
 
 # Performance monitoring flag
 PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
+
+# Process-level word embedding cache (persists across requests)
+_word_vec_cache: Dict[str, np.ndarray] = {}
+_word_vec_cache_lock = threading.Lock()
 
 class RizalEngine:
     def __init__(self):
@@ -462,6 +468,7 @@ class RizalEngine:
     def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both"):
         # Initialize performance timer
         timer = PerfTimer() if PERF_BENCHMARK else None
+        search_start = time.perf_counter() if timer else None
 
         if not self._validate_query_semantics(db, query):
              return {
@@ -863,6 +870,32 @@ class RizalEngine:
 
         rerank_start = time.perf_counter() if timer else None
 
+        # Initialize counters for entire rerank loop
+        encode_calls = 0
+        cache_hits = 0
+        cache_misses = 0
+        encode_time = 0.0
+        validation_entered = 0
+        validation_skipped = 0
+        process_cache_hits = 0
+        process_cache_misses = 0
+
+        # Wrap base_model.encode to track all calls
+        encode_calls_total = 0
+        encode_time_total = 0.0
+        original_encode = self.base_model.encode
+
+        def tracked_encode(*args, **kwargs):
+            nonlocal encode_calls_total, encode_time_total
+            encode_calls_total += 1
+            start = time.perf_counter()
+            result = original_encode(*args, **kwargs)
+            encode_time_total += (time.perf_counter() - start)
+            return result
+
+        if os.getenv("PERF_BENCHMARK"):
+            self.base_model.encode = tracked_encode
+
         if sig_words:
             sig_vecs = self.base_model.encode(sig_words, show_progress_bar=False)
             norm_sig_vecs = [v / np.linalg.norm(v) if np.linalg.norm(v) > 0 else v for v in sig_vecs]
@@ -932,25 +965,43 @@ class RizalEngine:
                 # STRICTER: Only allow dynamic validation if at least one significant query word is in the corpus vocabulary.
                 # This prevents OOV modern terms (like 'tiktok') from using this loose check.
                 vocab_check_passed = any(w in self.vocabulary for w in sig_words)
+
                 if not has_validation and vocab_check_passed:
+                    validation_entered += 1
                     sent_words = set(extract_words(text_lower))
                     # Filter short words and low-info words immediately
                     cand_words = [w for w in sent_words if len(w) > 4 and w not in self.LOW_INFO_WORDS]
-                    
+
                     for w in cand_words:
                         if w in valid_tokens: continue # Already checked
-                        
+
                         # Vocabulary Guard: Only allow words that exist in the corpus vocabulary
                         if w not in self.vocabulary:
                             continue
 
                         # Check cache
                         if w not in self.word_sim_cache:
-                            # Compute similarity on the fly
-                            w_vec = self.base_model.encode(w, show_progress_bar=False)
+                            cache_misses += 1
+
+                            # Check process-level word vector cache first
+                            if w in _word_vec_cache:
+                                process_cache_hits += 1
+                                w_vec = _word_vec_cache[w]
+                            else:
+                                process_cache_misses += 1
+                                # Compute similarity on the fly
+                                encode_start = time.perf_counter()
+                                w_vec = self.base_model.encode(w, show_progress_bar=False)
+                                encode_calls += 1
+                                encode_time += (time.perf_counter() - encode_start)
+
+                                # Store in process-level cache with thread safety
+                                with _word_vec_cache_lock:
+                                    _word_vec_cache[w] = w_vec
+
                             if np.linalg.norm(w_vec) > 0:
                                 w_vec = w_vec / np.linalg.norm(w_vec)
-                            
+
                             # Use max similarity against any individual significant word
                             max_sim = 0.0
                             if sig_word_vecs:
@@ -963,15 +1014,19 @@ class RizalEngine:
                                 q_vec = self.base_model.encode(query, show_progress_bar=False)
                                 if np.linalg.norm(q_vec) > 0: q_vec = q_vec / np.linalg.norm(q_vec)
                                 max_sim = float(np.dot(q_vec, w_vec))
-                                
+
                             self.word_sim_cache[w] = max_sim
-                        
+                        else:
+                            cache_hits += 1
+
                         if self.word_sim_cache[w] > 0.55: # Strict single-word synonym threshold
                             has_validation = True
                             matched_token = f"{w} (dynamic)"
                             # Add to valid_tokens to speed up future checks
-                            valid_tokens.add(w) 
+                            valid_tokens.add(w)
                             break
+                else:
+                    validation_skipped += 1
                 
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
@@ -1109,9 +1164,35 @@ class RizalEngine:
             else:
                 results['elfili'].append(result_item)
 
+        # Restore original encode method
+        if os.getenv("PERF_BENCHMARK"):
+            self.base_model.encode = original_encode
+
         if timer:
             rerank_elapsed = (time.perf_counter() - rerank_start) * 1000
             timer.timings["rerank_loop"] = round(rerank_elapsed, 2)
+            if os.getenv("PERF_BENCHMARK"):
+                timer.record_metadata("cache_size", len(self.word_sim_cache))
+                timer.record_metadata("encode_calls", encode_calls)
+                timer.record_metadata("cache_hits", cache_hits)
+                timer.record_metadata("cache_misses", cache_misses)
+                timer.record_metadata("encode_time_ms", round(encode_time * 1000, 2))
+                timer.record_metadata("validation_entered", validation_entered)
+                timer.record_metadata("validation_skipped", validation_skipped)
+                timer.record_metadata("encode_calls_total", encode_calls_total)
+                timer.record_metadata("encode_time_total_ms", round(encode_time_total * 1000, 2))
+                timer.record_metadata("process_cache_hits", process_cache_hits)
+                timer.record_metadata("process_cache_misses", process_cache_misses)
+                timer.record_metadata("process_cache_size", len(_word_vec_cache))
+                timer.record_metadata("cache_size", len(self.word_sim_cache))
+                timer.record_metadata("encode_calls", encode_calls)
+                timer.record_metadata("cache_hits", cache_hits)
+                timer.record_metadata("cache_misses", cache_misses)
+                timer.record_metadata("encode_time_ms", round(encode_time * 1000, 2))
+                timer.record_metadata("validation_entered", validation_entered)
+                timer.record_metadata("validation_skipped", validation_skipped)
+                timer.record_metadata("encode_calls_total", encode_calls_total)
+                timer.record_metadata("encode_time_total_ms", round(encode_time_total * 1000, 2))
         
         def finalize(lst, label):
             # Sort by final score primarily, but use precision as a tie-breaker or boost
@@ -1233,6 +1314,18 @@ class RizalEngine:
         if not top_combined and is_single_word and is_cross_lingual and not bridge_tokens:
             reason = "unmapped_standalone_concept"
             suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
+
+        # Compute total search time for gap analysis
+        if timer:
+            total_elapsed = (time.perf_counter() - search_start) * 1000
+            stage_sum = sum(t for k, t in timer.timings.items() if not k.endswith('_count'))
+            translator_calls = timer.metadata.get("translator_network_call", False)
+            translator_ms = timer.timings.get("translator", 0)
+            timer.metadata["search_total_ms"] = round(total_elapsed, 2)
+            timer.metadata["engine_stage_sum_ms"] = round(stage_sum, 2)
+            timer.metadata["untimed_gap_ms"] = round(total_elapsed - stage_sum, 2)
+            timer.metadata["translator_ms"] = round(translator_ms, 2)
+            timer.metadata["translator_network_calls"] = translator_calls
 
         if timer:
             with timer.stage("serialization"):
