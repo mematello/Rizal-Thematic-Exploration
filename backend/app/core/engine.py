@@ -1067,7 +1067,7 @@ class RizalEngine:
                 # If we have generated valid cross-lingual bridge tokens, their Tagalog vectors
                 # can naturally realign the English query vector into the Tagalog theme space before the gate.
                 if is_cross_lingual and bridge_tokens:
-                    bridge_text = " ".join([bt for bt in bridge_tokens if len(bt) > 3])
+                    bridge_text = " ".join(sorted([bt for bt in bridge_tokens if len(bt) > 3]))
                     if bridge_text:
                         bridge_embedding = self.base_model.encode(bridge_text, show_progress_bar=False)
                         # Blend the raw query with its synthesized Tagalog bridge translation
