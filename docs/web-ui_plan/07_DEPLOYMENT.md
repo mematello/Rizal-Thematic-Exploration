@@ -124,7 +124,7 @@ git push origin main
 ### Step 5: Production Optimizations
 
 In `next.config.js`:
-
+q 
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -217,7 +217,7 @@ builder = "nixpacks"
 buildCommand = "pip install -r requirements.txt"
 
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "PYTHONHASHSEED=0 uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 ```
@@ -292,6 +292,7 @@ primary_region = "sin" # Singapore (closest to Philippines)
 
 [env]
   PORT = "8000"
+  PYTHONHASHSEED = "0"
 
 [http_service]
   internal_port = 8000
@@ -326,7 +327,7 @@ COPY . .
 # Run migrations
 RUN alembic upgrade head
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "PYTHONHASHSEED=0 uvicorn app.main:app --host 0.0.0.0 --port 8000"]
 ```
 
 #### Step 5: Deploy

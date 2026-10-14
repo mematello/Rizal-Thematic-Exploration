@@ -22,10 +22,11 @@
 
 ### Terminal 1: Start API Server
 
-**IMPORTANT**: The `PERF_BENCHMARK` environment variable must be set in the **server** process (not the client script). This enables timing instrumentation and DB query counting.
+**IMPORTANT**: The `PERF_BENCHMARK` environment variable must be set in the **server** process (not the client script). This enables timing instrumentation and DB query counting. Additionally, set `PYTHONHASHSEED="0"` to ensure deterministic set iteration ordering (e.g. in theme expansion text generation) across server runs.
 
 ```powershell
 cd backend
+$env:PYTHONHASHSEED="0"
 $env:PERF_BENCHMARK="1"
 poetry run uvicorn app.main:app
 ```
@@ -38,6 +39,9 @@ poetry run uvicorn app.main:app
 # From project root
 poetry run python scripts/benchmark.py
 ```
+
+**IMPORTANT NOTE ON HOST & CONNECTION REUSE**:
+Always target `http://127.0.0.1:<port>` rather than `http://localhost:<port>`. On Windows, resolving `localhost` causes an IPv6 `::1` connection attempt that blocks for ~2.0 seconds before falling back to IPv4 `127.0.0.1` when uvicorn is bound to IPv4. Additionally, `scripts/benchmark.py` uses a `requests.Session()` to reuse HTTP connections across queries. All earlier benchmark latency tables collected with `localhost` and non-reused connections are invalid for absolute HTTP end-to-end latency (which carried an artificial ~2.0s floor), though internal server-side stage timings remain valid.
 
 **Expected duration**: 10-15 minutes (40 queries × 10 runs)
 

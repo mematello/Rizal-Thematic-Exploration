@@ -9,7 +9,7 @@ Reports:
 - New/missing results
 
 Usage:
-    python scripts/compare_golden.py <new_snapshot.json>
+    python scripts/compare_golden.py <new_snapshot.json> [<golden_snapshot.json>]
 
 Or run benchmark in compare mode:
     python scripts/benchmark.py --compare
@@ -131,8 +131,10 @@ def compare_snapshots(golden_path: Path, new_path: Path) -> Dict[str, Any]:
     new_queries = new_data["queries"]
 
     report = {
-        "golden_version": golden_data.get("created", "unknown"),
-        "new_version": new_data.get("created", "unknown"),
+        "golden_file": str(golden_path),
+        "new_file": str(new_path),
+        "golden_version": golden_data.get("created", golden_data.get("version", "unknown")),
+        "new_version": new_data.get("created", new_data.get("version", "unknown")),
         "total_queries": len(golden_queries),
         "queries_with_changes": 0,
         "total_position_changes": 0,
@@ -207,14 +209,17 @@ def print_report(report: Dict[str, Any], verbose: bool = False):
     print("GOLDEN SNAPSHOT COMPARISON REPORT")
     print("=" * 80)
 
-    print(f"\nGolden baseline: {report['golden_version']}")
+    if "golden_file" in report:
+        print(f"\nGolden file:     {report['golden_file']}")
+        print(f"New file:        {report['new_file']}")
+    print(f"Golden baseline: {report['golden_version']}")
     print(f"New snapshot:    {report['new_version']}")
 
     print(f"\nTotal queries compared: {report['total_queries']}")
     print(f"Queries with changes:   {report['queries_with_changes']}")
 
     if report['queries_with_changes'] == 0:
-        print("\n✓ No differences detected. Results are identical to golden baseline.")
+        print("\n[PASS] No differences detected. Results are identical to golden baseline.")
         return
 
     print(f"\nAggregate Changes:")
@@ -247,14 +252,14 @@ def print_report(report: Dict[str, Any], verbose: bool = False):
                 if book_diff["position_changes"]:
                     print(f"    Position changes ({len(book_diff['position_changes'])}):")
                     for change in book_diff["position_changes"][:5]:  # Top 5
-                        print(f"      ID {change['id']}: #{change['old_position']} → #{change['new_position']} (Δ{change['delta']:+d})")
+                        print(f"      ID {change['id']}: #{change['old_position']} -> #{change['new_position']} (delta{change['delta']:+d})")
                         print(f"        \"{change['sentence_text']}...\"")
 
                 # Score deltas
                 if book_diff["score_deltas"]:
                     print(f"    Score changes ({len(book_diff['score_deltas'])}):")
                     for change in book_diff["score_deltas"][:5]:  # Top 5
-                        print(f"      ID {change['id']} {change['score_type']}: {change['old_value']} → {change['new_value']} (Δ{change['delta']:+.1f})")
+                        print(f"      ID {change['id']} {change['score_type']}: {change['old_value']} -> {change['new_value']} (delta{change['delta']:+.1f})")
 
                 # Theme changes
                 if book_diff["theme_changes"]:
@@ -274,14 +279,15 @@ def print_report(report: Dict[str, Any], verbose: bool = False):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python scripts/compare_golden.py <new_snapshot.json>")
+        print("Usage: python scripts/compare_golden.py <new_snapshot.json> [<golden_snapshot.json>]")
         print("\nCompares a new snapshot against the golden baseline.")
         sys.exit(1)
 
     new_snapshot_path = Path(sys.argv[1])
+    golden_path = Path(sys.argv[2]) if len(sys.argv) > 2 else GOLDEN_PATH
 
-    if not GOLDEN_PATH.exists():
-        print(f"Error: Golden snapshot not found at {GOLDEN_PATH}")
+    if not golden_path.exists():
+        print(f"Error: Golden snapshot not found at {golden_path}")
         print("Run benchmark.py first to create the baseline.")
         sys.exit(1)
 
@@ -290,7 +296,7 @@ def main():
         sys.exit(1)
 
     # Run comparison
-    report = compare_snapshots(GOLDEN_PATH, new_snapshot_path)
+    report = compare_snapshots(golden_path, new_snapshot_path)
 
     # Print report
     verbose = "--verbose" in sys.argv or "-v" in sys.argv
@@ -301,7 +307,7 @@ def main():
     with open(report_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✓ Detailed report saved: {report_path}")
+    print(f"\n[PASS] Detailed report saved: {report_path}")
 
     # Exit code indicates if changes detected
     sys.exit(0 if report['queries_with_changes'] == 0 else 1)

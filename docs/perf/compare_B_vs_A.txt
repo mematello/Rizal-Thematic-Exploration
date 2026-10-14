@@ -1,0 +1,222 @@
+Loading golden snapshot: docs\perf\snapshot_A_cache_disabled.json
+Loading new snapshot: docs\perf\snapshot_B_cache_enabled.json
+Loading golden snapshot: docs\perf\snapshot_A_cache_disabled.json
+Loading new snapshot: docs\perf\snapshot_B_cache_enabled.json
+
+================================================================================
+GOLDEN SNAPSHOT COMPARISON REPORT
+================================================================================
+
+Golden baseline: unknown
+New snapshot:    unknown
+
+Total queries compared: 40
+Queries with changes:   10
+
+Aggregate Changes:
+  Position changes: 29
+  Score deltas:     134
+  Theme changes:    0
+
+--------------------------------------------------------------------------------
+DETAILED QUERY DIFFERENCES
+--------------------------------------------------------------------------------
+
+Query: 'kalayaan'
+  NOLI:
+    Position changes (2):
+      ID 38386: #2 -> #8 (delta+6)
+        "Namatay ito sa sakit na disenterya na nakuha niya ..."
+      ID 38249: #8 -> #10 (delta+2)
+        "Samantalang ang balita na patungkol sa bilanggo ay..."
+    Score changes (6):
+      ID 38386 semantic: 87 -> 79 (delta-8.0)
+      ID 38300 semantic: 76 -> 70 (delta-6.0)
+      ID 38300 final: 81 -> 76 (delta-5.0)
+      ID 38386 final: 79 -> 74 (delta-5.0)
+      ID 38249 semantic: 84 -> 79 (delta-5.0)
+    Missing results: 7 results dropped
+    New results: 7 results added
+  ELFILI:
+    Position changes (6):
+      ID 38535: #6 -> #3 (delta-3)
+        "Ayon kay Simoun, magbibigay lamang daw ito ng daan..."
+      ID 39347: #4 -> #6 (delta+2)
+        "Gumawa tayo ng mabuti, tapat at marangal hanggang ..."
+      ID 39345: #2 -> #1 (delta-1)
+        "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong..."
+      ID 39324: #1 -> #2 (delta+1)
+        "Ngunit isang kaguluhan ang dumating sa kanyang buh..."
+      ID 39338: #3 -> #4 (delta+1)
+        "Inaming siya’y nagkamali at naitanong na dahil ba ..."
+    Score changes (16):
+      ID 39338 semantic: 81 -> 72 (delta-9.0)
+      ID 39338 final: 84 -> 76 (delta-8.0)
+      ID 39347 semantic: 78 -> 70 (delta-8.0)
+      ID 38972 semantic: 63 -> 55 (delta-8.0)
+      ID 39324 semantic: 84 -> 77 (delta-7.0)
+    Missing results: 2 results dropped
+    New results: 2 results added
+
+Query: 'edukasyon'
+  NOLI:
+    Position changes (1):
+      ID 37358: #10 -> #8 (delta-2)
+        "Habang patuloy na nagmamasid si Ibarra sa paligid ..."
+    Score changes (16):
+      ID 37542 semantic: 56 -> 61 (delta+5.0)
+      ID 37538 semantic: 65 -> 69 (delta+4.0)
+      ID 37540 semantic: 59 -> 63 (delta+4.0)
+      ID 37540 final: 57 -> 61 (delta+4.0)
+      ID 37358 semantic: 53 -> 57 (delta+4.0)
+    Missing results: 2 results dropped
+    New results: 2 results added
+  ELFILI:
+    Score changes (16):
+      ID 39353 semantic: 53 -> 57 (delta+4.0)
+      ID 38758 semantic: 52 -> 56 (delta+4.0)
+      ID 38400 semantic: 58 -> 61 (delta+3.0)
+      ID 39345 semantic: 56 -> 59 (delta+3.0)
+      ID 39113 semantic: 55 -> 58 (delta+3.0)
+    Missing results: 2 results dropped
+    New results: 2 results added
+
+Query: 'kapangyarihan ng simbahan'
+  NOLI:
+    Score changes (2):
+      ID 37408 semantic: 13 -> 11 (delta-2.0)
+      ID 37408 final: 53 -> 52 (delta-1.0)
+
+Query: 'education'
+  NOLI:
+    Score changes (10):
+      ID 37302 semantic: 36 -> 39 (delta+3.0)
+      ID 37540 semantic: 44 -> 47 (delta+3.0)
+      ID 37793 semantic: 35 -> 38 (delta+3.0)
+      ID 37551 semantic: 24 -> 27 (delta+3.0)
+      ID 37544 semantic: 60 -> 62 (delta+2.0)
+  ELFILI:
+    Position changes (7):
+      ID 38514: #2 -> #4 (delta+2)
+        "Dahil masikap sa pag-aaral si Basilio ay hinikayat..."
+      ID 38516: #3 -> #5 (delta+2)
+        "Doon ay pinili ni Basilio ang pag-aaral ng medisin..."
+      ID 38518: #4 -> #6 (delta+2)
+        "Nasa huling taon na ng pag-aaral ng medisina si Ba..."
+      ID 38547: #5 -> #7 (delta+2)
+        "Napalagda lamang siya sa kahilingang tungkol sa pa..."
+      ID 38558: #6 -> #8 (delta+2)
+        "Saka ipinaalala ni Simoun na sa pag-aaral ni Basil..."
+    Score changes (8):
+      ID 38660 semantic: 31 -> 34 (delta+3.0)
+      ID 38403 semantic: 37 -> 39 (delta+2.0)
+      ID 38514 semantic: 25 -> 27 (delta+2.0)
+      ID 38518 semantic: 21 -> 23 (delta+2.0)
+      ID 38547 semantic: 23 -> 25 (delta+2.0)
+    Missing results: 2 results dropped
+    New results: 2 results added
+
+Query: 'oppression'
+  NOLI:
+    Position changes (1):
+      ID 38275: #4 -> #6 (delta+2)
+        "Anila ay kuripot daw ang kapitana dahil sa kabila ..."
+    Score changes (10):
+      ID 38070 semantic: 72 -> 70 (delta-2.0)
+      ID 37838 semantic: 70 -> 68 (delta-2.0)
+      ID 38275 semantic: 69 -> 67 (delta-2.0)
+      ID 38386 semantic: 73 -> 72 (delta-1.0)
+      ID 38386 final: 69 -> 68 (delta-1.0)
+    New results: 1 results added
+  ELFILI:
+    Position changes (4):
+      ID 38581: #4 -> #2 (delta-2)
+        "Samantala, nakauwi na si Kabesang Tales dahil sa t..."
+      ID 39047: #2 -> #4 (delta+2)
+        "Pinadulasan ang mga kawani sa adwana at nakalusot ..."
+      ID 39312: #8 -> #6 (delta-2)
+        "Ngunit sa kabila ng lahat ng ito maging ang pagtul..."
+      ID 38556: #9 -> #7 (delta-2)
+        "Ngunit tinugon siya ni Simoun na ang pagpapaumanhi..."
+    Score changes (8):
+      ID 38925 semantic: 71 -> 69 (delta-2.0)
+      ID 38925 final: 67 -> 65 (delta-2.0)
+      ID 39047 semantic: 71 -> 69 (delta-2.0)
+      ID 39047 final: 67 -> 65 (delta-2.0)
+      ID 39002 semantic: 70 -> 68 (delta-2.0)
+    Missing results: 2 results dropped
+
+Query: 'church'
+  NOLI:
+    Score changes (7):
+      ID 37408 semantic: 40 -> 38 (delta-2.0)
+      ID 37636 semantic: 42 -> 40 (delta-2.0)
+      ID 37468 semantic: 61 -> 60 (delta-1.0)
+      ID 37290 semantic: 40 -> 39 (delta-1.0)
+      ID 37638 semantic: 48 -> 49 (delta+1.0)
+  ELFILI:
+    Score changes (5):
+      ID 38425 semantic: 46 -> 44 (delta-2.0)
+      ID 38533 semantic: 37 -> 35 (delta-2.0)
+      ID 38660 semantic: 42 -> 40 (delta-2.0)
+      ID 38831 semantic: 38 -> 36 (delta-2.0)
+      ID 38415 semantic: 47 -> 46 (delta-1.0)
+
+Query: 'Crisostomo Ibarra'
+  NOLI:
+    Score changes (8):
+      ID 37666 semantic: 11 -> 10 (delta-1.0)
+      ID 37701 semantic: 10 -> 9 (delta-1.0)
+      ID 37200 semantic: 16 -> 15 (delta-1.0)
+      ID 37200 final: 81 -> 80 (delta-1.0)
+      ID 37676 semantic: 11 -> 10 (delta-1.0)
+  ELFILI:
+    Score changes (1):
+      ID 39207 semantic: 18 -> 17 (delta-1.0)
+
+Query: 'Simoun'
+  ELFILI:
+    Score changes (5):
+      ID 39301 semantic: 71 -> 72 (delta+1.0)
+      ID 39308 semantic: 71 -> 70 (delta-1.0)
+      ID 39317 semantic: 73 -> 72 (delta-1.0)
+      ID 39337 semantic: 76 -> 75 (delta-1.0)
+      ID 38398 semantic: 55 -> 54 (delta-1.0)
+
+Query: 'Padre Damaso'
+  NOLI:
+    Position changes (4):
+      ID 37877: #5 -> #8 (delta+3)
+        "Habang abala sa panonood ang lahat napansin naman ..."
+      ID 37191: #6 -> #5 (delta-1)
+        "Nagkaroon ng kanya kanyang pagpapahayag na nagresu..."
+      ID 37309: #7 -> #6 (delta-1)
+        "Pinayuhan siya ni Padre Damaso na magpunta sa Oban..."
+      ID 38344: #8 -> #7 (delta-1)
+        "Alam ni Padre Damaso na buo na ang loob ni Maria C..."
+    Score changes (8):
+      ID 37235 semantic: 19 -> 18 (delta-1.0)
+      ID 37191 semantic: 17 -> 16 (delta-1.0)
+      ID 37309 semantic: 18 -> 17 (delta-1.0)
+      ID 38344 semantic: 14 -> 13 (delta-1.0)
+      ID 37877 semantic: 13 -> 12 (delta-1.0)
+
+Query: 'Sisa'
+  NOLI:
+    Position changes (4):
+      ID 37680: #7 -> #3 (delta-4)
+        "Lumapit naman ang baliw na si Sisa sa ketongin...."
+      ID 37488: #5 -> #7 (delta+2)
+        "Madalas pang bugbugin ang asawang si Sisa...."
+      ID 37466: #3 -> #4 (delta+1)
+        "Sila ang anak ni Sisa...."
+      ID 37484: #4 -> #5 (delta+1)
+        "Si Sisa ang ina nina Crispin at Basilio...."
+    Score changes (8):
+      ID 37488 semantic: 40 -> 38 (delta-2.0)
+      ID 37606 semantic: 56 -> 54 (delta-2.0)
+      ID 37533 semantic: 55 -> 56 (delta+1.0)
+      ID 37680 semantic: 58 -> 59 (delta+1.0)
+      ID 37680 final: 96 -> 97 (delta+1.0)
+
+[PASS] Detailed report saved: C:\Users\marcu\Desktop\thesis\docs\perf\comparison_report.json

@@ -56,6 +56,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+if os.getenv("PERF_BENCHMARK") == "1":
+    from starlette.requests import Request
+    import time
+
+    @app.middleware("http")
+    async def perf_timing_middleware(request: Request, call_next):
+        t_start = time.perf_counter()
+        request.state.t_middleware_start = t_start
+        response = await call_next(request)
+        t_end = time.perf_counter()
+
+        t_route_start = getattr(request.state, "t_route_start", t_start)
+        t_route_end = getattr(request.state, "t_route_end", t_start)
+        db_create_ms = getattr(request.state, "db_create_ms", 0.0)
+
+        total_ms = (t_end - t_start) * 1000
+        routing_di_ms = (t_route_start - t_start) * 1000
+        route_handler_ms = (t_route_end - t_route_start) * 1000
+        serialization_ms = (t_end - t_route_end) * 1000
+
+        response.headers["X-FastAPI-Middleware-Total-Ms"] = f"{total_ms:.2f}"
+        response.headers["X-FastAPI-Routing-DI-Ms"] = f"{routing_di_ms:.2f}"
+        response.headers["X-FastAPI-DB-Create-Ms"] = f"{db_create_ms:.2f}"
+        response.headers["X-FastAPI-Route-Handler-Ms"] = f"{route_handler_ms:.2f}"
+        response.headers["X-FastAPI-Serialization-Ms"] = f"{serialization_ms:.2f}"
+        return response
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "version": settings.VERSION}

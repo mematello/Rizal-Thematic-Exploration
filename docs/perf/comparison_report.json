@@ -1,0 +1,12 @@
+{
+  "golden_file": "..\\docs\\perf\\golden_snapshot_seed0.json",
+  "new_file": "..\\docs\\perf\\step_a_snapshot.json",
+  "golden_version": "golden_snapshot_seed0",
+  "new_version": "step_a_snapshot",
+  "total_queries": 40,
+  "queries_with_changes": 0,
+  "total_position_changes": 0,
+  "total_score_changes": 0,
+  "total_theme_changes": 0,
+  "query_diffs": {}
+}

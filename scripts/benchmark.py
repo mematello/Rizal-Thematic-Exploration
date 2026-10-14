@@ -28,11 +28,13 @@ import statistics
 # Add backend to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
+import argparse
+
 # Set environment to enable detailed timing
 os.environ["PERF_BENCHMARK"] = "1"
 os.environ["DEBUG_SEARCH"] = "0"  # Disable debug output during benchmark
 
-API_BASE = "http://localhost:8000"
+API_BASE = os.environ.get("API_BASE", "http://127.0.0.1:8000")
 GOLDEN_QUERIES_PATH = Path(__file__).parent / "golden_queries.json"
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "perf"
 
@@ -91,7 +93,7 @@ def freeze_translator_cache():
         return {}
 
 
-def run_search_query(query: str, translator_cache: Dict = None) -> Dict[str, Any]:
+def run_search_query(query: str, session: requests.Session = None, translator_cache: Dict = None) -> Dict[str, Any]:
     """
     Execute search query against API and return response with timing.
     """
@@ -101,8 +103,9 @@ def run_search_query(query: str, translator_cache: Dict = None) -> Dict[str, Any
         "novel": "both"
     }
 
+    client = session or requests
     start_http = time.perf_counter()
-    response = requests.get(f"{API_BASE}/api/v1/search", params=params)
+    response = client.get(f"{API_BASE}/api/v1/search", params=params)
     end_http = time.perf_counter()
 
     if response.status_code != 200:
@@ -153,7 +156,7 @@ def extract_ranked_output(response: Dict[str, Any], query: str) -> Dict[str, Any
 def extract_timings(response: Dict[str, Any]) -> Dict[str, float]:
     """Extract timing breakdown from response metadata (if available)"""
     metadata = response.get("metadata", {})
-    timings = metadata.get("timings", {})
+    timings = metadata.get("engine_timings", metadata.get("timings", {}))
     db_queries = metadata.get("db_query_count", 0)
 
     return {
@@ -162,26 +165,34 @@ def extract_timings(response: Dict[str, Any]) -> Dict[str, float]:
     }
 
 
-def run_benchmark_suite():
+def run_benchmark_suite(api_base: str = None, timings_out: str = "phase2_step1_timings.json", snapshot_out: str = "golden_snapshot.json"):
     """
     Main benchmark runner.
     """
+    global API_BASE
+    if api_base:
+        API_BASE = api_base
     print("=" * 80)
-    print("Phase 1 Performance Measurement")
+    print("Performance Measurement Suite")
+    print(f"Target API: {API_BASE}")
+    print(f"Timings output: {timings_out}")
     print("=" * 80)
 
     # Load queries
     golden_data = load_golden_queries()
     translator_cache = freeze_translator_cache()
 
+    # Create persistent session for connection reuse
+    session = requests.Session()
+
     # Wait for server to be ready
     print("\nWaiting for API server...")
     max_retries = 10
     for i in range(max_retries):
         try:
-            response = requests.get(f"{API_BASE}/health", timeout=2)
+            response = session.get(f"{API_BASE}/health", timeout=2)
             if response.status_code == 200:
-                print(f"✓ API server ready")
+                print("[OK] API server ready")
                 break
         except requests.exceptions.RequestException:
             if i == max_retries - 1:
@@ -198,7 +209,7 @@ def run_benchmark_suite():
     print("Executing first request (cold start)...")
     first_request_start = time.perf_counter()
     try:
-        _ = run_search_query("kalayaan", translator_cache)
+        _ = run_search_query("kalayaan", session=session, translator_cache=translator_cache)
         first_request_time = time.perf_counter() - first_request_start
         print(f"First request (cold): {first_request_time:.2f}s")
     except Exception as e:
@@ -238,7 +249,7 @@ def run_benchmark_suite():
 
         for run in range(10):
             try:
-                result = run_search_query(query, translator_cache)
+                result = run_search_query(query, session=session, translator_cache=translator_cache)
 
                 http_latency = result["http_latency_ms"]
                 response = result["response"]
@@ -289,17 +300,17 @@ def run_benchmark_suite():
     print(f"\n--- Peak Memory: {peak_memory:.1f} MB ---")
 
     # Write golden snapshot
-    snapshot_path = OUTPUT_DIR / "golden_snapshot.json"
+    snapshot_path = OUTPUT_DIR / snapshot_out
     with open(snapshot_path, 'w', encoding='utf-8') as f:
         json.dump({
             "version": "1.0",
             "created": time.strftime("%Y-%m-%d %H:%M:%S"),
             "queries": golden_snapshot
         }, f, indent=2, ensure_ascii=False)
-    print(f"\n✓ Golden snapshot saved: {snapshot_path}")
+    print(f"\n[OK] Golden snapshot saved: {snapshot_path}")
 
     # Write timing results
-    timings_path = OUTPUT_DIR / "baseline_timings.json"
+    timings_path = OUTPUT_DIR / timings_out
     with open(timings_path, 'w', encoding='utf-8') as f:
         json.dump({
             "version": "1.0",
@@ -309,7 +320,7 @@ def run_benchmark_suite():
             "peak_memory_mb": peak_memory,
             "queries": timing_results
         }, f, indent=2, ensure_ascii=False)
-    print(f"✓ Timing results saved: {timings_path}")
+    print(f"[OK] Timing results saved: {timings_path}")
 
     # Generate summary report
     generate_summary_report(timing_results, first_request_time, mem_delta, peak_memory)
@@ -356,4 +367,15 @@ def generate_summary_report(timing_results: List[Dict], first_request: float, me
 
 
 if __name__ == "__main__":
-    run_benchmark_suite()
+    parser = argparse.ArgumentParser(description="Run search benchmark suite")
+    parser.add_argument("--api-base", default=os.environ.get("API_BASE", "http://127.0.0.1:8000"), help="API base URL")
+    parser.add_argument("--port", type=int, help="API port (overrides port in --api-base)")
+    parser.add_argument("--timings-out", default="phase2_step1_timings.json", help="Timings output JSON filename")
+    parser.add_argument("--snapshot-out", default="golden_snapshot.json", help="Snapshot output JSON filename")
+    args = parser.parse_args()
+
+    api_url = args.api_base
+    if args.port:
+        api_url = f"http://127.0.0.1:{args.port}"
+
+    run_benchmark_suite(api_base=api_url, timings_out=args.timings_out, snapshot_out=args.snapshot_out)
