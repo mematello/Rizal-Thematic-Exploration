@@ -442,32 +442,32 @@ class RizalEngine:
         # P(Theme | Word) = Count(Word in Theme) / Count(Word in All Themes)
         
         final_tokens = []
-        
-        for w in candidates:
+
+        for w in sorted(candidates):
             if len(w) <= 3: continue
-            
+
             # Global DF check (still useful for super common words)
             df = self.theme_word_df.get(w, 0)
-            if df < 1: continue 
-            
+            if df < 1: continue
+
             # Specificity calculation
             theme_counts = self.word_theme_map.get(w, {})
             count_in_target = theme_counts.get(target_theme_key, 0)
-            
+
             if count_in_target == 0: continue
-            
+
             # Specificity score
             specificity = count_in_target / df
-            
+
             # Specificity threshold
             # word must be primarily associated with this theme
             # Lowered to 0.30 to capture terms like "paaralan" which might appear in related themes (Reform, Town)
             # but still filter generic terms like "indio" (low specificity)
-            if specificity >= 0.30: 
+            if specificity >= 0.30:
                 final_tokens.append(w)
-        
-        # Sort by specificity (descending)
-        final_tokens.sort(key=lambda w: self.word_theme_map.get(w, {}).get(target_theme_key, 0) / self.theme_word_df.get(w, 1), reverse=True)
+
+        # Sort by specificity (descending), secondary key word (ascending)
+        final_tokens.sort(key=lambda w: (-self.word_theme_map.get(w, {}).get(target_theme_key, 0) / self.theme_word_df.get(w, 1), w))
         top_tokens = final_tokens[:12]
         
         if not top_tokens:
