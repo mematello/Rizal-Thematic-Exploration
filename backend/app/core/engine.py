@@ -4,6 +4,8 @@ import os
 import time
 import threading
 import concurrent.futures
+import hashlib
+import logging
 from functools import lru_cache
 from typing import Dict, Tuple, Optional, Any, List
 from sentence_transformers import SentenceTransformer
@@ -21,6 +23,7 @@ from app.core.robust_aligner import RobustAligner
 from app.core.perf_instrumentation import PerfTimer
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # Performance monitoring flag
 PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
@@ -99,6 +102,7 @@ class TranslatorCache:
         """
         hit, cached_val = self.get(text)
         if hit:
+            logger.info(f"[TRANSLATOR] input='{text}' -> output='{cached_val}' (cache_hit=True)")
             return cached_val, False
 
         # Cache miss: execute network call with bounded timeout
@@ -112,14 +116,17 @@ class TranslatorCache:
             res = future.result(timeout=self.request_timeout)
             if res:
                 self.set_success(text, res)
+                logger.info(f"[TRANSLATOR] input='{text}' -> output='{res}' (network={network_call_made})")
                 return res, network_call_made
             else:
                 self.set_failure(text)
+                logger.info(f"[TRANSLATOR] input='{text}' -> output=None (network={network_call_made})")
                 return None, network_call_made
         except Exception as e:
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Dynamic Translation Failed for '{text}': {e}")
             self.set_failure(text)
+            logger.info(f"[TRANSLATOR] input='{text}' -> output=None (error='{e}')")
             return None, network_call_made
 
     def clear(self):
@@ -749,9 +756,12 @@ class RizalEngine:
             foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
         
         is_cross_lingual = len(foreign_tokens) > 0
-        
+
         bridge_tokens = set()
-        
+        unmapped_foreign = []
+        translated_query = None
+        expanded_text = ""
+
         # 1. Check small static dictionary for major thesis domains
         if is_cross_lingual:
             for w in foreign_tokens:
@@ -777,6 +787,9 @@ class RizalEngine:
                                 if os.getenv("DEBUG_SEARCH"):
                                     print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
                     timer.record_metadata("translator_network_call", network_call_made)
+                    if PERF_BENCHMARK:
+                        timer.record_metadata("translator_input", query)
+                        timer.record_metadata("translator_output", translated_query)
                 else:
                     translated_query, network_call_made = _translator_cache.translate(query)
                     if translated_query and os.getenv("DEBUG_SEARCH"):
@@ -788,7 +801,7 @@ class RizalEngine:
                             bridge_tokens.update(valid_dynamic_bridges)
                             if os.getenv("DEBUG_SEARCH"):
                                 print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
-        
+
         # If a cross-lingual query has NO native tokens and failed ALL mapping (Dictionary + Translator),
         # it is either an unsupported domain concept or gibberish. Block it immediately to prevent hallucination.
         if is_cross_lingual and not native_tokens and not bridge_tokens:
@@ -804,7 +817,18 @@ class RizalEngine:
                 timer.metadata["diagnostic_suggestions_ms"] = round((t_sug_end - t_sug_start) * 1000, 2)
                 timer.metadata["translator_ms"] = round(timer.timings.get("translator", 0), 2)
                 timer.metadata["translator_network_calls"] = timer.metadata.get("translator_network_call", False)
+                if PERF_BENCHMARK:
+                    timer.record_metadata("query_vector_sha256", hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest())
+                    timer.record_metadata("query_expansion_text", "")
+                    timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
                 meta["engine_timings"] = timer.get_timings()
+            if PERF_BENCHMARK:
+                meta["query_vector_sha256"] = hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest()
+                meta["query_expansion_text"] = ""
+                meta["bridge_tokens"] = sorted(list(bridge_tokens))
+                if unmapped_foreign:
+                    meta["translator_input"] = query
+                    meta["translator_output"] = translated_query
             return {
                 'results': {'noli': [], 'elfili': []},
                 'metadata': meta
@@ -1013,9 +1037,23 @@ class RizalEngine:
             
             # 1. Blocklist Check
             if any(term in query.lower() for term in self.MODERN_TERMS):
+                 meta_out = {'result_mode': 'none', 'reason': 'out_of_domain'}
+                 if PERF_BENCHMARK:
+                     q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                     meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+                     meta_out["query_expansion_text"] = expanded_text
+                     meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+                     if unmapped_foreign:
+                         meta_out["translator_input"] = query
+                         meta_out["translator_output"] = translated_query
+                     if timer:
+                         timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+                         timer.record_metadata("query_expansion_text", expanded_text)
+                         timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+                         meta_out["engine_timings"] = timer.get_timings()
                  return {
                         'results': {'noli': [], 'elfili': []},
-                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                        'metadata': meta_out
                     }
 
             # 2. Similarity Gate
@@ -1057,13 +1095,25 @@ class RizalEngine:
                 if max_theme_score < threshold and not is_safely_mapped:
                     if is_single_word and is_cross_lingual and not bridge_tokens:
                         suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
-                        return {
-                            'results': {'noli': [], 'elfili': []},
-                            'metadata': {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
-                        }
+                        meta_out = {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+                    else:
+                        meta_out = {'result_mode': 'none', 'reason': 'out_of_domain'}
+                    if PERF_BENCHMARK:
+                        q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                        meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+                        meta_out["query_expansion_text"] = expanded_text
+                        meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+                        if unmapped_foreign:
+                            meta_out["translator_input"] = query
+                            meta_out["translator_output"] = translated_query
+                        if timer:
+                            timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+                            timer.record_metadata("query_expansion_text", expanded_text)
+                            timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+                            meta_out["engine_timings"] = timer.get_timings()
                     return {
                         'results': {'noli': [], 'elfili': []},
-                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                        'metadata': meta_out
                     }
 
             result_mode = "semantic_fallback"
@@ -1619,18 +1669,33 @@ class RizalEngine:
             timer.metadata["untimed_gap_ms"] = round(total_elapsed - stage_sum, 2)
             timer.metadata["translator_ms"] = round(translator_ms, 2)
             timer.metadata["translator_network_calls"] = translator_calls
+            if PERF_BENCHMARK:
+                q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                timer.record_metadata("query_vector_sha256", hashlib.sha256(q_vec_bytes).hexdigest())
+                timer.record_metadata("query_expansion_text", expanded_text)
+                timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+
+        metadata_dict = {
+            "result_mode": result_mode,
+            "reason": reason,
+            "has_lexical_hits": has_lexical_hits,
+            "suggestions": suggestions,
+            "components": components if not is_single_word else [],
+            **({"engine_timings": timer.get_timings()} if timer else {})
+        }
+        if PERF_BENCHMARK:
+            q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+            metadata_dict["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+            metadata_dict["query_expansion_text"] = expanded_text
+            metadata_dict["bridge_tokens"] = sorted(list(bridge_tokens))
+            if unmapped_foreign:
+                metadata_dict["translator_input"] = query
+                metadata_dict["translator_output"] = translated_query
 
         return {
             "results": results,
             "precise_matches": precise_matches[:5],  # Return top 5 precise matches
-            "metadata": {
-                "result_mode": result_mode,
-                "reason": reason,
-                "has_lexical_hits": has_lexical_hits,
-                "suggestions": suggestions,
-                "components": components if not is_single_word else [],
-                **({"engine_timings": timer.get_timings()} if timer else {})
-            }
+            "metadata": metadata_dict
         }
 
     def _compute_lexical_score(self, query, sentence_text, query_analysis, stopword_ratio):
