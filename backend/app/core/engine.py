@@ -1287,7 +1287,7 @@ class RizalEngine:
                     validation_entered += 1
                     sent_words = set(extract_words(text_lower))
                     # Filter short words and low-info words immediately
-                    cand_words = [w for w in sent_words if len(w) > 4 and w not in self.LOW_INFO_WORDS]
+                    cand_words = [w for w in sorted(sent_words) if len(w) > 4 and w not in self.LOW_INFO_WORDS]
 
                     for w in cand_words:
                         if w in valid_tokens: continue # Already checked
