@@ -1,153 +1,105 @@
-# Performance Optimization Handoff
+# Performance Optimization Handoff & Developer Guide
 
-**Purpose**: Context for continuing this work across sessions.
-
----
-
-## Quick Start
-
-1. **Read this first**: Always check `docs/perf/STATE.md` for current status
-2. **Never commit to main**: Work on `perf/speed-optimization` branch
-3. **Update memory**: After completing any task, update STATE.md and DECISIONS.md
-4. **Verify correctness**: Use golden query set to ensure no ranking changes
+**Project**: Rizal Thematic Explorer  
+**Branch**: `perf/speed-optimization`  
+**Current Status**: Phase 2 Steps 1–A complete and verified; Step B (determinism) pending approval.  
+**Reference Snapshot**: `docs/perf/golden_snapshot_seed0.json`  
 
 ---
 
-## Project Context
+## 1. How to Start the Server
 
-This is a thesis project — an academic search engine for José Rizal's novels. The system uses:
-- **Hybrid search**: Lexical (ILIKE) + Semantic (pgvector with XLM-RoBERTa)
-- **Custom DAPT model**: Domain-adapted XLM-R for Tagalog literary text
-- **Multi-stage pipeline**: Query analysis → Candidate retrieval → Re-ranking → Theme classification → Context expansion
+Always launch the Uvicorn server explicitly bound to IPv4 `127.0.0.1` with `PYTHONHASHSEED=0`. **Do NOT use `--reload`** during performance profiling or benchmarking (the reload reloader process adds file-watching threads, IPC overhead, and process jitter).
 
-**Critical constraint**: Result rankings and search quality MUST NOT change. Any ranking change requires explicit user approval and detailed logging in DECISIONS.md.
+### Windows PowerShell
+```powershell
+cd backend
+$env:PYTHONHASHSEED="0"
+$env:PERF_BENCHMARK="1"
+.venv\Scripts\uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
 
----
-
-## Key Files to Know
-
-### Backend Search Pipeline
-- **[backend/app/core/engine.py](../../backend/app/core/engine.py)**: Main RizalEngine (search logic, scoring, theme classification)
-- **[backend/app/api/v1/search.py](../../backend/app/api/v1/search.py)**: Search endpoint
-- **[backend/app/api/v1/content.py](../../backend/app/api/v1/content.py)**: Chapter content, themes, character endpoints
-- **[backend/app/api/v1/alignment.py](../../backend/app/api/v1/alignment.py)**: Buod-to-full text alignment
-- **[backend/app/core/robust_aligner.py](../../backend/app/core/robust_aligner.py)**: DP sequence aligner
-- **[backend/app/models/database.py](../../backend/app/models/database.py)**: SQLAlchemy models
-
-### Infrastructure
-- **[docker-compose.yml](../../docker-compose.yml)**: Postgres + Redis services
-- **[backend/app/core/config.py](../../backend/app/core/config.py)**: Settings and configuration
-
-### Data
-- Embeddings stored in Postgres `sentences` table (768-dim vectors)
-- Two embedding columns: `embedding` (base XLM-R), `embedding_dapt` (DAPT model)
-- Themes stored in `themes` table with pre-computed embeddings
+### Linux / macOS / Bash
+```bash
+cd backend
+export PYTHONHASHSEED=0
+export PERF_BENCHMARK=1
+poetry run uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
 
 ---
 
-## Request Flow Summary
+## 2. Environment Flags & Toggles
 
-### Search Flow (`/api/v1/search`)
-1. **Query preprocessing**: Tokenization, stopword analysis, OOV detection
-2. **Cross-lingual mapping**: English → Tagalog via dictionary + dynamic translator
-3. **Theme expansion**: Match query to theme keywords using base model
-4. **Candidate retrieval**:
-   - **Lexical first**: ILIKE filters on sentence_text
-   - **Semantic fallback**: pgvector cosine_distance if lexical insufficient
-5. **Hybrid re-ranking**: Weighted combo of semantic + lexical scores
-6. **Post-processing**: Theme classification + context expansion per result
-7. **Precision scoring**: Multi-component matching for complex queries
+The codebase provides runtime toggles to enable differential testing and regression analysis:
 
-### Content Flow (`/api/v1/chapters/{book}/{chapter}`)
-1. Query sentences for book+chapter+source_type
-2. For each sentence: Call `_classify_themes()`
-   - Uses 4-step character-gated matching
-   - Requires neighbor context (8-sentence window)
-3. Return sentences with theme labels
-
-### Sanggunian Flow (`/api/v1/sentences/{id}/sanggunian`)
-1. Fetch buod sentence
-2. Check per-chapter alignment cache
-3. If cache miss: Run RobustAligner on full chapter
-4. Return aligned full-text passage with scores
+| Variable | Default | Purpose |
+| :--- | :---: | :--- |
+| `PYTHONHASHSEED` | `0` | Eliminates Python hash randomization so set iteration order in theme expansion is deterministic. |
+| `PERF_BENCHMARK` | `0` | When `1`, returns internal engine micro-timings, call counts, and cache statistics in the search response metadata. |
+| `DISABLE_WORD_VEC_CACHE` | `0` | When `1`, skips precomputed cache loading and in-memory process cache, forcing on-the-fly candidate token encoding. |
+| `DISABLE_TRANSLATOR_CACHE` | `0` | When `1`, bypasses the in-memory `TranslatorCache`, making synchronous external Google Translate network requests. |
+| `DISABLE_BATCHED_CONTEXT_FETCH`| `0` | When `1`, bypasses `_fetch_context_cache`, falling back to sequential individual SQL queries for neighbor contexts. |
+| `bypass_cache=true` (HTTP Param)| `false`| URL query parameter on `/api/v1/search` to bypass the word vector cache for an isolated request. |
 
 ---
 
-## Known Performance Bottlenecks (Hypotheses)
+## 3. Key Files & Architecture Map
 
-### High Priority
-1. **No result caching** — Every search recomputes from scratch
-2. **Model inference per request** — Base + DAPT models encode on every call
-3. **Theme classification overhead** — Runs on every result with context expansion
-4. **Expensive semantic fallback** — Retrieves 15x more candidates than needed
-5. **N+1 context queries** — Separate DB calls for neighbor sentences
+### Core Search Pipeline (`backend/app/`)
+- **`core/engine.py`**: The central `RizalEngine`. Contains query preprocessing, theme expansion, lexical retrieval, semantic fallback, reranking validation, batched context retrieval (`_fetch_context_cache`), and word vector cache loading (`_load_precomputed_word_vectors`).
+- **`core/perf_instrumentation.py`**: Thread-safe accumulating `PerfTimer` context manager tracking stage durations and call counts.
+- **`api/v1/search.py`**: FastAPI search endpoint (`/api/v1/search`). Parses query parameters and returns search payload and benchmark metadata.
+- **`models/database.py`**: SQLAlchemy ORM models (`Sentence`, `Theme`, `NovelContent`).
+- **`data/word_vec_cache_v1.pkl`**: Precomputed float32 word embeddings (24,770 words, 73.39 MB) loaded at boot.
 
-### Needs Measurement
-- Theme matrix operations (dot products, argmax)
-- Character regex matching performance
-- Unindexed ILIKE queries
-- Cross-lingual translation API calls
-- JSON serialization overhead
-
----
-
-## Measurement Strategy (Phase 0)
-
-### Golden Query Set (~40 queries)
-Categories to cover:
-- Single-word Tagalog (e.g., "kalayaan", "simbahan")
-- Multi-word Tagalog (e.g., "pag-ibig ni Maria Clara")
-- English cross-lingual (e.g., "corruption", "education")
-- Character names (e.g., "Crisostomo Ibarra", "Simoun")
-- Out-of-domain (should reject: e.g., "tiktok", "bitcoin")
-
-### Instrumentation Points
-Add timing to:
-1. Query preprocessing
-2. Model encoding (separate for base vs DAPT)
-3. Theme expansion
-4. Lexical retrieval
-5. Semantic fallback (when triggered)
-6. Re-ranking loop
-7. Theme classification per result
-8. Context expansion per result
-9. Total end-to-end
-
-### EXPLAIN ANALYZE Targets
-- Vector similarity search: `ORDER BY embedding.cosine_distance(query_vec)`
-- Lexical filtering: `WHERE sentence_text ILIKE '%word%'`
-- Multi-filter: `WHERE book = X AND chapter = Y AND source_type = Z`
-- Neighbor lookups: Range queries on sentence_index
+### Performance Documentation (`docs/perf/`)
+- **`STATE.md`**: Compact source of truth (<120 lines). Current phase, verified empirical findings, and immediate next action.
+- **`DECISIONS.md`**: Complete log of all architectural decisions, evidence, and pending policy items.
+- **`FINAL_REPORT.md`**: Comprehensive thesis-ready report with before/after tables, resource footprints, and verification evidence.
+- **`golden_snapshot_seed0.json`**: Permanent reference snapshot containing full results for all 40 golden queries under `PYTHONHASHSEED=0`.
+- **`BASELINE.md`**: Historical record of early Phase 1 baseline measurements (annotated with IPv6 invalidation note).
+- **`PLAN.md`**: Roadmap of completed vs. pending optimization milestones.
 
 ---
 
-## Common Pitfalls
+## 4. Scripts Inventory & Tooling
 
-1. **Don't assume bottlenecks** — Measure first, optimize second
-2. **Preserve rankings** — Any change affecting result order needs approval
-3. **Cache invalidation is hard** — Design cache keys carefully
-4. **Batching isn't always faster** — Model inference has overhead per batch
-5. **Indexes have write cost** — Consider read/write ratio
-6. **pgvector HNSW tuning is non-trivial** — Default params may not be optimal
+All utility scripts reside in `scripts/`:
 
----
-
-## Next Session Checklist
-
-- [ ] Read STATE.md
-- [ ] Check for updates since last session
-- [ ] Verify branch is `perf/speed-optimization`
-- [ ] Review recent commits in DECISIONS.md
-- [ ] Check for open questions or blockers
+- **`build_word_vec_cache.py`**: Precomputes embeddings for all 24,770 candidate vocabulary words one-at-a-time using SentenceTransformer and serializes to `backend/app/data/word_vec_cache_v1.pkl`.
+- **`benchmark.py`**: Automated test client executing 10 runs across all 40 golden queries. Uses `http://127.0.0.1:8000` and persistent `requests.Session()` to avoid IPv6 connection stalls.
+- **`fetch_snapshot.py`**: Fetches fresh search results for all 40 golden queries from a running server and outputs a structured JSON snapshot.
+- **`compare_golden.py`**: Deeply compares a target snapshot against a reference snapshot (`golden_snapshot_seed0.json`), reporting any differences in candidate ranking order, IDs, scores, context strings, or theme tags.
+- **`measure_fresh_server.py`**: Boots a dedicated server instance, measures startup duration to `/health`, captures initial RSS, evaluates first-search latency for 10 unseen Tagalog words, logs post-search RSS, and cleanly terminates the server.
+- **`verify_batched_context.py`**: Exhaustive candidate-level and boundary-sentence comparison verifying sequential vs. batched context fetching across 382 candidates and 180 boundary sentences.
 
 ---
 
-## Resources
+## 5. How to Run Golden Comparisons
 
-- **pgvector docs**: https://github.com/pgvector/pgvector
-- **SentenceTransformers**: https://www.sbert.net/
-- **FastAPI performance**: https://fastapi.tiangolo.com/deployment/
+Whenever making changes to engine logic or database queries, verify ranking invariance against the golden snapshot:
+
+1. **Start the server with benchmark settings**:
+   ```powershell
+   $env:PYTHONHASHSEED="0"; $env:PERF_BENCHMARK="1"; .venv\Scripts\uvicorn app.main:app --host 127.0.0.1 --port 8000
+   ```
+2. **Fetch the current snapshot**:
+   ```powershell
+   .venv\Scripts\python scripts/fetch_snapshot.py --port 8000 --output docs/perf/new_snapshot.json
+   ```
+3. **Compare against the reference snapshot**:
+   ```powershell
+   .venv\Scripts\python scripts/compare_golden.py --ref docs/perf/golden_snapshot_seed0.json --target docs/perf/new_snapshot.json
+   ```
+   *Expected outcome*: `40/40 queries matched (0 differences)`.
 
 ---
 
-**Remember**: Speed is important, but correctness is non-negotiable.
+## 6. Hard-Learned Rules & Methodological Principles
+
+1. **Never trust summaries without raw output**: Always verify raw JSON numbers directly rather than relying on unverified terminal summaries or client-side timings.
+2. **Control experiments before blaming a change**: Run A/B tests inside the exact same Python process (e.g. bypassing a cache via a query parameter) to isolate application logic from OS scheduling, pagefile throttling, and garbage collection noise.
+3. **State what was not verified**: Never extrapolate unmeasured claims. If a metric was not directly captured under controlled conditions, explicitly classify it as "Not verified".
+4. **Beware of OS-level network defaults**: On Windows, `localhost` resolves to IPv6 (`::1`) first. If the server is bound to IPv4, connection attempts stall for ~2.0 seconds before falling back. Always use explicit IPv4 `127.0.0.1` and persistent HTTP sessions.
+5. **Python hash randomization breaks cross-process determinism**: Iterating over unsorted sets (such as theme expansion keywords) causes non-deterministic text construction across server restarts. Always sort set iterations before combining text for transformer model encoding.

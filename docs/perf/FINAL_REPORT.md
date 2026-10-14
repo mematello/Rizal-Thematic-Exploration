@@ -281,17 +281,30 @@ To eliminate the cold token encoding bottleneck for all novel vocabulary, a prec
 
 ---
 
-## 8. Known Limitations
+## 8. Known Limitations & Open Questions
 
+### 8.1 Known Limitations
 1. **Python Hash Randomization (`PYTHONHASHSEED=0`)**:
    - Because theme expansion iterates over Python sets of candidate strings without sorting, different Python processes with randomized hash seeds produce different word orderings in expansion strings (e.g., `Kasakiman gahaman salapi...` vs `Kasakiman gahaman nawawala...`).
    - This causes slight floating-point differences in SentenceTransformer embeddings that can alter candidate selection at tie boundaries.
-   - Setting `PYTHONHASHSEED=0` is required for cross-process reproducibility.
+   - Setting `PYTHONHASHSEED=0` is required for cross-process reproducibility until Step B (`sorted()`) changes land.
 2. **First-Seen Out-of-Domain Translation Latency**:
    - The first time an unmapped modern or cross-lingual term is queried, a live network request to Google Translate takes ~1.2s–1.7s.
    - While `TranslatorCache` reduces all repeated queries to ~129–153 ms, the first call remains network-bound.
 3. **Memory Footprint**:
-   - With all 24,770 vocabulary word vectors preloaded at startup, initial process RSS is **460.35 MB**, and working memory settles at **~1.1–1.2 GB** during heavy inference. While safely bounded by `_MAX_WORD_VEC_CACHE_SIZE = 50,000`, environments with $<1.5 \text{ GB}$ available RAM should monitor swap usage.
+   - With all 24,770 vocabulary word vectors preloaded at startup, initial process RSS is **460.35 MB**, reaches **~950 MB** during the 400-query benchmark, and settles at **~1.1–1.2 GB** during intensive un-cached inference. While safely bounded by `_MAX_WORD_VEC_CACHE_SIZE = 50,000`, environments with $<1.5 \text{ GB}$ available RAM should monitor swap usage.
+4. **Per-Worker In-Memory Caches**:
+   - `_word_vec_cache` and `TranslatorCache` live in Python process memory; in a multi-worker Uvicorn deployment, caches are worker-local and not shared.
+5. **Static Vocabulary Cache Binding**:
+   - `word_vec_cache_v1.pkl` is tightly coupled to the exact model name and vocabulary SHA-256 hash. If novel sentences or the underlying SentenceTransformer model are modified, the precomputed cache must be regenerated.
+
+### 8.2 Not Verified / Open Questions
+1. **Precomputed Cache Miss Count**:
+   - The exact miss count of the precomputed cache over a full fresh-boot 40x10 benchmark has not been logged (though tested with 0 misses across 10 unseen Tagalog words).
+2. **Multi-Word Latency Outlier**:
+   - A single run maximum outlier of 2,460 ms on `karahasan ng mga prayle` remains unexplained (likely temporary Windows thread scheduling or disk paging jitter).
+3. **Measurement Noise Floor**:
+   - Per-query latency deltas under ~100 ms between runs reflect system noise on this environment and should not be interpreted as algorithmic regressions or improvements.
 
 ---
 

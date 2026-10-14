@@ -21,3 +21,7 @@ Intelligent search engine for José Rizal's novels (Noli Me Tangere, El Filibust
 
 ## Current Focus
 Performance optimization for public deployment while maintaining search quality and correctness.
+- Phase 2 Steps 1–A completed and verified (0/40 ranking changes vs `golden_snapshot_seed0.json`).
+- Step B (determinism via `sorted()` and `ORDER BY`) pending approval.
+- Always run backend with `PYTHONHASHSEED=0` and connect via `127.0.0.1` with persistent HTTP sessions.
+

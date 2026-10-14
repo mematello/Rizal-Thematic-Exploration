@@ -9,6 +9,8 @@
 > All HTTP end-to-end latency numbers in this baseline table are **INVALID for absolute HTTP latency**.
 > Diagnostic profiling discovered that `scripts/benchmark.py` targeted `http://localhost:8000` without a reused `requests.Session()`. On Windows, resolving `localhost` triggered an IPv6 (`::1`) connection attempt that stalled for ~2.0 seconds per request before falling back to IPv4 (`127.0.0.1`), artificially inflating all HTTP measurements by ~2,000 ms.
 > **Server-side stage timings and query execution logic recorded here remain valid.** Corrected end-to-end baselines must be collected using `http://127.0.0.1:<port>` with `requests.Session()`.
+> 
+> **For the valid, rigorously controlled Before vs. After performance tables, please refer to [FINAL_REPORT.md](FINAL_REPORT.md) (Section 3).**
 
 ---
 

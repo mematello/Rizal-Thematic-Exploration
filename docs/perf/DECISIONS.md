@@ -467,5 +467,31 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 
 **Ranking Policy Compliance**: 0 ranking changes across all 40 golden queries. No determinism changes (`sorted()` / `ORDER BY`) applied yet; awaiting user decision for Step B.
 
+---
+
+## Pending Decisions
+
+### 1. Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)
+- **Status**: Pending explicit user approval.
+- **Context**: Resolving run-to-run variation under arbitrary `PYTHONHASHSEED` requires sorting set iterations in theme expansion and adding deterministic secondary tie-breakers (`id`, `sentence_index`) to database queries.
+- **Impact**: Classified as a **behavior change**. Will produce a controlled, permanent ranking delta at tie boundaries.
+- **Protocol**: Apply Task 2 Item 8 (`ORDER BY`) first and compare; apply Items 1–7 (`sorted()`); run two fresh passes without `PYTHONHASHSEED` to prove cross-process identity; capture `golden_snapshot_deterministic.json` as the new permanent reference; record exact ranking delta in `DECISIONS.md` under the Ranking Change Policy.
+
+### 2. First-Seen Out-of-Domain Translation Latency Policy
+- **Status**: Pending policy decision.
+- **Context**: The first request for an unmapped modern/cross-lingual term incurs a ~1.2–1.7s synchronous Google Translate network roundtrip. `TranslatorCache` accelerates subsequent requests to ~129 ms, but first-seen latency is externally bound.
+- **Options**:
+  - Keep current 5.0s timeout with 24h positive / 60s negative cache.
+  - Implement a fast local out-of-vocabulary (OOV) heuristic / dictionary check to reject modern English/slang terms before reaching the Google Translate network call.
+  - Shorten timeout (e.g., 2.0s) to fail faster on poor connections.
+
+### 3. Deliberately Unexecuted Optimizations
+- **Status**: Held / excluded from scope.
+- **Items**:
+  - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.
+  - **pg_trgm GIN Indexing**: Existing ILIKE query performance was deemed sufficient given that candidate retrieval takes <25 ms.
+  - **Query Model Encoding Batching**: Sequential calls to `base_model.encode()` during preprocessing remain unbatched to preserve existing function call boundaries and avoid subtle tensor-padding floating-point divergence.
+
+
 
 
