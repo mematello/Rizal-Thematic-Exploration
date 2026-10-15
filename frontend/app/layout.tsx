@@ -18,8 +18,8 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Rizal Thematic Exploration",
-  description: "Semantic search for Noli Me Tangere and El Filibusterismo",
+  title: "RizalEngine — Thematic Exploration of Rizal's Novels",
+  description: "Semantic search and sentence alignment engine for Noli Me Tangere and El Filibusterismo",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

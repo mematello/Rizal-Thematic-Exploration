@@ -135,7 +135,7 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 className="text-lg font-serif font-black text-brand-gold tracking-tighter"
               >
-                RIZAL<span className="text-brand-navy font-bold ml-1">EXPLORER</span>
+                RIZAL<span className="text-brand-navy font-bold ml-1">ENGINE</span>
               </motion.h1>
 
               <div className="flex md:hidden items-center gap-2">
