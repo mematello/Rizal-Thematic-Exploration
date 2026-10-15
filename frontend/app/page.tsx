@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
 import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Menu, X, BookOpen } from "lucide-react";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ChapterContent } from "@/types";
 import { Footer } from "@/components/Footer";
@@ -114,50 +114,64 @@ export default function Home() {
   };
   const backgroundStyle = useNovelBackground(novel);
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    if (isMobileMenuOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <main
-      className={`min-h-screen flex flex-col justify-between transition-colors duration-700 ease-in-out`}
+      className={`min-h-[100dvh] flex flex-col justify-between transition-colors duration-700 ease-in-out`}
       data-novel={novel}
       style={backgroundStyle}
     >
       {/* Header Section */}
       <header
-        className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-500 ${novel === 'fili'
-          ? 'bg-[#EAE3D5]/85 border-brand-navy/10'
-          : 'bg-[#F5F1E9]/85 border-brand-gold/20'
+        className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'
+          ? 'bg-[#EAE3D5]/90 border-brand-navy/10'
+          : 'bg-[#F5F1E9]/90 border-brand-gold/20'
           }`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-3 relative">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Minimal Title/Logo for Sticky Header */}
-            <div className="flex items-center justify-between flex-1">
-              <motion.h1
+        <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3 relative">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-4">
+            {/* Top row on mobile: Logo + Hamburger / Desktop: Logo on left */}
+            <div className="flex items-center justify-between md:flex-initial">
+              <motion.button
+                onClick={() => router.push('/')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-lg font-serif font-black text-brand-gold tracking-tighter"
+                className="text-left text-lg font-serif font-black text-brand-gold tracking-tighter cursor-pointer select-none py-1"
+                aria-label="Pumunta sa panimulang pahina ng RizalEngine"
               >
                 RIZAL<span className="text-brand-navy font-bold ml-1">ENGINE</span>
-              </motion.h1>
+              </motion.button>
 
-              <div className="flex md:hidden items-center gap-2">
-                <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-9">
-                  <button
-                    onClick={() => useModeStore.getState().setMode('buod')}
-                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
-                  >
-                    Buod
-                  </button>
-                  <button
-                    onClick={() => useModeStore.getState().setMode('full')}
-                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
-                  >
-                    Buong Kwento
-                  </button>
-                </div>
-                <NovelToggle selected={novel} onSelect={setNovel} />
-              </div>
+              {/* Hamburger Button (Mobile only) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden min-w-[44px] min-h-[44px] -mr-2 rounded-full flex items-center justify-center text-brand-navy hover:bg-black/5 active:scale-95 transition-all"
+                aria-expanded={isMobileMenuOpen}
+                aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
+                aria-controls="mobile-navigation-drawer"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
 
+            {/* Search Bar - Center on Desktop, Full Width below logo on Mobile */}
             <div className="flex-1 max-w-2xl mx-auto w-full">
               <SearchBar
                 onSearch={handleSearch}
@@ -166,17 +180,22 @@ export default function Home() {
               />
             </div>
 
-            <div className="hidden md:flex items-center gap-3">
+            {/* Desktop Navigation - Hidden on mobile to eliminate markup duplication */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
               <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-10">
                 <button
+                  type="button"
                   onClick={() => useModeStore.getState().setMode('buod')}
-                  className={`px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  aria-pressed={mode === 'buod'}
                 >
                   Buod
                 </button>
                 <button
+                  type="button"
                   onClick={() => useModeStore.getState().setMode('full')}
-                  className={`px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  aria-pressed={mode === 'full'}
                 >
                   Buong Kwento
                 </button>
@@ -185,6 +204,112 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Slide-down Navigation Panel */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 top-[110px] z-30 bg-black/40 backdrop-blur-xs md:hidden"
+                aria-hidden="true"
+              />
+
+              {/* Drawer Content */}
+              <motion.div
+                id="mobile-navigation-drawer"
+                role="region"
+                aria-label="Mobile Navigation"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="relative z-40 bg-white/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5"
+              >
+                {/* Novel Selector for Mobile */}
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light block mb-2">
+                    Pumili ng Nobela
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNovel("noli");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                        novel === "noli"
+                          ? "bg-brand-gold/15 border-brand-gold text-brand-navy shadow-sm"
+                          : "bg-brand-cream/50 border-brand-gold/20 text-brand-text/70"
+                      }`}
+                    >
+                      <BookOpen size={14} className={novel === "noli" ? "text-brand-gold" : "text-brand-text/40"} />
+                      <span>Noli Me Tangere</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNovel("fili");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                        novel === "fili"
+                          ? "bg-fili-accent/15 border-fili-accent text-fili-accent shadow-sm"
+                          : "bg-brand-cream/50 border-brand-gold/20 text-brand-text/70"
+                      }`}
+                    >
+                      <BookOpen size={14} className={novel === "fili" ? "text-fili-accent" : "text-brand-text/40"} />
+                      <span>El Filibusterismo</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Mode Selector for Mobile */}
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light block mb-2">
+                    Modo ng Pagbasa
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 bg-brand-cream/60 p-1 rounded-xl border border-brand-gold/20">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useModeStore.getState().setMode('buod');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
+                        mode === 'buod'
+                          ? 'bg-brand-navy text-white shadow-sm font-semibold'
+                          : 'text-brand-text hover:bg-brand-gold/10'
+                      }`}
+                    >
+                      Buod
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useModeStore.getState().setMode('full');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
+                        mode === 'full'
+                          ? 'bg-brand-navy text-white shadow-sm font-semibold'
+                          : 'text-brand-text hover:bg-brand-gold/10'
+                      }`}
+                    >
+                      Buong Kwento
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </header>
 
       <HeroSection novel={novel} />
@@ -203,7 +328,7 @@ export default function Home() {
             className="min-h-[50vh]"
           >
             {activeTab === "chapters" && (
-              <div className="mt-6 flex gap-6">
+              <div className="mt-4 sm:mt-6 flex flex-col lg:flex-row gap-6">
                 {/* Sticky sidebar navigation for Kabanata 1–64 (Noli only) */}
                 <ChapterSidebar novel={novel} />
 
