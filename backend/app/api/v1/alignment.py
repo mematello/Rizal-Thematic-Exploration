@@ -12,7 +12,7 @@ Query params:
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 from sqlalchemy import select
 from app.models.database import SessionLocal, Sentence
 from app.core.engine import get_engine, RizalEngine
@@ -115,6 +115,7 @@ def align_chapter(
     # ---- Fetch buod sentences ----
     buod_rows = (
         db.query(Sentence)
+        .options(defer(Sentence.embedding), defer(Sentence.embedding_dapt))
         .filter(
             Sentence.book == summary_book,
             Sentence.chapter_number == chapter_number,
@@ -130,9 +131,12 @@ def align_chapter(
             detail=f"No buod sentences found for {book} chapter {chapter_number}.",
         )
 
+    chapter_title = buod_rows[0].chapter_title or f"Kabanata {chapter_number}"
+
     # ---- Fetch full text sentences ----
     full_rows = (
         db.query(Sentence)
+        .options(defer(Sentence.embedding), defer(Sentence.embedding_dapt))
         .filter(
             Sentence.book == full_book,
             Sentence.chapter_number == chapter_number,
@@ -148,20 +152,12 @@ def align_chapter(
             detail=f"No full-text sentences found for {book} chapter {chapter_number}.",
         )
 
-    # 1. Prepare embeddings
-    import numpy as np
+    # 1. Prepare embeddings using fine-tuned DAPT model
     buod_texts = [r.sentence_text for r in buod_rows]
     full_texts = [r.sentence_text for r in full_rows]
     
-    if any(r.embedding is None for r in buod_rows):
-        buod_embs = engine.dapt_model.encode(buod_texts)
-    else:
-        buod_embs = np.array([r.embedding for r in buod_rows], dtype=np.float32)
-        
-    if any(r.embedding is None for r in full_rows):
-        full_embs = engine.dapt_model.encode(full_texts)
-    else:
-        full_embs = np.array([r.embedding for r in full_rows], dtype=np.float32)
+    buod_embs = engine.dapt_model.encode(buod_texts)
+    full_embs = engine.dapt_model.encode(full_texts)
 
     # 2. Run robust aligner
     aligned_blocks = engine.robust_aligner.align(
@@ -224,6 +220,7 @@ def robust_align_chapter(
     # 1. Fetch buod sentences & embeddings
     buod_rows = (
         db.query(Sentence)
+        .options(defer(Sentence.embedding), defer(Sentence.embedding_dapt))
         .filter(
             Sentence.book == book_key,
             Sentence.chapter_number == chapter_number,
@@ -235,9 +232,12 @@ def robust_align_chapter(
     if not buod_rows:
         raise HTTPException(status_code=404, detail="No buod sentences found.")
 
+    chapter_title = buod_rows[0].chapter_title or f"Kabanata {chapter_number}"
+
     # 2. Fetch full-text sentences & embeddings
     full_rows = (
         db.query(Sentence)
+        .options(defer(Sentence.embedding), defer(Sentence.embedding_dapt))
         .filter(
             Sentence.book == full_book,
             Sentence.chapter_number == chapter_number,
@@ -249,22 +249,11 @@ def robust_align_chapter(
     if not full_rows:
         raise HTTPException(status_code=404, detail="No full-text sentences found.")
 
-    import numpy as np
     buod_texts = [r.sentence_text for r in buod_rows]
-    # Check if embeddings exist
-    if any(r.embedding is None for r in buod_rows):
-        # Trigger mass encode if missing? For now, raise error or placeholder
-        buod_embs = engine.dapt_model.encode(buod_texts)
-    else:
-        buod_embs = np.array([r.embedding for r in buod_rows])
-
     full_texts = [r.sentence_text for r in full_rows]
-    if any(r.embedding is None for r in full_rows):
-        full_embs = engine.dapt_model.encode(full_texts)
-    else:
-        full_embs = np.array([r.embedding for r in full_rows])
-
-    chapter_title = buod_rows[0].chapter_title or ""
+    
+    buod_embs = engine.dapt_model.encode(buod_texts)
+    full_embs = engine.dapt_model.encode(full_texts)
 
     # 3. Run robust aligner
     aligned_blocks = engine.robust_aligner.align(
