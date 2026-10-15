@@ -1,4 +1,17 @@
+---
+title: Rizal Thematic Search API
+emoji: 🇵🇭
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: 5.16.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 📖 Rizal Thematic Explorer
+
 
 [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
