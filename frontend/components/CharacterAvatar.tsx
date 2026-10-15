@@ -25,7 +25,7 @@ export function CharacterAvatar({ name, className = "", size = 80, priority = fa
             .trim()
             .replace(/\s+/g, '-');
 
-        setSrc(`/images/characters/${slug}.png`);
+        setSrc(`/images/characters/${slug}.webp`);
         setHasError(false);
     }, [name]);
 

@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 export function useNovelBackground(novel: 'noli' | 'fili' | 'both' | string | null | undefined) {
     return useMemo(() => {
         const isFili = novel === 'fili' || novel === 'elfili' || novel === 'El Filibusterismo';
-        const bgImage = isFili ? 'elfili_background.jpg' : 'noli_background.jpg';
+        const bgImage = isFili ? 'elfili_background.webp' : 'noli_background.webp';
 
         // Using the same semi-transparent overlay to ensure text contrast:
         // Fili: rgba(242, 240, 237, opacity)
