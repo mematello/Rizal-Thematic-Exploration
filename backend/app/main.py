@@ -40,6 +40,7 @@ app = FastAPI(
 )
 
 # CORS
+import os
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -48,9 +49,17 @@ origins = [
     "http://127.0.0.1:8080",
 ]
 
+cors_env = os.getenv("CORS_ORIGINS")
+if cors_env:
+    for o in cors_env.split(","):
+        stripped = o.strip()
+        if stripped and stripped not in origins:
+            origins.append(stripped)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

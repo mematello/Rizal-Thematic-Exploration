@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
     
-    # Redis
-    REDIS_URL: str
+    # Redis (optional in production, in-memory caches used)
+    REDIS_URL: str = "redis://localhost:6379"
     
     # ML
     BERT_MODEL_NAME: str = "sentence-transformers/paraphrase-xlm-r-multilingual-v1"
