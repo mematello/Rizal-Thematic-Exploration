@@ -10,9 +10,95 @@ interface ChapterSidebarProps {
   children?: React.ReactNode;
 }
 
+interface Section {
+  start: number;
+  end: number;
+}
+
+interface MobilePillNavProps {
+  sections: Section[];
+  activeSectionStart: number;
+  label: string;
+  onGroupClick: (e: React.MouseEvent<HTMLAnchorElement>, start: number) => void;
+  pillRefs: React.MutableRefObject<Map<string, HTMLElement>>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}
+
+/**
+ * Stable module-level component for mobile pill navigation.
+ * Never remounts when activeSectionStart changes.
+ */
+function MobilePillNav({
+  sections,
+  activeSectionStart,
+  label,
+  onGroupClick,
+  pillRefs,
+  containerRef,
+}: MobilePillNavProps) {
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between mb-2 px-1">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60">
+          {label}
+        </span>
+        <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold">
+          Piliin ang Saklaw
+        </span>
+      </div>
+
+      <div className="relative">
+        {/* Horizontal scroll container with proximity scroll snap */}
+        <div
+          ref={containerRef}
+          className="overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
+          style={{ scrollPaddingInline: "1.25rem" }}
+        >
+          {/* Inner list: display flex, width max-content */}
+          <div className="flex w-max gap-2 px-1 pr-10">
+            {sections.map(({ start, end }) => {
+              const id = `kabanata-${start}`;
+              const isActive = start === activeSectionStart;
+              return (
+                <a
+                  key={id}
+                  id={`section-pill-${start}`}
+                  ref={(el) => {
+                    if (el) {
+                      pillRefs.current.set(id, el);
+                    } else {
+                      pillRefs.current.delete(id);
+                    }
+                  }}
+                  href={`#${id}`}
+                  aria-current={isActive ? "true" : undefined}
+                  onClick={(e) => onGroupClick(e, start)}
+                  className={`snap-start shrink-0 flex-none whitespace-nowrap min-h-[44px] min-w-[124px] px-4 py-2 rounded-full border text-xs font-serif font-bold uppercase tracking-wider flex items-center justify-center transition-colors select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
+                    isActive
+                      ? "bg-brand-navy text-white border-brand-navy shadow-md shadow-brand-navy/20 font-bold"
+                      : "bg-white/90 text-brand-text/75 border-brand-gold/25 hover:border-brand-gold hover:text-brand-navy active:scale-95 shadow-xs"
+                  }`}
+                >
+                  {end === start
+                    ? `Kabanata ${start}`
+                    : `Kabanata ${start}–${end}`}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Edge fade masks indicating scrollability */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-brand-cream to-transparent" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-brand-cream to-transparent" />
+      </div>
+    </div>
+  );
+}
+
 export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
   const totalChapters = novel === "noli" ? 64 : 39;
-  const sections = Array.from(
+  const sections: Section[] = Array.from(
     { length: Math.ceil(totalChapters / 4) },
     (_, idx) => {
       const start = idx * 4 + 1;
@@ -32,6 +118,9 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
   const mobilePillsContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // Stable Map of pill elements keyed by groupId ('kabanata-1', 'kabanata-5', etc.)
+  const pillRefs = useRef<Map<string, HTMLElement>>(new Map());
+
   // Scroll lock ref to prevent observer from fighting click smooth-scrolls
   const isScrollLocked = useRef(false);
   const scrollLockTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -49,6 +138,35 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
   useEffect(() => {
     activeSectionStartRef.current = activeSectionStart;
   }, [activeSectionStart]);
+
+  // Center active pill inside container (never touches page vertical scroll)
+  const centerActivePill = useCallback(
+    (start: number, smooth = true) => {
+      const container = mobilePillsContainerRef.current;
+      const pill = pillRefs.current.get(`kabanata-${start}`);
+      if (!container || !pill) return;
+
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const behavior = smooth && !prefersReduced ? "smooth" : "auto";
+
+      // Target = pill.offsetLeft - (container.clientWidth / 2) + (pill.offsetWidth / 2)
+      const target =
+        pill.offsetLeft - container.clientWidth / 2 + pill.offsetWidth / 2;
+      const maxScroll = Math.max(
+        0,
+        container.scrollWidth - container.clientWidth
+      );
+      const clamped = Math.min(Math.max(target, 0), maxScroll);
+
+      container.scrollTo({
+        left: clamped,
+        behavior,
+      });
+    },
+    []
+  );
 
   // Dynamically compute and publish sticky offsets as CSS variables
   const updateStickyVariables = useCallback(() => {
@@ -96,7 +214,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     };
   }, [updateStickyVariables]);
 
-  // Click handler: immediate active update, scroll-lock, URL hash replaceState
+  // Click handler: immediate active update, vertical scroll, pill centering on rAF, scroll lock
   const handleGroupClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     start: number
@@ -116,7 +234,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       window.history.replaceState(null, "", `#kabanata-${start}`);
     }
 
-    // 4. Smooth scroll to target element
+    // 4. Start smooth vertical scroll to section
     const target = document.getElementById(`kabanata-${start}`);
     if (target) {
       const prefersReduced = window.matchMedia(
@@ -128,7 +246,12 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       });
     }
 
-    // 5. Unlock scrollspy when smooth scroll completes
+    // 5. Run pill centering on next animation frame
+    requestAnimationFrame(() => {
+      centerActivePill(start, true);
+    });
+
+    // 6. Unlock scrollspy when smooth scroll completes
     const unlock = () => {
       isScrollLocked.current = false;
       window.removeEventListener("scrollend", unlock);
@@ -166,6 +289,9 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
           behavior: prefersReduced ? "auto" : "smooth",
           block: "start",
         });
+        requestAnimationFrame(() => {
+          centerActivePill(matchingSection.start, false);
+        });
         setTimeout(() => {
           isScrollLocked.current = false;
         }, 800);
@@ -173,7 +299,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [novel]); // re-evaluate if novel switches
+  }, [novel, centerActivePill]);
 
   // IntersectionObserver Scrollspy for active state
   useEffect(() => {
@@ -290,32 +416,11 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     };
   }, [sections, novel]);
 
-  // Auto-scroll mobile pill horizontally into center view (NO vertical scroll)
+  // Auto-scroll mobile pill horizontally when active group changes from scrolling (scrollspy)
   useEffect(() => {
-    const container = mobilePillsContainerRef.current;
-    const activePill = document.getElementById(
-      `section-pill-${activeSectionStart}`
-    );
-    if (!container || !activePill) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    const pillRect = activePill.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    const targetScrollLeft =
-      container.scrollLeft +
-      (pillRect.left - containerRect.left) -
-      container.clientWidth / 2 +
-      activePill.clientWidth / 2;
-
-    container.scrollTo({
-      left: Math.max(0, targetScrollLeft),
-      behavior: prefersReduced ? "auto" : "smooth",
-    });
-  }, [activeSectionStart]);
+    if (isScrollLocked.current) return;
+    centerActivePill(activeSectionStart, true);
+  }, [activeSectionStart, centerActivePill]);
 
   // Auto-scroll active section link inside desktop sidebar
   useEffect(() => {
@@ -425,48 +530,14 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
         ref={mobileNavRef}
         className="lg:hidden sticky top-[var(--header-height,110px)] z-30 -mx-4 px-4 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
       >
-        <div className="flex items-center justify-between mb-2 px-1">
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60">
-            {label}
-          </span>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold">
-            Piliin ang Saklaw
-          </span>
-        </div>
-
-        <div className="relative">
-          {/* Horizontally scrollable chip row with snap scrolling */}
-          <div
-            ref={mobilePillsContainerRef}
-            className="flex gap-2 overflow-x-auto pb-1 pt-0.5 scroll-smooth snap-x snap-mandatory no-scrollbar px-1"
-          >
-            {sections.map(({ start, end }) => {
-              const isActive = start === activeSectionStart;
-              return (
-                <a
-                  key={start}
-                  id={`section-pill-${start}`}
-                  href={`#kabanata-${start}`}
-                  aria-current={isActive ? "true" : undefined}
-                  onClick={(e) => handleGroupClick(e, start)}
-                  className={`snap-start shrink-0 min-h-[44px] min-w-[124px] px-4 py-2 rounded-full border text-xs font-serif font-bold uppercase tracking-wider flex items-center justify-center transition-all select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
-                    isActive
-                      ? "bg-brand-navy text-white border-brand-navy shadow-md shadow-brand-navy/20 scale-[1.02]"
-                      : "bg-white/90 text-brand-text/75 border-brand-gold/25 hover:border-brand-gold hover:text-brand-navy active:scale-95 shadow-xs"
-                  }`}
-                >
-                  {end === start
-                    ? `Kabanata ${start}`
-                    : `Kabanata ${start}–${end}`}
-                </a>
-              );
-            })}
-          </div>
-
-          {/* Edge fade masks indicating scrollability */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-brand-cream to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-brand-cream to-transparent" />
-        </div>
+        <MobilePillNav
+          sections={sections}
+          activeSectionStart={activeSectionStart}
+          label={label}
+          onGroupClick={handleGroupClick}
+          pillRefs={pillRefs}
+          containerRef={mobilePillsContainerRef}
+        />
       </div>
 
       {/* Main Flex Layout for Sidebar + Chapter Grid */}
