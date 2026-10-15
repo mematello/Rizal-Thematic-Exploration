@@ -514,19 +514,37 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 
 ---
 
+### 2026-10-16: First-Seen Out-of-Domain Translation Latency Policy
+
+**Context**: Unmapped cross-lingual queries incur a ~1.2–1.7s synchronous network roundtrip to Google Translate on their first arrival. Once translated, `TranslatorCache` caches positive hits for 24h and failures for 60s, dropping subsequent response times to ~129 ms (-90.0%). We evaluated whether to introduce aggressive pre-translator heuristics (e.g. blocklists/OOV filters) or shorten timeouts vs. accepting cold translation latency.
+
+**Decision**: Formally accept cold translation network latency (~1.3s) as an acceptable one-time cold cost. Preserve current `TranslatorCache` parameters (5.0s timeout, 24h positive TTL, 60s negative TTL, `max_workers=2`). Reject pre-translator heuristics/blocklists.
+
+**Rationale**:
+1. **Academic Cross-Lingual Recall**: The search engine is an academic exploration tool for Jose Rizal's novels. Historical and literary English concepts not found in the small 30-word static dictionary `EN_TL_DICTIONARY` (e.g., "tyranny", "martyrdom", "friar abuses", "rebellion", "indio", "exile", "censorship") depend on dynamic translation to bridge into Rizal's Tagalog vocabulary. Local heuristics or blocklists risk false positives that would permanently block valid research queries.
+2. **Effective Amortization**: In steady state, warm queries are served in ~129.7 ms. Negative caching (60s) prevents repeated abuse or thread exhaustion from invalid terms.
+3. **Zero Snapshot Drift**: Preserves 100% bit-identical consistency with `golden_snapshot_deterministic.json` and ensures all 9 items of Phase B6 verification evidence remain valid without metadata alterations.
+
+**Impact**:
+- Performance: First-seen cold out-of-domain latency remains ~1.3s; warm repeated queries remain ~129 ms.
+- Correctness: 0 ranking changes; 0 snapshot diffs; 100% determinism preserved.
+- Trade-offs: Novel out-of-domain terms incur a one-time network latency penalty on their initial search.
+
+---
+
 ## Pending Decisions
 
 ### 1. ~~Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)~~ ✅ RESOLVED
 - **Status**: **Approved and committed** (2026-10-16). See decision entry above.
 - **Resolution**: All 5 commits (B1, D, E1, E2, E3) applied. 100% bit-identical determinism verified across 6 processes and 206 held-out queries. `PYTHONHASHSEED=0` no longer required. New permanent reference: `golden_snapshot_deterministic.json`.
 
-### 2. First-Seen Out-of-Domain Translation Latency Policy
-- **Status**: Pending policy decision.
-- **Context**: The first request for an unmapped modern/cross-lingual term incurs a ~1.2–1.7s synchronous Google Translate network roundtrip. `TranslatorCache` accelerates subsequent requests to ~129 ms, but first-seen latency is externally bound.
-- **Options**:
-  - Keep current 5.0s timeout with 24h positive / 60s negative cache.
-  - Implement a fast local out-of-vocabulary (OOV) heuristic / dictionary check to reject modern English/slang terms before reaching the Google Translate network call.
-  - Shorten timeout (e.g., 2.0s) to fail faster on poor connections.
+### 2. ~~First-Seen Out-of-Domain Translation Latency Policy~~ ✅ RESOLVED
+- **Status**: **Approved and adopted** (2026-10-16).
+- **Decision**: Accept cold external translation network latency (~1.3s) as an acceptable one-time cold cost, amortized by `TranslatorCache` (24h positive TTL, 60s negative TTL, 5.0s request timeout with `max_workers=2`). Reject aggressive pre-translator OOV / dictionary heuristics.
+- **Rationale**:
+  1. **Academic Cross-Lingual Recall**: The search engine serves research on Jose Rizal's novels. Legitimate historical/academic English terms not present in the small static `EN_TL_DICTIONARY` (e.g., "tyranny", "martyrdom", "friar abuses", "rebellion", "indio") must be translated dynamically into Tagalog to discover novel passages. Pre-translator heuristics risk false-positive rejections.
+  2. **Amortization in Steady-State**: `TranslatorCache` slashes warm latency by 90.0% (from ~1,298 ms down to ~129.7 ms). Unmapped terms are negative-cached for 60s to prevent spam/DoS.
+  3. **Preservation of Determinism**: Zero changes to search results, metadata reasons, or `golden_snapshot_deterministic.json`. 100% of Phase B6 evidence items remain bit-identical.
 
 ### 3. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.

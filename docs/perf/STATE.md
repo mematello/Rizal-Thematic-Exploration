@@ -1,8 +1,8 @@
 # Performance Optimization State
 
 **Last Updated**: 2026-10-16  
-**Branch**: `perf/step-b-determinism` (pending merge into `perf/speed-optimization`)  
-**Current Phase**: Steps 1–A complete; Step B (determinism) **approved and verified**. Pending merge and remaining policy decisions.
+**Branch**: `perf/speed-optimization`  
+**Current Phase**: Steps 1–A complete; Step B (determinism) **approved, verified, and merged**. Pending Decision #2 (Translation Policy) **resolved**. Pending deployment sizing and final merge to main.
 
 ---
 
@@ -54,9 +54,7 @@ Measured on a quiet system with identical protocols (`http://127.0.0.1:8002`, `r
 
 ---
 
-## Next Action: Remaining Pending Decisions
-
-1. **Commit & Merge**: Commit all Step B evidence and scripts on `perf/step-b-determinism`, then merge into `perf/speed-optimization`.
-2. **Pending Decision #2**: First-Seen Out-of-Domain Translation Latency Policy.
-3. **Pending Decision #3**: Production Deployment Sizing & Host Configuration.
-4. **Final Integration**: Merge `perf/speed-optimization` → `main`.
+## Next Action: Remaining Pending Items
+ 
+1. **Pending Item #3**: Production Deployment Sizing & Host Configuration (sizing budget, Uvicorn worker count, cache artifact packaging).
+2. **Final Integration**: Merge `perf/speed-optimization` → `main`.

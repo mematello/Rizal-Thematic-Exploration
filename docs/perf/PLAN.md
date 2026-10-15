@@ -45,9 +45,10 @@
 - [x] Log exact ranking delta (# of position changes) in `DECISIONS.md` under the Ranking Change Policy
 - [x] Stop and request user review before merging — **Approved 2026-10-16**
 
-### 2. First-Seen Out-of-Domain Translation Policy (Pending Policy Decision)
-- [ ] Review ~1.3s cold network latency on unmapped modern terms
-- [ ] Evaluate fast local out-of-vocabulary (OOV) heuristic or dictionary filter vs. external translation timeout tuning
+### 2. First-Seen Out-of-Domain Translation Policy (Resolved 2026-10-16)
+- [x] Review ~1.3s cold network latency on unmapped modern terms — **Resolved: Accepted as one-time cold cost amortized by 24h positive / 60s negative TranslatorCache (~129 ms warm)**
+- [x] Evaluate fast local out-of-vocabulary (OOV) heuristic or dictionary filter vs. external translation timeout tuning — **Resolved: Pre-translator heuristics rejected to preserve academic cross-lingual recall for unmapped historical concepts; existing 5.0s timeout maintained**
+
 
 ### 3. Production Deployment Sizing & Host Configuration (Pending Deployment)
 - [ ] Finalize server memory budget (account for ~460 MB initial RSS and ~1.2 GB working memory under inference)
