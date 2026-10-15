@@ -158,62 +158,73 @@ export function ChapterSidebar({ novel }: ChapterSidebarProps) {
 
   return (
     <>
-      {/* Mobile / small screens – top bar toggle */}
-      <div className="mb-4 flex items-center justify-between lg:hidden">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-brand-text shadow-md shadow-black/5 ring-1 ring-black/5 hover:bg-white hover:shadow-lg transition-all"
-        >
-          <Menu className="h-4 w-4" />
-          <span className="truncate max-w-[9rem]">{label}</span>
-        </button>
-      </div>
-
-      {/* Mobile drawer */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px] lg:hidden"
-          onClick={() => setIsOpen(false)}
-        >
-          <nav
-            className="absolute left-0 top-0 h-full w-64 bg-white/95 shadow-2xl flex flex-col backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
+      {/* Mobile / tablet screens (lg:hidden) – Responsive Chapter Range Navigator */}
+      <div className="w-full mb-6 lg:hidden">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60">
+            {label}
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="min-h-[44px] px-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-navy hover:text-brand-gold transition-colors"
+            aria-expanded={isOpen}
+            aria-label={isOpen ? "Ipakita bilang hilera" : "Ipakita bilang talaan ng 2-kolum"}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-black/5">
-              <span className="text-[11px] font-bold tracking-[0.24em] uppercase text-brand-text/60">
-                {novel === "noli" ? "Noli" : "El Fili"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="rounded-full p-1.5 hover:bg-black/5 transition-colors text-brand-text/70"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-              {sections.map(({ start, end }) => (
+            {isOpen ? "Pahalang na Hilera" : "Lahat ng Saklaw (2-Kolum)"}
+          </button>
+        </div>
+
+        {isOpen ? (
+          /* 2-column grid on mobile (3-4 columns on tablet) */
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 pb-2">
+            {sections.map(({ start, end }) => {
+              const isActive = start === activeSectionStart;
+              return (
                 <a
                   key={start}
-                  id={`section-link-${start}-mobile`}
+                  id={`section-link-${start}-grid`}
                   href={`#kabanata-${start}`}
                   onClick={() => handleClick(start)}
-                  className={`block rounded-full px-3 py-1.5 text-sm font-serif transition-colors ${
-                    start === activeSectionStart
-                      ? "bg-brand-gold/20 text-brand-navy font-semibold"
-                      : "text-brand-text/30 hover:bg-brand-gold/10 hover:text-brand-navy"
+                  className={`min-h-[44px] px-3 py-2.5 rounded-xl border flex items-center justify-center text-center text-xs font-serif font-bold transition-all active:scale-95 ${
+                    isActive
+                      ? "bg-brand-navy text-white border-brand-navy shadow-sm"
+                      : "bg-white/80 text-brand-text/80 border-brand-gold/20 hover:border-brand-gold hover:text-brand-navy"
                   }`}
                 >
                   {end === start
                     ? `Kabanata ${start}`
                     : `Kabanata ${start}–${end}`}
                 </a>
-              ))}
-            </div>
-          </nav>
-        </div>
-      )}
+              );
+            })}
+          </div>
+        ) : (
+          /* Horizontally scrollable chip row with snap scrolling */
+          <div className="flex gap-2 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory no-scrollbar px-0.5">
+            {sections.map(({ start, end }) => {
+              const isActive = start === activeSectionStart;
+              return (
+                <a
+                  key={start}
+                  id={`section-link-${start}-mobile`}
+                  href={`#kabanata-${start}`}
+                  onClick={() => handleClick(start)}
+                  className={`snap-start shrink-0 min-h-[44px] min-w-[124px] px-4 py-2.5 rounded-full border text-xs font-serif font-bold uppercase tracking-wider flex items-center justify-center transition-all active:scale-95 ${
+                    isActive
+                      ? "bg-brand-navy text-white border-brand-navy shadow-md shadow-brand-navy/15 scale-[1.02]"
+                      : "bg-white/85 text-brand-text/70 border-brand-gold/25 hover:border-brand-gold hover:text-brand-navy shadow-xs"
+                  }`}
+                >
+                  {end === start
+                    ? `Kabanata ${start}`
+                    : `Kabanata ${start}–${end}`}
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Desktop / large screens – sticky sidebar */}
       <aside className="hidden lg:block w-56 shrink-0">

@@ -88,22 +88,32 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
     return (
         <motion.div
             id={`kabanata-${chapter.chapter_number}`}
+            role="button"
+            tabIndex={0}
             onClick={onClick}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick();
+                }
+            }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut", delay: colIndex * 0.1 }}
-            whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)" }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: colIndex * 0.05 }}
+            whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.12)" }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
-                "group relative p-6 h-56 flex flex-col justify-between overflow-hidden cursor-pointer",
-                "bg-white/70 backdrop-blur-md shadow-sm transition-all duration-500",
-                "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm",
-                "scroll-mt-40"
+                "group relative p-5 sm:p-6 min-h-[13rem] sm:h-56 flex flex-col justify-between overflow-hidden cursor-pointer select-none",
+                "bg-white/75 backdrop-blur-md shadow-sm transition-all duration-300",
+                "border border-brand-gold/15 hover:border-brand-gold/40 active:border-brand-gold/60 rounded-xl sm:rounded-sm",
+                "scroll-mt-32 sm:scroll-mt-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
             )}
+            aria-label={`Basahin ang Kabanata ${chapter.chapter_number}: ${chapter.chapter_title}`}
         >
             {/* Decorative Background Number */}
             <span className={cn(
-                "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
-                "text-brand-navy"
+                "absolute -right-3 -top-6 text-8xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
+                "text-brand-navy pointer-events-none"
             )}>
                 {chapter.chapter_number}
             </span>
@@ -121,15 +131,15 @@ function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick
                 )}>
                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                 </span>
-                <h3 className="text-2xl font-serif text-brand-navy mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight">
+                <h3 className="text-xl sm:text-2xl font-serif text-brand-navy mt-2 sm:mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight">
                     Kabanata {chapter.chapter_number}
                 </h3>
-                <p className="text-sm font-serif text-brand-text/60 mt-2 italic line-clamp-2">
+                <p className="text-sm font-serif text-brand-text/70 mt-1.5 sm:mt-2 italic line-clamp-2">
                     {chapter.chapter_title}
                 </p>
             </div>
 
-            <div className="flex items-center text-xs font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300">
+            <div className="flex items-center text-xs font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300 pt-2">
                 <span className="mr-2">BASAHIN ANG KABANATA</span>
                 <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />

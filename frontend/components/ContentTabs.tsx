@@ -18,19 +18,22 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
     ];
 
     return (
-        <div className="flex items-center justify-center space-x-12 border-b border-brand-gold/10 pb-4 mb-8">
+        <div className="flex items-center justify-center gap-4 sm:gap-8 md:gap-12 border-b border-brand-gold/10 pb-2 sm:pb-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar">
             {tabs.map((tab) => (
                 <button
                     key={tab.id}
+                    type="button"
                     onClick={() => onTabChange(tab.id)}
                     className={cn(
-                        "relative text-lg font-serif tracking-[0.05em] transition-all duration-500 pb-2 uppercase text-xs font-bold",
+                        "relative min-h-[44px] px-2 sm:px-3 flex items-center justify-center font-serif tracking-[0.08em] transition-all duration-300 uppercase text-xs sm:text-sm font-bold active:scale-95",
                         activeTab === tab.id
-                            ? "text-brand-navy"
+                            ? "text-brand-navy font-black"
                             : "text-brand-text/50 hover:text-brand-navy"
                     )}
+                    aria-selected={activeTab === tab.id}
+                    role="tab"
                 >
-                    {tab.label}
+                    <span className="pb-1">{tab.label}</span>
                     {activeTab === tab.id && (
                         <motion.div
                             layoutId="activeTab"
