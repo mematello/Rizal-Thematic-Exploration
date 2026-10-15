@@ -28,17 +28,7 @@ if __name__ == "__main__":
     # 1. Launch Gradio server first (ZeroGPU hooks startup report and instantiates demo.server_app)
     demo.launch(server_name="0.0.0.0", server_port=7860, prevent_thread_lock=True)
 
-    # 2. Attach CORS middleware
-    demo.server_app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    # 3. Mount all backend API routes
+    # 2. Mount all backend API routes
     demo.server_app.include_router(search.router, prefix="/api/v1")
     demo.server_app.include_router(content.router, prefix="/api/v1")
     demo.server_app.include_router(alignment.router, prefix="/api/v1")
