@@ -170,16 +170,18 @@ function SearchContent() {
             style={backgroundStyle}
         >
             {/* Sticky Header */}
-            <header className="bg-brand-cream/98 border-b border-brand-gold/20 sticky top-0 z-40 backdrop-blur-sm">
-                <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+            <header className="bg-brand-cream/98 border-b border-brand-gold/20 sticky top-0 z-40 backdrop-blur-sm safe-top">
+                <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-4">
                     <button
+                        type="button"
                         onClick={() => router.push('/')}
-                        className="flex items-center gap-2 text-brand-navy/50 hover:text-brand-navy transition-colors shrink-0"
+                        className="min-w-[44px] min-h-[44px] -ml-2 rounded-full flex items-center justify-center text-brand-navy/60 hover:text-brand-navy active:scale-95 transition-all shrink-0"
+                        aria-label="Bumalik sa panimulang pahina"
                     >
-                        <ArrowLeft size={18} />
-                        <span className="hidden md:block font-serif font-bold text-base">Bumalik</span>
+                        <ArrowLeft size={20} />
+                        <span className="hidden md:inline font-serif font-bold text-base ml-1.5">Bumalik</span>
                     </button>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <SearchBar
                             variant="persistent"
                             defaultValue={initialQuery}
@@ -190,61 +192,69 @@ function SearchContent() {
                 </div>
 
                 {/* Sub-header: novel context + score toggle */}
-                <div className="max-w-6xl mx-auto px-4 pb-3 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs text-brand-text/50 font-serif">
+                <div className="max-w-6xl mx-auto px-4 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs text-brand-text/70 font-serif truncate">
                             Naghahanap sa: <span className="font-bold text-brand-navy">{novelLabel}</span>
                         </span>
                         {!isLoading && initialQuery && (
-                            <span className="text-xs text-brand-text/30 font-serif">
+                            <span className="text-xs text-brand-text/40 font-serif shrink-0">
                                 · {totalResults} {totalResults === 1 ? 'resulta' : 'mga resulta'}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-8">
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                        <div className="flex bg-white/85 rounded-full p-1 border border-brand-gold/20 shadow-xs items-center h-9 shrink-0">
                             <button
+                                type="button"
                                 onClick={() => useModeStore.getState().setMode('buod')}
-                                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                aria-pressed={mode === 'buod'}
                             >
                                 Buod
                             </button>
                             <button
+                                type="button"
                                 onClick={() => useModeStore.getState().setMode('full')}
-                                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                aria-pressed={mode === 'full'}
                             >
                                 Buong Kwento
                             </button>
                         </div>
 
-                        {/* Dedicated Map View Button — separate from Grid controls */}
+                        {/* Dedicated Map View Button */}
                         <button
                             id="map-view-toggle"
+                            type="button"
                             onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
-                            className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all h-8 ${
+                            className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${
                                 viewMode === 'map'
                                     ? 'bg-brand-navy text-white border-brand-navy shadow-sm'
                                     : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy bg-white/80'
                             }`}
                             title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
+                            aria-label={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
                         >
                             {viewMode === 'map'
-                                ? <LayoutGrid size={12} />
-                                : <MapPinned size={12} />}
+                                ? <LayoutGrid size={13} />
+                                : <MapPinned size={13} />}
                             <span className="hidden sm:inline">
                                 {viewMode === 'map' ? 'Listahan' : 'Gabay na Mapa'}
                             </span>
                         </button>
 
                         <button
+                            type="button"
                             onClick={() => setShowScores(!showScores)}
-                            className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all h-8 ${showScores
-                                ? 'bg-brand-navy text-white border-brand-navy'
-                                : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy'
+                            className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${showScores
+                                ? 'bg-brand-navy text-white border-brand-navy shadow-xs'
+                                : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy bg-white/80'
                                 }`}
+                            aria-label={showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
                         >
-                            <BarChart2 size={12} />
+                            <BarChart2 size={13} />
                             <span className="hidden sm:inline">{showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}</span>
                         </button>
                     </div>

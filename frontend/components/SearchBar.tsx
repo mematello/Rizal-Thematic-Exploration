@@ -69,6 +69,7 @@ export function SearchBar({
                 <input
                     type="search"
                     inputMode="search"
+                    enterKeyHint="search"
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
@@ -82,25 +83,34 @@ export function SearchBar({
                         }
                     }}
                     placeholder={placeholder}
-                    className="w-full py-3 bg-transparent border-b-2 border-brand-gold/20 text-brand-text font-serif text-xl placeholder:text-brand-text-light/30 focus:outline-none focus:border-brand-gold transition-all duration-500"
+                    className="w-full py-2.5 sm:py-3 min-h-[44px] bg-transparent border-b-2 border-brand-gold/20 text-brand-text font-serif text-base sm:text-xl placeholder:text-brand-text-light/30 focus:outline-none focus:border-brand-gold transition-all duration-500"
                     aria-label="Manaliksik sa mga nobela ni Rizal"
                 />
 
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-2">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
                     {query.length > 0 && (
                         <button
+                            type="button"
                             onClick={handleClear}
-                            className="p-1 text-brand-text-light hover:text-brand-navy transition-colors mr-2"
+                            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-brand-text-light hover:text-brand-navy active:scale-95 transition-all"
+                            aria-label="Burahin ang paghahanap"
                         >
-                            <X size={16} />
+                            <X size={18} />
                         </button>
                     )}
 
-                    {isLoading ? (
-                        <Loader2 className="animate-spin text-brand-gold" size={24} />
-                    ) : (
-                        <Search className="text-brand-gold/50 group-focus-within:text-brand-gold transition-colors duration-500" size={24} />
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(query)}
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-brand-gold/60 hover:text-brand-gold active:scale-95 transition-all"
+                        aria-label="Simulan ang paghahanap"
+                    >
+                        {isLoading ? (
+                            <Loader2 className="animate-spin text-brand-gold" size={22} />
+                        ) : (
+                            <Search className="group-focus-within:text-brand-gold transition-colors duration-500" size={22} />
+                        )}
+                    </button>
                 </div>
             </div>
 

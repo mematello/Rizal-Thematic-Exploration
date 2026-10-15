@@ -83,29 +83,25 @@ export function ResultCard({
 
                 {/* Passage */}
                 <div
-                    className="font-serif text-sm leading-relaxed text-brand-text/80"
+                    className="font-serif text-sm leading-relaxed text-brand-text/80 break-words [overflow-wrap:anywhere]"
                     dangerouslySetInnerHTML={{ __html: passageHtml }}
                     aria-label="Sipi mula sa nobela"
                 />
             </div>
 
             {/* Action Row */}
-            <div className="px-5 py-2.5 border-t border-brand-gold/10 flex items-center gap-2 bg-brand-cream/30">
+            <div className="px-4 sm:px-5 py-2 sm:py-2.5 border-t border-brand-gold/10 flex items-center gap-2 bg-brand-cream/30">
                 <button
                     onClick={(e) => { 
                         e.stopPropagation(); 
-                        console.log(`[ResultCard ${id}] "Ipakita ang Konteksto" clicked.`);
-                        console.log(`[ResultCard ${id}] Before state change - isExpanded:`, isExpanded);
-                        console.log(`[ResultCard ${id}] themes prop:`, themes);
-                        console.log(`[ResultCard ${id}] hasThemes derived:`, hasThemes);
                         setIsExpanded(!isExpanded); 
                     }}
-                    className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all ${novelTheme.btnBorder}`}
+                    className={`min-h-[44px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3.5 py-2 border transition-all active:scale-95 ${novelTheme.btnBorder}`}
                     aria-expanded={isExpanded}
                 >
-                    <BookOpen size={11} />
-                    {isExpanded ? 'Itago' : 'Ipakita ang Konteksto'}
-                    {isExpanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                    <BookOpen size={13} />
+                    <span>{isExpanded ? 'Itago' : 'Ipakita ang Konteksto'}</span>
+                    {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                 </button>
             </div>
 
@@ -119,7 +115,7 @@ export function ResultCard({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className="px-5 pb-3 pt-2 border-t border-brand-gold/10 bg-brand-cream/20">
+                        <div className="px-4 sm:px-5 pb-3 pt-2 border-t border-brand-gold/10 bg-brand-cream/20">
                             <ScoreVisualizer 
                                 semantic={Math.round(scores.semantic)} 
                                 lexical={Math.round(scores.lexical)} 
@@ -141,20 +137,20 @@ export function ResultCard({
                     >
                         {/* Context */}
                         <div
-                            className="mx-5 mt-3 p-4 rounded-sm bg-brand-cream border border-brand-gold/10 font-serif text-brand-text/70 text-sm italic leading-relaxed"
+                            className="mx-4 sm:mx-5 mt-3 p-3.5 sm:p-4 rounded-sm bg-brand-cream border border-brand-gold/10 font-serif text-brand-text/70 text-sm italic leading-relaxed break-words [overflow-wrap:anywhere]"
                             dangerouslySetInnerHTML={{ __html: contextHtml }}
                             aria-label="Konteksto ng sipi"
                         />
 
                         {/* Meaning section (if themes exist) */}
                         {hasThemes && (
-                            <div className="mx-5 mt-3 space-y-2">
+                            <div className="mx-4 sm:mx-5 mt-3 space-y-2">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text/40 block">Kahulugan ng Tema</span>
                                 {themes.map((t) => (
                                     <div key={t.id} className={`p-3 rounded-sm border-l-4 ${novelTheme.innerBorder} bg-white`}>
                                         <h5 className="font-serif font-bold text-brand-navy text-sm mb-1">{t.label}</h5>
                                         {t.explanation && (
-                                            <p className="font-serif text-xs text-brand-text/60 italic leading-relaxed">
+                                            <p className="font-serif text-xs text-brand-text/60 italic leading-relaxed break-words [overflow-wrap:anywhere]">
                                                 &ldquo;{t.explanation}&rdquo;
                                             </p>
                                         )}
@@ -165,12 +161,12 @@ export function ResultCard({
 
                         {/* Open chapter button at bottom of expansion */}
                         {onChapterOpen && (
-                            <div className="px-5 py-4">
+                            <div className="px-4 sm:px-5 py-4">
                                 <button
                                     onClick={() => onChapterOpen(novelTheme.book, chapter, sentenceIndex)}
-                                    className={`w-full flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider rounded-sm px-4 py-2.5 border transition-all ${novelTheme.btnBorder}`}
+                                    className={`w-full min-h-[44px] flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider rounded-lg px-4 py-2.5 border transition-all active:scale-95 ${novelTheme.btnBorder}`}
                                 >
-                                    <ExternalLink size={12} />
+                                    <ExternalLink size={13} />
                                     Buksan ang Kabanata {chapter}
                                 </button>
                             </div>
