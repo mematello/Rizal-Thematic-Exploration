@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type Novel = "noli" | "fili";
 
@@ -25,10 +26,10 @@ interface MobilePillNavProps {
 }
 
 /**
- * Stable module-level component for mobile pill navigation.
- * Never remounts when activeSectionStart changes.
+ * Stable module-level memoized component for mobile pill navigation.
+ * Uses role="tablist" / role="tab" with safe end-padding for full reachability.
  */
-function MobilePillNav({
+const MobilePillNav = memo(function MobilePillNav({
   sections,
   activeSectionStart,
   label,
@@ -39,23 +40,25 @@ function MobilePillNav({
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between mb-2 px-1">
-        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60 font-serif">
           {label}
         </span>
-        <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold font-serif">
           Piliin ang Saklaw
         </span>
       </div>
 
       <div className="relative">
-        {/* Horizontal scroll container with proximity scroll snap */}
+        {/* Horizontal scroll container: relative positioned with proximity scroll snap */}
         <div
           ref={containerRef}
-          className="overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
+          role="tablist"
+          aria-label="Mga saklaw ng Kabanata"
+          className="relative overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
           style={{ scrollPaddingInline: "1.25rem" }}
         >
-          {/* Inner list: display flex, width max-content */}
-          <div className="flex w-max gap-2 px-1 pr-10">
+          {/* Inner list: display flex, width max-content, with generous end-padding so Kabanata 61-64 is fully reachable */}
+          <div className="flex w-max gap-2 px-1 pr-16">
             {sections.map(({ start, end }) => {
               const id = `kabanata-${start}`;
               const isActive = start === activeSectionStart;
@@ -63,6 +66,8 @@ function MobilePillNav({
                 <a
                   key={id}
                   id={`section-pill-${start}`}
+                  role="tab"
+                  aria-selected={isActive}
                   ref={(el) => {
                     if (el) {
                       pillRefs.current.set(id, el);
@@ -71,7 +76,6 @@ function MobilePillNav({
                     }
                   }}
                   href={`#${id}`}
-                  aria-current={isActive ? "true" : undefined}
                   onClick={(e) => onGroupClick(e, start)}
                   className={`snap-start shrink-0 flex-none whitespace-nowrap min-h-[44px] min-w-[124px] px-4 py-2 rounded-full border text-xs font-serif font-bold uppercase tracking-wider flex items-center justify-center transition-colors select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
                     isActive
@@ -88,15 +92,17 @@ function MobilePillNav({
           </div>
         </div>
 
-        {/* Edge fade masks indicating scrollability */}
+        {/* Edge fade masks indicating horizontal scrollability */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-brand-cream to-transparent" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-brand-cream to-transparent" />
       </div>
     </div>
   );
-}
+});
 
 export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
   const totalChapters = novel === "noli" ? 64 : 39;
   const sections: Section[] = Array.from(
     { length: Math.ceil(totalChapters / 4) },
@@ -145,15 +151,23 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       const container = mobilePillsContainerRef.current;
       const pill = pillRefs.current.get(`kabanata-${start}`);
       if (!container || !pill) return;
+      if (pill.offsetParent === null) return; // Guard against hidden element
 
       const prefersReduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
       const behavior = smooth && !prefersReduced ? "smooth" : "auto";
 
-      // Target = pill.offsetLeft - (container.clientWidth / 2) + (pill.offsetWidth / 2)
+      // Relative math using getBoundingClientRect guarantees exact coordinates
+      const containerRect = container.getBoundingClientRect();
+      const pillRect = pill.getBoundingClientRect();
+
       const target =
-        pill.offsetLeft - container.clientWidth / 2 + pill.offsetWidth / 2;
+        container.scrollLeft +
+        (pillRect.left - containerRect.left) -
+        container.clientWidth / 2 +
+        pill.offsetWidth / 2;
+
       const maxScroll = Math.max(
         0,
         container.scrollWidth - container.clientWidth
@@ -178,20 +192,11 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       : 52;
 
     document.documentElement.style.setProperty("--header-height", `${headerH}px`);
-    document.documentElement.style.setProperty("--pill-nav-height", `${pillNavH}px`);
+    document.documentElement.style.setProperty("--mobile-pill-nav-height", `${pillNavH}px`);
 
     const isMobile = window.innerWidth < 1024;
-    const stickyOffset = isMobile ? headerH + pillNavH + 8 : headerH + 16;
-    const scrollMargin = stickyOffset + 16;
-
-    document.documentElement.style.setProperty(
-      "--chapter-sticky-offset",
-      `${stickyOffset}px`
-    );
-    document.documentElement.style.setProperty(
-      "--chapter-scroll-margin",
-      `${scrollMargin}px`
-    );
+    const stickyMargin = isMobile ? headerH + pillNavH + 12 : headerH + 32;
+    document.documentElement.style.setProperty("--chapter-scroll-margin", `${stickyMargin}px`);
 
     return { headerH, pillNavH };
   }, []);
@@ -199,13 +204,14 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
   useEffect(() => {
     updateStickyVariables();
     const handleResize = () => updateStickyVariables();
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
-    const header = document.querySelector("header");
     let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined" && header) {
+    const header = document.querySelector("header");
+    if (header && typeof ResizeObserver !== "undefined") {
       ro = new ResizeObserver(() => updateStickyVariables());
       ro.observe(header);
+      if (mobileNavRef.current) ro.observe(mobileNavRef.current);
     }
 
     return () => {
@@ -214,7 +220,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     };
   }, [updateStickyVariables]);
 
-  // Click handler: immediate active update, vertical scroll, pill centering on rAF, scroll lock
+  // Click handler: immediate active update, vertical scroll, pill centering on finish, scroll lock
   const handleGroupClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     start: number
@@ -229,7 +235,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     isScrollLocked.current = true;
     if (scrollLockTimeout.current) clearTimeout(scrollLockTimeout.current);
 
-    // 3. Update URL hash without polluting browser history
+    // 3. Update URL hash
     if (window.location.hash !== `#kabanata-${start}`) {
       window.history.replaceState(null, "", `#kabanata-${start}`);
     }
@@ -246,22 +252,21 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       });
     }
 
-    // 5. Run pill centering on next animation frame
-    requestAnimationFrame(() => {
-      centerActivePill(start, true);
-    });
-
-    // 6. Unlock scrollspy when smooth scroll completes
-    const unlock = () => {
+    // 5. Unlock scrollspy when smooth scroll completes and center the pill
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
       isScrollLocked.current = false;
-      window.removeEventListener("scrollend", unlock);
+      window.removeEventListener("scrollend", finish);
+      centerActivePill(start, true);
     };
 
-    window.addEventListener("scrollend", unlock, { once: true });
-    scrollLockTimeout.current = setTimeout(unlock, 800);
+    window.addEventListener("scrollend", finish, { once: true });
+    scrollLockTimeout.current = setTimeout(finish, 800);
   };
 
-  // Initial load with URL hash (e.g. /#kabanata-33)
+  // Initial load with URL hash (e.g. /#kabanata-49)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash;
@@ -273,12 +278,9 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     const matchingSection = sections.find(
       (s) => chapterNum >= s.start && chapterNum <= s.end
     );
-    if (!matchingSection) return;
-
-    setActiveSectionStart(matchingSection.start);
-    activeSectionStartRef.current = matchingSection.start;
-
     const timer = setTimeout(() => {
+      setActiveSectionStart(matchingSection.start);
+      activeSectionStartRef.current = matchingSection.start;
       const target = document.getElementById(`kabanata-${matchingSection.start}`);
       if (target) {
         isScrollLocked.current = true;
@@ -289,9 +291,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
           behavior: prefersReduced ? "auto" : "smooth",
           block: "start",
         });
-        requestAnimationFrame(() => {
-          centerActivePill(matchingSection.start, false);
-        });
+        centerActivePill(matchingSection.start, false);
         setTimeout(() => {
           isScrollLocked.current = false;
         }, 800);
@@ -299,7 +299,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [novel, centerActivePill]);
+  }, [novel, sections, centerActivePill]);
 
   // IntersectionObserver Scrollspy for active state
   useEffect(() => {
@@ -318,7 +318,6 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     };
 
     const stickyOffset = getStickyOffset();
-    // Section becomes active when top crosses below the combined sticky offset
     const rootMargin = `-${stickyOffset}px 0px -60% 0px`;
 
     const observer = new IntersectionObserver(
@@ -341,17 +340,26 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
 
         const currentOffset = getStickyOffset();
         let bestStart = -1;
-        let minDiff = Infinity;
 
-        // Choose the intersecting group whose top is closest to the sticky detection line
+        // 1. Primary match: Section that currently spans the sticky detection line
         intersectingMap.forEach((entry, startNum) => {
-          const top = entry.boundingClientRect.top;
-          const diff = Math.abs(top - currentOffset);
-          if (diff < minDiff) {
-            minDiff = diff;
+          const rect = entry.boundingClientRect;
+          if (rect.top <= currentOffset + 32 && rect.bottom > currentOffset) {
             bestStart = startNum;
           }
         });
+
+        // 2. Fallback: Pick intersecting group whose top is closest to sticky offset line
+        if (bestStart === -1) {
+          let minDiff = Infinity;
+          intersectingMap.forEach((entry, startNum) => {
+            const diff = Math.abs(entry.boundingClientRect.top - currentOffset);
+            if (diff < minDiff) {
+              minDiff = diff;
+              bestStart = startNum;
+            }
+          });
+        }
 
         if (bestStart !== -1 && bestStart !== activeSectionStartRef.current) {
           activeSectionStartRef.current = bestStart;
@@ -422,37 +430,6 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     centerActivePill(activeSectionStart, true);
   }, [activeSectionStart, centerActivePill]);
 
-  // Auto-scroll active section link inside desktop sidebar
-  useEffect(() => {
-    const container = desktopListRef.current;
-    const activeLink = document.getElementById(
-      `section-link-${activeSectionStart}`
-    );
-    if (!container || !activeLink) {
-      updateDesktopScrollState();
-      return;
-    }
-
-    const itemTop = activeLink.offsetTop;
-    const itemHeight = activeLink.clientHeight;
-    const containerScrollTop = container.scrollTop;
-    const containerHeight = container.clientHeight;
-
-    if (itemTop < containerScrollTop + 30) {
-      container.scrollTo({
-        top: Math.max(0, itemTop - 20),
-        behavior: "smooth",
-      });
-    } else if (itemTop + itemHeight > containerScrollTop + containerHeight - 30) {
-      container.scrollTo({
-        top: itemTop + itemHeight - containerHeight + 20,
-        behavior: "smooth",
-      });
-    }
-
-    updateDesktopScrollState();
-  }, [activeSectionStart]);
-
   // Desktop hover-to-scroll helpers
   const handleDesktopMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const container = desktopListRef.current;
@@ -487,8 +464,38 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     setCanScrollDown(scrollTop + clientHeight < scrollHeight - 4);
   };
 
+  // Auto-scroll active section link inside desktop sidebar
+  useEffect(() => {
+    if (!isDesktop) return;
+    const container = desktopListRef.current;
+    const activeLink = document.getElementById(
+      `section-link-${activeSectionStart}`
+    );
+    if (!container || !activeLink) {
+      return;
+    }
+
+    const itemTop = activeLink.offsetTop;
+    const itemHeight = activeLink.clientHeight;
+    const containerScrollTop = container.scrollTop;
+    const containerHeight = container.clientHeight;
+
+    if (itemTop < containerScrollTop + 30) {
+      container.scrollTo({
+        top: Math.max(0, itemTop - 20),
+        behavior: "smooth",
+      });
+    } else if (itemTop + itemHeight > containerScrollTop + containerHeight - 30) {
+      container.scrollTo({
+        top: itemTop + itemHeight - containerHeight + 20,
+        behavior: "smooth",
+      });
+    }
+  }, [activeSectionStart, isDesktop]);
+
   // Animation loop for desktop hover auto-scroll
   useEffect(() => {
+    if (!isDesktop) return;
     const step = () => {
       const container = desktopListRef.current;
       if (!container || !autoScrollDirection.current) {
@@ -517,7 +524,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
         cancelAnimationFrame(autoScrollFrame.current);
       }
     };
-  }, []);
+  }, [isDesktop]);
 
   return (
     <div
@@ -525,90 +532,94 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       id="chapters-section"
       className="mt-4 sm:mt-6 relative"
     >
-      {/* Mobile Sticky Horizontal Pill Row (lg:hidden) */}
-      <div
-        ref={mobileNavRef}
-        className="lg:hidden sticky top-[var(--header-height,110px)] z-30 -mx-4 px-4 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
-      >
-        <MobilePillNav
-          sections={sections}
-          activeSectionStart={activeSectionStart}
-          label={label}
-          onGroupClick={handleGroupClick}
-          pillRefs={pillRefs}
-          containerRef={mobilePillsContainerRef}
-        />
-      </div>
+      {/* Mobile Sticky Horizontal Pill Row: Rendered ONLY on mobile (< 1024px) */}
+      {!isDesktop && (
+        <div
+          ref={mobileNavRef}
+          className="sticky top-[var(--header-height,110px)] z-30 -mx-4 px-4 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
+        >
+          <MobilePillNav
+            sections={sections}
+            activeSectionStart={activeSectionStart}
+            label={label}
+            onGroupClick={handleGroupClick}
+            pillRefs={pillRefs}
+            containerRef={mobilePillsContainerRef}
+          />
+        </div>
+      )}
 
       {/* Main Flex Layout for Sidebar + Chapter Grid */}
       <div className="flex flex-col lg:flex-row gap-6 mt-4 lg:mt-0">
-        {/* Desktop Sticky Sidebar (hidden lg:block) */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <nav
-            aria-label="Mga grupo ng kabanata"
-            className="sticky top-[calc(var(--header-height,72px)+1.5rem)] max-h-[calc(100dvh-var(--header-height,72px)-3rem)] flex flex-col space-y-3"
-          >
-            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-brand-text/40 px-2">
-              {label}
-            </p>
+        {/* Desktop Sticky Sidebar: Rendered ONLY on desktop (>= 1024px) */}
+        {isDesktop && (
+          <aside className="w-56 shrink-0">
+            <nav
+              aria-label="Mga grupo ng kabanata"
+              className="sticky top-[calc(var(--header-height,72px)+1.5rem)] max-h-[calc(100dvh-var(--header-height,72px)-3rem)] flex flex-col space-y-3"
+            >
+              <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-brand-text/40 px-2 font-serif">
+                {label}
+              </p>
 
-            <div className="relative flex-1 min-h-0">
-              {canScrollUp && (
-                <div className="pointer-events-none absolute -top-3 left-0 right-0 flex justify-center text-brand-navy/40 z-10">
-                  <ChevronUp className="h-4 w-4" />
-                </div>
-              )}
+              <div className="relative flex-1 min-h-0">
+                {canScrollUp && (
+                  <div className="pointer-events-none absolute -top-3 left-0 right-0 flex justify-center text-brand-navy/40 z-10">
+                    <ChevronUp className="h-4 w-4" />
+                  </div>
+                )}
 
-              <div
-                ref={desktopListRef}
-                className="flex flex-col gap-1 overflow-y-auto max-h-[calc(100dvh-var(--header-height,72px)-6rem)] pr-2 no-scrollbar focus:outline-none"
-                tabIndex={-1}
-                onMouseMove={handleDesktopMouseMove}
-                onMouseLeave={stopAutoScroll}
-                onScroll={updateDesktopScrollState}
-              >
-                {sections.map(({ start, end }) => {
-                  const isActive = start === activeSectionStart;
-                  return (
-                    <a
-                      key={start}
-                      id={`section-link-${start}`}
-                      href={`#kabanata-${start}`}
-                      aria-current={isActive ? "true" : undefined}
-                      onClick={(e) => handleGroupClick(e, start)}
-                      className={`group relative flex items-center px-3 py-2 rounded-lg text-sm font-serif transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold select-none ${
-                        isActive
-                          ? "text-brand-navy font-bold bg-brand-gold/15 translate-x-1"
-                          : "text-brand-text/50 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:hover:translate-x-1"
-                      }`}
-                    >
-                      {/* Left Accent Bar */}
-                      <span
-                        className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full transition-all duration-200 ${
+                <div
+                  ref={desktopListRef}
+                  className="flex flex-col gap-1 overflow-y-auto max-h-[calc(100dvh-var(--header-height,72px)-6rem)] pr-2 no-scrollbar focus:outline-none"
+                  tabIndex={-1}
+                  onMouseMove={handleDesktopMouseMove}
+                  onMouseLeave={stopAutoScroll}
+                  onScroll={updateDesktopScrollState}
+                >
+                  {sections.map(({ start, end }) => {
+                    const isActive = start === activeSectionStart;
+                    return (
+                      <a
+                        key={start}
+                        id={`section-link-${start}`}
+                        href={`#kabanata-${start}`}
+                        aria-current={isActive ? "true" : undefined}
+                        onClick={(e) => handleGroupClick(e, start)}
+                        className={`group relative flex items-center px-3 py-2 rounded-lg text-sm font-serif transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold select-none ${
                           isActive
-                            ? "bg-brand-navy scale-y-100 opacity-100"
-                            : "bg-brand-gold/30 scale-y-0 opacity-0 group-hover:scale-y-75 group-hover:opacity-70"
+                            ? "text-brand-navy font-bold bg-brand-gold/15 translate-x-1"
+                            : "text-brand-text/50 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:hover:translate-x-1"
                         }`}
-                        aria-hidden="true"
-                      />
-                      <span className="truncate">
-                        {end === start
-                          ? `Kabanata ${start}`
-                          : `Kabanata ${start}–${end}`}
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
-
-              {canScrollDown && (
-                <div className="pointer-events-none absolute -bottom-3 left-0 right-0 flex justify-center text-brand-navy/40 z-10">
-                  <ChevronDown className="h-4 w-4" />
+                      >
+                        {/* Left Accent Bar */}
+                        <span
+                          className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full transition-all duration-200 ${
+                            isActive
+                              ? "bg-brand-navy scale-y-100 opacity-100"
+                              : "bg-brand-gold/30 scale-y-0 opacity-0 group-hover:scale-y-75 group-hover:opacity-70"
+                          }`}
+                          aria-hidden="true"
+                        />
+                        <span className="truncate">
+                          {end === start
+                            ? `Kabanata ${start}`
+                            : `Kabanata ${start}–${end}`}
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-          </nav>
-        </aside>
+
+                {canScrollDown && (
+                  <div className="pointer-events-none absolute -bottom-3 left-0 right-0 flex justify-center text-brand-navy/40 z-10">
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
+                )}
+              </div>
+            </nav>
+          </aside>
+        )}
 
         {/* Chapter Grid Content Area */}
         <div className="flex-1 min-w-0">{children}</div>
