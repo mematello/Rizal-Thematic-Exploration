@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     
     # ML
     BERT_MODEL_NAME: str = "sentence-transformers/paraphrase-xlm-r-multilingual-v1"
+    DAPT_MODEL_NAME: str = "mematello/rizal-xlm-r-dapt"
 
     # Environment
     ENVIRONMENT: str = "development"

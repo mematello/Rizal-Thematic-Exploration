@@ -149,11 +149,22 @@ class RizalEngine:
         self.base_model = SentenceTransformer(settings.BERT_MODEL_NAME, device="cpu")
         
         dapt_path = dapt_path_1 if os.path.exists(dapt_path_1) else (dapt_path_2 if os.path.exists(dapt_path_2) else None)
+        hf_dapt_repo = getattr(settings, "DAPT_MODEL_NAME", "mematello/rizal-xlm-r-dapt")
         
         if dapt_path:
             print(f"Loading DAPT model from {dapt_path} for Sanggunian")
             self.dapt_model = SentenceTransformer(dapt_path, device="cpu")
             self.has_dapt = True
+        elif hf_dapt_repo:
+            try:
+                print(f"Loading DAPT model from Hugging Face Hub ({hf_dapt_repo}) for Sanggunian...")
+                self.dapt_model = SentenceTransformer(hf_dapt_repo, device="cpu")
+                self.has_dapt = True
+                print(f"Successfully loaded DAPT model from {hf_dapt_repo} for Sanggunian")
+            except Exception as e:
+                print(f"WARNING: DAPT model could not be loaded from {hf_dapt_repo} ({e}). Falling back to base model for Sanggunian.")
+                self.dapt_model = self.base_model
+                self.has_dapt = False
         else:
             print(f"WARNING: DAPT model not found at {dapt_path_1} or {dapt_path_2}. Falling back to base model for Sanggunian.")
             self.dapt_model = self.base_model
