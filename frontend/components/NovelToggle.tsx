@@ -43,7 +43,7 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
                 type="button"
                 onClick={toggleOpen}
                 className={cn(
-                    "min-h-[40px] flex items-center gap-2 px-4 py-2 rounded-full md:rounded-sm border transition-all duration-300 shadow-sm backdrop-blur-md active:scale-95",
+                    "min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-full md:rounded-sm border transition-all duration-300 shadow-sm backdrop-blur-md active:scale-95",
                     "bg-white/80 hover:bg-white/95 text-brand-navy font-serif font-bold text-xs uppercase tracking-widest",
                     "border-brand-gold/20 hover:border-brand-gold/40"
                 )}
