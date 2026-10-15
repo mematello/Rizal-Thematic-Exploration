@@ -1,15 +1,14 @@
-import spaces
-import gradio as gr
 import sys
 import os
 
-# Ensure backend directory is in python search path
 base_dir = os.path.dirname(os.path.abspath(__file__))
 backend_dir = os.path.join(base_dir, "backend")
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+sys.path.insert(0, backend_dir)
 
-from app.main import app as fastapi_app
+import spaces
+import gradio as gr
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.v1 import search, content, alignment
 
 @spaces.GPU
 def predict(query: str):
@@ -24,9 +23,22 @@ with gr.Blocks(title="Rizal Search API") as demo:
     out = gr.Textbox(label="API Status", value="Ready")
     btn.click(fn=predict, inputs=inp, outputs=out)
 
-# Mount FastAPI app onto Gradio root
-app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+# Mount FastAPI endpoints directly onto Gradio's internal FastAPI app
+demo.app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+demo.app.include_router(search.router, prefix="/api/v1")
+demo.app.include_router(content.router, prefix="/api/v1")
+demo.app.include_router(alignment.router, prefix="/api/v1")
+
+@demo.app.get("/health")
+def health():
+    return {"status": "ok", "mode": "gradio_zerogpu"}
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    demo.launch(server_name="0.0.0.0", server_port=7860)
