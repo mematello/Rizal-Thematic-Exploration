@@ -8,8 +8,8 @@ if backend_dir not in sys.path:
 
 import spaces
 import gradio as gr
-from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import search, content, alignment
+from app.main import app as fastapi_app
+import uvicorn
 
 @spaces.GPU
 def predict(query: str):
@@ -24,18 +24,26 @@ with gr.Blocks(title="Rizal Search API") as demo:
     out = gr.Textbox(label="API Status", value="Ready")
     btn.click(fn=predict, inputs=inp, outputs=out)
 
+# 1. Trigger ZeroGPU startup report hook
+try:
+    demo.launch(server_name="127.0.0.1", server_port=7861, prevent_thread_lock=True)
+    demo.close()
+except Exception as e:
+    print("ZeroGPU launcher hook warning:", e)
+
+# 2. Mount Gradio UI at /gradio so FastAPI handles root routes (/api/v1/*, /health, /docs)
+app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
+
+@app.get("/")
+def root():
+    return {
+        "project": "Rizal Thematic Exploration Search API",
+        "docs": "/docs",
+        "health": "/health",
+        "gradio_ui": "/gradio",
+        "api_v1_search": "/api/v1/search",
+        "api_v1_chapters": "/api/v1/chapters"
+    }
+
 if __name__ == "__main__":
-    # 1. Launch Gradio server first (ZeroGPU hooks startup report and instantiates demo.server_app)
-    demo.launch(server_name="0.0.0.0", server_port=7860, prevent_thread_lock=True)
-
-    # 2. Mount all backend API routes
-    demo.server_app.include_router(search.router, prefix="/api/v1")
-    demo.server_app.include_router(content.router, prefix="/api/v1")
-    demo.server_app.include_router(alignment.router, prefix="/api/v1")
-
-    @demo.server_app.get("/health")
-    def health():
-        return {"status": "ok", "mode": "gradio_zerogpu"}
-
-    # 4. Keep server alive indefinitely
-    demo.block_thread()
+    uvicorn.run(app, host="0.0.0.0", port=7860)
