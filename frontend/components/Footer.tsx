@@ -7,20 +7,20 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-[#121927] text-[#F8FAFC] border-t border-[#C5A065]/30 mt-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
+    <footer className="w-full bg-[#121927] text-[#F8FAFC] border-t border-[#C5A065]/30 mt-16 sm:mt-24 safe-bottom">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-10 sm:pb-12">
         {/* Integrated Literary Epigraph with Controlled Proximity */}
-        <div className="max-w-2xl mb-12">
-          <blockquote className="font-serif italic text-lg sm:text-xl text-[#F1F5F9] leading-relaxed tracking-wide">
+        <div className="max-w-2xl mb-8 sm:mb-12">
+          <blockquote className="font-serif italic text-base sm:text-xl text-[#F1F5F9] leading-relaxed tracking-wide">
             &ldquo;To foretell the destiny of a nation, it is necessary to open the book that tells of her past.&rdquo;
           </blockquote>
-          <cite className="not-italic block mt-3 text-xs font-serif tracking-[0.2em] text-[#D4AF37] uppercase font-bold">
+          <cite className="not-italic block mt-2 sm:mt-3 text-xs font-serif tracking-[0.2em] text-[#D4AF37] uppercase font-bold">
             — Dr. José Rizal
           </cite>
         </div>
 
         {/* 3-Column Colophon Grid with Equal Gutters and Strict Flush Alignment */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14 pb-12 border-b border-[#C5A065]/20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 lg:gap-14 pb-10 sm:pb-12 border-b border-[#C5A065]/20">
           {/* Column 1: System Colophon */}
           <div className="flex flex-col space-y-4">
             <h2 className="text-xl font-serif font-black tracking-tight text-[#D4AF37]">
@@ -35,7 +35,7 @@ export function Footer() {
             </p>
 
             {/* Solid, borderless, grounded technology pills flush with left text edge */}
-            <div className="flex flex-wrap gap-2.5 pt-1">
+            <div className="flex flex-wrap gap-2 pt-1">
               <span className="px-3 py-1.5 rounded-md bg-[#1E293B] text-[#D4AF37] text-xs font-semibold tracking-wide">
                 Next.js 15
               </span>
@@ -85,12 +85,13 @@ export function Footer() {
               Open Source & Documentation
             </span>
 
-            <nav aria-label="Footer Resources" className="flex flex-col space-y-3 pt-1">
+            <nav aria-label="Footer Resources" className="flex flex-col space-y-2.5 pt-1">
               <a
                 href="https://github.com/mematello/Rizal-Thematic-Exploration"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] transition-colors py-1"
+                className="group min-h-[44px] flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] bg-white/[0.04] sm:bg-transparent hover:bg-white/[0.06] sm:hover:bg-transparent px-3 sm:px-0 py-2.5 sm:py-1 rounded-lg sm:rounded-none transition-colors"
+                aria-label="GitHub Repository (opens in new tab)"
               >
                 <div className="flex items-center gap-2.5">
                   {/* Official GitHub Monogram SVG */}
@@ -106,7 +107,8 @@ export function Footer() {
                 href="https://huggingface.co/spaces/mematello/rizal-thematic-search-api"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] transition-colors py-1"
+                className="group min-h-[44px] flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] bg-white/[0.04] sm:bg-transparent hover:bg-white/[0.06] sm:hover:bg-transparent px-3 sm:px-0 py-2.5 sm:py-1 rounded-lg sm:rounded-none transition-colors"
+                aria-label="Hugging Face API Space (opens in new tab)"
               >
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm select-none" aria-hidden="true">🤗</span>
@@ -119,7 +121,8 @@ export function Footer() {
                 href="https://huggingface.co/mematello/rizal-xlm-r-dapt"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] transition-colors py-1"
+                className="group min-h-[44px] flex items-center justify-between text-sm text-[#F1F5F9] hover:text-[#D4AF37] bg-white/[0.04] sm:bg-transparent hover:bg-white/[0.06] sm:hover:bg-transparent px-3 sm:px-0 py-2.5 sm:py-1 rounded-lg sm:rounded-none transition-colors"
+                aria-label="DAPT Model Checkpoint on Hugging Face (opens in new tab)"
               >
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm select-none" aria-hidden="true">🧠</span>

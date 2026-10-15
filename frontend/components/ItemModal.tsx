@@ -174,37 +174,46 @@ export function ItemModal({
                         className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20`}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-brand-gold/10 bg-brand-cream flex-wrap gap-4">
-                            <div className="flex items-center gap-6 flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-brand-gold/10 bg-brand-cream gap-3 sm:gap-4">
+                            <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 flex-1 min-w-0">
                                 {type === "character" && (
                                     <div className="hidden sm:block shrink-0">
                                         <CharacterAvatar
                                             name={title}
-                                            size={100}
+                                            size={84}
                                             className="shadow-md border-2 border-brand-gold/20"
                                             onClick={() => setIsAvatarZoomed(true)}
                                         />
                                     </div>
                                 )}
 
-                                <div className="min-w-0">
-                                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold mb-1 block">
+                                <div className="min-w-0 pr-2">
+                                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold mb-0.5 sm:mb-1 block">
                                         {type === "character" ? "Profil ng Tauhan" : "Thematikong Insight"}
                                     </span>
-                                    <h2 className="text-2xl md:text-4xl font-serif text-brand-navy font-bold truncate tracking-tight">
+                                    <h2 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-navy font-bold truncate tracking-tight">
                                         {title}
                                     </h2>
                                     {subtitle && (
-                                        <p className="text-brand-text/70 font-serif italic mt-1 text-lg">{subtitle}</p>
+                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-sm sm:text-base line-clamp-1">{subtitle}</p>
                                     )}
                                 </div>
+
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="sm:hidden min-w-[44px] min-h-[44px] -mr-1 rounded-full flex items-center justify-center hover:bg-black/5 active:scale-95 text-brand-text/70 transition-colors"
+                                    aria-label="Isara ang modal"
+                                >
+                                    <X size={22} />
+                                </button>
                             </div>
 
-                            <div className="flex items-center gap-4 shrink-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
                                 {/* Static Novel Label */}
                                 <div className={`
-                                    px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.15em]
-                                    flex items-center gap-2 border shadow-sm whitespace-nowrap
+                                    px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.15em]
+                                    flex items-center gap-1.5 sm:gap-2 border shadow-xs whitespace-nowrap
                                     ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent border-noli-accent/20' :
                                         'bg-fili-accent/10 text-fili-accent border-fili-accent/20'}
                                 `}>
@@ -213,21 +222,23 @@ export function ItemModal({
                                 </div>
 
                                 {type === "character" && (
-                                    <div className="flex bg-white/40 p-1 rounded-full border border-brand-gold/20 shadow-inner">
+                                    <div className="flex bg-white/60 p-0.5 rounded-full border border-brand-gold/20 shadow-xs">
                                         <button
+                                            type="button"
                                             onClick={() => setCharView('sentences')}
                                             className={`
-                                                px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all
-                                                ${charView === 'sentences' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                                min-h-[30px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all
+                                                ${charView === 'sentences' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-navy/60 hover:text-brand-navy'}
                                             `}
                                         >
                                             Mga Pangungusap
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => setCharView('paksa')}
                                             className={`
-                                                px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all
-                                                ${charView === 'paksa' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                                min-h-[30px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all
+                                                ${charView === 'paksa' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-navy/60 hover:text-brand-navy'}
                                             `}
                                         >
                                             Mga Paksa
@@ -237,9 +248,10 @@ export function ItemModal({
 
                                 {type === "character" && onSort && charView === 'sentences' && (
                                     <button
+                                        type="button"
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
-                                            px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border
+                                            min-h-[32px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-xs border active:scale-95
                                             ${sortBy === 'relevance'
                                                 ? 'bg-brand-gold text-white border-brand-gold'
                                                 : 'bg-white text-brand-text border-brand-gold/20 hover:border-brand-gold'}
@@ -248,11 +260,14 @@ export function ItemModal({
                                         {sortBy === 'relevance' ? 'NAKA-RANK' : 'I-RANK'}
                                     </button>
                                 )}
+
                                 <button
+                                    type="button"
                                     onClick={onClose}
-                                    className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                    className="hidden sm:flex min-w-[44px] min-h-[44px] items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                    aria-label="Isara ang modal"
                                 >
-                                    <X size={24} />
+                                    <X size={22} />
                                 </button>
                             </div>
                         </div>

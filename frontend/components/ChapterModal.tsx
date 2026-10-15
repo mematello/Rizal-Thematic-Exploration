@@ -517,27 +517,27 @@ export function ChapterModal({
                 {isOpen && (
                     <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-4 sm:p-6'}`}>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm" />
-                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-full bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[90vh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
+                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-full bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
                             
                             {!isFullscreen && (
-                                <div className="flex items-start justify-between p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream">
-                                    <div className="flex-1">
+                                <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream">
+                                    <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
-                                        <h2 className="text-xl md:text-2xl font-serif text-brand-navy mt-1 font-bold">Kabanata {chapterNumber}</h2>
-                                        <p className="text-brand-text/70 font-serif italic mt-1 text-sm">{title}</p>
+                                        <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
+                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{title}</p>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy" title="Enter fullscreen"><Maximize2 size={20} /></button>
-                                        <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"><X size={24} /></button>
+                                    <div className="flex items-center gap-1">
+                                        <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
+                                        <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy" aria-label="Isara ang kabanata"><X size={22} /></button>
                                     </div>
                                 </div>
                             )}
 
                             {!isFullscreen && (
-                                <div className="flex flex-col sm:flex-row gap-4 p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
-                                    <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full">
-                                        <button onClick={() => setShowCharacters(!showCharacters)} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-sm font-bold uppercase tracking-widest">Tauhan</span></button>
-                                        <button onClick={() => setShowReference(!showReference)} className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/50 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-sm font-bold uppercase tracking-widest">Sanggunian</span></button>
+                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
+                                    <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full py-0.5">
+                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/70 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
+                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/70 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
                                     </div>
                                 </div>
                             )}
