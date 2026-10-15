@@ -1,8 +1,8 @@
 # Performance Optimization State
 
-**Last Updated**: 2026-10-14  
-**Branch**: `perf/speed-optimization`  
-**Current Phase**: Performance work Steps 1–A complete and verified; Step B (determinism) pending approval.
+**Last Updated**: 2026-10-16  
+**Branch**: `perf/step-b-determinism` (pending merge into `perf/speed-optimization`)  
+**Current Phase**: Steps 1–A complete; Step B (determinism) **approved and verified**. Pending merge and remaining policy decisions.
 
 ---
 
@@ -15,6 +15,7 @@
 - **Process-level TranslatorCache**: Added thread-safe cache with 24h positive TTL, 60s negative TTL, and 5s timeout; verified out-of-domain repeated queries drop from ~1.3s first-seen to ~127 ms warm with 0/40 golden snapshot differences.
 - **Batched context fetch**: Replaced 40 sequential candidate queries with `_fetch_context_cache` union bounding SQL fetch; DB queries slashed from 42 to 3 for `bayan` (-92.9%) and 44 to 5 for `edukasyon` (-88.6%); verified 382/382 candidate instances and 180/180 boundary sentences 100% bit-identical.
 - **Startup precomputed vocabulary cache**: Precomputed 24,770 words one-at-a-time into `backend/app/data/word_vec_cache_v1.pkl` (73.39 MB); loads in 238.2 ms at boot; 500/500 sample vectors bit-identical (`np.array_equal == True`); 0/40 vs `golden_snapshot_seed0.json`; first search of unseen Tagalog words dropped from 5.7s–20.6s to 486–606 ms with 0 cache misses.
+- **Step B Determinism (Approved 2026-10-16)**: Applied 5 targeted commits (B1, D, E1, E2, E3) to eliminate all sources of cross-process non-determinism. 22/40 golden queries changed at tied score boundaries. 100% bit-identical across 6 server processes (40 queries) and 206 held-out queries. `PYTHONHASHSEED=0` no longer required. New permanent reference: `golden_snapshot_deterministic.json`.
 
 ---
 
@@ -36,11 +37,12 @@ Measured on a quiet system with identical protocols (`http://127.0.0.1:8002`, `r
 
 ## Known Limitations
 
-1. **PYTHONHASHSEED Requirement**: Must launch server with `PYTHONHASHSEED=0` to guarantee cross-process determinism until Step B `sorted()` changes land.
+1. ~~**PYTHONHASHSEED Requirement**: Must launch server with `PYTHONHASHSEED=0` to guarantee cross-process determinism until Step B `sorted()` changes land.~~ **RESOLVED** by Step B.
 2. **First-Seen Translator Latency**: First search of an unmapped out-of-domain term takes ~1.3s due to synchronous external Google Translate network call.
 3. **Memory Footprint**: Process RSS is 460.35 MB on boot, reaches ~950 MB during 400-query benchmark, and settles at ~1.2 GB during intensive un-cached inference.
 4. **Per-Worker In-Memory Caches**: `_word_vec_cache` and `TranslatorCache` live in Python process memory; multi-worker deployments do not share caches across workers.
 5. **Static Vocabulary Cache Binding**: `word_vec_cache_v1.pkl` is bound to model name and vocabulary hash; must be re-generated if novel text or model changes.
+6. **ibarra LIMIT-200 Truncation**: High-frequency content words exceed `LIMIT top_k * 20 = 200` in full corpus search. `ORDER BY Sentence.id` makes truncation deterministic but excludes later occurrences.
 
 ---
 
@@ -52,11 +54,9 @@ Measured on a quiet system with identical protocols (`http://127.0.0.1:8002`, `r
 
 ---
 
-## Next Action: Step B (Determinism)
+## Next Action: Remaining Pending Decisions
 
-Apply determinism changes in strict sequence (labelled behavior change):
-1. Apply Task 2 Item 8 (`ORDER BY` tie-breaks in SQL queries) first and report golden comparison.
-2. Apply Task 2 Items 1, 2, 3, 4, 5, 6, 7 (`sorted()` across set iterations and tie-breaks).
-3. Without `PYTHONHASHSEED`, run two fresh-process full passes and verify they are 100% identical.
-4. Generate `golden_snapshot_deterministic.json` as the new permanent reference snapshot.
-5. Log old-vs-new ranking diff (exact position changes count) in `DECISIONS.md` under Ranking Change Policy and stop for approval.
+1. **Commit & Merge**: Commit all Step B evidence and scripts on `perf/step-b-determinism`, then merge into `perf/speed-optimization`.
+2. **Pending Decision #2**: First-Seen Out-of-Domain Translation Latency Policy.
+3. **Pending Decision #3**: Production Deployment Sizing & Host Configuration.
+4. **Final Integration**: Merge `perf/speed-optimization` → `main`.

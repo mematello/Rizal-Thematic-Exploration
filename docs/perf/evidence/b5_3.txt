@@ -1,0 +1,75 @@
+================================================================================
+ITEM 3: COMMIT E2 BRIDGE_TOKENS, BRIDGE_TEXT, AND VECTOR EQUALITY (SEEDS 1 & 2)
+================================================================================
+
+COMMAND: Execute scratch analysis under PYTHONHASHSEED=1 and PYTHONHASHSEED=2
+Queries evaluated: love, justice, corruption, death, oppression, church
+
+QUERY: 'love'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['pagmamahal', 'pag-ibig']
+  Pre-E2 bridge_text (seed 1): "pagmamahal pag-ibig"
+  Pre-E2 bridge_text (seed 2): "pag-ibig pagmamahal"
+  bridge_text identical?    : False
+  np.array_equal(bridge_emb): False
+  final query_vector equal? : True (SHA256: 3a5ddb226042be34b266818deea6191247e9e76759dbbe636e66fa85f8b29211 vs 3a5ddb226042be34b266818deea6191247e9e76759dbbe636e66fa85f8b29211)
+
+QUERY: 'justice'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['katarungan', 'hustisya']
+  Pre-E2 bridge_text (seed 1): "katarungan hustisya"
+  Pre-E2 bridge_text (seed 2): "katarungan hustisya"
+  bridge_text identical?    : True
+  np.array_equal(bridge_emb): True
+  final query_vector equal? : True (SHA256: 7adf0aeb6a46056b63975956d1aa40b1a073e0e9cab1aeac2564952a7c20207d vs 7adf0aeb6a46056b63975956d1aa40b1a073e0e9cab1aeac2564952a7c20207d)
+
+QUERY: 'corruption'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['korapsyon', 'katiwalian']
+  Pre-E2 bridge_text (seed 1): "korapsyon katiwalian"
+  Pre-E2 bridge_text (seed 2): "katiwalian korapsyon"
+  bridge_text identical?    : False
+  np.array_equal(bridge_emb): False
+  final query_vector equal? : True (SHA256: a387a6d486f311ebeaff3f99ad3afbfb91e41f5b587ffe607b1ada13f80d8b34 vs a387a6d486f311ebeaff3f99ad3afbfb91e41f5b587ffe607b1ada13f80d8b34)
+
+QUERY: 'death'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['patay', 'kamatayan']
+  Pre-E2 bridge_text (seed 1): "patay kamatayan"
+  Pre-E2 bridge_text (seed 2): "patay kamatayan"
+  bridge_text identical?    : True
+  np.array_equal(bridge_emb): True
+  final query_vector equal? : True (SHA256: 15e1a4f06997418f4cbad7c7ccb8d24931a0073b2c2d7614bd46bc63682aef34 vs 15e1a4f06997418f4cbad7c7ccb8d24931a0073b2c2d7614bd46bc63682aef34)
+
+QUERY: 'oppression'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['pang-aapi', 'kalupitan']
+  Pre-E2 bridge_text (seed 1): "pang-aapi kalupitan"
+  Pre-E2 bridge_text (seed 2): "pang-aapi kalupitan"
+  bridge_text identical?    : True
+  np.array_equal(bridge_emb): True
+  final query_vector equal? : True (SHA256: 9b61a43cf946533e5c6e7fd8813e6681a29aab0c8e1a033039cd0ca9f26e24e2 vs 9b61a43cf946533e5c6e7fd8813e6681a29aab0c8e1a033039cd0ca9f26e24e2)
+
+QUERY: 'church'
+  is_cross_lingual          : True
+  bridge_text line executes : True
+  Pre-E2 bridge_tokens set  : ['simbahan']
+  Pre-E2 bridge_text (seed 1): "simbahan"
+  Pre-E2 bridge_text (seed 2): "simbahan"
+  bridge_text identical?    : True
+  np.array_equal(bridge_emb): True
+  final query_vector equal? : True (SHA256: 9def853a6ed7480ac077b23ad184c505238230c168fac41073ed88bfdcfa37af vs 9def853a6ed7480ac077b23ad184c505238230c168fac41073ed88bfdcfa37af)
+
+--------------------------------------------------------------------------------
+EXPLANATION: WHY S0 SHOWS NO DIVERGENCE FOR love / justice / corruption / death:
+--------------------------------------------------------------------------------
+1. 'church': EN_TL_DICTIONARY['church'] = ['simbahan'] (1 token). Set iteration of a single element is invariant to hash seed.
+2. In S0 (D+B1, before E1), queries that diverge do so because of theme expansion candidates iteration: `for cand in candidates:` (line 417).
+   - 'oppression' and 'education' expand themes whose candidate set contains >=2 terms with equal initial weights, triggering hash-seed-dependent expansion strings and different vector blend weights.
+   - 'love', 'justice', 'corruption', and 'death' had single candidate theme matches or dominant single-token mappings where candidates iteration order did not alter the top candidate scores sufficiently to flip the top-10 boundary.
+3. Furthermore, in Commit E2, bridge_text is explicitly sorted via `sorted([bt for bt in bridge_tokens if len(bt) > 3])`, eliminating any bridge text divergence regardless of seed.

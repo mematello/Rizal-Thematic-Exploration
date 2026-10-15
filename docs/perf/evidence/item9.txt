@@ -1,0 +1,349 @@
+================================================================================
+COMMIT B1 (646deb6): ORDER BY TIE-BREAKS (VS GOLDEN SEED0)
+================================================================================
+
+Total changed queries: 16
+
+--------------------------------------------------------------------------------
+ 1. QUERY: Basilio
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [38364, 37505, 37510, 37511, 37513, 37515, 37520, 37465, 37482, 38352]
+    After IDs     : [38364, 37465, 37482, 37505, 37510, 37511, 37513, 37515, 37520, 38352]
+  [ELFILI]
+    Entered IDs   : [38450, 38498, 38503, 38505, 38509, 38512]
+    Left IDs      : [38544, 38546, 38923, 38934, 38937, 38939]
+    Reordered Only: False
+    Before IDs    : [38404, 38406, 38411, 38527, 38544, 38546, 38923, 38934, 38937, 38939]
+    After IDs     : [38404, 38406, 38411, 38450, 38498, 38503, 38505, 38509, 38512, 38527]
+
+--------------------------------------------------------------------------------
+ 2. QUERY: Crisostomo Ibarra
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37666, 37701, 38255, 38272, 37217, 37200, 37676, 38198, 37327, 37690]
+    After IDs     : [37666, 37701, 38255, 37217, 38272, 37200, 37676, 38198, 37327, 37690]
+
+--------------------------------------------------------------------------------
+ 3. QUERY: Elias
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37893, 37757, 37765, 37906, 38150, 38180, 38299, 38117, 38313, 38330]
+    After IDs     : [37893, 37757, 37765, 37906, 38117, 38150, 38180, 38299, 38313, 38330]
+
+--------------------------------------------------------------------------------
+ 4. QUERY: Isagani
+--------------------------------------------------------------------------------
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [38776, 38777, 39162, 39202, 39203, 38894, 39278, 38726, 38411, 38656]
+    After IDs     : [38726, 38776, 38777, 38894, 39162, 39202, 39203, 39278, 38411, 38656]
+
+--------------------------------------------------------------------------------
+ 5. QUERY: Maria Clara
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37333, 37337, 37344]
+    Left IDs      : [37377, 37673, 37877]
+    Reordered Only: False
+    Before IDs    : [37330, 37670, 37916, 37364, 37829, 38344, 38345, 37377, 37673, 37877]
+    After IDs     : [37330, 37364, 37670, 37829, 37916, 38344, 38345, 37333, 37337, 37344]
+
+--------------------------------------------------------------------------------
+ 6. QUERY: Padre Damaso
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37193]
+    Left IDs      : [37877]
+    Reordered Only: False
+    Before IDs    : [37235, 37710, 37423, 37798, 37191, 37309, 38344, 37877, 37228, 37364]
+    After IDs     : [37235, 37710, 37191, 37309, 37423, 37798, 38344, 37193, 37228, 37364]
+
+--------------------------------------------------------------------------------
+ 7. QUERY: Simoun
+--------------------------------------------------------------------------------
+  [ELFILI]
+    Entered IDs   : [38410]
+    Left IDs      : [38523]
+    Reordered Only: False
+    Before IDs    : [39301, 39308, 39317, 39321, 39337, 38593, 38622, 39248, 38398, 38523]
+    After IDs     : [38593, 38622, 39248, 39301, 39308, 39317, 39321, 39337, 38398, 38410]
+
+--------------------------------------------------------------------------------
+ 8. QUERY: Sisa
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [38358, 37533, 37466, 37484, 37488, 37496, 37680, 37491, 37606, 37865]
+    After IDs     : [38358, 37466, 37484, 37488, 37533, 37491, 37496, 37606, 37680, 37865]
+
+--------------------------------------------------------------------------------
+ 9. QUERY: bayan
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37241, 38187, 37385, 37551, 38131, 37572, 37379, 37783, 37571, 37823]
+    After IDs     : [37241, 38187, 37385, 37551, 37572, 38131, 37379, 37571, 37783, 37823]
+  [ELFILI]
+    Entered IDs   : [38978]
+    Left IDs      : [39299]
+    Reordered Only: False
+    Before IDs    : [39084, 39108, 38574, 38913, 39016, 38814, 38743, 38550, 39299, 38617]
+    After IDs     : [39084, 39108, 38574, 38913, 39016, 38743, 38814, 38550, 38617, 38978]
+
+--------------------------------------------------------------------------------
+10. QUERY: church
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37185, 37193, 37330, 37457, 37459]
+    Left IDs      : [37517, 37636, 37638, 37639, 37794]
+    Reordered Only: False
+    Before IDs    : [37468, 37290, 37297, 37385, 37408, 37517, 37636, 37638, 37639, 37794]
+    After IDs     : [37468, 37185, 37193, 37290, 37297, 37330, 37385, 37408, 37457, 37459]
+
+--------------------------------------------------------------------------------
+11. QUERY: death
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37360]
+    Left IDs      : [37378]
+    Reordered Only: False
+    Before IDs    : [37623, 37631, 37784, 38277, 37184, 38213, 38375, 38343, 37370, 37378]
+    After IDs     : [37184, 37623, 37631, 37784, 38213, 38277, 38343, 38375, 37360, 37370]
+  [ELFILI]
+    Entered IDs   : [38633, 38745, 38748, 39016]
+    Left IDs      : [39079, 39151, 39213, 39295]
+    Reordered Only: False
+    Before IDs    : [38418, 38442, 38530, 38782, 39033, 39034, 39079, 39151, 39213, 39295]
+    After IDs     : [38418, 38442, 38530, 38633, 38745, 38748, 38782, 39016, 39033, 39034]
+
+--------------------------------------------------------------------------------
+12. QUERY: education
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37324, 37445, 37446]
+    Left IDs      : [37551, 37623, 37631]
+    Reordered Only: False
+    Before IDs    : [37539, 37541, 37544, 37302, 37538, 37540, 37793, 37551, 37623, 37631]
+    After IDs     : [37539, 37541, 37544, 37302, 37538, 37540, 37793, 37324, 37445, 37446]
+  [ELFILI]
+    Entered IDs   : [38500, 38631, 38632, 38640]
+    Left IDs      : [38643, 38660, 38661, 38662]
+    Reordered Only: False
+    Before IDs    : [38403, 38514, 38516, 38518, 38547, 38558, 38643, 38660, 38661, 38662]
+    After IDs     : [38403, 38500, 38514, 38516, 38518, 38547, 38558, 38631, 38632, 38640]
+
+--------------------------------------------------------------------------------
+13. QUERY: freedom
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37414, 37379, 38300, 37226, 37591, 37579]
+    After IDs     : [37414, 37226, 37379, 37579, 37591, 38300]
+  [ELFILI]
+    Entered IDs   : [38480, 38482, 38853]
+    Left IDs      : [39086, 39310, 39324]
+    Reordered Only: False
+    Before IDs    : [38389, 38637, 38971, 39110, 39345, 38535, 38544, 39086, 39310, 39324]
+    After IDs     : [38389, 38637, 38971, 39110, 39345, 38480, 38482, 38535, 38544, 38853]
+
+--------------------------------------------------------------------------------
+14. QUERY: love
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37860, 38074, 37320]
+    After IDs     : [37860, 37320, 38074]
+
+--------------------------------------------------------------------------------
+15. QUERY: paaralan
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37551, 37792, 37730, 37631, 37661, 37672, 37623, 37793, 38027, 38273]
+    After IDs     : [37551, 37730, 37792, 37631, 37661, 37672, 37623, 37793, 38027, 38273]
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [38661, 38662, 38699, 38631, 38857, 38547, 38643, 38858, 38703, 38632]
+    After IDs     : [38631, 38661, 38662, 38699, 38857, 38547, 38643, 38858, 38632, 38703]
+
+--------------------------------------------------------------------------------
+16. QUERY: simbahan
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37385, 37408, 37636, 37638, 37639, 38157, 37304, 37468, 37649, 37464]
+    After IDs     : [37304, 37385, 37408, 37468, 37636, 37638, 37639, 38157, 37464, 37649]
+
+
+
+
+================================================================================
+COMMIT E1 (17896f3): THEME EXPANSION DETERMINISM (VS COMMIT D)
+================================================================================
+
+Total changed queries: 12
+
+--------------------------------------------------------------------------------
+ 1. QUERY: Crisostomo Ibarra
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Paghihiganti tinukso pinigilan mitsa paghihiganti harap -> Paghihiganti mitsa pinigilan tinukso paghihiganti harap
+    query_vector_sha256: d12d57843cf6a090189d3e14fd3953254375e3303fc3f63ac5a3f1117c4febce -> 5edf7510c0c545bb109a2161f8006a11f42e67c93acb3f02c598d3a87eb2370a
+
+--------------------------------------------------------------------------------
+ 2. QUERY: Padre Damaso
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [37235, 37710, 37191, 37309, 37423, 37798, 38344, 37193, 37228, 37364]
+    After IDs     : [37235, 37191, 37309, 37710, 37798, 38344, 37193, 37228, 37364, 37423]
+  [METADATA DIFFS]
+    query_expansion_text: Pag-iisa matapos nawalay siyang pagkakakulong kamatayan ipatapon paratangan -> Pag-iisa matapos nawalay siyang pagkakakulong ipatapon kamatayan paratangan
+    query_vector_sha256: 1dfd6e45b0523c3e53e14fea21709fc0e604f08ad9a41fb6a6b9c9d349b49016 -> 16d3b2c3b97fa9720d8e6ed032e88c25498c732bd8ada6f273cce50cc8272918
+
+--------------------------------------------------------------------------------
+ 3. QUERY: Simoun
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Karahasan laban sa Kapayapaan desperasyon naniniwalang umaasa makakamit mapayapang simoun kabiguan samantalang maghimagsik dugo -> Karahasan laban sa Kapayapaan desperasyon makakamit naniniwalang umaasa mapayapang simoun dugo kabiguan maghimagsik samantalang
+    query_vector_sha256: 27e4c2db6028fa6bf3dc73a5a8feb8e644f8d097fc381b1852a9161f7d92fe1a -> 9acd1dcd89e3b1cdac15ba03e2947e13d12093ea26dc9f9c4cef4338f22a1fa5
+
+--------------------------------------------------------------------------------
+ 4. QUERY: Sisa
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [38358, 37466, 37484, 37488, 37533, 37491, 37496, 37606, 37680, 37865]
+    After IDs     : [38358, 37466, 37484, 37533, 37680, 37488, 37491, 37496, 37606, 37865]
+  [METADATA DIFFS]
+    query_expansion_text: Pang-aapi sa Kababaihan asawa proteksiyon inabuso -> Pang-aapi sa Kababaihan asawa inabuso proteksiyon
+    query_vector_sha256: 9c7d490cd272108cffeadf6926329776e1a7dd436e830c02933de212535470af -> 83132597d7e050984ecdbf2888749e2fa9bb1c16feece1b3904f0bddd3645f35
+
+--------------------------------------------------------------------------------
+ 5. QUERY: church
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Kolonyalismo lehitimo supilin gawing paghahari -> Kolonyalismo lehitimo gawing paghahari supilin
+    query_vector_sha256: c776f4768374eece83bd71137b00d6aaf8a70d0fb061b444ca10bb8303c32c75 -> 9def853a6ed7480ac077b23ad184c505238230c168fac41073ed88bfdcfa37af
+
+--------------------------------------------------------------------------------
+ 6. QUERY: education
+--------------------------------------------------------------------------------
+  [ELFILI]
+    Entered IDs   : [38698, 38699]
+    Left IDs      : [38632, 38640]
+    Reordered Only: False
+    Before IDs    : [38403, 38500, 38514, 38516, 38518, 38547, 38558, 38631, 38632, 38640]
+    After IDs     : [38403, 38698, 38699, 38500, 38514, 38516, 38518, 38547, 38558, 38631]
+  [METADATA DIFFS]
+    query_expansion_text: Edukasyon pagkakataong wikang pagbabawal pinagkaitan umunlad karaniwang matuto edukasyon kontrol -> Edukasyon karaniwang pagbabawal pagkakataong pinagkaitan umunlad wikang matuto edukasyon kontrol
+    query_vector_sha256: f3075302ced3606eccb8e540b93335b9b3ae7dc05468d50be558a1941a19b560 -> 74964693468231ed3f1883a8add1b01a995457cccf22a701783616b19cb19ca4
+
+--------------------------------------------------------------------------------
+ 7. QUERY: edukasyon
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37969]
+    Left IDs      : [38136]
+    Reordered Only: False
+    Before IDs    : [37539, 37544, 37541, 37538, 37540, 37542, 38119, 37481, 37862, 38136]
+    After IDs     : [37539, 37544, 37541, 37538, 37540, 37542, 38119, 37862, 37481, 37969]
+  [ELFILI]
+    Entered IDs   : [39106]
+    Left IDs      : [38987]
+    Reordered Only: False
+    Before IDs    : [39012, 38400, 39345, 38966, 39113, 39353, 39305, 38696, 38403, 38987]
+    After IDs     : [39012, 39345, 38400, 39353, 39305, 39113, 38966, 39106, 38696, 38403]
+  [METADATA DIFFS]
+    query_expansion_text: Edukasyon pagkakataong wikang pagbabawal pinagkaitan umunlad karaniwang matuto edukasyon kontrol nagtuturo pagkatuto -> Edukasyon karaniwang pagbabawal pagkakataong pinagkaitan umunlad wikang matuto edukasyon kontrol nagtuturo pagkatuto
+    query_vector_sha256: efc8e66cc23e8ae1a0790fca3bb677db669ba6cb7d5005f5bfa5e2567ce29b7a -> 92a59ddec42024e44fc47b33a08434abf4e7064c1cbd0d9ca5c4c06d49216818
+
+--------------------------------------------------------------------------------
+ 8. QUERY: edukasyon para sa kalayaan
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Edukasyon pagkakataong wikang pagbabawal pinagkaitan umunlad karaniwang matuto edukasyon wakasan kontrol pang-aalipin -> Edukasyon karaniwang pagbabawal pagkakataong pinagkaitan umunlad wikang matuto edukasyon kontrol wakasan pang-aalipin
+    query_vector_sha256: 3540550f3b32b355676cc6c44c1699e3b928e42d2c236bc189b516c42d1f09ff -> 005f6259aac3064825f3dc45afad59a47f92f2ebdfa46728c10e1de884742b1a
+
+--------------------------------------------------------------------------------
+ 9. QUERY: kalayaan
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : [37345, 37599, 38136, 37705]
+    Left IDs      : [37677, 37618, 38071, 38383]
+    Reordered Only: False
+    Before IDs    : [38300, 37600, 38386, 38258, 37677, 37618, 37644, 38249, 38071, 38383]
+    After IDs     : [38300, 37644, 38386, 38258, 38249, 37345, 37600, 37599, 38136, 37705]
+  [ELFILI]
+    Entered IDs   : [38447, 39319]
+    Left IDs      : [38809, 38884]
+    Reordered Only: False
+    Before IDs    : [39345, 39324, 39338, 38535, 39110, 39347, 38972, 38706, 38809, 38884]
+    After IDs     : [39345, 39324, 39338, 38535, 39110, 39347, 38972, 38706, 38447, 39319]
+  [METADATA DIFFS]
+    query_expansion_text: Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga -> Kasakiman gahaman salapi nabibili nawawala pagnanasa halaga
+    query_vector_sha256: 2fde98bba480f15038b491c58cdc2ce8d8373736bc5e6d6356a0ef3f74312f24 -> 1b8cbc8ffd8d4094c600ce545b661f761ede8bc5d8f056ed389088e9115c1085
+    reason: validation_passed -> matches_found
+
+--------------------------------------------------------------------------------
+10. QUERY: kalayaan ng Pilipinas
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Pagkamapagpatuloy pinaghaharian pagkamapagpatuloy espanyol ugnayan -> Pagkamapagpatuloy pagkamapagpatuloy pinaghaharian espanyol ugnayan
+    query_vector_sha256: b3bfb148ada512bfbd649a6da747e07796afb02e8d16d92f1be9d39e0677eb22 -> f916564624b494f69c01ebf52f340f0a3b710edcf0fd55f3e56f0de4ff7908ce
+
+--------------------------------------------------------------------------------
+11. QUERY: kapangyarihan ng simbahan
+--------------------------------------------------------------------------------
+  [METADATA DIFFS]
+    query_expansion_text: Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga -> Kasakiman gahaman salapi nabibili nawawala pagnanasa halaga
+    query_vector_sha256: 049d03185d50faa419e8e5d208c9c620421386ca6a7a85fdc07e02a410b66eff -> 896c35ca2c7c86df72fb01047e888fb717edb7a24457f88fc1c309cb77553363
+
+--------------------------------------------------------------------------------
+12. QUERY: oppression
+--------------------------------------------------------------------------------
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : [38308]
+    Reordered Only: False
+    Before IDs    : [38070, 38386, 37838, 38034, 38275, 38149, 38308]
+    After IDs     : [38386, 38070, 37838, 38034, 38275, 38149]
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Before IDs    : [39047, 39331, 39002, 38581, 38925, 38949, 39312, 38556]
+    After IDs     : [39331, 38925, 39047, 38581, 39002, 38949, 39312, 38556]
+  [METADATA DIFFS]
+    query_expansion_text: Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga -> Kasakiman gahaman salapi nabibili nawawala pagnanasa halaga
+    query_vector_sha256: 1b75696eebd1ac8bf20b79569404f206673ea8aae780505a4049f2d496e02f43 -> 9b61a43cf946533e5c6e7fd8813e6681a29aab0c8e1a033039cd0ca9f26e24e2

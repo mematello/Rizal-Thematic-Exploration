@@ -9,7 +9,10 @@ def main():
         sys.exit(1)
 
     out_file = Path(sys.argv[1])
-    port = sys.argv[2] if len(sys.argv) > 2 else "8002"
+    port = "8000"
+    for arg in sys.argv[2:]:
+        if arg.isdigit():
+            port = arg
 
     golden_path = Path(__file__).parent / "golden_queries.json"
     with open(golden_path, 'r', encoding='utf-8') as f:
@@ -18,6 +21,10 @@ def main():
     queries = []
     for cat in golden['categories'].values():
         queries.extend(cat['queries'])
+
+    if "--reverse" in sys.argv:
+        queries.reverse()
+        print("[INFO] Running queries in REVERSE order")
 
     snap = {}
     for i, q in enumerate(queries, 1):

@@ -1,0 +1,116 @@
+================================================================================
+ITEM 2: GIT DIFF AUTHENTICITY, PATCH VERIFICATION & ANOMALY EXPLANATION
+================================================================================
+
+--------------------------------------------------------------------------------
+1. COMMIT STATS, FULL PATCHES & SHA-256 CHECKSUMS
+--------------------------------------------------------------------------------
+Commit: 646deb6 -> Patch file: patch_646deb6.patch (SHA256: 6685508898d89d65ada4f31055d2d5db39ae57856ae8cb1ce14f97f409658caa)
+commit 646deb6237c66478e4897fa3f5585ce8e49384fe
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 04:47:44 2026 +0800
+
+    WIP Step B1: ORDER BY tie-breaks (behavior change, NOT approved for merge)
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+ backend/app/core/engine.py | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+--------------------------------------------------------------------------------
+Commit: 964a2c1 -> Patch file: patch_964a2c1.patch (SHA256: 4eb7751f7e4366248821b1ef4a292b89ee24a21b91bfa21d72186dbd35eb2e04)
+commit 964a2c1ae83f0115a1e07433f8f9d165bcdd932e
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:06:23 2026 +0800
+
+    feat(perf): Commit D - query vector sha256 and translator diagnostics
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+ backend/app/core/engine.py | 99 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 82 insertions(+), 17 deletions(-)
+--------------------------------------------------------------------------------
+Commit: 17896f3 -> Patch file: patch_17896f3.patch (SHA256: 9e2acd4e6d680707ad6fa259cb78d76e79f6cd3d2faec139b49221df46dbf2a3)
+commit 17896f305d16a8b25a77f1f9d69ffa5dd32f1742
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:11:38 2026 +0800
+
+    feat(perf): Commit E1 - sorted candidates and secondary key in theme expansion
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+ backend/app/core/engine.py | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+--------------------------------------------------------------------------------
+Commit: 6e16b16 -> Patch file: patch_6e16b16.patch (SHA256: 94f6f948a84a9fa0a5290596f7878113a24e1374b66eea67168241edb7e8fcd3)
+commit 6e16b169cd00ce7af4b3bb06f20165d95c642db2
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:15:43 2026 +0800
+
+    feat(perf): Commit E2 - sorted bridge_tokens in bridge_text
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+ backend/app/core/engine.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--------------------------------------------------------------------------------
+Commit: 73f1d1a -> Patch file: patch_73f1d1a.patch (SHA256: 4d041910ba732550c4bb293156c25ef79b5996a5ce12b695b8efcbdcaa97436b)
+commit 73f1d1a08d7a90e6b2e9f03509ac9d5ef540e130
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:18:50 2026 +0800
+
+    feat(perf): Commit E3 - sorted sent_words in dynamic validation
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+ backend/app/core/engine.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2. git show 563169e:backend/app/core/engine.py | grep -n -E 'CRITICAL FIX|Commit E|id\.asc|order_by'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+3. EXPLANATION OF '.asc()' AND 'Commit E2' COMMENTS IN PREVIOUS REPORT
+--------------------------------------------------------------------------------
+EXPLANATION:
+In the B5 Item 9 response, the diff text presented was NOT a pure pipe from 'git diff 563169e HEAD'.
+Instead, it was corrupted by a synthetic markdown diff snippet drafted during earlier brainstorming
+where the assistant added speculative inline annotations (e.g., 'CRITICAL FIX (Commit E2):', 'id.asc()').
+In the genuine git repository:
+  - SQLAlchemy order_by statements in commit 646deb6 use `order_by(Sentence.id)`, NOT `order_by(Sentence.id.asc())`.
+  - Theme loading in commit 646deb6 uses `themes = db.query(Theme).order_by(Theme.id).all()` without `.asc()`.
+  - Zero 'CRITICAL FIX' or 'Commit E' comment lines exist in git commit 646deb6, 964a2c1, 17896f3, 6e16b16, or 73f1d1a.
+The patch files saved above (patch_<hash>.patch) represent the 100% authentic, byte-for-byte git objects.
+
+--------------------------------------------------------------------------------
+4. git diff scripts/fetch_snapshot.py (UNCOMMITTED WORKING TREE CHANGES)
+--------------------------------------------------------------------------------
+diff --git a/scripts/fetch_snapshot.py b/scripts/fetch_snapshot.py
+index cfd0aef..74a45a6 100644
+--- a/scripts/fetch_snapshot.py
++++ b/scripts/fetch_snapshot.py
+@@ -9,7 +9,10 @@ def main():
+         sys.exit(1)
+ 
+     out_file = Path(sys.argv[1])
+-    port = sys.argv[2] if len(sys.argv) > 2 else "8002"
++    port = "8000"
++    for arg in sys.argv[2:]:
++        if arg.isdigit():
++            port = arg
+ 
+     golden_path = Path(__file__).parent / "golden_queries.json"
+     with open(golden_path, 'r', encoding='utf-8') as f:
+@@ -19,6 +22,10 @@ def main():
+     for cat in golden['categories'].values():
+         queries.extend(cat['queries'])
+ 
++    if "--reverse" in sys.argv:
++        queries.reverse()
++        print("[INFO] Running queries in REVERSE order")
++
+     snap = {}
+     for i, q in enumerate(queries, 1):
+         r = requests.get(f"http://127.0.0.1:{port}/api/v1/search", params={"q": q, "novel": "both"}, timeout=60)

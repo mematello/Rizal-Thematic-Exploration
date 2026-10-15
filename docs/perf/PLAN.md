@@ -37,13 +37,13 @@
 
 ## Pending Milestones
 
-### 1. Step B: Determinism Enforcement (Behavior Change — Pending Approval)
-- [ ] Apply Task 2 Item 8 (`ORDER BY` tie-breaks in SQL queries) first and report comparison vs golden snapshot
-- [ ] Apply Task 2 Items 1, 2, 3, 4, 5, 6, 7 (`sorted()` across set iterations in theme expansion and tie-breaks)
-- [ ] Run two fresh-process full 40-query passes without `PYTHONHASHSEED` and verify 100% identity
-- [ ] Generate `docs/perf/golden_snapshot_deterministic.json` as the new permanent reference
-- [ ] Log exact ranking delta (# of position changes) in `DECISIONS.md` under the Ranking Change Policy
-- [ ] Stop and request user review before merging
+### Step B: Determinism Enforcement (Approved 2026-10-16)
+- [x] Apply Task 2 Item 8 (`ORDER BY` tie-breaks in SQL queries) first and report comparison vs golden snapshot
+- [x] Apply Task 2 Items 1, 2, 3, 4, 5, 6, 7 (`sorted()` across set iterations in theme expansion and tie-breaks)
+- [x] Run two fresh-process full 40-query passes without `PYTHONHASHSEED` and verify 100% identity
+- [x] Generate `docs/perf/golden_snapshot_deterministic.json` as the new permanent reference
+- [x] Log exact ranking delta (# of position changes) in `DECISIONS.md` under the Ranking Change Policy
+- [x] Stop and request user review before merging — **Approved 2026-10-16**
 
 ### 2. First-Seen Out-of-Domain Translation Policy (Pending Policy Decision)
 - [ ] Review ~1.3s cold network latency on unmapped modern terms

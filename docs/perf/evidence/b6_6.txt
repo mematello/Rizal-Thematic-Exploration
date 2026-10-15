@@ -1,0 +1,124 @@
+================================================================================
+ITEM 6: BRIDGE TOKENS, BRIDGE TEXT & EMBEDDING EQUALITY (PRE-E2 vs HEAD)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. EN_TL_DICTIONARY ENTRIES AND TOKEN PROPERTIES (> 3 CHARACTERS)
+--------------------------------------------------------------------------------
+Term: death        | EN_TL_DICTIONARY: ['kamatayan', 'patay'] | Tokens with len > 3: ['kamatayan', 'patay']
+Term: love         | EN_TL_DICTIONARY: ['pag-ibig', 'pagmamahal'] | Tokens with len > 3: ['pag-ibig', 'pagmamahal']
+Term: corruption   | EN_TL_DICTIONARY: ['korapsyon', 'katiwalian'] | Tokens with len > 3: ['korapsyon', 'katiwalian']
+Term: justice      | EN_TL_DICTIONARY: ['katarungan', 'hustisya'] | Tokens with len > 3: ['katarungan', 'hustisya']
+Term: oppression   | EN_TL_DICTIONARY: ['pang-aapi', 'kalupitan'] | Tokens with len > 3: ['pang-aapi', 'kalupitan']
+Term: church       | EN_TL_DICTIONARY: ['simbahan'] | Tokens with len > 3: ['simbahan']
+
+--------------------------------------------------------------------------------
+2. BRIDGE TEXT & np.array_equal COMPARISON (SEED 1 vs SEED 2)
+--------------------------------------------------------------------------------
+Term: 'death'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'patay kamatayan'
+    Seed 2 bridge_text: 'patay kamatayan'
+    Text identical:     True
+    np.array_equal:     True (cosine similarity: 1.000000)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'kamatayan patay'
+    Seed 2 bridge_text: 'kamatayan patay'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+Term: 'love'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'pagmamahal pag-ibig'
+    Seed 2 bridge_text: 'pag-ibig pagmamahal'
+    Text identical:     False
+    np.array_equal:     False (cosine similarity: 0.970533)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'pag-ibig pagmamahal'
+    Seed 2 bridge_text: 'pag-ibig pagmamahal'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+Term: 'corruption'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'korapsyon katiwalian'
+    Seed 2 bridge_text: 'katiwalian korapsyon'
+    Text identical:     False
+    np.array_equal:     False (cosine similarity: 0.951638)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'katiwalian korapsyon'
+    Seed 2 bridge_text: 'katiwalian korapsyon'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+Term: 'justice'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'katarungan hustisya'
+    Seed 2 bridge_text: 'katarungan hustisya'
+    Text identical:     True
+    np.array_equal:     True (cosine similarity: 1.000000)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'hustisya katarungan'
+    Seed 2 bridge_text: 'hustisya katarungan'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+Term: 'oppression'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'pang-aapi kalupitan'
+    Seed 2 bridge_text: 'pang-aapi kalupitan'
+    Text identical:     True
+    np.array_equal:     True (cosine similarity: 1.000000)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'kalupitan pang-aapi'
+    Seed 2 bridge_text: 'kalupitan pang-aapi'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+Term: 'church'
+  Commit 17896f3 pre-E2 (raw set iteration order):
+    Seed 1 bridge_text: 'simbahan'
+    Seed 2 bridge_text: 'simbahan'
+    Text identical:     True
+    np.array_equal:     True (cosine similarity: 1.000000)
+  HEAD (sorted(bridge_tokens)):
+    Seed 1 bridge_text: 'simbahan'
+    Seed 2 bridge_text: 'simbahan'
+    Text identical:     True
+    np.array_equal:     True
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+3. EXECUTION DISPOSITION IN engine.py & S0 NON-DIVERGENCE EXPLANATION
+--------------------------------------------------------------------------------
+Query: 'death       ' | result_mode: lexical            | lexical_cands: 48 | needs_fallback: False
+Query: 'love        ' | result_mode: semantic_fallback  | lexical_cands:  4 | needs_fallback: True
+Query: 'corruption  ' | result_mode: semantic_fallback  | lexical_cands:  0 | needs_fallback: True
+Query: 'justice     ' | result_mode: semantic_fallback  | lexical_cands:  7 | needs_fallback: True
+Query: 'oppression  ' | result_mode: semantic_fallback  | lexical_cands:  1 | needs_fallback: True
+Query: 'church      ' | result_mode: lexical            | lexical_cands: 36 | needs_fallback: False
+
+Detailed Explanation of Why S0 Shows No Divergence Across Seeds:
+1. Gate Location:
+   In engine.py, `bridge_text` is generated at line 1070 inside the block `if needs_fallback:`:
+     needs_fallback = len(candidates) < top_k * 2  (i.e. candidates < 20)
+2. Queries Where the Line NEVER Executes (death, church):
+   - 'death' produces 48 lexical candidates from Noli and El Fili.
+   - 'church' produces 36 lexical candidates.
+   Because 48 >= 20 and 36 >= 20, `needs_fallback` is False.
+   Therefore, the block containing `bridge_text` NEVER executes for 'death' or 'church'.
+3. Queries Where the Line Executes but Does NOT Reach Output (love, corruption, justice, oppression):
+   - 'love' (4 candidates), 'corruption' (0 candidates), 'justice' (7 candidates), 'oppression' (1 candidate)
+     have `needs_fallback = True`.
+   - In lines 1070-1082, `bridge_embedding` is computed and blended into `q_vec = (q_vec + bridge_embedding) / 2.0`.
+   - `q_vec` is a LOCAL variable used EXCLUSIVELY to compute `max_theme_score = float(np.max(theme_scores))`
+     for the in-domain similarity gate.
+   - Because these queries have valid bridge tokens, `is_safely_mapped` is True, so they never fail the gate.
+   - Crucially, `q_vec` is DISCARDED immediately after line 1095:
+     - Candidate semantic scoring uses `query_embedding` (the unblended base embedding of query text).
+     - `query_vector_sha256` is computed on `query_embedding` bytes, NOT `q_vec`.
+     - `bridge_tokens` metadata output in Commit D was already sorted: `sorted(list(bridge_tokens))`.
+   Therefore, the word order inversion in `bridge_text` ('pagmamahal pag-ibig' vs 'pag-ibig pagmamahal')
+   has 0 effect on candidate scoring, rank order, query vector hashes, or metadata.
+   Commit E2 (`sorted(bridge_tokens)` in `bridge_text`) is a defensive guarantee of cross-process consistency,
+   even though the local gate variable never reached search rankings.

@@ -1,0 +1,2143 @@
+================================================================================
+ITEM 5: STRICT COMPARATOR FULL SOURCE AND RE-RUN VERIFICATION
+================================================================================
+
+--------------------------------------------------------------------------------
+1. FULL SOURCE OF scripts/strict_comparator.py
+--------------------------------------------------------------------------------
+import json
+import sys
+from pathlib import Path
+from typing import Dict, Any, List, Set
+
+TIMING_KEYS = {
+    "engine_timings", "fastapi_layer", "db_query_count",
+    "search_total_ms", "engine_stage_sum_ms", "untimed_gap_ms",
+    "translator_ms", "translator_network_calls", "translator_network_call"
+}
+
+def clean_metadata(meta: Dict[str, Any], ignore_extra_diagnostic_keys: bool = False) -> Dict[str, Any]:
+    cleaned = {}
+    for k, v in meta.items():
+        if k in TIMING_KEYS or k.endswith("_ms") or k.endswith("_count"):
+            continue
+        if ignore_extra_diagnostic_keys and k in {"query_vector_sha256", "query_expansion_text", "bridge_tokens", "translator_input", "translator_output"}:
+            continue
+        cleaned[k] = v
+    return cleaned
+
+def clean_result_item(item: Dict[str, Any]) -> Dict[str, Any]:
+    # Retain all functional result fields
+    res = {
+        "id": item.get("id"),
+        "sentence_index": item.get("sentence_index"),
+        "chapter_number": item.get("chapter_number"),
+        "sentence_text": item.get("sentence_text"),
+        "scores": item.get("scores", {}),
+        "context_text": item.get("context_text"),
+        "themes": [{"id": t.get("id"), "label": t.get("label"), "score": t.get("score")}
+                   for t in item.get("themes", [])]
+    }
+    # preserve optional rank fields if present
+    for extra in ["rerank", "initial_rank"]:
+        if extra in item:
+            res[extra] = item[extra]
+    return res
+
+def canonical_query_obj(qdata: Dict[str, Any], ignore_extra_diagnostic_keys: bool = False) -> Dict[str, Any]:
+    return {
+        "noli": [clean_result_item(r) for r in qdata.get("noli", [])],
+        "elfili": [clean_result_item(r) for r in qdata.get("elfili", [])],
+        "precise_matches": [clean_result_item(r) for r in qdata.get("precise_matches", [])],
+        "metadata": clean_metadata(qdata.get("metadata", {}), ignore_extra_diagnostic_keys=ignore_extra_diagnostic_keys)
+    }
+
+def compare_strict(snap1_path: Path, snap2_path: Path, allow_missing_diagnostics: bool = False) -> Dict[str, Any]:
+    with open(snap1_path, "r", encoding="utf-8") as f:
+        data1 = json.load(f)
+    with open(snap2_path, "r", encoding="utf-8") as f:
+        data2 = json.load(f)
+
+    queries1 = data1.get("queries", {})
+    queries2 = data2.get("queries", {})
+
+    diffs = {}
+    all_queries = sorted(list(set(queries1.keys()) | set(queries2.keys())))
+
+    for q in all_queries:
+        if q not in queries1:
+            diffs[q] = {"status": "missing_in_file1"}
+            continue
+        if q not in queries2:
+            diffs[q] = {"status": "missing_in_file2"}
+            continue
+
+        # Check if one file has diagnostic keys and the other doesn't
+        meta1 = queries1[q].get("metadata", {})
+        meta2 = queries2[q].get("metadata", {})
+        has_diag1 = "query_vector_sha256" in meta1
+        has_diag2 = "query_vector_sha256" in meta2
+        ignore_diag = allow_missing_diagnostics and (has_diag1 != has_diag2)
+
+        c1 = canonical_query_obj(queries1[q], ignore_extra_diagnostic_keys=ignore_diag)
+        c2 = canonical_query_obj(queries2[q], ignore_extra_diagnostic_keys=ignore_diag)
+
+        s1 = json.dumps(c1, sort_keys=True, ensure_ascii=False)
+        s2 = json.dumps(c2, sort_keys=True, ensure_ascii=False)
+
+        if s1 != s2:
+            q_diff = {}
+            for book in ["noli", "elfili", "precise_matches"]:
+                ids1 = [r["id"] for r in c1[book]]
+                ids2 = [r["id"] for r in c2[book]]
+                if ids1 != ids2:
+                    entered = [i for i in ids2 if i not in ids1]
+                    left = [i for i in ids1 if i not in ids2]
+                    q_diff[book] = {
+                        "ids1": ids1,
+                        "ids2": ids2,
+                        "entered": entered,
+                        "left": left,
+                        "order_changed": ids1 != ids2 and set(ids1) == set(ids2)
+                    }
+                else:
+                    # check score or context or theme diffs
+                    items_diff = []
+                    for idx, (it1, it2) in enumerate(zip(c1[book], c2[book])):
+                        it1_s = json.dumps(it1, sort_keys=True)
+                        it2_s = json.dumps(it2, sort_keys=True)
+                        if it1_s != it2_s:
+                            items_diff.append({"id": it1["id"], "rank": idx+1, "item1": it1, "item2": it2})
+                    if items_diff:
+                        q_diff[f"{book}_item_diffs"] = items_diff
+
+            m1_s = json.dumps(c1["metadata"], sort_keys=True)
+            m2_s = json.dumps(c2["metadata"], sort_keys=True)
+            if m1_s != m2_s:
+                meta_diff = {}
+                all_m_keys = sorted(list(set(c1["metadata"].keys()) | set(c2["metadata"].keys())))
+                for mk in all_m_keys:
+                    val1 = c1["metadata"].get(mk)
+                    val2 = c2["metadata"].get(mk)
+                    if val1 != val2:
+                        meta_diff[mk] = {"val1": val1, "val2": val2}
+                q_diff["metadata"] = meta_diff
+
+            diffs[q] = q_diff
+
+    return {
+        "file1": str(snap1_path),
+        "file2": str(snap2_path),
+        "total_queries": len(all_queries),
+        "queries_with_changes": len(diffs),
+        "diffs": diffs
+    }
+
+def print_strict_report(report: Dict[str, Any]):
+    print("=" * 80)
+    print("STRICT CANONICAL COMPARISON REPORT")
+    print("=" * 80)
+    print(f"File 1: {report['file1']}")
+    print(f"File 2: {report['file2']}")
+    print(f"Total queries:        {report['total_queries']}")
+    print(f"Queries with changes: {report['queries_with_changes']}")
+    print("-" * 80)
+
+    if report["queries_with_changes"] == 0:
+        print("[SUCCESS] 0 differences! Canonical representations are 100% BIT-IDENTICAL.")
+        return
+
+    print(f"[FAIL] {report['queries_with_changes']} queries differed:")
+    for q, d in report["diffs"].items():
+        print(f"\nQuery: '{q}'")
+        for k, v in d.items():
+            if k in ["noli", "elfili", "precise_matches"]:
+                ent = v.get("entered", [])
+                left = v.get("left", [])
+                ord_ch = v.get("order_changed", False)
+                print(f"  [{k.upper()}] Entered: {ent} | Left: {left} | Reordered: {ord_ch}")
+            elif "item_diffs" in k:
+                print(f"  [{k}] {len(v)} items differed in scores/context/themes")
+                for diff_item in v[:3]:
+                    print(f"    ID {diff_item['id']} at rank {diff_item['rank']}")
+            elif k == "metadata":
+                print(f"  [METADATA] Differing keys: {list(v.keys())}")
+                for mk, mv in v.items():
+                    print(f"    {mk}: {mv['val1']} vs {mv['val2']}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: python scripts/strict_comparator.py <file1.json> <file2.json> [--allow-missing-diagnostics]")
+        sys.exit(1)
+    f1 = Path(sys.argv[1])
+    f2 = Path(sys.argv[2])
+    allow_missing = "--allow-missing-diagnostics" in sys.argv
+    rep = compare_strict(f1, f2, allow_missing_diagnostics=allow_missing)
+    print_strict_report(rep)
+    sys.exit(0 if rep["queries_with_changes"] == 0 else 1)
+
+
+
+--------------------------------------------------------------------------------
+2. (a) RE-RUN: golden_snapshot_seed0.json vs b1_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total queries compared: 40
+Queries with changes:   16
+List of changed queries by name:
+   1. Basilio
+   2. Crisostomo Ibarra
+   3. Elias
+   4. Isagani
+   5. Maria Clara
+   6. Padre Damaso
+   7. Simoun
+   8. Sisa
+   9. bayan
+  10. church
+  11. death
+  12. education
+  13. freedom
+  14. love
+  15. paaralan
+  16. simbahan
+
+Raw per-query diffs for (a):
+{
+  "Basilio": {
+    "noli": {
+      "ids1": [
+        38364,
+        37505,
+        37510,
+        37511,
+        37513,
+        37515,
+        37520,
+        37465,
+        37482,
+        38352
+      ],
+      "ids2": [
+        38364,
+        37465,
+        37482,
+        37505,
+        37510,
+        37511,
+        37513,
+        37515,
+        37520,
+        38352
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "elfili": {
+      "ids1": [
+        38404,
+        38406,
+        38411,
+        38527,
+        38544,
+        38546,
+        38923,
+        38934,
+        38937,
+        38939
+      ],
+      "ids2": [
+        38404,
+        38406,
+        38411,
+        38450,
+        38498,
+        38503,
+        38505,
+        38509,
+        38512,
+        38527
+      ],
+      "entered": [
+        38450,
+        38498,
+        38503,
+        38505,
+        38509,
+        38512
+      ],
+      "left": [
+        38544,
+        38546,
+        38923,
+        38934,
+        38937,
+        38939
+      ],
+      "order_changed": false
+    }
+  },
+  "Crisostomo Ibarra": {
+    "noli": {
+      "ids1": [
+        37666,
+        37701,
+        38255,
+        38272,
+        37217,
+        37200,
+        37676,
+        38198,
+        37327,
+        37690
+      ],
+      "ids2": [
+        37666,
+        37701,
+        38255,
+        37217,
+        38272,
+        37200,
+        37676,
+        38198,
+        37327,
+        37690
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "Elias": {
+    "noli": {
+      "ids1": [
+        37893,
+        37757,
+        37765,
+        37906,
+        38150,
+        38180,
+        38299,
+        38117,
+        38313,
+        38330
+      ],
+      "ids2": [
+        37893,
+        37757,
+        37765,
+        37906,
+        38117,
+        38150,
+        38180,
+        38299,
+        38313,
+        38330
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "Isagani": {
+    "elfili": {
+      "ids1": [
+        38776,
+        38777,
+        39162,
+        39202,
+        39203,
+        38894,
+        39278,
+        38726,
+        38411,
+        38656
+      ],
+      "ids2": [
+        38726,
+        38776,
+        38777,
+        38894,
+        39162,
+        39202,
+        39203,
+        39278,
+        38411,
+        38656
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "Maria Clara": {
+    "noli": {
+      "ids1": [
+        37330,
+        37670,
+        37916,
+        37364,
+        37829,
+        38344,
+        38345,
+        37377,
+        37673,
+        37877
+      ],
+      "ids2": [
+        37330,
+        37364,
+        37670,
+        37829,
+        37916,
+        38344,
+        38345,
+        37333,
+        37337,
+        37344
+      ],
+      "entered": [
+        37333,
+        37337,
+        37344
+      ],
+      "left": [
+        37377,
+        37673,
+        37877
+      ],
+      "order_changed": false
+    }
+  },
+  "Padre Damaso": {
+    "noli": {
+      "ids1": [
+        37235,
+        37710,
+        37423,
+        37798,
+        37191,
+        37309,
+        38344,
+        37877,
+        37228,
+        37364
+      ],
+      "ids2": [
+        37235,
+        37710,
+        37191,
+        37309,
+        37423,
+        37798,
+        38344,
+        37193,
+        37228,
+        37364
+      ],
+      "entered": [
+        37193
+      ],
+      "left": [
+        37877
+      ],
+      "order_changed": false
+    }
+  },
+  "Simoun": {
+    "elfili": {
+      "ids1": [
+        39301,
+        39308,
+        39317,
+        39321,
+        39337,
+        38593,
+        38622,
+        39248,
+        38398,
+        38523
+      ],
+      "ids2": [
+        38593,
+        38622,
+        39248,
+        39301,
+        39308,
+        39317,
+        39321,
+        39337,
+        38398,
+        38410
+      ],
+      "entered": [
+        38410
+      ],
+      "left": [
+        38523
+      ],
+      "order_changed": false
+    }
+  },
+  "Sisa": {
+    "noli": {
+      "ids1": [
+        38358,
+        37533,
+        37466,
+        37484,
+        37488,
+        37496,
+        37680,
+        37491,
+        37606,
+        37865
+      ],
+      "ids2": [
+        38358,
+        37466,
+        37484,
+        37488,
+        37533,
+        37491,
+        37496,
+        37606,
+        37680,
+        37865
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "bayan": {
+    "noli": {
+      "ids1": [
+        37241,
+        38187,
+        37385,
+        37551,
+        38131,
+        37572,
+        37379,
+        37783,
+        37571,
+        37823
+      ],
+      "ids2": [
+        37241,
+        38187,
+        37385,
+        37551,
+        37572,
+        38131,
+        37379,
+        37571,
+        37783,
+        37823
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "elfili": {
+      "ids1": [
+        39084,
+        39108,
+        38574,
+        38913,
+        39016,
+        38814,
+        38743,
+        38550,
+        39299,
+        38617
+      ],
+      "ids2": [
+        39084,
+        39108,
+        38574,
+        38913,
+        39016,
+        38743,
+        38814,
+        38550,
+        38617,
+        38978
+      ],
+      "entered": [
+        38978
+      ],
+      "left": [
+        39299
+      ],
+      "order_changed": false
+    }
+  },
+  "church": {
+    "noli": {
+      "ids1": [
+        37468,
+        37290,
+        37297,
+        37385,
+        37408,
+        37517,
+        37636,
+        37638,
+        37639,
+        37794
+      ],
+      "ids2": [
+        37468,
+        37185,
+        37193,
+        37290,
+        37297,
+        37330,
+        37385,
+        37408,
+        37457,
+        37459
+      ],
+      "entered": [
+        37185,
+        37193,
+        37330,
+        37457,
+        37459
+      ],
+      "left": [
+        37517,
+        37636,
+        37638,
+        37639,
+        37794
+      ],
+      "order_changed": false
+    }
+  },
+  "death": {
+    "noli": {
+      "ids1": [
+        37623,
+        37631,
+        37784,
+        38277,
+        37184,
+        38213,
+        38375,
+        38343,
+        37370,
+        37378
+      ],
+      "ids2": [
+        37184,
+        37623,
+        37631,
+        37784,
+        38213,
+        38277,
+        38343,
+        38375,
+        37360,
+        37370
+      ],
+      "entered": [
+        37360
+      ],
+      "left": [
+        37378
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        38418,
+        38442,
+        38530,
+        38782,
+        39033,
+        39034,
+        39079,
+        39151,
+        39213,
+        39295
+      ],
+      "ids2": [
+        38418,
+        38442,
+        38530,
+        38633,
+        38745,
+        38748,
+        38782,
+        39016,
+        39033,
+        39034
+      ],
+      "entered": [
+        38633,
+        38745,
+        38748,
+        39016
+      ],
+      "left": [
+        39079,
+        39151,
+        39213,
+        39295
+      ],
+      "order_changed": false
+    }
+  },
+  "education": {
+    "noli": {
+      "ids1": [
+        37539,
+        37541,
+        37544,
+        37302,
+        37538,
+        37540,
+        37793,
+        37551,
+        37623,
+        37631
+      ],
+      "ids2": [
+        37539,
+        37541,
+        37544,
+        37302,
+        37538,
+        37540,
+        37793,
+        37324,
+        37445,
+        37446
+      ],
+      "entered": [
+        37324,
+        37445,
+        37446
+      ],
+      "left": [
+        37551,
+        37623,
+        37631
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        38403,
+        38514,
+        38516,
+        38518,
+        38547,
+        38558,
+        38643,
+        38660,
+        38661,
+        38662
+      ],
+      "ids2": [
+        38403,
+        38500,
+        38514,
+        38516,
+        38518,
+        38547,
+        38558,
+        38631,
+        38632,
+        38640
+      ],
+      "entered": [
+        38500,
+        38631,
+        38632,
+        38640
+      ],
+      "left": [
+        38643,
+        38660,
+        38661,
+        38662
+      ],
+      "order_changed": false
+    }
+  },
+  "freedom": {
+    "noli": {
+      "ids1": [
+        37414,
+        37379,
+        38300,
+        37226,
+        37591,
+        37579
+      ],
+      "ids2": [
+        37414,
+        37226,
+        37379,
+        37579,
+        37591,
+        38300
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "elfili": {
+      "ids1": [
+        38389,
+        38637,
+        38971,
+        39110,
+        39345,
+        38535,
+        38544,
+        39086,
+        39310,
+        39324
+      ],
+      "ids2": [
+        38389,
+        38637,
+        38971,
+        39110,
+        39345,
+        38480,
+        38482,
+        38535,
+        38544,
+        38853
+      ],
+      "entered": [
+        38480,
+        38482,
+        38853
+      ],
+      "left": [
+        39086,
+        39310,
+        39324
+      ],
+      "order_changed": false
+    }
+  },
+  "love": {
+    "noli": {
+      "ids1": [
+        37860,
+        38074,
+        37320
+      ],
+      "ids2": [
+        37860,
+        37320,
+        38074
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "paaralan": {
+    "noli": {
+      "ids1": [
+        37551,
+        37792,
+        37730,
+        37631,
+        37661,
+        37672,
+        37623,
+        37793,
+        38027,
+        38273
+      ],
+      "ids2": [
+        37551,
+        37730,
+        37792,
+        37631,
+        37661,
+        37672,
+        37623,
+        37793,
+        38027,
+        38273
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "elfili": {
+      "ids1": [
+        38661,
+        38662,
+        38699,
+        38631,
+        38857,
+        38547,
+        38643,
+        38858,
+        38703,
+        38632
+      ],
+      "ids2": [
+        38631,
+        38661,
+        38662,
+        38699,
+        38857,
+        38547,
+        38643,
+        38858,
+        38632,
+        38703
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  },
+  "simbahan": {
+    "noli": {
+      "ids1": [
+        37385,
+        37408,
+        37636,
+        37638,
+        37639,
+        38157,
+        37304,
+        37468,
+        37649,
+        37464
+      ],
+      "ids2": [
+        37304,
+        37385,
+        37408,
+        37468,
+        37636,
+        37638,
+        37639,
+        38157,
+        37464,
+        37649
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    }
+  }
+}
+
+
+--------------------------------------------------------------------------------
+3. (b) RE-RUN: D+B1 (before E1) under Seed 1 vs Seed 2
+--------------------------------------------------------------------------------
+Total queries compared: 40
+Queries with changes:   12
+List of divergent queries by name:
+   1. Crisostomo Ibarra
+   2. Padre Damaso
+   3. Simoun
+   4. church
+   5. education
+   6. edukasyon
+   7. edukasyon para sa kalayaan
+   8. kalayaan
+   9. kapangyarihan ng simbahan
+  10. karahasan ng mga prayle
+  11. oppression
+  12. pag-ibig ni Maria Clara
+
+Raw per-query diffs for (b):
+{
+  "Crisostomo Ibarra": {
+    "noli": {
+      "ids1": [
+        37666,
+        37701,
+        38255,
+        37200,
+        37217,
+        38272,
+        37676,
+        38198,
+        37327,
+        37690
+      ],
+      "ids2": [
+        37666,
+        37701,
+        38255,
+        37217,
+        38272,
+        37200,
+        37676,
+        38198,
+        37327,
+        37690
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Paghihiganti tinukso mitsa pinigilan paghihiganti harap",
+        "val2": "Paghihiganti mitsa tinukso pinigilan paghihiganti harap"
+      },
+      "query_vector_sha256": {
+        "val1": "102c62bfac6e038f1ca549f4bac7480d1430ea0dc9df8918d3b875944b0a3116",
+        "val2": "57d4ede43cf24eb84c4d3c4090f899a404875255783a5c752a238441fbf47412"
+      }
+    }
+  },
+  "Padre Damaso": {
+    "noli": {
+      "ids1": [
+        37235,
+        37710,
+        37191,
+        37309,
+        37423,
+        37798,
+        38344,
+        37193,
+        37228,
+        37364
+      ],
+      "ids2": [
+        37235,
+        37710,
+        37191,
+        37309,
+        37423,
+        37798,
+        37877,
+        38344,
+        37193,
+        37228
+      ],
+      "entered": [
+        37877
+      ],
+      "left": [
+        37364
+      ],
+      "order_changed": false
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Pag-iisa matapos nawalay siyang pagkakakulong kamatayan ipatapon paratangan",
+        "val2": "Pag-iisa matapos siyang nawalay pagkakakulong paratangan kamatayan ipatapon"
+      },
+      "query_vector_sha256": {
+        "val1": "1dfd6e45b0523c3e53e14fea21709fc0e604f08ad9a41fb6a6b9c9d349b49016",
+        "val2": "22b60046ba4f6194ec70673e1758520ab4d511eb5dc042a78deb6a39bf405062"
+      }
+    }
+  },
+  "Simoun": {
+    "elfili_item_diffs": [
+      {
+        "id": 39248,
+        "rank": 3,
+        "item1": {
+          "id": 39248,
+          "sentence_index": 28,
+          "chapter_number": 36,
+          "sentence_text": "Si Simoun naman ay hindi matagpuan sa kanyang bahay.",
+          "scores": {
+            "semantic": 76,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": "Binalak nilang maghiganti sa umano\u2019y Kastilang makalawa beses na umanong lumoko sa kanila. Kaya naman ang tatlong tulisan ay nagpasyang manloob. Ayaw paniwalaan ang tulisan sa kanyang paglalarawan na si Simoun ang kanilang pinuno. <strong>Si Simoun naman ay hindi matagpuan sa kanyang bahay.</strong> ",
+          "themes": []
+        },
+        "item2": {
+          "id": 39248,
+          "sentence_index": 28,
+          "chapter_number": 36,
+          "sentence_text": "Si Simoun naman ay hindi matagpuan sa kanyang bahay.",
+          "scores": {
+            "semantic": 75,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": "Binalak nilang maghiganti sa umano\u2019y Kastilang makalawa beses na umanong lumoko sa kanila. Kaya naman ang tatlong tulisan ay nagpasyang manloob. Ayaw paniwalaan ang tulisan sa kanyang paglalarawan na si Simoun ang kanilang pinuno. <strong>Si Simoun naman ay hindi matagpuan sa kanyang bahay.</strong> ",
+          "themes": []
+        }
+      },
+      {
+        "id": 39301,
+        "rank": 4,
+        "item1": {
+          "id": 39301,
+          "sentence_index": 6,
+          "chapter_number": 39,
+          "sentence_text": "Si Simoun talaga ang tinutukoy sa telegrama.",
+          "scores": {
+            "semantic": 71,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": " <strong>Si Simoun talaga ang tinutukoy sa telegrama.</strong> Sugatang dumating sa bayan nina Padre Florentino si Simoun may dalawang araw na ang nakararaan. \u2018Di na siya inusisa ng pari. Walang alam ang pari tungkol sa mga kaganapan noong gabi ng piging sa Maynila. Ang akala ng pari ay kaya sugatan si Simoun sapagkat may naghiganti dito sa kadahilanang wala na ang Kapitan Heneral.",
+          "themes": []
+        },
+        "item2": {
+          "id": 39301,
+          "sentence_index": 6,
+          "chapter_number": 39,
+          "sentence_text": "Si Simoun talaga ang tinutukoy sa telegrama.",
+          "scores": {
+            "semantic": 72,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": " <strong>Si Simoun talaga ang tinutukoy sa telegrama.</strong> Sugatang dumating sa bayan nina Padre Florentino si Simoun may dalawang araw na ang nakararaan. \u2018Di na siya inusisa ng pari. Walang alam ang pari tungkol sa mga kaganapan noong gabi ng piging sa Maynila. Ang akala ng pari ay kaya sugatan si Simoun sapagkat may naghiganti dito sa kadahilanang wala na ang Kapitan Heneral.",
+          "themes": []
+        }
+      },
+      {
+        "id": 39337,
+        "rank": 8,
+        "item1": {
+          "id": 39337,
+          "sentence_index": 42,
+          "chapter_number": 39,
+          "sentence_text": "Tinanggap ni Simoun ang mga sinabi ng pari.",
+          "scores": {
+            "semantic": 75,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": "Hiniling din ng pari na igalang ng mag-aalahas ang kalooban ng Diyos. Makaraan ay nagtanong si Simoun kung bakit hindi siya tinulungan ng Diyos sa kanyang layunin. Ang sabi ng pari ay dahil masama ang kanyang pamamaraan saka nagpaliwanag. <strong>Tinanggap ni Simoun ang mga sinabi ng pari.</strong> Inaming siya\u2019y nagkamali at naitanong na dahil ba sa pagkakamaling iyon ay ipagkakait na ng Diyos ang kalayaan ng isang bayan at ililigtas ang napakaraming higit pang salarin kaysa sa kanya? Tumugon ang pari at sinabing ang matatapat at mababait ay nararapat na magtiis nang ang mga adhika nila ay makilala at lumaganaP. Ang nararapat na  gawin ay magtiis at gumawa. Napailing lamang si Simoun.",
+          "themes": []
+        },
+        "item2": {
+          "id": 39337,
+          "sentence_index": 42,
+          "chapter_number": 39,
+          "sentence_text": "Tinanggap ni Simoun ang mga sinabi ng pari.",
+          "scores": {
+            "semantic": 76,
+            "lexical": 100,
+            "final": 99,
+            "precision": 0
+          },
+          "context_text": "Hiniling din ng pari na igalang ng mag-aalahas ang kalooban ng Diyos. Makaraan ay nagtanong si Simoun kung bakit hindi siya tinulungan ng Diyos sa kanyang layunin. Ang sabi ng pari ay dahil masama ang kanyang pamamaraan saka nagpaliwanag. <strong>Tinanggap ni Simoun ang mga sinabi ng pari.</strong> Inaming siya\u2019y nagkamali at naitanong na dahil ba sa pagkakamaling iyon ay ipagkakait na ng Diyos ang kalayaan ng isang bayan at ililigtas ang napakaraming higit pang salarin kaysa sa kanya? Tumugon ang pari at sinabing ang matatapat at mababait ay nararapat na magtiis nang ang mga adhika nila ay makilala at lumaganaP. Ang nararapat na  gawin ay magtiis at gumawa. Napailing lamang si Simoun.",
+          "themes": []
+        }
+      },
+      {
+        "id": 38410,
+        "rank": 10,
+        "item1": {
+          "id": 38410,
+          "sentence_index": 13,
+          "chapter_number": 2,
+          "sentence_text": "Ilang sandali pa\u2019y dumating si Simoun at kinausap ng magkabigan.",
+          "scores": {
+            "semantic": 66,
+            "lexical": 99,
+            "final": 98,
+            "precision": 0
+          },
+          "context_text": " <strong>Ilang sandali pa\u2019y dumating si Simoun at kinausap ng magkabigan.</strong> Agad na ipinakilala ni Basilio kay Simoun si Isagani. Ani Simoun, hindi niya nadadalaw ang lalawigan nina Basilio dahil ang kanilang lalawigan ay mahirap at di makabibili ng alahas. Tinutulan naman ito ni Isagani at sinabing hindi sila namimili ng alahas dahil hindi naman nila kailangan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 38410,
+          "sentence_index": 13,
+          "chapter_number": 2,
+          "sentence_text": "Ilang sandali pa\u2019y dumating si Simoun at kinausap ng magkabigan.",
+          "scores": {
+            "semantic": 65,
+            "lexical": 99,
+            "final": 98,
+            "precision": 0
+          },
+          "context_text": " <strong>Ilang sandali pa\u2019y dumating si Simoun at kinausap ng magkabigan.</strong> Agad na ipinakilala ni Basilio kay Simoun si Isagani. Ani Simoun, hindi niya nadadalaw ang lalawigan nina Basilio dahil ang kanilang lalawigan ay mahirap at di makabibili ng alahas. Tinutulan naman ito ni Isagani at sinabing hindi sila namimili ng alahas dahil hindi naman nila kailangan.",
+          "themes": []
+        }
+      }
+    ],
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Karahasan laban sa Kapayapaan naniniwalang umaasa desperasyon makakamit mapayapang simoun samantalang maghimagsik kabiguan dugo",
+        "val2": "Karahasan laban sa Kapayapaan desperasyon makakamit umaasa naniniwalang mapayapang simoun maghimagsik dugo kabiguan samantalang"
+      },
+      "query_vector_sha256": {
+        "val1": "df4b7f55b99986dbf81bc43c8943bfe81c28e6703f900301e11126423b05a40f",
+        "val2": "72b0eb0eb92e72d08e2bc96648985589a44ef750b5f570c31627a4ab15cfa1ab"
+      }
+    }
+  },
+  "church": {
+    "noli_item_diffs": [
+      {
+        "id": 37468,
+        "rank": 1,
+        "item1": {
+          "id": 37468,
+          "sentence_index": 5,
+          "chapter_number": 15,
+          "sentence_text": "Sila ay nagtutulungan sa pagpapatunog ng kampanaryo ng simbahan.",
+          "scores": {
+            "semantic": 61,
+            "lexical": 85,
+            "final": 84,
+            "precision": 0
+          },
+          "context_text": "Si Crispin ang nakakabata at si Basilio naman ang mas nakakatanda. Sila ang anak ni Sisa. Palaging nakabuntot si Crispin sa kanyang kuya dahil sa takot nito. <strong>Sila ay nagtutulungan sa pagpapatunog ng kampanaryo ng simbahan.</strong> Pinagbibintangan si Crispin ng sakristan mayor na nagnakaw ng tatlumpu\u2019t dalawang piso. Hindi naman ito mabayaran ng dalawang magkapatid dahil wala nang makakain ang ina kung ibabayad ang kanilang sahod. Batid ni Crispin na sana nga ay ninakaw nalang niya ang pera upang meron siyang maibigay sa kanyang ina at kapatid.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37468,
+          "sentence_index": 5,
+          "chapter_number": 15,
+          "sentence_text": "Sila ay nagtutulungan sa pagpapatunog ng kampanaryo ng simbahan.",
+          "scores": {
+            "semantic": 63,
+            "lexical": 85,
+            "final": 84,
+            "precision": 0
+          },
+          "context_text": "Si Crispin ang nakakabata at si Basilio naman ang mas nakakatanda. Sila ang anak ni Sisa. Palaging nakabuntot si Crispin sa kanyang kuya dahil sa takot nito. <strong>Sila ay nagtutulungan sa pagpapatunog ng kampanaryo ng simbahan.</strong> Pinagbibintangan si Crispin ng sakristan mayor na nagnakaw ng tatlumpu\u2019t dalawang piso. Hindi naman ito mabayaran ng dalawang magkapatid dahil wala nang makakain ang ina kung ibabayad ang kanilang sahod. Batid ni Crispin na sana nga ay ninakaw nalang niya ang pera upang meron siyang maibigay sa kanyang ina at kapatid.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37185,
+        "rank": 2,
+        "item1": {
+          "id": 37185,
+          "sentence_index": 9,
+          "chapter_number": 1,
+          "sentence_text": "Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.",
+          "scores": {
+            "semantic": 44,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos. Sa gitna ng bulwagan ay may mahabang lamesa na kainan na puno ng adorno. Ang dingding ay mga mga relihiyosong likhang sining na pinamagatang Purgatoryo, Impyerno, Huling Paghuhukom, Ang Kamatayan ng Makatarungan at Kamatayan ng Makasalanan. <strong>Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.</strong> ",
+          "themes": []
+        },
+        "item2": {
+          "id": 37185,
+          "sentence_index": 9,
+          "chapter_number": 1,
+          "sentence_text": "Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.",
+          "scores": {
+            "semantic": 45,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Mapapakinggan ang magagandang tunog na gawa ng orkestra at mga kalansing ng mga pinggan at kubyertos. Sa gitna ng bulwagan ay may mahabang lamesa na kainan na puno ng adorno. Ang dingding ay mga mga relihiyosong likhang sining na pinamagatang Purgatoryo, Impyerno, Huling Paghuhukom, Ang Kamatayan ng Makatarungan at Kamatayan ng Makasalanan. <strong>Ang sala ay puno ng mga panauhin, hiwalay ang mga babae sa lalaki na parang nasa simbahan.</strong> ",
+          "themes": []
+        }
+      },
+      {
+        "id": 37193,
+        "rank": 3,
+        "item1": {
+          "id": 37193,
+          "sentence_index": 17,
+          "chapter_number": 1,
+          "sentence_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.",
+          "scores": {
+            "semantic": 48,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Ang akala niya\u2019y pumunta ang binata sa Pilipinas upang magtrabaho, yun pala ay interesado ang binata sa pag-uugali ng mga katutubong Pilipino. Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhin laban kay Padre Damaso. Hindi na napigilan ng pari na mailabas ang kanyang mapanlait na ugali laban sa mga Indio. <strong>Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.</strong> Ngunit ito ay tinutulan ni Tinyente Guevarra, batid niya na may karapatan ang Kapitan Heneral sa pagpaparusa dahil ito ang kinatawan ng hari ng bansa. Pinalipat si Padre Damaso sa ibang lugar dahil pinahukay nito ang bangkay ng isang marangal na lalaki na napagkamalang isang erehe dahil sa hindi nito pagkumpisal.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37193,
+          "sentence_index": 17,
+          "chapter_number": 1,
+          "sentence_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.",
+          "scores": {
+            "semantic": 49,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Ang akala niya\u2019y pumunta ang binata sa Pilipinas upang magtrabaho, yun pala ay interesado ang binata sa pag-uugali ng mga katutubong Pilipino. Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhin laban kay Padre Damaso. Hindi na napigilan ng pari na mailabas ang kanyang mapanlait na ugali laban sa mga Indio. <strong>Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.</strong> Ngunit ito ay tinutulan ni Tinyente Guevarra, batid niya na may karapatan ang Kapitan Heneral sa pagpaparusa dahil ito ang kinatawan ng hari ng bansa. Pinalipat si Padre Damaso sa ibang lugar dahil pinahukay nito ang bangkay ng isang marangal na lalaki na napagkamalang isang erehe dahil sa hindi nito pagkumpisal.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37290,
+        "rank": 4,
+        "item1": {
+          "id": 37290,
+          "sentence_index": 7,
+          "chapter_number": 6,
+          "sentence_text": "Naniniwala siya na ang pagiging malapit niya sa Diyos at sa simbahan ay base sa magandang gawa.",
+          "scores": {
+            "semantic": 40,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Naniniwala siya na ang pagiging malapit niya sa Diyos at sa simbahan ay base sa magandang gawa.</strong> Hindi ito nagdadasal kahit na may matinding pangangailangan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37290,
+          "sentence_index": 7,
+          "chapter_number": 6,
+          "sentence_text": "Naniniwala siya na ang pagiging malapit niya sa Diyos at sa simbahan ay base sa magandang gawa.",
+          "scores": {
+            "semantic": 41,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Naniniwala siya na ang pagiging malapit niya sa Diyos at sa simbahan ay base sa magandang gawa.</strong> Hindi ito nagdadasal kahit na may matinding pangangailangan.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37330,
+        "rank": 6,
+        "item1": {
+          "id": 37330,
+          "sentence_index": 1,
+          "chapter_number": 7,
+          "sentence_text": "Sa simbahan palang ay di na mapakali si Maria Clara dahil alam niyang darating si Ibarra sa araw na iyon.",
+          "scores": {
+            "semantic": 47,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Sa simbahan palang ay di na mapakali si Maria Clara dahil alam niyang darating si Ibarra sa araw na iyon.</strong> Sa bahay, matapos ang almusal, naggagantsilyo si Maria Clara upang hindi mainip sa pag- iintay. Hindi mapakali ang dalaga sa tuwing may karwaheng hihinto sa tapat ng kanilang bahay sa pag-aakalang si Ibarra na ang dumating. Pinayuhan ng doktor na magbakasyon si Maria Clara sa San Diego upang muling maibalik ang pamumula ng pisngi nito.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37330,
+          "sentence_index": 1,
+          "chapter_number": 7,
+          "sentence_text": "Sa simbahan palang ay di na mapakali si Maria Clara dahil alam niyang darating si Ibarra sa araw na iyon.",
+          "scores": {
+            "semantic": 49,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Sa simbahan palang ay di na mapakali si Maria Clara dahil alam niyang darating si Ibarra sa araw na iyon.</strong> Sa bahay, matapos ang almusal, naggagantsilyo si Maria Clara upang hindi mainip sa pag- iintay. Hindi mapakali ang dalaga sa tuwing may karwaheng hihinto sa tapat ng kanilang bahay sa pag-aakalang si Ibarra na ang dumating. Pinayuhan ng doktor na magbakasyon si Maria Clara sa San Diego upang muling maibalik ang pamumula ng pisngi nito.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37385,
+        "rank": 7,
+        "item1": {
+          "id": 37385,
+          "sentence_index": 7,
+          "chapter_number": 10,
+          "sentence_text": "Ito ay katulad ng ilang bayan sa Pilipinas na pinamumunuan ng simbahan.",
+          "scores": {
+            "semantic": 48,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "May ilang umaakyat sa kampanaryo, sa tuktok nito ay may makikitang isang napakahabang ilog na parang kristal na ahas na nakahimlay sa luntiang paligid. Kinakailangan pang tumawid sa umuugoy na tulay bago makarating sa kabilang ibayo ng pampang. Mula sa kampanaryo ay masisilayin din ang isang mahiwagang gubat. <strong>Ito ay katulad ng ilang bayan sa Pilipinas na pinamumunuan ng simbahan.</strong> Ayon sa isang alamat, may isang matandang Kastila ang dumating sa San Diego. Binili niya ang lupa sa pamamagitan ng damit, salapi, at mga alahas. Matapos ipakita ng matanda ang kayamanan ay bigla itong naglaho.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37385,
+          "sentence_index": 7,
+          "chapter_number": 10,
+          "sentence_text": "Ito ay katulad ng ilang bayan sa Pilipinas na pinamumunuan ng simbahan.",
+          "scores": {
+            "semantic": 49,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "May ilang umaakyat sa kampanaryo, sa tuktok nito ay may makikitang isang napakahabang ilog na parang kristal na ahas na nakahimlay sa luntiang paligid. Kinakailangan pang tumawid sa umuugoy na tulay bago makarating sa kabilang ibayo ng pampang. Mula sa kampanaryo ay masisilayin din ang isang mahiwagang gubat. <strong>Ito ay katulad ng ilang bayan sa Pilipinas na pinamumunuan ng simbahan.</strong> Ayon sa isang alamat, may isang matandang Kastila ang dumating sa San Diego. Binili niya ang lupa sa pamamagitan ng damit, salapi, at mga alahas. Matapos ipakita ng matanda ang kayamanan ay bigla itong naglaho.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37408,
+        "rank": 8,
+        "item1": {
+          "id": 37408,
+          "sentence_index": 5,
+          "chapter_number": 11,
+          "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
+          "scores": {
+            "semantic": 40,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Kailanman ay hindi siya nagyabang kahit siya ay nagmamay-ari ng napakaraming lupain. Hindi din makapangyarihan si Kapitan Tiago bagamat nagpapasalubong siya ng orkestra at nagpapaulan ng regalo. Hindi rin pwede ang alkalde dahil hindi ito nakapag-uutos dahil siya mismo ang sumusunod. <strong>Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.</strong> Si Padre Salvi ang kura paroko na pumalit kay Padre Damaso. Siya ay mas mabait na maituturing kumpara kay Padre Damaso. Ang Alperes ay mapambugbog sa asawa, lasinggero, at malupit sa kanyang tauhan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37408,
+          "sentence_index": 5,
+          "chapter_number": 11,
+          "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
+          "scores": {
+            "semantic": 42,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Kailanman ay hindi siya nagyabang kahit siya ay nagmamay-ari ng napakaraming lupain. Hindi din makapangyarihan si Kapitan Tiago bagamat nagpapasalubong siya ng orkestra at nagpapaulan ng regalo. Hindi rin pwede ang alkalde dahil hindi ito nakapag-uutos dahil siya mismo ang sumusunod. <strong>Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.</strong> Si Padre Salvi ang kura paroko na pumalit kay Padre Damaso. Siya ay mas mabait na maituturing kumpara kay Padre Damaso. Ang Alperes ay mapambugbog sa asawa, lasinggero, at malupit sa kanyang tauhan.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37457,
+        "rank": 9,
+        "item1": {
+          "id": 37457,
+          "sentence_index": 15,
+          "chapter_number": 14,
+          "sentence_text": "Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid.",
+          "scores": {
+            "semantic": 36,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Batid niyang mas maiigi pang bumili ng tagahuli ng kidlat kaysa sa mga paputok at kwitis. Hindi din sang-ayon si Pilosopo Tasyo sa pagpapatugtog ng kampana kapag kumukulog dahil ito ay lubhang mapanganib. Pinagtatawanan lang si Pilosopo Tasyo ng sinumang nakakarinig sa kanyang mga mungkahi. <strong>Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid.</strong> Sinabihan niya ang mga ito na umuwi na dahil may hinandang espesyal na hapunan ang kanilang ina. Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan. Nang lumabas ang matanda sa simbahan ay nagpatuloy ito sa paglalakad hanggang marating ang bahay ni Don Filipo at Aling Doray.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37457,
+          "sentence_index": 15,
+          "chapter_number": 14,
+          "sentence_text": "Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid.",
+          "scores": {
+            "semantic": 38,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Batid niyang mas maiigi pang bumili ng tagahuli ng kidlat kaysa sa mga paputok at kwitis. Hindi din sang-ayon si Pilosopo Tasyo sa pagpapatugtog ng kampana kapag kumukulog dahil ito ay lubhang mapanganib. Pinagtatawanan lang si Pilosopo Tasyo ng sinumang nakakarinig sa kanyang mga mungkahi. <strong>Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid.</strong> Sinabihan niya ang mga ito na umuwi na dahil may hinandang espesyal na hapunan ang kanilang ina. Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan. Nang lumabas ang matanda sa simbahan ay nagpatuloy ito sa paglalakad hanggang marating ang bahay ni Don Filipo at Aling Doray.",
+          "themes": []
+        }
+      },
+      {
+        "id": 37459,
+        "rank": 10,
+        "item1": {
+          "id": 37459,
+          "sentence_index": 17,
+          "chapter_number": 14,
+          "sentence_text": "Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan.",
+          "scores": {
+            "semantic": 44,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Pinagtatawanan lang si Pilosopo Tasyo ng sinumang nakakarinig sa kanyang mga mungkahi. Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid. Sinabihan niya ang mga ito na umuwi na dahil may hinandang espesyal na hapunan ang kanilang ina. <strong>Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan.</strong> Nang lumabas ang matanda sa simbahan ay nagpatuloy ito sa paglalakad hanggang marating ang bahay ni Don Filipo at Aling Doray. Doon ay pinag-usapan nila ang patungkol sa purgatoryo, bagay na hindi pinaniniwalaan ni Pilosopo Tasyo. Sunod namang talakayan ang pagdating ni Ibarra sa sementeryo.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37459,
+          "sentence_index": 17,
+          "chapter_number": 14,
+          "sentence_text": "Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan.",
+          "scores": {
+            "semantic": 45,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Pinagtatawanan lang si Pilosopo Tasyo ng sinumang nakakarinig sa kanyang mga mungkahi. Sunod na nagtungo si Tasyo sa simbahan kung saan niya naabutan ang dalawang magkapatid. Sinabihan niya ang mga ito na umuwi na dahil may hinandang espesyal na hapunan ang kanilang ina. <strong>Ngunit hindi naman papayagan ang mga ito na umuwi dahil sa mga katungkulan nila sa simbahan.</strong> Nang lumabas ang matanda sa simbahan ay nagpatuloy ito sa paglalakad hanggang marating ang bahay ni Don Filipo at Aling Doray. Doon ay pinag-usapan nila ang patungkol sa purgatoryo, bagay na hindi pinaniniwalaan ni Pilosopo Tasyo. Sunod namang talakayan ang pagdating ni Ibarra sa sementeryo.",
+          "themes": []
+        }
+      }
+    ],
+    "elfili_item_diffs": [
+      {
+        "id": 38533,
+        "rank": 3,
+        "item1": {
+          "id": 38533,
+          "sentence_index": 15,
+          "chapter_number": 7,
+          "sentence_text": "Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa paghihimagsik laban sa pagmamalabis ng taong pamahalaan at simbahan.",
+          "scores": {
+            "semantic": 37,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Ani Simoun, malaking sikreto ang nalalaman ni Basilio kaya di niya pagsisihan na patayin ito dahil ayaw niyang maburilyaso ang kanyang planong paghihiganti. Ngunit dahil sa halos pareho sila ng sinapit ni Basilio at uhaw din sa katarungan ay dapat daw silang magtulungang dalawa. Inamin ni Simoun na siya nga si Ibarra at ikinuwento na nilibot niya ang buong daigdig upang magpayaman upang sa kanyang pagbabalik ay mapabagsak ang  pamahalaang sumira sa kanyang buhay. <strong>Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa paghihimagsik laban sa pagmamalabis ng taong pamahalaan at simbahan.</strong> Di rin sang-ayon si Ibarra sa plano nina Basilio na pagtatayo ng paraalan ng Wikang Kastila at sa paghingi nilang gawing lalawigan ng Espanya ang Pilipinas at bigyan ng pantay na karapatan ang mga Kastila at Pilipino. Ayon kay Simoun, magbibigay lamang daw ito ng daan sa Pilipinas sa pagiging bayang walang sariling pagkukuro, walang kalayaan at pati kapintasan ay hiram dahil sa pagpipilit manghiram ng wika. Katwiran naman ni Basilio, ang kastila umano ay isang wikang magbubuklod- buklod sa mga pulo ng Pilipinas.",
+          "themes": []
+        },
+        "item2": {
+          "id": 38533,
+          "sentence_index": 15,
+          "chapter_number": 7,
+          "sentence_text": "Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa paghihimagsik laban sa pagmamalabis ng taong pamahalaan at simbahan.",
+          "scores": {
+            "semantic": 38,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Ani Simoun, malaking sikreto ang nalalaman ni Basilio kaya di niya pagsisihan na patayin ito dahil ayaw niyang maburilyaso ang kanyang planong paghihiganti. Ngunit dahil sa halos pareho sila ng sinapit ni Basilio at uhaw din sa katarungan ay dapat daw silang magtulungang dalawa. Inamin ni Simoun na siya nga si Ibarra at ikinuwento na nilibot niya ang buong daigdig upang magpayaman upang sa kanyang pagbabalik ay mapabagsak ang  pamahalaang sumira sa kanyang buhay. <strong>Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa paghihimagsik laban sa pagmamalabis ng taong pamahalaan at simbahan.</strong> Di rin sang-ayon si Ibarra sa plano nina Basilio na pagtatayo ng paraalan ng Wikang Kastila at sa paghingi nilang gawing lalawigan ng Espanya ang Pilipinas at bigyan ng pantay na karapatan ang mga Kastila at Pilipino. Ayon kay Simoun, magbibigay lamang daw ito ng daan sa Pilipinas sa pagiging bayang walang sariling pagkukuro, walang kalayaan at pati kapintasan ay hiram dahil sa pagpipilit manghiram ng wika. Katwiran naman ni Basilio, ang kastila umano ay isang wikang magbubuklod- buklod sa mga pulo ng Pilipinas.",
+          "themes": []
+        }
+      },
+      {
+        "id": 38660,
+        "rank": 4,
+        "item1": {
+          "id": 38660,
+          "sentence_index": 22,
+          "chapter_number": 12,
+          "sentence_text": "Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung mayroon ay aalis na at magdadahilang maysakit ngunit nakapapasa, sa anong himala ay napasunod kay Paulita sa simbahan.",
+          "scores": {
+            "semantic": 42,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung mayroon ay aalis na at magdadahilang maysakit ngunit nakapapasa, sa anong himala ay napasunod kay Paulita sa simbahan.</strong> Nagpasukan na sa paaralan ang mga mag-aaral ngunit may tumawag kay Placido.",
+          "themes": []
+        },
+        "item2": {
+          "id": 38660,
+          "sentence_index": 22,
+          "chapter_number": 12,
+          "sentence_text": "Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung mayroon ay aalis na at magdadahilang maysakit ngunit nakapapasa, sa anong himala ay napasunod kay Paulita sa simbahan.",
+          "scores": {
+            "semantic": 43,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Ang estudyanteng si Tadeo na kaya lamang pumasok sa paaralan ay upang alamin kung may pasok at kung mayroon ay aalis na at magdadahilang maysakit ngunit nakapapasa, sa anong himala ay napasunod kay Paulita sa simbahan.</strong> Nagpasukan na sa paaralan ang mga mag-aaral ngunit may tumawag kay Placido.",
+          "themes": []
+        }
+      },
+      {
+        "id": 38831,
+        "rank": 5,
+        "item1": {
+          "id": 38831,
+          "sentence_index": 9,
+          "chapter_number": 22,
+          "sentence_text": "Ang una ay hinahamon diumano ito ng simbahan at ang pangalawa ay dahil ito ay may pagnanasa lamang na makita ang pagtatanghal.",
+          "scores": {
+            "semantic": 38,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Dahil dito\u2019y tinawag ni Don Primitivo ang tagapaghatid sa upuan nang makita niya na ayaw tumindig ng ginoo. Ang pagmamatigas ni Don Primitivo ay nagdulot ng kaguluhan at kasiyahan sa mga taong naiiniP.  Samantala, habang nagaganap ang kaguluhan ay biglang tumugtog ang marchareal dahil dumating na ang Kapitan Heneral. Sinasabing manonood ang Kapitan Heneral ng palabas dahil sa dalawang dahilan. <strong>Ang una ay hinahamon diumano ito ng simbahan at ang pangalawa ay dahil ito ay may pagnanasa lamang na makita ang pagtatanghal.</strong> Nasa loob din ng dulaan si Pepay at katapat ng mga estudyante ang kinauupuang palko nito. Kinuntsaba siya ng mga estudyante at siyang gagamitin kay Don Custodio upang palambutin ang puso nito. Noong hapong iyon ay sumulat si Pepay sa kagalang-galang na tagapayo at naghihintay ng kasagutan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 38831,
+          "sentence_index": 9,
+          "chapter_number": 22,
+          "sentence_text": "Ang una ay hinahamon diumano ito ng simbahan at ang pangalawa ay dahil ito ay may pagnanasa lamang na makita ang pagtatanghal.",
+          "scores": {
+            "semantic": 40,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Dahil dito\u2019y tinawag ni Don Primitivo ang tagapaghatid sa upuan nang makita niya na ayaw tumindig ng ginoo. Ang pagmamatigas ni Don Primitivo ay nagdulot ng kaguluhan at kasiyahan sa mga taong naiiniP.  Samantala, habang nagaganap ang kaguluhan ay biglang tumugtog ang marchareal dahil dumating na ang Kapitan Heneral. Sinasabing manonood ang Kapitan Heneral ng palabas dahil sa dalawang dahilan. <strong>Ang una ay hinahamon diumano ito ng simbahan at ang pangalawa ay dahil ito ay may pagnanasa lamang na makita ang pagtatanghal.</strong> Nasa loob din ng dulaan si Pepay at katapat ng mga estudyante ang kinauupuang palko nito. Kinuntsaba siya ng mga estudyante at siyang gagamitin kay Don Custodio upang palambutin ang puso nito. Noong hapong iyon ay sumulat si Pepay sa kagalang-galang na tagapayo at naghihintay ng kasagutan.",
+          "themes": []
+        }
+      },
+      {
+        "id": 39026,
+        "rank": 6,
+        "item1": {
+          "id": 39026,
+          "sentence_index": 32,
+          "chapter_number": 28,
+          "sentence_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan.",
+          "scores": {
+            "semantic": 45,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Bumagsak ito na bumubula ang bibig saka namatay. Nakahawak ang patay kay Padre Irene na nakaladkad niya hanggang sa gitna ng silid. Sa isang binyagan kinagabihan ay may nagsabog ng kwalta. <strong>Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan.</strong> May nagdaang opisyal at nabigla ito sa mga nakita. Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 39026,
+          "sentence_index": 32,
+          "chapter_number": 28,
+          "sentence_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan.",
+          "scores": {
+            "semantic": 48,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Bumagsak ito na bumubula ang bibig saka namatay. Nakahawak ang patay kay Padre Irene na nakaladkad niya hanggang sa gitna ng silid. Sa isang binyagan kinagabihan ay may nagsabog ng kwalta. <strong>Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan.</strong> May nagdaang opisyal at nabigla ito sa mga nakita. Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.",
+          "themes": []
+        }
+      },
+      {
+        "id": 39028,
+        "rank": 7,
+        "item1": {
+          "id": 39028,
+          "sentence_index": 34,
+          "chapter_number": 28,
+          "sentence_text": "Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.",
+          "scores": {
+            "semantic": 50,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan. May nagdaang opisyal at nabigla ito sa mga nakita. <strong>Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.</strong> ",
+          "themes": []
+        },
+        "item2": {
+          "id": 39028,
+          "sentence_index": 34,
+          "chapter_number": 28,
+          "sentence_text": "Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.",
+          "scores": {
+            "semantic": 52,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan. May nagdaang opisyal at nabigla ito sa mga nakita. <strong>Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.</strong> ",
+          "themes": []
+        }
+      },
+      {
+        "id": 39152,
+        "rank": 8,
+        "item1": {
+          "id": 39152,
+          "sentence_index": 22,
+          "chapter_number": 33,
+          "sentence_text": "Sinabihan ni Simoun si Basilio na sa ikasampu ng gabi ay magkikita sila sa tapat ng simbahan ng San Sebastian para sa mga huling tagubilin.",
+          "scores": {
+            "semantic": 36,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Sinabihan ni Simoun si Basilio na sa ikasampu ng gabi ay magkikita sila sa tapat ng simbahan ng San Sebastian para sa mga huling tagubilin.</strong> ",
+          "themes": []
+        },
+        "item2": {
+          "id": 39152,
+          "sentence_index": 22,
+          "chapter_number": 33,
+          "sentence_text": "Sinabihan ni Simoun si Basilio na sa ikasampu ng gabi ay magkikita sila sa tapat ng simbahan ng San Sebastian para sa mga huling tagubilin.",
+          "scores": {
+            "semantic": 37,
+            "lexical": 85,
+            "final": 83,
+            "precision": 0
+          },
+          "context_text": " <strong>Sinabihan ni Simoun si Basilio na sa ikasampu ng gabi ay magkikita sila sa tapat ng simbahan ng San Sebastian para sa mga huling tagubilin.</strong> ",
+          "themes": []
+        }
+      }
+    ],
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Kolonyalismo lehitimo paghahari gawing supilin",
+        "val2": "Kolonyalismo lehitimo paghahari supilin gawing"
+      },
+      "query_vector_sha256": {
+        "val1": "28cd2c9dd386286fe836a81ed024728685329d87e52d52a6513d8e282d2a8389",
+        "val2": "f77640501e72cca9af2b34269c129ed2e940e036781b377873d8c22aab57958b"
+      }
+    }
+  },
+  "education": {
+    "noli": {
+      "ids1": [
+        37539,
+        37541,
+        37544,
+        37302,
+        37324,
+        37538,
+        37540,
+        37613,
+        37793,
+        37445
+      ],
+      "ids2": [
+        37539,
+        37544,
+        37538,
+        37540,
+        37541,
+        37302,
+        37324,
+        37446,
+        37551,
+        37613
+      ],
+      "entered": [
+        37446,
+        37551
+      ],
+      "left": [
+        37793,
+        37445
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        38403,
+        38698,
+        38699,
+        38743,
+        38500,
+        38514,
+        38516,
+        38518,
+        38547,
+        38558
+      ],
+      "ids2": [
+        38403,
+        38500,
+        38514,
+        38516,
+        38518,
+        38547,
+        38558,
+        38631,
+        38632,
+        38640
+      ],
+      "entered": [
+        38631,
+        38632,
+        38640
+      ],
+      "left": [
+        38698,
+        38699,
+        38743
+      ],
+      "order_changed": false
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Edukasyon wikang pagbabawal karaniwang umunlad pagkakataong pinagkaitan matuto edukasyon kontrol",
+        "val2": "Edukasyon wikang umunlad pinagkaitan karaniwang pagbabawal pagkakataong matuto edukasyon kontrol"
+      },
+      "query_vector_sha256": {
+        "val1": "7e74678507b99ed20987e3d7a3c5a6d467e6be2780716d00b513086745917399",
+        "val2": "c3714f8e059056f19a5de0f966be01213f48c645901ae169137b436b9208acb6"
+      }
+    }
+  },
+  "edukasyon": {
+    "noli": {
+      "ids1": [
+        37539,
+        37544,
+        37541,
+        37538,
+        37540,
+        37542,
+        38119,
+        37862,
+        37543,
+        37358
+      ],
+      "ids2": [
+        37539,
+        37544,
+        37541,
+        37538,
+        37540,
+        37481,
+        37862,
+        38119,
+        37468,
+        37542
+      ],
+      "entered": [
+        37481,
+        37468
+      ],
+      "left": [
+        37543,
+        37358
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        39012,
+        38400,
+        39345,
+        38966,
+        39113,
+        39353,
+        39305,
+        38403,
+        38758,
+        39106
+      ],
+      "ids2": [
+        39012,
+        38400,
+        39345,
+        38966,
+        39113,
+        39353,
+        39305,
+        38696,
+        39106,
+        38987
+      ],
+      "entered": [
+        38696,
+        38987
+      ],
+      "left": [
+        38403,
+        38758
+      ],
+      "order_changed": false
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Edukasyon pagbabawal karaniwang umunlad pagkakataong pinagkaitan wikang matuto edukasyon kontrol pagkatuto nagtuturo",
+        "val2": "Edukasyon wikang umunlad pinagkaitan karaniwang pagbabawal pagkakataong matuto edukasyon kontrol nagtuturo pagkatuto"
+      },
+      "query_vector_sha256": {
+        "val1": "6bfed89732de275b1b85f2f549155b449015cb0d170398d5c6301817db838dc3",
+        "val2": "f8ad00f82dd55ccc24e76dc3b2e3fdb1eedf8dcdb6b43e2eda9a7ff1bd2b942a"
+      }
+    }
+  },
+  "edukasyon para sa kalayaan": {
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Edukasyon pagbabawal karaniwang umunlad pagkakataong pinagkaitan wikang matuto edukasyon wakasan kontrol pang-aalipin",
+        "val2": "Edukasyon wikang umunlad pinagkaitan karaniwang pagbabawal pagkakataong matuto edukasyon kontrol wakasan pang-aalipin"
+      },
+      "query_vector_sha256": {
+        "val1": "03c4f8929228a5026ce9d7e5b63f634005a5c7807d72f33a50e0a61878b4f38e",
+        "val2": "8bdffd1736297b7d79c02d39e8c011415ea86cc6a98ce6c916bf344128794888"
+      }
+    }
+  },
+  "kalayaan": {
+    "noli": {
+      "ids1": [
+        38300,
+        37600,
+        38386,
+        38258,
+        37677,
+        37618,
+        37644,
+        38249,
+        38071,
+        38383
+      ],
+      "ids2": [
+        38300,
+        37644,
+        37600,
+        37345,
+        37481,
+        38386,
+        38249,
+        38258,
+        37467,
+        38197
+      ],
+      "entered": [
+        37345,
+        37481,
+        37467,
+        38197
+      ],
+      "left": [
+        37677,
+        37618,
+        38071,
+        38383
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        39345,
+        39324,
+        39338,
+        38535,
+        39110,
+        39347,
+        38972,
+        38706,
+        38809,
+        38884
+      ],
+      "ids2": [
+        39345,
+        39324,
+        39338,
+        38535,
+        39347,
+        39110,
+        38972,
+        38706,
+        38958,
+        38809
+      ],
+      "entered": [
+        38958
+      ],
+      "left": [
+        38884
+      ],
+      "order_changed": false
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga",
+        "val2": "Kasakiman gahaman salapi pagnanasa nabibili nawawala halaga"
+      },
+      "query_vector_sha256": {
+        "val1": "2fde98bba480f15038b491c58cdc2ce8d8373736bc5e6d6356a0ef3f74312f24",
+        "val2": "b6b04ed4be6e7440295ffb1f7e69dea862fe30c86371e20b1bdb1a37166c5d80"
+      },
+      "reason": {
+        "val1": "validation_passed",
+        "val2": "matches_found"
+      }
+    }
+  },
+  "kapangyarihan ng simbahan": {
+    "noli_item_diffs": [
+      {
+        "id": 37408,
+        "rank": 1,
+        "item1": {
+          "id": 37408,
+          "sentence_index": 5,
+          "chapter_number": 11,
+          "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
+          "scores": {
+            "semantic": 12,
+            "lexical": 76,
+            "final": 53,
+            "precision": 80
+          },
+          "context_text": "Kailanman ay hindi siya nagyabang kahit siya ay nagmamay-ari ng napakaraming lupain. Hindi din makapangyarihan si Kapitan Tiago bagamat nagpapasalubong siya ng orkestra at nagpapaulan ng regalo. Hindi rin pwede ang alkalde dahil hindi ito nakapag-uutos dahil siya mismo ang sumusunod. <strong>Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.</strong> Si Padre Salvi ang kura paroko na pumalit kay Padre Damaso. Siya ay mas mabait na maituturing kumpara kay Padre Damaso. Ang Alperes ay mapambugbog sa asawa, lasinggero, at malupit sa kanyang tauhan.",
+          "themes": []
+        },
+        "item2": {
+          "id": 37408,
+          "sentence_index": 5,
+          "chapter_number": 11,
+          "sentence_text": "Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.",
+          "scores": {
+            "semantic": 11,
+            "lexical": 76,
+            "final": 53,
+            "precision": 80
+          },
+          "context_text": "Kailanman ay hindi siya nagyabang kahit siya ay nagmamay-ari ng napakaraming lupain. Hindi din makapangyarihan si Kapitan Tiago bagamat nagpapasalubong siya ng orkestra at nagpapaulan ng regalo. Hindi rin pwede ang alkalde dahil hindi ito nakapag-uutos dahil siya mismo ang sumusunod. <strong>Ang tunay na makapangyarihan ay ang kura paroko sa simbahan at ang Alperes.</strong> Si Padre Salvi ang kura paroko na pumalit kay Padre Damaso. Siya ay mas mabait na maituturing kumpara kay Padre Damaso. Ang Alperes ay mapambugbog sa asawa, lasinggero, at malupit sa kanyang tauhan.",
+          "themes": []
+        }
+      }
+    ],
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga",
+        "val2": "Kasakiman gahaman salapi pagnanasa nabibili nawawala halaga"
+      },
+      "query_vector_sha256": {
+        "val1": "049d03185d50faa419e8e5d208c9c620421386ca6a7a85fdc07e02a410b66eff",
+        "val2": "c6bb56d5da249c4bec7d6c680b0709d78ebe5f81cf886003386d4b9525f45185"
+      }
+    }
+  },
+  "karahasan ng mga prayle": {
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Pribilehiyo kalakip pribilehiyo nagbukas pinto gabay yaman",
+        "val2": "Pribilehiyo kalakip pribilehiyo pinto nagbukas gabay yaman"
+      },
+      "query_vector_sha256": {
+        "val1": "6ca1549a754671be149bbbe03ceeaf7e9641532b1f49d23e15ca857bad45962e",
+        "val2": "11b7ee79aa6f145d3e47248f18faaff12da6e5a5e904628e2b78afc7950c900b"
+      }
+    }
+  },
+  "oppression": {
+    "noli": {
+      "ids1": [
+        38070,
+        38386,
+        37838,
+        38034,
+        38275,
+        38149,
+        38308
+      ],
+      "ids2": [
+        38386,
+        38070,
+        37838,
+        38034,
+        38275,
+        38149
+      ],
+      "entered": [],
+      "left": [
+        38308
+      ],
+      "order_changed": false
+    },
+    "elfili": {
+      "ids1": [
+        39047,
+        39331,
+        39002,
+        38581,
+        38925,
+        38949,
+        39312,
+        38556
+      ],
+      "ids2": [
+        39331,
+        38925,
+        38581,
+        39047,
+        39002,
+        39312,
+        38949,
+        38556
+      ],
+      "entered": [],
+      "left": [],
+      "order_changed": true
+    },
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Kasakiman gahaman salapi nawawala pagnanasa nabibili halaga",
+        "val2": "Kasakiman gahaman salapi pagnanasa nabibili nawawala halaga"
+      },
+      "query_vector_sha256": {
+        "val1": "1b75696eebd1ac8bf20b79569404f206673ea8aae780505a4049f2d496e02f43",
+        "val2": "b027fefe746af5f28de26f5ffb5311a2ef8ecafeadd02631fb71768468f0bb80"
+      }
+    }
+  },
+  "pag-ibig ni Maria Clara": {
+    "noli_item_diffs": [
+      {
+        "id": 38385,
+        "rank": 3,
+        "item1": {
+          "id": 38385,
+          "sentence_index": 12,
+          "chapter_number": 64,
+          "sentence_text": "Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 15,
+            "final": 11,
+            "precision": 63
+          },
+          "context_text": "Samantala, nagdagdag pa ng ilang kulot sa kaniyang malagong buhok ang nagmumurang kamatis na si Donya Victorina. Humuhusay narin siya sa pagsasalita ng Espanyol. Pinaturuan niyang magpatakbo ng kabayo ang kanyang asawa ngunit hindi ito natuto kung kaya\u2019t si Donya Victorina nalang ang naging kutsero. <strong>Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara.</strong> Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan. Nagpakalunod naman sa alak si Donya Consolacion matapos mawala ang kaniyang ganda dahilan kung bakit siya namayat. Ang alperes ay nakipaghiwalay sa nangangamoy niyang asawa.",
+          "themes": []
+        },
+        "item2": {
+          "id": 38385,
+          "sentence_index": 12,
+          "chapter_number": 64,
+          "sentence_text": "Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara.",
+          "scores": {
+            "semantic": 7,
+            "lexical": 15,
+            "final": 11,
+            "precision": 63
+          },
+          "context_text": "Samantala, nagdagdag pa ng ilang kulot sa kaniyang malagong buhok ang nagmumurang kamatis na si Donya Victorina. Humuhusay narin siya sa pagsasalita ng Espanyol. Pinaturuan niyang magpatakbo ng kabayo ang kanyang asawa ngunit hindi ito natuto kung kaya\u2019t si Donya Victorina nalang ang naging kutsero. <strong>Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara.</strong> Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan. Nagpakalunod naman sa alak si Donya Consolacion matapos mawala ang kaniyang ganda dahilan kung bakit siya namayat. Ang alperes ay nakipaghiwalay sa nangangamoy niyang asawa.",
+          "themes": []
+        }
+      }
+    ],
+    "metadata": {
+      "query_expansion_text": {
+        "val1": "Pang-aapi sa Kababaihan kautusan tinatali inaalisan kababaihang pagpigil biktima",
+        "val2": "Pang-aapi sa Kababaihan kautusan inaalisan tinatali kababaihang pagpigil biktima"
+      },
+      "query_vector_sha256": {
+        "val1": "5a790e1842ab358c1f36b9325c457440c1f57a8158266e9eeaf689d202a4668c",
+        "val2": "e2a0a5f59a3e8287fe3cda0791426721b461ec00d88b294656baa762e529c22a"
+      }
+    }
+  }
+}
+
+
+--------------------------------------------------------------------------------
+4. SIX-PROCESS PAIRWISE COMPARISON MATRIX (proc1..proc6)
+--------------------------------------------------------------------------------
+Pair                                          | Total Queries  | Diffs      | Status
+-------------------------------------------------------------------------------------
+proc1 (unset fwd) vs proc2 (unset rev)        |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc1 (unset fwd) vs proc3 (seed 1)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc1 (unset fwd) vs proc4 (seed 2)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc1 (unset fwd) vs proc5 (seed 12345)       |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc1 (unset fwd) vs proc6 (seed 0)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc2 (unset rev) vs proc3 (seed 1)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc2 (unset rev) vs proc4 (seed 2)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc2 (unset rev) vs proc5 (seed 12345)       |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc2 (unset rev) vs proc6 (seed 0)           |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc3 (seed 1) vs proc4 (seed 2)              |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc3 (seed 1) vs proc5 (seed 12345)          |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc3 (seed 1) vs proc6 (seed 0)              |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc4 (seed 2) vs proc5 (seed 12345)          |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc4 (seed 2) vs proc6 (seed 0)              |       40       |     0      | BIT-IDENTICAL (0 diffs)
+proc5 (seed 12345) vs proc6 (seed 0)          |       40       |     0      | BIT-IDENTICAL (0 diffs)
+
+Conclusion: All 15 pairwise comparisons among the 6 processes are BIT-IDENTICAL (0 diffs).

@@ -1,0 +1,21 @@
+commit 6e16b169cd00ce7af4b3bb06f20165d95c642db2
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:15:43 2026 +0800
+
+    feat(perf): Commit E2 - sorted bridge_tokens in bridge_text
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+diff --git a/backend/app/core/engine.py b/backend/app/core/engine.py
+index ae62de2..2cb8ca5 100644
+--- a/backend/app/core/engine.py
++++ b/backend/app/core/engine.py
+@@ -1067,7 +1067,7 @@ class RizalEngine:
+                 # If we have generated valid cross-lingual bridge tokens, their Tagalog vectors
+                 # can naturally realign the English query vector into the Tagalog theme space before the gate.
+                 if is_cross_lingual and bridge_tokens:
+-                    bridge_text = " ".join([bt for bt in bridge_tokens if len(bt) > 3])
++                    bridge_text = " ".join(sorted([bt for bt in bridge_tokens if len(bt) > 3]))
+                     if bridge_text:
+                         bridge_embedding = self.base_model.encode(bridge_text, show_progress_bar=False)
+                         # Blend the raw query with its synthesized Tagalog bridge translation

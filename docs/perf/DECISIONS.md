@@ -136,7 +136,8 @@ Any change that affects search result order MUST:
 4. Document the specific ranking delta (# of position changes)
 5. Explain why the change improves search quality
 
-**Current ranking changes**: None — Phase 1b/1c diagnostic instrumentation added behind PERF_BENCHMARK flag; no optimization or ranking-altering changes approved.
+**Approved ranking changes**:
+- **Step B Determinism (2026-10-16, approved by user)**: 22 of 40 golden queries changed (21 result/ranking changes + 1 metadata-only). 16 queries attributed to B1 `ORDER BY` tie-breaks at tied score boundaries; 6 additional queries attributed to E1 theme expansion sorting. Commits E2 and E3 produced 0 ranking changes but eliminated cross-seed hash divergence. New permanent reference: `docs/perf/golden_snapshot_deterministic.json`.
 
 ---
 
@@ -469,13 +470,55 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 
 ---
 
+### 2026-10-16: Step B — Search Pipeline Determinism (Approved)
+
+**Context**: In Python 3.3+, SipHash randomizes hash seeds on process startup unless `PYTHONHASHSEED` is explicitly pinned. In `backend/app/core/engine.py`, four non-deterministic mechanisms caused search results and ranking orders to diverge across independent server processes:
+1. SQL queries lacked deterministic secondary ordering keys on `LIMIT top_k * 20` and `ORDER BY` clauses.
+2. Theme candidate extraction iterated over unordered Python `set()` objects, and tie-breaking specificity scores lacked secondary alphabetical tie-break keys.
+3. Cross-lingual synthesized bridge translations iterated over unordered `bridge_tokens` sets when assembling `bridge_text`.
+4. Dynamic semantic validation iterated over unordered `sent_words = set(...)`, causing candidate tokens to mutate the shared `valid_tokens` set in arbitrary order across processes.
+
+**Decision**: Apply minimal, targeted determinism fixes strictly for reproducibility across processes, without altering search scoring models, thresholds, or reranking algorithms:
+1. **Commit B1 (`646deb6`)**: Added explicit `ORDER BY Sentence.id` to lexical retrieval statements, `ORDER BY Theme.id` to theme loading, and deterministic primary/secondary keys on SQL queries.
+2. **Commit D (`964a2c1`)**: Diagnostic instrumentation only behind `PERF_BENCHMARK=1` (SHA-256 hash of final query vector bytes, bridge token metadata, translator diagnostics).
+3. **Commit E1 (`17896f3`)**: Deterministic theme candidate iteration via `sorted(candidates)` and composite sort key `(-specificity, word)` in `_expand_query_with_themes`.
+4. **Commit E2 (`6e16b16`)**: Deterministic bridge text synthesis via `sorted([bt for bt in bridge_tokens if len(bt) > 3])`.
+5. **Commit E3 (`73f1d1a`)**: Deterministic candidate word iteration in dynamic validation via `cand_words = [w for w in sorted(sent_words) if len(w) > 4 and w not in self.LOW_INFO_WORDS]`.
+
+**Rationale**:
+- Public deployment across multiple worker processes (Uvicorn/Gunicorn workers, autoscaled instances, CI test suites) requires bit-identical search results regardless of process startup order or Python hash seeds.
+- Zero scoring model changes: no semantic weights, lexical weights, precision boosts, or reranking formulas were modified.
+
+**Empirical Behavior Diffs vs Golden Seed0 Reference**:
+- **22 queries changed** out of 40 total (21 result/ranking + 1 metadata-only).
+- **16 queries** from B1 (`ORDER BY` tie-breaks) — all at tied score boundaries.
+- **6 additional queries** from E1 (theme expansion sorting) — stabilized concept vectors.
+- **E2 & E3**: 0 ranking changes on the 40 golden queries at `PYTHONHASHSEED=0`; eliminated cross-seed hash divergence in `bridge_tokens` (`love`, `corruption`) and `valid_tokens` (`edukasyon`).
+
+**Verification (Phase B6 — 9 Evidence Items)**:
+- 6-process matrix (40 queries): 100% bit-identical across all 15 pairwise comparisons.
+- 206-query held-out suite: 100% bit-identical across all 6 pairwise comparisons.
+- Deterministic translator stub reruns: 100% bit-identical (all 15 pairs, all 6 held-out pairs).
+- 49 `set()` sites audited across all reachable files — every remaining site verified as pure membership lookup or dedup filter.
+- All 9 evidence items documented with SHA-256 hashes in `docs/perf/evidence/b6_*.txt`.
+
+**Known Limitations**:
+1. `ibarra` LIMIT-200 truncation: High-frequency content words exceed `LIMIT top_k * 20 = 200` in full corpus search. While `ORDER BY Sentence.id` makes truncation deterministic, occurrences with `id > 200th match` are excluded from evaluation.
+
+**Impact**:
+- Performance: No measurable latency impact (sorting small sets is negligible).
+- Correctness: 22 queries with position shifts at tied score boundaries; 100% bit-identical determinism across all server processes without `PYTHONHASHSEED=0`.
+- Trade-offs: `PYTHONHASHSEED=0` is no longer required for cross-process determinism.
+
+**User Approval**: Approved 2026-10-16.
+
+---
+
 ## Pending Decisions
 
-### 1. Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)
-- **Status**: Pending explicit user approval.
-- **Context**: Resolving run-to-run variation under arbitrary `PYTHONHASHSEED` requires sorting set iterations in theme expansion and adding deterministic secondary tie-breakers (`id`, `sentence_index`) to database queries.
-- **Impact**: Classified as a **behavior change**. Will produce a controlled, permanent ranking delta at tie boundaries.
-- **Protocol**: Apply Task 2 Item 8 (`ORDER BY`) first and compare; apply Items 1–7 (`sorted()`); run two fresh passes without `PYTHONHASHSEED` to prove cross-process identity; capture `golden_snapshot_deterministic.json` as the new permanent reference; record exact ranking delta in `DECISIONS.md` under the Ranking Change Policy.
+### 1. ~~Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)~~ ✅ RESOLVED
+- **Status**: **Approved and committed** (2026-10-16). See decision entry above.
+- **Resolution**: All 5 commits (B1, D, E1, E2, E3) applied. 100% bit-identical determinism verified across 6 processes and 206 held-out queries. `PYTHONHASHSEED=0` no longer required. New permanent reference: `golden_snapshot_deterministic.json`.
 
 ### 2. First-Seen Out-of-Domain Translation Latency Policy
 - **Status**: Pending policy decision.

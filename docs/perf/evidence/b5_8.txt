@@ -1,0 +1,289 @@
+================================================================================
+ITEM 8: HELDOUT SUITE (206 QUERIES), PER-PROCESS RESULTS & S0 NEGATIVE CONTROL
+================================================================================
+
+1. SCRIPTS/HELDOUT_QUERIES.JSON CONTENT:
+{
+  "total_queries": 206,
+  "categories": {
+    "en_tl_dictionary": [
+      "church",
+      "colonialism",
+      "corruption",
+      "day",
+      "death",
+      "education",
+      "evening",
+      "faith",
+      "family",
+      "fear",
+      "freedom",
+      "friar",
+      "government",
+      "greed",
+      "honor",
+      "house",
+      "illness",
+      "joy",
+      "justice",
+      "life",
+      "love",
+      "night",
+      "oppression",
+      "power",
+      "priest",
+      "religion",
+      "sacrifice",
+      "sadness",
+      "suffering",
+      "town",
+      "violence"
+    ],
+    "tagalog_vocabulary": [
+      "asul",
+      "baba",
+      "babasagin",
+      "balo",
+      "baunan",
+      "bendita-sea-tu-pureza",
+      "binunot",
+      "biyenan",
+      "bukas",
+      "bunganga",
+      "dagata",
+      "dapuwa",
+      "dilaw",
+      "dilim",
+      "elejorde",
+      "ganun",
+      "ginaganapan",
+      "hadlang",
+      "hahanapin",
+      "hinagod",
+      "hininalang",
+      "hudyatan",
+      "ilandas",
+      "iliniligpit",
+      "iluluhod",
+      "inaabot",
+      "ipahahanap",
+      "jele",
+      "jouy",
+      "kalaing",
+      "kalipunan",
+      "kankan",
+      "kanto",
+      "kinahatnan",
+      "kinamit",
+      "koncillos",
+      "korrea",
+      "laket",
+      "laking",
+      "libro",
+      "linahukan",
+      "maayos",
+      "maganap",
+      "magbububo",
+      "magbukas",
+      "magpuno",
+      "maisasaysay",
+      "makabigkas",
+      "makapanangan",
+      "makihamok",
+      "makikipagmonte",
+      "malalamig",
+      "mali",
+      "masawing",
+      "masdan",
+      "mundong",
+      "nabulagan",
+      "naghaharing",
+      "nagninilaynilay",
+      "nagpatanaw",
+      "naisip",
+      "nakakukubli",
+      "nakapagpapagaan",
+      "nakikipagtutulan",
+      "namagitna",
+      "nangagpapatumpiktumpik",
+      "natitiyak",
+      "naupos",
+      "odisse",
+      "paggawa",
+      "pagkakaanyo-anyo",
+      "pagkakabalak",
+      "pagsasabong",
+      "pahabol",
+      "pakingan",
+      "palad",
+      "pamahayagang",
+      "pananaghilian",
+      "pananalangin",
+      "pangyayaring",
+      "panoorin",
+      "pasan",
+      "pasiya",
+      "pinalagdaan",
+      "pinalamutihan",
+      "pinapamugad",
+      "pingkaw",
+      "pirotecniko",
+      "pulgas",
+      "rusa",
+      "sawali",
+      "sinimulang",
+      "susuboksubok",
+      "susuwatan",
+      "tadeo",
+      "thot",
+      "tica",
+      "tinikom",
+      "ubuhan",
+      "vivace"
+    ],
+    "phrases": [
+      "sigaw ng bayan",
+      "lihim ng simbahan",
+      "aral sa paaralan",
+      "tinig ng katotohanan",
+      "anak ng bayan",
+      "lupit ng prayle",
+      "pag-asa ng kabataan",
+      "dangal ng pamilya",
+      "buhay sa piitan",
+      "kasalanan at kapatawaran",
+      "yaman at kapangyarihan",
+      "hirap ng magsasaka",
+      "liwanag at dilim",
+      "pananampalataya at pag-ibig",
+      "pagbabalik ni ibarra",
+      "hustisya para sa dukha",
+      "sumpa ng bayan",
+      "luha ng ina",
+      "dunong at karunungan",
+      "lihim na pag-ibig",
+      "dusa ng bilanggo",
+      "katapusan ng kasamaan",
+      "paglilitis kay basilio",
+      "panaginip ni sisa",
+      "tinig sa kadiliman",
+      "sigaw ng katarungan",
+      "pag-aalsa sa gabi",
+      "habilin ng guro",
+      "pangako sa kasintahan",
+      "sumpa ng nakaraan",
+      "laban sa korapsyon",
+      "dasal ng maralita",
+      "dugo ng bayani",
+      "kamatayan sa lawa",
+      "kasunduan ng makapangyarihan",
+      "banta ng digmaan",
+      "lihim ng kumbento",
+      "yapak sa lansangan",
+      "tanglaw sa dilim",
+      "sukat ng pagtitiis",
+      "pighati ng puso",
+      "dunong ng matanda",
+      "panata sa simbahan",
+      "anghel ng tahanan",
+      "hapis at hilahil",
+      "sibat ng katotohanan",
+      "bukas na aklat",
+      "sigwa ng panahon",
+      "tinig ng kunsensya",
+      "ganti ng inapi"
+    ],
+    "names": [
+      "Crisostomo Ibarra",
+      "Maria Clara",
+      "Padre Damaso",
+      "Elias",
+      "Kapitan Tiago",
+      "Sisa",
+      "Basilio",
+      "Crispin",
+      "Pilosopo Tasyo",
+      "Donya Victorina",
+      "Simoun",
+      "Isagani",
+      "Paulita Gomez",
+      "Kabesang Tales",
+      "Juli"
+    ],
+    "period_queries": [
+      "Noli Me Tangere. El Filibusterismo.",
+      "Bayan ko. Mahal ko.",
+      "Katarungan. Kalayaan.",
+      "Edukasyon ang lunas. Paaralan ang pag-asa.",
+      "Simbahan at pamahalaan. Prayle at heneral.",
+      "Buhay ni Simoun. Kamatayan ni Ibarra.",
+      "Dasal ng ina. Luha ng anak.",
+      "Yaman ng bayan. Hirap ng mamamayan.",
+      "Gabi ng paghihimagsik. Araw ng kalayaan.",
+      "Sakit ng lipunan. Kanser ng bayan."
+    ]
+  }
+}
+
+--------------------------------------------------------------------------------
+2. PER-PROCESS HELDOUT RESULT FILES & NON-EMPTY COUNTS:
+--------------------------------------------------------------------------------
+File Path                                  | SHA256 Hash                                                      | Total  | Non-Empty
+-----------------------------------------------------------------------------------------------------------------------------
+docs/perf/heldout_head_unset_fwd.json      | 5c559f265777b287ef5aa3a169c1ec899429c5b549967da58c31a443c2132712 |  206   |    166   
+docs/perf/heldout_head_unset_rev.json      | 503f06de2f774b84dde56f6a37684bf7285e2e356a263d7cc80952cf9aa03789 |  206   |    166   
+docs/perf/heldout_head_seed1.json          | beac2ed2bd3cf2d1abc024012497563add388962a79d4a8330a51932752e136c |  206   |    166   
+docs/perf/heldout_head_seed12345.json      | 961d110a7794220ffa8003799233080b459c6811925e69e873f59037ded461eb |  206   |    166   
+docs/perf/heldout_s1_unset_fwd.json        | e9e82414369f0640756cd4d1bf0635493a6391e60119b22780e2689249c0d956 |  206   |    166   
+docs/perf/heldout_s1_unset_rev.json        | cbae13a71db1178f22c074e6c97999d80f9128027fe9c0b98d0526433c883d17 |  206   |    166   
+docs/perf/heldout_s1_seed1.json            | 7ec66779a4354282b1555e62050ae073f0bff2ea34b85fcd7533ae65597aa715 |  206   |    166   
+docs/perf/heldout_s1_seed12345.json        | 8a50eb4691a2f6c077ec3af27b444ec5457430070a18d827606a1d2be71a873a |  206   |    166   
+
+--------------------------------------------------------------------------------
+3. NEGATIVE CONTROL: ABLATION S0 ON HELDOUT SET (SEED 1 vs SEED 2):
+--------------------------------------------------------------------------------
+Ablation S0 Held-Out Comparison (seed 1 vs seed 2):
+  Total queries: 206
+  Queries with changes: 41
+  Divergent queries list (41):
+     1. Crisostomo Ibarra
+     2. Crispin
+     3. Dasal ng ina. Luha ng anak.
+     4. Donya Victorina
+     5. Edukasyon ang lunas. Paaralan ang pag-asa.
+     6. Kabesang Tales
+     7. Noli Me Tangere. El Filibusterismo.
+     8. Padre Damaso
+     9. Simbahan at pamahalaan. Prayle at heneral.
+    10. Simoun
+    11. anghel ng tahanan
+    12. buhay sa piitan
+    13. church
+    14. colonialism
+    15. dapuwa
+    16. dugo ng bayani
+    17. dunong ng matanda
+    18. education
+    19. faith
+    20. ganti ng inapi
+    21. ginaganapan
+    22. honor
+    23. ilandas
+    24. illness
+    25. kasunduan ng makapangyarihan
+    26. lihim na pag-ibig
+    27. lihim ng simbahan
+    28. maisasaysay
+    29. nagninilaynilay
+    30. nagpatanaw
+    31. naupos
+    32. oppression
+    33. pagbabalik ni ibarra
+    34. pananampalataya at pag-ibig
+    35. pasiya
+    36. priest
+    37. religion
+    38. sacrifice
+    39. sadness
+    40. sawali
+    41. yaman at kapangyarihan

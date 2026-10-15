@@ -1,0 +1,66 @@
+       book        | source_type |  min  |  max  | count 
+-------------------+-------------+-------+-------+-------
+ elfili            | summary     | 38389 | 39362 |   974
+ noli              | summary     | 37177 | 38388 |  1212
+ Noli Me Tangere   | full        | 39363 | 48035 |  8673
+ El Filibusterismo | full        | 48036 | 53578 |  5543
+(4 rows)
+
+
+-rw-r--r-- 1 marcu 197609   5701 Oct 15 15:25 docs/perf/DECISIONS_DRAFT.md
+-rw-r--r-- 1 marcu 197609 543229 Oct 14 19:44 docs/perf/b1_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 487742 Oct 14 14:43 docs/perf/batched_context_snapshot.json
+-rw-r--r-- 1 marcu 197609 541920 Oct 14 20:11 docs/perf/control_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 561422 Oct 15 06:08 docs/perf/d_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 558971 Oct 15 06:13 docs/perf/e1_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 559010 Oct 15 06:17 docs/perf/e2_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 559035 Oct 15 06:20 docs/perf/e3_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 285942 Oct 14 03:16 docs/perf/fixed_client_after_snapshot.json
+-rw-r--r-- 1 marcu 197609 285915 Oct 14 03:01 docs/perf/fixed_client_before_snapshot.json
+-rw-r--r-- 1 marcu 197609 456447 Oct 13 16:19 docs/perf/full_40_snapshot.json
+-rw-r--r-- 1 marcu 197609 186918 Oct 12 18:31 docs/perf/golden_snapshot.json
+-rw-r--r-- 1 marcu 197609 186918 Oct 12 18:31 docs/perf/golden_snapshot_before_optimization.json
+-rw-r--r-- 1 marcu 197609 559017 Oct 15 06:23 docs/perf/golden_snapshot_deterministic.json
+-rw-r--r-- 1 marcu 197609 505185 Oct 13 21:46 docs/perf/golden_snapshot_seed0.json
+-rw-r--r-- 1 marcu 197609 543262 Oct 14 20:17 docs/perf/lexical_only_snapshot.json
+-rw-r--r-- 1 marcu 197609  37426 Oct 13 15:59 docs/perf/new_snapshot.json
+-rw-r--r-- 1 marcu 197609 541933 Oct 14 20:23 docs/perf/non_lexical_only_snapshot.json
+-rw-r--r-- 1 marcu 197609 269746 Oct 14 00:39 docs/perf/phase2_step1_snapshot.json
+-rw-r--r-- 1 marcu 197609 559017 Oct 15 06:23 docs/perf/proc1_unset_fwd.json
+-rw-r--r-- 1 marcu 197609 558993 Oct 15 06:25 docs/perf/proc2_unset_rev.json
+-rw-r--r-- 1 marcu 197609 559006 Oct 15 06:27 docs/perf/proc3_seed1.json
+-rw-r--r-- 1 marcu 197609 559004 Oct 15 06:29 docs/perf/proc4_seed2.json
+-rw-r--r-- 1 marcu 197609 558995 Oct 15 06:31 docs/perf/proc5_seed12345.json
+-rw-r--r-- 1 marcu 197609 558995 Oct 15 06:33 docs/perf/proc6_seed0.json
+-rw-r--r-- 1 marcu 197609 541900 Oct 14 16:37 docs/perf/step_a_snapshot.json
+-rw-r--r-- 1 marcu 197609 282718 Oct 14 14:34 docs/perf/timer_fix_snapshot.json
+-rw-r--r-- 1 marcu 197609   4867 Oct 15 15:01 scripts/heldout_queries.json
+
+f20e39c5444f33b567e77b4957f0f52103d756e9627f88a98f96531bd168b422 *docs/perf/proc1_unset_fwd.json
+71eed61a59d8296dc16451f0179023b54168610356e26a3e62b8001cdf2e0d4a *docs/perf/proc2_unset_rev.json
+1df08cd9adbcd4fd71dfb58d42c708efc5e6ad7f5bb7401ebb1cc6f77cf9e434 *docs/perf/proc3_seed1.json
+eb9145d11fce1b6a0d9f99d2879958e8f0ca52cce554ba126f1859ae524e7174 *docs/perf/proc4_seed2.json
+ba33b2edad7d8e6eecbb3ce56ae330e7b3e3a6497411956da40d961b6c0ddf14 *docs/perf/proc5_seed12345.json
+906a2668c4bc4d21d88035425a095cca3e74c217bc6badcce26d909286efe99f *docs/perf/proc6_seed0.json
+34a8236f3def611d1dcf8089fb5a61a5f3bf20594c0059aae77be04a28813aa3 *docs/perf/b1_snapshot_seed0.json
+1b6707601d23b15e7a3cdfbe862d5b0c3c1166feaf9503430f7e1fc513b94568 *docs/perf/batched_context_snapshot.json
+28b4a0bba5343e51ae1f78d356adaa4656d5c6c9036cf6440d6ce9b5359da591 *docs/perf/control_snapshot_seed0.json
+d5b334adee1ef66c805514f3dae83195626e79220f5f2b034edf311a6fe8aad0 *docs/perf/d_snapshot_seed0.json
+99ecb93eed2e8b48cef5f794aa7ae0d21db439086aa61b44bb02d2db55eacbc1 *docs/perf/e1_snapshot_seed0.json
+4b597f6c8e169ba630135f2ce211941b091a65baff32f76011ca31e83eaca7a0 *docs/perf/e2_snapshot_seed0.json
+40494a533f8ec14bd6478c44b76397e4b50dd7a076a6e19179b5e459020917d3 *docs/perf/e3_snapshot_seed0.json
+7809966d120e804ea704720db8af09f16f47e48de58399a60559612d6c4ed0e6 *docs/perf/fixed_client_after_snapshot.json
+e93bf945bdaaacadcf575d6164d67201225adba62bb1447cd701f416f4483d06 *docs/perf/fixed_client_before_snapshot.json
+abb031ac586c2f506e42d3b148344f465e6dafc248ba6113f8973ccb3dffe5ab *docs/perf/full_40_snapshot.json
+820462a3b1d3f8b520d8e783489cecc3eabf34c478fda28e56d3070fc6d2d275 *docs/perf/golden_snapshot.json
+820462a3b1d3f8b520d8e783489cecc3eabf34c478fda28e56d3070fc6d2d275 *docs/perf/golden_snapshot_before_optimization.json
+f20e39c5444f33b567e77b4957f0f52103d756e9627f88a98f96531bd168b422 *docs/perf/golden_snapshot_deterministic.json
+0e89fd266cf3d8e4b0ea3287a3344c06c5d20592f649c909a009ea9465f854be *docs/perf/golden_snapshot_seed0.json
+0efefb7ec8536873c03491294e2c6182740d286192248fedfeb34f05e2bd14c8 *docs/perf/lexical_only_snapshot.json
+8e3f319c5301735441e0676ba9897b87189f64e2f21f40f7c9504521cc5fd55a *docs/perf/new_snapshot.json
+21daa59bf5cba30dc3e07cc0e3bcc13e5f05273730020225679962d102c2ca3f *docs/perf/non_lexical_only_snapshot.json
+81d68e17f6a4edcd05d1157b9cabc767320594ff358d04f2f9921359a5f0eeba *docs/perf/phase2_step1_snapshot.json
+4473d429fd9b430917c8e1b33a9d103ebe89b7b0cc6f17bc945eecca2c3fd7eb *docs/perf/step_a_snapshot.json
+84388002e512d943442d3eddedf13904cbc7b20d96fe7e4c2a5e53fe7e19f375 *docs/perf/timer_fix_snapshot.json
+56109edbb164b27c05ba9bdb17782dfb91963f0ab0b8700e8049617e6ab0d9f5 *scripts/heldout_queries.json
+db8f6e18c11b42ec3d2e721511c135ac58416ef488817aaef21b2fe5e3acd599 *docs/perf/DECISIONS_DRAFT.md

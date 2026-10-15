@@ -1,0 +1,94 @@
+commit 646deb6237c66478e4897fa3f5585ce8e49384fe
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 04:47:44 2026 +0800
+
+    WIP Step B1: ORDER BY tie-breaks (behavior change, NOT approved for merge)
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+diff --git a/backend/app/core/engine.py b/backend/app/core/engine.py
+index a33f1d8..adbfff8 100644
+--- a/backend/app/core/engine.py
++++ b/backend/app/core/engine.py
+@@ -341,7 +341,8 @@ class RizalEngine:
+             Sentence.book,
+             Sentence.chapter_number,
+             Sentence.source_type,
+-            Sentence.sentence_index
++            Sentence.sentence_index,
++            Sentence.id
+         )
+         records = db.scalars(stmt).all()
+ 
+@@ -368,7 +369,7 @@ class RizalEngine:
+                 Sentence.source_type == center.source_type,
+                 Sentence.sentence_index >= range_start,
+                 Sentence.sentence_index <= range_end
+-            ).order_by(Sentence.sentence_index)).all()
++            ).order_by(Sentence.sentence_index, Sentence.id)).all()
+ 
+         text = " ".join([s.sentence_text for s in candidates])
+ 
+@@ -935,7 +936,7 @@ class RizalEngine:
+                     else:
+                         stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+ 
+-                    lex_results = db.scalars(stmt.limit(top_k * 20)).all()
++                    lex_results = db.scalars(stmt.order_by(Sentence.id).limit(top_k * 20)).all()
+ 
+                     seen = set([c.id for c in candidates])
+                     for c in lex_results:
+@@ -966,7 +967,7 @@ class RizalEngine:
+                 else:
+                     stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+ 
+-                lex_results = db.scalars(stmt.limit(top_k * 20)).all()
++                lex_results = db.scalars(stmt.order_by(Sentence.id).limit(top_k * 20)).all()
+ 
+                 seen = set([c.id for c in candidates])
+                 for c in lex_results:
+@@ -984,7 +985,7 @@ class RizalEngine:
+                         select(Sentence)
+                         .filter(Sentence.book == book_name)
+                         .filter(Sentence.source_type == source_type)
+-                        .order_by(Sentence.embedding.cosine_distance(comp_vec.tolist()))
++                        .order_by(Sentence.embedding.cosine_distance(comp_vec.tolist()), Sentence.id)
+                         .limit(20) # Small targeted pool per component
+                     ).all()
+                     
+@@ -1089,7 +1090,7 @@ class RizalEngine:
+                             select(Sentence)
+                             .filter(Sentence.book == book_name)
+                             .filter(Sentence.source_type == source_type)
+-                            .order_by(Sentence.embedding.cosine_distance(query_list))
++                            .order_by(Sentence.embedding.cosine_distance(query_list), Sentence.id)
+                             .limit(top_k * 15)
+                         ).all()
+ 
+@@ -1110,7 +1111,7 @@ class RizalEngine:
+                         select(Sentence)
+                         .filter(Sentence.book == book_name)
+                         .filter(Sentence.source_type == source_type)
+-                        .order_by(Sentence.embedding.cosine_distance(query_list))
++                        .order_by(Sentence.embedding.cosine_distance(query_list), Sentence.id)
+                         .limit(top_k * 15)
+                     ).all()
+ 
+@@ -1838,7 +1839,7 @@ class RizalEngine:
+     def _ensure_themes_loaded(self, db: Session):
+         if not hasattr(self, 'theme_cache'):
+             from app.models.database import Theme
+-            themes = db.query(Theme).all()
++            themes = db.query(Theme).order_by(Theme.id).all()
+             self.theme_cache = []
+             self.theme_matrix = []
+             
+@@ -2209,7 +2210,7 @@ class RizalEngine:
+                 Sentence.chapter_number == center_sentence.chapter_number,
+                 Sentence.sentence_index >= range_start,
+                 Sentence.sentence_index <= range_end
+-            )).all()
++            ).order_by(Sentence.sentence_index, Sentence.id)).all()
+             sent_map = {s.sentence_index: s for s in candidates}
+ 
+         prefix, suffix = [], []

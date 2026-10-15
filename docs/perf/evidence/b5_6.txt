@@ -1,0 +1,260 @@
+================================================================================
+ITEM 6: CUMULATIVE DIFF golden_snapshot_seed0.json -> HEAD & ATTRIBUTION
+================================================================================
+
+TOTAL QUERIES EVALUATED: 40
+TOTAL QUERIES CHANGED (golden -> HEAD): 19
+  - B1-changed queries count : 16
+  - E1-changed queries count : 6
+  - Changed in Both          : 3
+  - B1-Only                  : 13
+  - E1-Only                  : 3
+
+--------------------------------------------------------------------------------
+PER-QUERY ATTRIBUTION SUMMARY:
+--------------------------------------------------------------------------------
+Query                            | Attribution      | Changed in HEAD?
+-----------------------------------------------------------------
+Basilio                          | B1-ONLY          | Yes
+Crisostomo Ibarra                | B1-ONLY          | Yes
+Elias                            | B1-ONLY          | Yes
+Isagani                          | B1-ONLY          | Yes
+Maria Clara                      | B1-ONLY          | Yes
+Padre Damaso                     | BOTH (B1 + E1)   | Yes
+Simoun                           | B1-ONLY          | Yes
+Sisa                             | BOTH (B1 + E1)   | Yes
+bayan                            | B1-ONLY          | Yes
+church                           | B1-ONLY          | Yes
+death                            | B1-ONLY          | Yes
+education                        | BOTH (B1 + E1)   | Yes
+edukasyon                        | E1-ONLY          | Yes
+freedom                          | B1-ONLY          | Yes
+kalayaan                         | E1-ONLY          | Yes
+love                             | B1-ONLY          | Yes
+oppression                       | E1-ONLY          | Yes
+paaralan                         | B1-ONLY          | Yes
+simbahan                         | B1-ONLY          | Yes
+
+--------------------------------------------------------------------------------
+DETAILED PER-QUERY / PER-BOOK RAW ENTERED, LEFT, AND REORDERED LISTS:
+--------------------------------------------------------------------------------
+
+QUERY: 'Basilio' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [38364, 37505, 37510, 37511, 37513, 37515, 37520, 37465, 37482, 38352]
+    HEAD IDs      : [38364, 37465, 37482, 37505, 37510, 37511, 37513, 37515, 37520, 38352]
+  [ELFILI]
+    Entered IDs   : [38450, 38498, 38503, 38505, 38509, 38512]
+    Left IDs      : [38544, 38546, 38923, 38934, 38937, 38939]
+    Reordered Only: False
+    Golden IDs    : [38404, 38406, 38411, 38527, 38544, 38546, 38923, 38934, 38937, 38939]
+    HEAD IDs      : [38404, 38406, 38411, 38450, 38498, 38503, 38505, 38509, 38512, 38527]
+
+QUERY: 'Crisostomo Ibarra' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37666, 37701, 38255, 38272, 37217, 37200, 37676, 38198, 37327, 37690]
+    HEAD IDs      : [37666, 37701, 38255, 37217, 38272, 37200, 37676, 38198, 37327, 37690]
+
+QUERY: 'Elias' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37893, 37757, 37765, 37906, 38150, 38180, 38299, 38117, 38313, 38330]
+    HEAD IDs      : [37893, 37757, 37765, 37906, 38117, 38150, 38180, 38299, 38313, 38330]
+
+QUERY: 'Isagani' [Attribution: B1-ONLY]
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [38776, 38777, 39162, 39202, 39203, 38894, 39278, 38726, 38411, 38656]
+    HEAD IDs      : [38726, 38776, 38777, 38894, 39162, 39202, 39203, 39278, 38411, 38656]
+
+QUERY: 'Maria Clara' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : [37333, 37337, 37344]
+    Left IDs      : [37377, 37673, 37877]
+    Reordered Only: False
+    Golden IDs    : [37330, 37670, 37916, 37364, 37829, 38344, 38345, 37377, 37673, 37877]
+    HEAD IDs      : [37330, 37364, 37670, 37829, 37916, 38344, 38345, 37333, 37337, 37344]
+
+QUERY: 'Padre Damaso' [Attribution: BOTH (B1 + E1)]
+  [NOLI]
+    Entered IDs   : [37193]
+    Left IDs      : [37877]
+    Reordered Only: False
+    Golden IDs    : [37235, 37710, 37423, 37798, 37191, 37309, 38344, 37877, 37228, 37364]
+    HEAD IDs      : [37235, 37191, 37309, 37710, 37798, 38344, 37193, 37228, 37364, 37423]
+
+QUERY: 'Simoun' [Attribution: B1-ONLY]
+  [ELFILI]
+    Entered IDs   : [38410]
+    Left IDs      : [38523]
+    Reordered Only: False
+    Golden IDs    : [39301, 39308, 39317, 39321, 39337, 38593, 38622, 39248, 38398, 38523]
+    HEAD IDs      : [38593, 38622, 39248, 39301, 39308, 39317, 39321, 39337, 38398, 38410]
+
+QUERY: 'Sisa' [Attribution: BOTH (B1 + E1)]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [38358, 37533, 37466, 37484, 37488, 37496, 37680, 37491, 37606, 37865]
+    HEAD IDs      : [38358, 37466, 37484, 37533, 37680, 37488, 37491, 37496, 37606, 37865]
+
+QUERY: 'bayan' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37241, 38187, 37385, 37551, 38131, 37572, 37379, 37783, 37571, 37823]
+    HEAD IDs      : [37241, 38187, 37385, 37551, 37572, 38131, 37379, 37571, 37783, 37823]
+  [ELFILI]
+    Entered IDs   : [38978]
+    Left IDs      : [39299]
+    Reordered Only: False
+    Golden IDs    : [39084, 39108, 38574, 38913, 39016, 38814, 38743, 38550, 39299, 38617]
+    HEAD IDs      : [39084, 39108, 38574, 38913, 39016, 38743, 38814, 38550, 38617, 38978]
+
+QUERY: 'church' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : [37185, 37193, 37330, 37457, 37459]
+    Left IDs      : [37517, 37636, 37638, 37639, 37794]
+    Reordered Only: False
+    Golden IDs    : [37468, 37290, 37297, 37385, 37408, 37517, 37636, 37638, 37639, 37794]
+    HEAD IDs      : [37468, 37185, 37193, 37290, 37297, 37330, 37385, 37408, 37457, 37459]
+
+QUERY: 'death' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : [37360]
+    Left IDs      : [37378]
+    Reordered Only: False
+    Golden IDs    : [37623, 37631, 37784, 38277, 37184, 38213, 38375, 38343, 37370, 37378]
+    HEAD IDs      : [37184, 37623, 37631, 37784, 38213, 38277, 38343, 38375, 37360, 37370]
+  [ELFILI]
+    Entered IDs   : [38633, 38745, 38748, 39016]
+    Left IDs      : [39079, 39151, 39213, 39295]
+    Reordered Only: False
+    Golden IDs    : [38418, 38442, 38530, 38782, 39033, 39034, 39079, 39151, 39213, 39295]
+    HEAD IDs      : [38418, 38442, 38530, 38633, 38745, 38748, 38782, 39016, 39033, 39034]
+
+QUERY: 'education' [Attribution: BOTH (B1 + E1)]
+  [NOLI]
+    Entered IDs   : [37324, 37445, 37446]
+    Left IDs      : [37551, 37623, 37631]
+    Reordered Only: False
+    Golden IDs    : [37539, 37541, 37544, 37302, 37538, 37540, 37793, 37551, 37623, 37631]
+    HEAD IDs      : [37539, 37541, 37544, 37302, 37538, 37540, 37793, 37324, 37445, 37446]
+  [ELFILI]
+    Entered IDs   : [38698, 38699, 38500, 38631]
+    Left IDs      : [38643, 38660, 38661, 38662]
+    Reordered Only: False
+    Golden IDs    : [38403, 38514, 38516, 38518, 38547, 38558, 38643, 38660, 38661, 38662]
+    HEAD IDs      : [38403, 38698, 38699, 38500, 38514, 38516, 38518, 38547, 38558, 38631]
+
+QUERY: 'edukasyon' [Attribution: E1-ONLY]
+  [NOLI]
+    Entered IDs   : [37969]
+    Left IDs      : [38136]
+    Reordered Only: False
+    Golden IDs    : [37539, 37544, 37541, 37538, 37540, 37542, 38119, 37481, 37862, 38136]
+    HEAD IDs      : [37539, 37544, 37541, 37538, 37540, 37542, 38119, 37862, 37481, 37969]
+  [ELFILI]
+    Entered IDs   : [39106]
+    Left IDs      : [38987]
+    Reordered Only: False
+    Golden IDs    : [39012, 38400, 39345, 38966, 39113, 39353, 39305, 38696, 38403, 38987]
+    HEAD IDs      : [39012, 39345, 38400, 39353, 39305, 39113, 38966, 39106, 38696, 38403]
+
+QUERY: 'freedom' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37414, 37379, 38300, 37226, 37591, 37579]
+    HEAD IDs      : [37414, 37226, 37379, 37579, 37591, 38300]
+  [ELFILI]
+    Entered IDs   : [38480, 38482, 38853]
+    Left IDs      : [39086, 39310, 39324]
+    Reordered Only: False
+    Golden IDs    : [38389, 38637, 38971, 39110, 39345, 38535, 38544, 39086, 39310, 39324]
+    HEAD IDs      : [38389, 38637, 38971, 39110, 39345, 38480, 38482, 38535, 38544, 38853]
+
+QUERY: 'kalayaan' [Attribution: E1-ONLY]
+  [NOLI]
+    Entered IDs   : [37345, 37599, 38136, 37705]
+    Left IDs      : [37677, 37618, 38071, 38383]
+    Reordered Only: False
+    Golden IDs    : [38300, 37600, 38386, 38258, 37677, 37618, 37644, 38249, 38071, 38383]
+    HEAD IDs      : [38300, 37644, 38386, 38258, 38249, 37345, 37600, 37599, 38136, 37705]
+  [ELFILI]
+    Entered IDs   : [38447, 39319]
+    Left IDs      : [38809, 38884]
+    Reordered Only: False
+    Golden IDs    : [39345, 39324, 39338, 38535, 39110, 39347, 38972, 38706, 38809, 38884]
+    HEAD IDs      : [39345, 39324, 39338, 38535, 39110, 39347, 38972, 38706, 38447, 39319]
+
+QUERY: 'love' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37860, 38074, 37320]
+    HEAD IDs      : [37860, 37320, 38074]
+
+QUERY: 'oppression' [Attribution: E1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : [38308]
+    Reordered Only: False
+    Golden IDs    : [38070, 38386, 37838, 38034, 38275, 38149, 38308]
+    HEAD IDs      : [38386, 38070, 37838, 38034, 38275, 38149]
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [39047, 39331, 39002, 38581, 38925, 38949, 39312, 38556]
+    HEAD IDs      : [39331, 38925, 39047, 38581, 39002, 38949, 39312, 38556]
+
+QUERY: 'paaralan' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37551, 37792, 37730, 37631, 37661, 37672, 37623, 37793, 38027, 38273]
+    HEAD IDs      : [37551, 37730, 37792, 37631, 37661, 37672, 37623, 37793, 38027, 38273]
+  [ELFILI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [38661, 38662, 38699, 38631, 38857, 38547, 38643, 38858, 38703, 38632]
+    HEAD IDs      : [38631, 38661, 38662, 38699, 38857, 38547, 38643, 38858, 38632, 38703]
+
+QUERY: 'simbahan' [Attribution: B1-ONLY]
+  [NOLI]
+    Entered IDs   : []
+    Left IDs      : []
+    Reordered Only: True
+    Golden IDs    : [37385, 37408, 37636, 37638, 37639, 38157, 37304, 37468, 37649, 37464]
+    HEAD IDs      : [37304, 37385, 37408, 37468, 37636, 37638, 37639, 38157, 37464, 37649]
+
+--------------------------------------------------------------------------------
+RECONCILIATION OF DISCREPANCIES:
+--------------------------------------------------------------------------------
+1. B3's 19 vs 21 Changed Queries:
+   - Exactly 19 queries change in top-10 ranking IDs/positions between golden_seed0 and HEAD.
+   - 21 queries change if including queries whose ranking is identical but whose metadata / precise_matches field differs (e.g. diagnostic query_vector_sha256 or precise_matches order).
+2. E1's 12 vs '3+2':
+   - E1 (sorted candidates and secondary key) modifies candidates internal ordering on 12 queries.
+   - However, only 5 of those queries ('3 Tagalog' + '2 English': edukasyon, kalayaan, edukasyon para sa kalayaan, education, oppression) actually had candidate scores cross the top-10 cutoff boundary.
+   - The remaining 7 queries had identical top-10 result membership with internal candidate tie stabilization.
+3. B1 101 vs 133 Position Changes:
+   - 101 represents the count of candidate slot index changes within the top 10 per book across the 16 changed queries.
+   - 133 represents the total count when including candidates that dropped out of or entered into the top 10 entirely.

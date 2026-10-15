@@ -1,12 +1,1625 @@
 {
-  "golden_file": "..\\docs\\perf\\golden_snapshot_seed0.json",
-  "new_file": "..\\docs\\perf\\step_a_snapshot.json",
-  "golden_version": "golden_snapshot_seed0",
-  "new_version": "step_a_snapshot",
+  "golden_file": "docs\\perf\\d_snapshot_seed0.json",
+  "new_file": "docs\\perf\\e1_snapshot_seed0.json",
+  "golden_version": "d_snapshot_seed0",
+  "new_version": "e1_snapshot_seed0",
   "total_queries": 40,
-  "queries_with_changes": 0,
-  "total_position_changes": 0,
-  "total_score_changes": 0,
+  "queries_with_changes": 11,
+  "total_position_changes": 41,
+  "total_score_changes": 136,
   "total_theme_changes": 0,
-  "query_diffs": {}
+  "query_diffs": {
+    "kalayaan": {
+      "noli": {
+        "position_changes": [
+          {
+            "id": 37644,
+            "sentence_text": "Dagdag pa ng pilosopo, hindi sapat ang kayamanan a",
+            "old_position": 7,
+            "new_position": 2,
+            "delta": -5
+          },
+          {
+            "id": 37600,
+            "sentence_text": "Umaga palang nang makatapos na si Padre Salvi sa k",
+            "old_position": 2,
+            "new_position": 7,
+            "delta": 5
+          },
+          {
+            "id": 38249,
+            "sentence_text": "Samantalang ang balita na patungkol sa bilanggo ay",
+            "old_position": 8,
+            "new_position": 5,
+            "delta": -3
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 37644,
+            "score_type": "semantic",
+            "old_value": 83,
+            "new_value": 86,
+            "delta": 3
+          },
+          {
+            "id": 37644,
+            "score_type": "final",
+            "old_value": 76,
+            "new_value": 79,
+            "delta": 3
+          },
+          {
+            "id": 38300,
+            "score_type": "semantic",
+            "old_value": 74,
+            "new_value": 75,
+            "delta": 1
+          },
+          {
+            "id": 38300,
+            "score_type": "final",
+            "old_value": 79,
+            "new_value": 80,
+            "delta": 1
+          },
+          {
+            "id": 38386,
+            "score_type": "semantic",
+            "old_value": 83,
+            "new_value": 84,
+            "delta": 1
+          },
+          {
+            "id": 38386,
+            "score_type": "final",
+            "old_value": 77,
+            "new_value": 78,
+            "delta": 1
+          },
+          {
+            "id": 38258,
+            "score_type": "semantic",
+            "old_value": 83,
+            "new_value": 84,
+            "delta": 1
+          },
+          {
+            "id": 38258,
+            "score_type": "final",
+            "old_value": 76,
+            "new_value": 77,
+            "delta": 1
+          },
+          {
+            "id": 38249,
+            "score_type": "semantic",
+            "old_value": 82,
+            "new_value": 83,
+            "delta": 1
+          },
+          {
+            "id": 37600,
+            "score_type": "semantic",
+            "old_value": 84,
+            "new_value": 83,
+            "delta": -1
+          },
+          {
+            "id": 37600,
+            "score_type": "final",
+            "old_value": 77,
+            "new_value": 76,
+            "delta": -1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 37618,
+            "sentence_text": "Aniya mas malaking pagkakasala ang mangialam sa pa"
+          },
+          {
+            "id": 37677,
+            "sentence_text": "Isinama din nila si Sinang ng mapadaan ang mga ito"
+          },
+          {
+            "id": 38071,
+            "sentence_text": "Nakakilala siya ng isang dalaga na may mahigpit na"
+          },
+          {
+            "id": 38383,
+            "sentence_text": "Humuhusay narin siya sa pagsasalita ng Espanyol."
+          }
+        ],
+        "new_results": [
+          {
+            "id": 37345,
+            "sentence_text": "Hindi napigiling maluha ni Maria Clara dahil sa pa"
+          },
+          {
+            "id": 37599,
+            "sentence_text": "Sama-samang nananghalian ang mga binata’t dalaga s"
+          },
+          {
+            "id": 37705,
+            "sentence_text": "Sa kamahalan ay hindi nalalayo ang binabayad sa ko"
+          },
+          {
+            "id": 38136,
+            "sentence_text": "Sa halip ay ibigay nalang iyon sa mga maiiwan."
+          }
+        ]
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 39345,
+            "score_type": "semantic",
+            "old_value": 84,
+            "new_value": 86,
+            "delta": 2
+          },
+          {
+            "id": 39345,
+            "score_type": "final",
+            "old_value": 87,
+            "new_value": 89,
+            "delta": 2
+          },
+          {
+            "id": 39324,
+            "score_type": "semantic",
+            "old_value": 83,
+            "new_value": 81,
+            "delta": -2
+          },
+          {
+            "id": 39324,
+            "score_type": "final",
+            "old_value": 85,
+            "new_value": 84,
+            "delta": -1
+          },
+          {
+            "id": 39347,
+            "score_type": "semantic",
+            "old_value": 76,
+            "new_value": 75,
+            "delta": -1
+          },
+          {
+            "id": 38706,
+            "score_type": "semantic",
+            "old_value": 85,
+            "new_value": 86,
+            "delta": 1
+          },
+          {
+            "id": 38706,
+            "score_type": "final",
+            "old_value": 78,
+            "new_value": 79,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 38809,
+            "sentence_text": "Pagkaraan ay masiglang lumapit ang kagawad sa isan"
+          },
+          {
+            "id": 38884,
+            "sentence_text": "Para sa kanya, ang bayang iyon ang tangi niyang ka"
+          }
+        ],
+        "new_results": [
+          {
+            "id": 38447,
+            "sentence_text": "Kaya naman nagtawanan ang iba."
+          },
+          {
+            "id": 39319,
+            "sentence_text": "Malungkot na ngumiti ang maysakit."
+          }
+        ]
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "edukasyon": {
+      "noli": {
+        "position_changes": [
+          {
+            "id": 37862,
+            "sentence_text": "Naging seryoso siya sa pakikinig at nakangangang p",
+            "old_position": 9,
+            "new_position": 8,
+            "delta": -1
+          },
+          {
+            "id": 37481,
+            "sentence_text": "Hindi nakapagsalita si Basilio sa narinig na mga s",
+            "old_position": 8,
+            "new_position": 9,
+            "delta": 1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 37542,
+            "score_type": "semantic",
+            "old_value": 54,
+            "new_value": 59,
+            "delta": 5
+          },
+          {
+            "id": 37862,
+            "score_type": "semantic",
+            "old_value": 53,
+            "new_value": 58,
+            "delta": 5
+          },
+          {
+            "id": 37538,
+            "score_type": "semantic",
+            "old_value": 63,
+            "new_value": 67,
+            "delta": 4
+          },
+          {
+            "id": 37540,
+            "score_type": "semantic",
+            "old_value": 57,
+            "new_value": 61,
+            "delta": 4
+          },
+          {
+            "id": 38119,
+            "score_type": "semantic",
+            "old_value": 54,
+            "new_value": 58,
+            "delta": 4
+          },
+          {
+            "id": 37862,
+            "score_type": "final",
+            "old_value": 52,
+            "new_value": 56,
+            "delta": 4
+          },
+          {
+            "id": 37481,
+            "score_type": "semantic",
+            "old_value": 53,
+            "new_value": 57,
+            "delta": 4
+          },
+          {
+            "id": 37539,
+            "score_type": "semantic",
+            "old_value": 77,
+            "new_value": 80,
+            "delta": 3
+          },
+          {
+            "id": 37544,
+            "score_type": "semantic",
+            "old_value": 72,
+            "new_value": 75,
+            "delta": 3
+          },
+          {
+            "id": 37544,
+            "score_type": "final",
+            "old_value": 77,
+            "new_value": 80,
+            "delta": 3
+          },
+          {
+            "id": 37541,
+            "score_type": "semantic",
+            "old_value": 69,
+            "new_value": 72,
+            "delta": 3
+          },
+          {
+            "id": 37538,
+            "score_type": "final",
+            "old_value": 69,
+            "new_value": 72,
+            "delta": 3
+          },
+          {
+            "id": 37540,
+            "score_type": "final",
+            "old_value": 56,
+            "new_value": 59,
+            "delta": 3
+          },
+          {
+            "id": 37542,
+            "score_type": "final",
+            "old_value": 54,
+            "new_value": 57,
+            "delta": 3
+          },
+          {
+            "id": 38119,
+            "score_type": "final",
+            "old_value": 53,
+            "new_value": 56,
+            "delta": 3
+          },
+          {
+            "id": 37539,
+            "score_type": "final",
+            "old_value": 82,
+            "new_value": 84,
+            "delta": 2
+          },
+          {
+            "id": 37541,
+            "score_type": "final",
+            "old_value": 75,
+            "new_value": 77,
+            "delta": 2
+          },
+          {
+            "id": 37481,
+            "score_type": "final",
+            "old_value": 53,
+            "new_value": 55,
+            "delta": 2
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 38136,
+            "sentence_text": "Sa halip ay ibigay nalang iyon sa mga maiiwan."
+          }
+        ],
+        "new_results": [
+          {
+            "id": 37969,
+            "sentence_text": "Nalaman ni Maria Clara sa kaibigang si Sinang na h"
+          }
+        ]
+      },
+      "elfili": {
+        "position_changes": [
+          {
+            "id": 38966,
+            "sentence_text": "Sinabi ng pari na ‘di niya inuusig si Isagani at m",
+            "old_position": 4,
+            "new_position": 7,
+            "delta": 3
+          },
+          {
+            "id": 39353,
+            "sentence_text": "Upang karapatdapat ang pagpapakasakit ito’y kailan",
+            "old_position": 6,
+            "new_position": 4,
+            "delta": -2
+          },
+          {
+            "id": 39305,
+            "sentence_text": "Ngunit paliwanag ni Simoun ay nagkasugat lamang si",
+            "old_position": 7,
+            "new_position": 5,
+            "delta": -2
+          },
+          {
+            "id": 39345,
+            "sentence_text": "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong",
+            "old_position": 3,
+            "new_position": 2,
+            "delta": -1
+          },
+          {
+            "id": 38400,
+            "sentence_text": "Naroon sa ilalim ng kubyerta ang dalawang estudyat",
+            "old_position": 2,
+            "new_position": 3,
+            "delta": 1
+          },
+          {
+            "id": 39113,
+            "sentence_text": "Sa unibersidad naman ay maraming bumagsak at bihir",
+            "old_position": 5,
+            "new_position": 6,
+            "delta": 1
+          },
+          {
+            "id": 38696,
+            "sentence_text": "Siya ang pinuno ng kilusan para sa Akademya ng wik",
+            "old_position": 8,
+            "new_position": 9,
+            "delta": 1
+          },
+          {
+            "id": 38403,
+            "sentence_text": "Napunta naman ang usapan sa paaralang balak ng mga",
+            "old_position": 9,
+            "new_position": 10,
+            "delta": 1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 39353,
+            "score_type": "semantic",
+            "old_value": 52,
+            "new_value": 57,
+            "delta": 5
+          },
+          {
+            "id": 39305,
+            "score_type": "semantic",
+            "old_value": 52,
+            "new_value": 57,
+            "delta": 5
+          },
+          {
+            "id": 39305,
+            "score_type": "final",
+            "old_value": 51,
+            "new_value": 56,
+            "delta": 5
+          },
+          {
+            "id": 39345,
+            "score_type": "semantic",
+            "old_value": 56,
+            "new_value": 60,
+            "delta": 4
+          },
+          {
+            "id": 39353,
+            "score_type": "final",
+            "old_value": 52,
+            "new_value": 56,
+            "delta": 4
+          },
+          {
+            "id": 39113,
+            "score_type": "semantic",
+            "old_value": 53,
+            "new_value": 57,
+            "delta": 4
+          },
+          {
+            "id": 39012,
+            "score_type": "semantic",
+            "old_value": 59,
+            "new_value": 62,
+            "delta": 3
+          },
+          {
+            "id": 39345,
+            "score_type": "final",
+            "old_value": 55,
+            "new_value": 58,
+            "delta": 3
+          },
+          {
+            "id": 38400,
+            "score_type": "semantic",
+            "old_value": 57,
+            "new_value": 60,
+            "delta": 3
+          },
+          {
+            "id": 39113,
+            "score_type": "final",
+            "old_value": 52,
+            "new_value": 55,
+            "delta": 3
+          },
+          {
+            "id": 38696,
+            "score_type": "semantic",
+            "old_value": 51,
+            "new_value": 54,
+            "delta": 3
+          },
+          {
+            "id": 38403,
+            "score_type": "semantic",
+            "old_value": 51,
+            "new_value": 54,
+            "delta": 3
+          },
+          {
+            "id": 38403,
+            "score_type": "final",
+            "old_value": 50,
+            "new_value": 53,
+            "delta": 3
+          },
+          {
+            "id": 39012,
+            "score_type": "final",
+            "old_value": 57,
+            "new_value": 59,
+            "delta": 2
+          },
+          {
+            "id": 38400,
+            "score_type": "final",
+            "old_value": 56,
+            "new_value": 58,
+            "delta": 2
+          },
+          {
+            "id": 38966,
+            "score_type": "semantic",
+            "old_value": 54,
+            "new_value": 56,
+            "delta": 2
+          },
+          {
+            "id": 38966,
+            "score_type": "final",
+            "old_value": 53,
+            "new_value": 55,
+            "delta": 2
+          },
+          {
+            "id": 38696,
+            "score_type": "final",
+            "old_value": 51,
+            "new_value": 53,
+            "delta": 2
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 38987,
+            "sentence_text": "Muling nangatwiran ang pari at sinabing ang ibig d"
+          }
+        ],
+        "new_results": [
+          {
+            "id": 39106,
+            "sentence_text": "Dapat daw ay magkaroon ng halimbawang ‘di dapat tu"
+          }
+        ]
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "kapangyarihan ng simbahan": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 37408,
+            "score_type": "semantic",
+            "old_value": 12,
+            "new_value": 11,
+            "delta": -1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "kalayaan ng Pilipinas": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 38535,
+            "score_type": "semantic",
+            "old_value": 13,
+            "new_value": 14,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "education": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 37540,
+            "score_type": "semantic",
+            "old_value": 43,
+            "new_value": 47,
+            "delta": 4
+          },
+          {
+            "id": 37539,
+            "score_type": "semantic",
+            "old_value": 64,
+            "new_value": 67,
+            "delta": 3
+          },
+          {
+            "id": 37541,
+            "score_type": "semantic",
+            "old_value": 56,
+            "new_value": 59,
+            "delta": 3
+          },
+          {
+            "id": 37544,
+            "score_type": "semantic",
+            "old_value": 60,
+            "new_value": 63,
+            "delta": 3
+          },
+          {
+            "id": 37302,
+            "score_type": "semantic",
+            "old_value": 36,
+            "new_value": 39,
+            "delta": 3
+          },
+          {
+            "id": 37793,
+            "score_type": "semantic",
+            "old_value": 35,
+            "new_value": 38,
+            "delta": 3
+          },
+          {
+            "id": 37538,
+            "score_type": "semantic",
+            "old_value": 50,
+            "new_value": 52,
+            "delta": 2
+          },
+          {
+            "id": 37324,
+            "score_type": "semantic",
+            "old_value": 32,
+            "new_value": 34,
+            "delta": 2
+          },
+          {
+            "id": 37445,
+            "score_type": "semantic",
+            "old_value": 17,
+            "new_value": 19,
+            "delta": 2
+          },
+          {
+            "id": 37446,
+            "score_type": "semantic",
+            "old_value": 19,
+            "new_value": 21,
+            "delta": 2
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [
+          {
+            "id": 38500,
+            "sentence_text": "Sa unang taon ng kanyang pag-aaral ay wala siyang ",
+            "old_position": 2,
+            "new_position": 4,
+            "delta": 2
+          },
+          {
+            "id": 38514,
+            "sentence_text": "Dahil masikap sa pag-aaral si Basilio ay hinikayat",
+            "old_position": 3,
+            "new_position": 5,
+            "delta": 2
+          },
+          {
+            "id": 38516,
+            "sentence_text": "Doon ay pinili ni Basilio ang pag-aaral ng medisin",
+            "old_position": 4,
+            "new_position": 6,
+            "delta": 2
+          },
+          {
+            "id": 38518,
+            "sentence_text": "Nasa huling taon na ng pag-aaral ng medisina si Ba",
+            "old_position": 5,
+            "new_position": 7,
+            "delta": 2
+          },
+          {
+            "id": 38547,
+            "sentence_text": "Napalagda lamang siya sa kahilingang tungkol sa pa",
+            "old_position": 6,
+            "new_position": 8,
+            "delta": 2
+          },
+          {
+            "id": 38558,
+            "sentence_text": "Saka ipinaalala ni Simoun na sa pag-aaral ni Basil",
+            "old_position": 7,
+            "new_position": 9,
+            "delta": 2
+          },
+          {
+            "id": 38631,
+            "sentence_text": "Sumunod na pinag-usapan ay ang paaralan sa Tiyani.",
+            "old_position": 8,
+            "new_position": 10,
+            "delta": 2
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 38547,
+            "score_type": "semantic",
+            "old_value": 22,
+            "new_value": 26,
+            "delta": 4
+          },
+          {
+            "id": 38403,
+            "score_type": "semantic",
+            "old_value": 36,
+            "new_value": 39,
+            "delta": 3
+          },
+          {
+            "id": 38558,
+            "score_type": "semantic",
+            "old_value": 19,
+            "new_value": 22,
+            "delta": 3
+          },
+          {
+            "id": 38500,
+            "score_type": "semantic",
+            "old_value": 25,
+            "new_value": 27,
+            "delta": 2
+          },
+          {
+            "id": 38518,
+            "score_type": "semantic",
+            "old_value": 22,
+            "new_value": 24,
+            "delta": 2
+          },
+          {
+            "id": 38631,
+            "score_type": "semantic",
+            "old_value": 24,
+            "new_value": 26,
+            "delta": 2
+          },
+          {
+            "id": 38514,
+            "score_type": "semantic",
+            "old_value": 26,
+            "new_value": 27,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 38632,
+            "sentence_text": "Iminungkahi ni Don Custodio na gawing paaralan ang"
+          },
+          {
+            "id": 38640,
+            "sentence_text": "Malungkot ang kanyang mukha dahil ibig na niyang t"
+          }
+        ],
+        "new_results": [
+          {
+            "id": 38698,
+            "sentence_text": "Si Isagani at Sandoval ay naniniwala na maaaprubah"
+          },
+          {
+            "id": 38699,
+            "sentence_text": "Nagkaroon sila ng debate sa maaring maging aksiyon"
+          }
+        ]
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "oppression": {
+      "noli": {
+        "position_changes": [
+          {
+            "id": 38386,
+            "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya ",
+            "old_position": 2,
+            "new_position": 1,
+            "delta": -1
+          },
+          {
+            "id": 38070,
+            "sentence_text": "Paglaon ay unti-unting nakaipon ng salapi at napau",
+            "old_position": 1,
+            "new_position": 2,
+            "delta": 1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 38386,
+            "score_type": "final",
+            "old_value": 68,
+            "new_value": 70,
+            "delta": 2
+          },
+          {
+            "id": 38275,
+            "score_type": "semantic",
+            "old_value": 68,
+            "new_value": 70,
+            "delta": 2
+          },
+          {
+            "id": 38386,
+            "score_type": "semantic",
+            "old_value": 73,
+            "new_value": 74,
+            "delta": 1
+          },
+          {
+            "id": 38070,
+            "score_type": "semantic",
+            "old_value": 73,
+            "new_value": 72,
+            "delta": -1
+          },
+          {
+            "id": 38070,
+            "score_type": "final",
+            "old_value": 69,
+            "new_value": 68,
+            "delta": -1
+          },
+          {
+            "id": 37838,
+            "score_type": "semantic",
+            "old_value": 70,
+            "new_value": 71,
+            "delta": 1
+          },
+          {
+            "id": 37838,
+            "score_type": "final",
+            "old_value": 66,
+            "new_value": 67,
+            "delta": 1
+          },
+          {
+            "id": 38034,
+            "score_type": "semantic",
+            "old_value": 69,
+            "new_value": 70,
+            "delta": 1
+          },
+          {
+            "id": 38034,
+            "score_type": "final",
+            "old_value": 65,
+            "new_value": 66,
+            "delta": 1
+          },
+          {
+            "id": 38275,
+            "score_type": "final",
+            "old_value": 65,
+            "new_value": 66,
+            "delta": 1
+          },
+          {
+            "id": 38149,
+            "score_type": "semantic",
+            "old_value": 68,
+            "new_value": 69,
+            "delta": 1
+          },
+          {
+            "id": 38149,
+            "score_type": "final",
+            "old_value": 64,
+            "new_value": 65,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [
+          {
+            "id": 38308,
+            "sentence_text": "Huhukayin niya ang mga salapi at alahas na itinago"
+          }
+        ],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [
+          {
+            "id": 38925,
+            "sentence_text": "Kakatagpuin rin niya si Makaraig para mangutang ng",
+            "old_position": 5,
+            "new_position": 2,
+            "delta": -3
+          },
+          {
+            "id": 39047,
+            "sentence_text": "Pinadulasan ang mga kawani sa adwana at nakalusot ",
+            "old_position": 1,
+            "new_position": 3,
+            "delta": 2
+          },
+          {
+            "id": 39002,
+            "sentence_text": "Maraming madarakip lalo sa mga mayayaman at ito ay",
+            "old_position": 3,
+            "new_position": 5,
+            "delta": 2
+          },
+          {
+            "id": 39331,
+            "sentence_text": "Sa tulong umano ng salapi ay nakuha niyang maging ",
+            "old_position": 2,
+            "new_position": 1,
+            "delta": -1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 39002,
+            "score_type": "semantic",
+            "old_value": 72,
+            "new_value": 70,
+            "delta": -2
+          },
+          {
+            "id": 39312,
+            "score_type": "final",
+            "old_value": 63,
+            "new_value": 65,
+            "delta": 2
+          },
+          {
+            "id": 38556,
+            "score_type": "semantic",
+            "old_value": 65,
+            "new_value": 67,
+            "delta": 2
+          },
+          {
+            "id": 38556,
+            "score_type": "final",
+            "old_value": 69,
+            "new_value": 71,
+            "delta": 2
+          },
+          {
+            "id": 38925,
+            "score_type": "semantic",
+            "old_value": 71,
+            "new_value": 72,
+            "delta": 1
+          },
+          {
+            "id": 39047,
+            "score_type": "final",
+            "old_value": 68,
+            "new_value": 67,
+            "delta": -1
+          },
+          {
+            "id": 39002,
+            "score_type": "final",
+            "old_value": 67,
+            "new_value": 66,
+            "delta": -1
+          },
+          {
+            "id": 38949,
+            "score_type": "semantic",
+            "old_value": 68,
+            "new_value": 69,
+            "delta": 1
+          },
+          {
+            "id": 38949,
+            "score_type": "final",
+            "old_value": 64,
+            "new_value": 65,
+            "delta": 1
+          },
+          {
+            "id": 39312,
+            "score_type": "semantic",
+            "old_value": 67,
+            "new_value": 68,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "church": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 37385,
+            "score_type": "semantic",
+            "old_value": 48,
+            "new_value": 50,
+            "delta": 2
+          },
+          {
+            "id": 37457,
+            "score_type": "semantic",
+            "old_value": 38,
+            "new_value": 40,
+            "delta": 2
+          },
+          {
+            "id": 37185,
+            "score_type": "semantic",
+            "old_value": 43,
+            "new_value": 44,
+            "delta": 1
+          },
+          {
+            "id": 37193,
+            "score_type": "semantic",
+            "old_value": 48,
+            "new_value": 49,
+            "delta": 1
+          },
+          {
+            "id": 37290,
+            "score_type": "semantic",
+            "old_value": 41,
+            "new_value": 40,
+            "delta": -1
+          },
+          {
+            "id": 37330,
+            "score_type": "semantic",
+            "old_value": 48,
+            "new_value": 47,
+            "delta": -1
+          },
+          {
+            "id": 37459,
+            "score_type": "semantic",
+            "old_value": 46,
+            "new_value": 47,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 38415,
+            "score_type": "semantic",
+            "old_value": 46,
+            "new_value": 48,
+            "delta": 2
+          },
+          {
+            "id": 38660,
+            "score_type": "semantic",
+            "old_value": 42,
+            "new_value": 43,
+            "delta": 1
+          },
+          {
+            "id": 38831,
+            "score_type": "semantic",
+            "old_value": 37,
+            "new_value": 38,
+            "delta": 1
+          },
+          {
+            "id": 39026,
+            "score_type": "semantic",
+            "old_value": 46,
+            "new_value": 47,
+            "delta": 1
+          },
+          {
+            "id": 39028,
+            "score_type": "semantic",
+            "old_value": 51,
+            "new_value": 50,
+            "delta": -1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "Crisostomo Ibarra": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 37217,
+            "score_type": "semantic",
+            "old_value": 17,
+            "new_value": 19,
+            "delta": 2
+          },
+          {
+            "id": 38272,
+            "score_type": "semantic",
+            "old_value": 15,
+            "new_value": 17,
+            "delta": 2
+          },
+          {
+            "id": 38255,
+            "score_type": "semantic",
+            "old_value": 10,
+            "new_value": 11,
+            "delta": 1
+          },
+          {
+            "id": 37200,
+            "score_type": "semantic",
+            "old_value": 14,
+            "new_value": 15,
+            "delta": 1
+          },
+          {
+            "id": 37676,
+            "score_type": "semantic",
+            "old_value": 9,
+            "new_value": 10,
+            "delta": 1
+          },
+          {
+            "id": 38198,
+            "score_type": "semantic",
+            "old_value": 9,
+            "new_value": 10,
+            "delta": 1
+          },
+          {
+            "id": 37327,
+            "score_type": "semantic",
+            "old_value": 12,
+            "new_value": 13,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 39207,
+            "score_type": "semantic",
+            "old_value": 16,
+            "new_value": 17,
+            "delta": 1
+          },
+          {
+            "id": 39212,
+            "score_type": "semantic",
+            "old_value": 10,
+            "new_value": 11,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "Simoun": {
+      "noli": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [
+          {
+            "id": 39301,
+            "score_type": "semantic",
+            "old_value": 71,
+            "new_value": 72,
+            "delta": 1
+          },
+          {
+            "id": 39308,
+            "score_type": "semantic",
+            "old_value": 70,
+            "new_value": 71,
+            "delta": 1
+          },
+          {
+            "id": 39317,
+            "score_type": "semantic",
+            "old_value": 72,
+            "new_value": 73,
+            "delta": 1
+          },
+          {
+            "id": 39321,
+            "score_type": "semantic",
+            "old_value": 81,
+            "new_value": 82,
+            "delta": 1
+          },
+          {
+            "id": 39337,
+            "score_type": "semantic",
+            "old_value": 75,
+            "new_value": 76,
+            "delta": 1
+          },
+          {
+            "id": 38398,
+            "score_type": "semantic",
+            "old_value": 55,
+            "new_value": 56,
+            "delta": 1
+          },
+          {
+            "id": 38410,
+            "score_type": "semantic",
+            "old_value": 65,
+            "new_value": 66,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "Padre Damaso": {
+      "noli": {
+        "position_changes": [
+          {
+            "id": 37423,
+            "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa lib",
+            "old_position": 5,
+            "new_position": 10,
+            "delta": 5
+          },
+          {
+            "id": 37710,
+            "sentence_text": "Nagsimula na si Padre Damaso sa kanyang sermon nan",
+            "old_position": 2,
+            "new_position": 4,
+            "delta": 2
+          },
+          {
+            "id": 37191,
+            "sentence_text": "Nagkaroon ng kanya kanyang pagpapahayag na nagresu",
+            "old_position": 3,
+            "new_position": 2,
+            "delta": -1
+          },
+          {
+            "id": 37309,
+            "sentence_text": "Pinayuhan siya ni Padre Damaso na magpunta sa Oban",
+            "old_position": 4,
+            "new_position": 3,
+            "delta": -1
+          },
+          {
+            "id": 37798,
+            "sentence_text": "Bilin ni Padre Damaso na putulin na ang relasyon n",
+            "old_position": 6,
+            "new_position": 5,
+            "delta": -1
+          },
+          {
+            "id": 38344,
+            "sentence_text": "Alam ni Padre Damaso na buo na ang loob ni Maria C",
+            "old_position": 7,
+            "new_position": 6,
+            "delta": -1
+          },
+          {
+            "id": 37193,
+            "sentence_text": "Sinabi din ni Padre Damaso na hindi dapat manghima",
+            "old_position": 8,
+            "new_position": 7,
+            "delta": -1
+          },
+          {
+            "id": 37228,
+            "sentence_text": "Para kay Padre Sibyla, si Padre Damaso dapat ang m",
+            "old_position": 9,
+            "new_position": 8,
+            "delta": -1
+          },
+          {
+            "id": 37364,
+            "sentence_text": "Naabutan ni Padre Damaso si Maria Clara at Tiya Is",
+            "old_position": 10,
+            "new_position": 9,
+            "delta": -1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 37710,
+            "score_type": "semantic",
+            "old_value": 18,
+            "new_value": 17,
+            "delta": -1
+          },
+          {
+            "id": 37710,
+            "score_type": "final",
+            "old_value": 84,
+            "new_value": 83,
+            "delta": -1
+          },
+          {
+            "id": 37193,
+            "score_type": "semantic",
+            "old_value": 20,
+            "new_value": 19,
+            "delta": -1
+          },
+          {
+            "id": 37423,
+            "score_type": "semantic",
+            "old_value": 15,
+            "new_value": 14,
+            "delta": -1
+          },
+          {
+            "id": 37423,
+            "score_type": "final",
+            "old_value": 83,
+            "new_value": 82,
+            "delta": -1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    },
+    "Sisa": {
+      "noli": {
+        "position_changes": [
+          {
+            "id": 37680,
+            "sentence_text": "Lumapit naman ang baliw na si Sisa sa ketongin.",
+            "old_position": 9,
+            "new_position": 5,
+            "delta": -4
+          },
+          {
+            "id": 37488,
+            "sentence_text": "Madalas pang bugbugin ang asawang si Sisa.",
+            "old_position": 4,
+            "new_position": 6,
+            "delta": 2
+          },
+          {
+            "id": 37533,
+            "sentence_text": "Ipinagpatuloy ni Sisa ang pagluha sa kalsada.",
+            "old_position": 5,
+            "new_position": 4,
+            "delta": -1
+          },
+          {
+            "id": 37491,
+            "sentence_text": "Isang gabi ay naghanda si Sisa ng makakain ng mga ",
+            "old_position": 6,
+            "new_position": 7,
+            "delta": 1
+          },
+          {
+            "id": 37496,
+            "sentence_text": "Ngunit sa di inaasahan, dumating ang asawa ni Sisa",
+            "old_position": 7,
+            "new_position": 8,
+            "delta": 1
+          },
+          {
+            "id": 37606,
+            "sentence_text": "Napadaan si Sisa sa piknik ngunit umalis din agad.",
+            "old_position": 8,
+            "new_position": 9,
+            "delta": 1
+          }
+        ],
+        "score_deltas": [
+          {
+            "id": 37488,
+            "score_type": "semantic",
+            "old_value": 40,
+            "new_value": 38,
+            "delta": -2
+          },
+          {
+            "id": 37606,
+            "score_type": "semantic",
+            "old_value": 56,
+            "new_value": 54,
+            "delta": -2
+          },
+          {
+            "id": 37484,
+            "score_type": "semantic",
+            "old_value": 49,
+            "new_value": 50,
+            "delta": 1
+          },
+          {
+            "id": 37533,
+            "score_type": "semantic",
+            "old_value": 55,
+            "new_value": 56,
+            "delta": 1
+          },
+          {
+            "id": 37680,
+            "score_type": "semantic",
+            "old_value": 58,
+            "new_value": 59,
+            "delta": 1
+          },
+          {
+            "id": 37680,
+            "score_type": "final",
+            "old_value": 96,
+            "new_value": 97,
+            "delta": 1
+          },
+          {
+            "id": 37488,
+            "score_type": "final",
+            "old_value": 97,
+            "new_value": 96,
+            "delta": -1
+          },
+          {
+            "id": 37865,
+            "score_type": "semantic",
+            "old_value": 34,
+            "new_value": 35,
+            "delta": 1
+          }
+        ],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "elfili": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      },
+      "precise_matches": {
+        "position_changes": [],
+        "score_deltas": [],
+        "theme_changes": [],
+        "missing_results": [],
+        "new_results": []
+      }
+    }
+  }
 }

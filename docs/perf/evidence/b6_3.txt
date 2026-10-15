@@ -1,0 +1,132 @@
+================================================================================
+ITEM 3: COMPARATOR AUDIT, DIAGNOSTIC LOCATION & FULL MATRIX RE-RUNS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. LOCATION OF query_vector_sha256 & query_expansion_text IN CANONICAL JSON
+--------------------------------------------------------------------------------
+Query: 'kalayaan'
+  metadata.query_vector_sha256:          1b8cbc8ffd8d4094c600ce545b661f761ede8bc5d8f056ed389088e9115c1085
+  engine_timings.query_vector_sha256:   1b8cbc8ffd8d4094c600ce545b661f761ede8bc5d8f056ed389088e9115c1085
+  metadata.query_expansion_text:        'Kasakiman gahaman salapi nabibili nawawala pagnanasa halaga'
+  engine_timings.query_expansion_text: 'Kasakiman gahaman salapi nabibili nawawala pagnanasa halaga'
+  metadata.bridge_tokens:                []
+  engine_timings.bridge_tokens:         []
+Query: 'love'
+  metadata.query_vector_sha256:          3a5ddb226042be34b266818deea6191247e9e76759dbbe636e66fa85f8b29211
+  engine_timings.query_vector_sha256:   3a5ddb226042be34b266818deea6191247e9e76759dbbe636e66fa85f8b29211
+  metadata.query_expansion_text:        ''
+  engine_timings.query_expansion_text: ''
+  metadata.bridge_tokens:                ['pag-ibig', 'pagmamahal']
+  engine_timings.bridge_tokens:         ['pag-ibig', 'pagmamahal']
+
+Both metadata and engine_timings hold these diagnostic keys. The strict comparator has been updated
+to include them explicitly under engine_timings_<key> as well as top-level metadata.
+
+--------------------------------------------------------------------------------
+2. RERUN (a): golden_snapshot_seed0.json vs b1_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total queries: 40 | Queries with changes: 18
+Changed queries (18):
+   1. Basilio
+   2. Crisostomo Ibarra
+   3. Elias
+   4. Isagani
+   5. Maria Clara
+   6. Padre Damaso
+   7. Simoun
+   8. Sisa
+   9. bayan
+  10. church
+  11. death
+  12. education
+  13. freedom
+  14. kalayaan
+  15. kamatayan
+  16. love
+  17. paaralan
+  18. simbahan
+
+--------------------------------------------------------------------------------
+3. RERUN (b): NEGATIVE CONTROL D+B1 (S0) SEED 1 vs SEED 2
+--------------------------------------------------------------------------------
+Total queries: 40 | Queries with changes: 12
+Divergent queries (12):
+   1. Crisostomo Ibarra
+   2. Padre Damaso
+   3. Simoun
+   4. church
+   5. education
+   6. edukasyon
+   7. edukasyon para sa kalayaan
+   8. kalayaan
+   9. kapangyarihan ng simbahan
+  10. karahasan ng mga prayle
+  11. oppression
+  12. pag-ibig ni Maria Clara
+
+--------------------------------------------------------------------------------
+4. RERUN (c): CROSS-SEED COMPARISONS ON S1, S2, AND HEAD (40 QUERIES)
+--------------------------------------------------------------------------------
+
+--- State: S1 (E1 only) ---
+S1 seed 1 vs S1 seed 2              | Total: 40 | Diffs: 0
+S1 seed 1 vs S1 seed 12345          | Total: 40 | Diffs: 0
+S1 unset vs S1 seed 1               | Total: 40 | Diffs: 0
+
+--- State: S2 (E1+E2) ---
+S2 seed 1 vs S2 seed 2              | Total: 40 | Diffs: 0
+S2 seed 1 vs S2 seed 12345          | Total: 40 | Diffs: 0
+S2 unset vs S2 seed 1               | Total: 40 | Diffs: 0
+
+--- State: HEAD (E1+E2+E3) ---
+HEAD seed 1 vs HEAD seed 2          | Total: 40 | Diffs: 0
+HEAD seed 1 vs HEAD seed 12345      | Total: 40 | Diffs: 0
+HEAD unset vs HEAD seed 1           | Total: 40 | Diffs: 0
+
+--------------------------------------------------------------------------------
+5. RERUN (d): SIX-PROCESS PAIRWISE MATRIX (HEAD)
+--------------------------------------------------------------------------------
+Process Pair                                  | Total  | Diffs  | Status
+------------------------------------------------------------------------
+proc1 (unset, fwd) vs proc2 (unset, rev)      |   40   |   0    | 100% BIT-IDENTICAL
+proc1 (unset, fwd) vs proc3 (seed 1)          |   40   |   0    | 100% BIT-IDENTICAL
+proc1 (unset, fwd) vs proc4 (seed 2)          |   40   |   0    | 100% BIT-IDENTICAL
+proc1 (unset, fwd) vs proc5 (seed 12345)      |   40   |   0    | 100% BIT-IDENTICAL
+proc1 (unset, fwd) vs proc6 (seed 0)          |   40   |   0    | 100% BIT-IDENTICAL
+proc2 (unset, rev) vs proc3 (seed 1)          |   40   |   0    | 100% BIT-IDENTICAL
+proc2 (unset, rev) vs proc4 (seed 2)          |   40   |   0    | 100% BIT-IDENTICAL
+proc2 (unset, rev) vs proc5 (seed 12345)      |   40   |   0    | 100% BIT-IDENTICAL
+proc2 (unset, rev) vs proc6 (seed 0)          |   40   |   0    | 100% BIT-IDENTICAL
+proc3 (seed 1) vs proc4 (seed 2)              |   40   |   0    | 100% BIT-IDENTICAL
+proc3 (seed 1) vs proc5 (seed 12345)          |   40   |   0    | 100% BIT-IDENTICAL
+proc3 (seed 1) vs proc6 (seed 0)              |   40   |   0    | 100% BIT-IDENTICAL
+proc4 (seed 2) vs proc5 (seed 12345)          |   40   |   0    | 100% BIT-IDENTICAL
+proc4 (seed 2) vs proc6 (seed 0)              |   40   |   0    | 100% BIT-IDENTICAL
+proc5 (seed 12345) vs proc6 (seed 0)          |   40   |   0    | 100% BIT-IDENTICAL
+
+--------------------------------------------------------------------------------
+6. RERUN (e): 206-QUERY HELDOUT MATRICES (HEAD & S1)
+--------------------------------------------------------------------------------
+Held-Out Comparison Pair                      | Total  | Diffs  | Status
+------------------------------------------------------------------------
+HEAD unset fwd vs HEAD unset rev              |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset fwd vs HEAD seed 1                 |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset fwd vs HEAD seed 12345             |  206   |   0    | 100% BIT-IDENTICAL
+HEAD seed 1 vs HEAD seed 12345                |  206   |   0    | 100% BIT-IDENTICAL
+S1 unset fwd vs S1 unset rev                  |  206   |   0    | 100% BIT-IDENTICAL
+S1 unset fwd vs S1 seed 1                     |  206   |   0    | 100% BIT-IDENTICAL
+S1 unset fwd vs S1 seed 12345                 |  206   |   0    | 100% BIT-IDENTICAL
+S1 seed 1 vs S1 seed 12345                    |  206   |   0    | 100% BIT-IDENTICAL
+S0 seed 1 vs S0 seed 2 (neg ctrl)             |  206   |   41   | 41 diffs
+    - Crisostomo Ibarra
+    - Crispin
+    - Dasal ng ina. Luha ng anak.
+    - Donya Victorina
+    - Edukasyon ang lunas. Paaralan ang pag-asa.
+    - Kabesang Tales
+    - Noli Me Tangere. El Filibusterismo.
+    - Padre Damaso
+    - Simbahan at pamahalaan. Prayle at heneral.
+    - Simoun
+    ... (31 more)

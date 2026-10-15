@@ -1,0 +1,130 @@
+================================================================================
+ITEM 10: ABLATION S0/S1 MATRICES & 206-QUERY PAIRWISE MATRICES & TRANSLATOR LOGS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. ABLATION S0 (D+B1, PRE-E1) PAIRWISE STRICT COMPARISONS
+--------------------------------------------------------------------------------
+Pair                           | Total    | Diffs    | Divergent Queries
+--------------------------------------------------------------------------------
+unset vs seed 1                |    40    |    12    | ['Crisostomo Ibarra', 'Padre Damaso', 'Simoun', 'Sisa', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kalayaan ng Pilipinas', 'kapangyarihan ng simbahan', 'oppression']
+unset vs seed 2                |    40    |    14    | ['Crisostomo Ibarra', 'Padre Damaso', 'Simoun', 'Sisa', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kalayaan ng Pilipinas', 'kapangyarihan ng simbahan', 'karahasan ng mga prayle', 'oppression', 'pag-ibig ni Maria Clara']
+unset vs seed 12345            |    40    |    12    | ['Crisostomo Ibarra', 'Padre Damaso', 'Simoun', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kapangyarihan ng simbahan', 'karahasan ng mga prayle', 'oppression', 'pag-ibig ni Maria Clara']
+seed 1 vs seed 2               |    40    |    12    | ['Crisostomo Ibarra', 'Padre Damaso', 'Simoun', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kapangyarihan ng simbahan', 'karahasan ng mga prayle', 'oppression', 'pag-ibig ni Maria Clara']
+seed 1 vs seed 12345           |    40    |    13    | ['Padre Damaso', 'Simoun', 'Sisa', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kalayaan ng Pilipinas', 'kapangyarihan ng simbahan', 'karahasan ng mga prayle', 'oppression', 'pag-ibig ni Maria Clara']
+seed 2 vs seed 12345           |    40    |    13    | ['Crisostomo Ibarra', 'Padre Damaso', 'Simoun', 'Sisa', 'church', 'education', 'edukasyon', 'edukasyon para sa kalayaan', 'kalayaan', 'kalayaan ng Pilipinas', 'kapangyarihan ng simbahan', 'oppression', 'pag-ibig ni Maria Clara']
+
+
+--------------------------------------------------------------------------------
+2. ABLATION S1 (S0 + E1) PAIRWISE STRICT COMPARISONS
+--------------------------------------------------------------------------------
+Pair                           | Total    | Diffs    | Status
+--------------------------------------------------------------------------------
+unset vs seed 1                |    40    |    0     | BIT-IDENTICAL (0 diffs)
+unset vs seed 2                |    40    |    0     | BIT-IDENTICAL (0 diffs)
+unset vs seed 12345            |    40    |    0     | BIT-IDENTICAL (0 diffs)
+seed 1 vs seed 2               |    40    |    0     | BIT-IDENTICAL (0 diffs)
+seed 1 vs seed 12345           |    40    |    0     | BIT-IDENTICAL (0 diffs)
+seed 2 vs seed 12345           |    40    |    0     | BIT-IDENTICAL (0 diffs)
+
+
+--------------------------------------------------------------------------------
+3. 206-QUERY HELDOUT SUITE PAIRWISE STRICT COMPARISONS ON HEAD (E1+E2+E3)
+--------------------------------------------------------------------------------
+Pair                           | Total    | Diffs    | Status
+--------------------------------------------------------------------------------
+unset (fwd) vs unset (rev)     |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (fwd) vs seed 1          |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (fwd) vs seed 12345      |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (rev) vs seed 1          |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (rev) vs seed 12345      |   206    |    0     | BIT-IDENTICAL (0 diffs)
+seed 1 vs seed 12345           |   206    |    0     | BIT-IDENTICAL (0 diffs)
+
+
+--------------------------------------------------------------------------------
+4. 206-QUERY HELDOUT SUITE PAIRWISE STRICT COMPARISONS ON S1 (E1 ONLY)
+--------------------------------------------------------------------------------
+Pair                           | Total    | Diffs    | Status
+--------------------------------------------------------------------------------
+unset (fwd) vs unset (rev)     |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (fwd) vs seed 1          |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (fwd) vs seed 12345      |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (rev) vs seed 1          |   206    |    0     | BIT-IDENTICAL (0 diffs)
+unset (rev) vs seed 12345      |   206    |    0     | BIT-IDENTICAL (0 diffs)
+seed 1 vs seed 12345           |   206    |    0     | BIT-IDENTICAL (0 diffs)
+
+
+--------------------------------------------------------------------------------
+5. TRANSLATOR LOG LINES FROM SERVER EXECUTION (proc1..proc6 / translator metadata)
+--------------------------------------------------------------------------------
+Process Snapshot: proc1_unset_fwd.json
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: online                       | translator_input: online                       | translator_output: None
+
+Process Snapshot: proc2_unset_rev.json
+  Query: online                       | translator_input: online                       | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+
+Process Snapshot: proc3_seed1.json
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: online                       | translator_input: online                       | translator_output: None
+
+Process Snapshot: proc4_seed2.json
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: online                       | translator_input: online                       | translator_output: None
+
+Process Snapshot: proc5_seed12345.json
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: online                       | translator_input: online                       | translator_output: None
+
+Process Snapshot: proc6_seed0.json
+  Query: korapsyon                    | translator_input: korapsyon                    | translator_output: None
+  Query: karahasan ng mga prayle      | translator_input: karahasan ng mga prayle      | translator_output: None
+  Query: tiktok                       | translator_input: tiktok                       | translator_output: None
+  Query: bitcoin                      | translator_input: bitcoin                      | translator_output: None
+  Query: covid                        | translator_input: covid                        | translator_output: None
+  Query: facebook                     | translator_input: facebook                     | translator_output: None
+  Query: internet                     | translator_input: internet                     | translator_output: None
+  Query: computer                     | translator_input: computer                     | translator_output: None
+  Query: cellphone                    | translator_input: cellphone                    | translator_output: None
+  Query: online                       | translator_input: online                       | translator_output: None

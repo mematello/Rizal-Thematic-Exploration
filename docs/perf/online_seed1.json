@@ -1,0 +1,907 @@
+{
+  "queries": {
+    "korapsyon": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "korapsyon ng bayan",
+          "korapsyon sa simbahan",
+          "korapsyon laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 653.4,
+          "translator": 1209.57,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "korapsyon",
+          "translator_output": null,
+          "search_total_ms": 2441.49,
+          "diagnostic_suggestions_ms": 578.44,
+          "translator_ms": 1209.57,
+          "translator_network_calls": true,
+          "query_vector_sha256": "23ea3f63bf2d5d61067a230ed217ad016f5877d570402b142359034d93914710",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "23ea3f63bf2d5d61067a230ed217ad016f5877d570402b142359034d93914710",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "korapsyon",
+        "translator_output": null
+      }
+    },
+    "karahasan ng mga prayle": {
+      "noli": [
+        {
+          "id": 37193,
+          "sentence_index": 17,
+          "chapter_number": 1,
+          "chapter_title": "Ang Pagtitipon",
+          "sentence_text": "Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 65
+          },
+          "concept_match_type": "partial",
+          "context_text": "Ang akala niya\u2019y pumunta ang binata sa Pilipinas upang magtrabaho, yun pala ay interesado ang binata sa pag-uugali ng mga katutubong Pilipino. Nagkaroon ng kanya kanyang pagpapahayag na nagresulta sa mainit na sagutan sa pagitan ng mga panauhin laban kay Padre Damaso. Hindi na napigilan ng pari na mailabas ang kanyang mapanlait na ugali laban sa mga Indio. <strong>Sinabi din ni Padre Damaso na hindi dapat manghimasok ang hari sa pagpaparusa ng simbahan sa mga erehe.</strong> Ngunit ito ay tinutulan ni Tinyente Guevarra, batid niya na may karapatan ang Kapitan Heneral sa pagpaparusa dahil ito ang kinatawan ng hari ng bansa. Pinalipat si Padre Damaso sa ibang lugar dahil pinahukay nito ang bangkay ng isang marangal na lalaki na napagkamalang isang erehe dahil sa hindi nito pagkumpisal.",
+          "themes": []
+        },
+        {
+          "id": 37599,
+          "sentence_index": 14,
+          "chapter_number": 23,
+          "chapter_title": "Ang Piknik",
+          "sentence_text": "Sama-samang nananghalian ang mga binata\u2019t dalaga sa silong ng puno na malapit sa ilog.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 64
+          },
+          "concept_match_type": "partial",
+          "context_text": "Tumalon si Elias sa ilog upang labanan ang buwaya dahilan nang pagkabahala ng mga dalaga. Hindi naman kinaya ni Elias ang lakas nito kaya nilundag na rin ni Ibarra ang ilog upang talunin ang buwaya. Nagpatuloy ang magkakaibigan sa pangingisda hanggang sa sila ay makahuli ng sariwang isda. <strong>Sama-samang nananghalian ang mga binata\u2019t dalaga sa silong ng puno na malapit sa ilog.</strong> ",
+          "themes": []
+        },
+        {
+          "id": 38332,
+          "sentence_index": 26,
+          "chapter_number": 61,
+          "chapter_title": "Ang Habulan sa Lawa",
+          "sentence_text": "Sa tuwing inilalabas ni Elias ang ulo ay nakakarinig si Ibarra ng mga putok ng baril.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 64
+          },
+          "concept_match_type": "partial",
+          "context_text": "Iyon ang mga konstabularyo na mukhang ikinakasa ang kanilang mga riple at nakaasinta sa kanila. Naghubad ng damit si Elias at biglang talon sa tubig. Balak niyang iligaw ang mga sumusunod sa kanila. <strong>Sa tuwing inilalabas ni Elias ang ulo ay nakakarinig si Ibarra ng mga putok ng baril.</strong> Habang nililito ni Elias ang mga gwardiya payapa namang inaanod ang bangkang hinihigaan ni Ibarra. Nagpatuloy sa pagsisid at paglangoy si Elias. Makikita na ang pagod sa mukha nito.",
+          "themes": []
+        },
+        {
+          "id": 37423,
+          "sentence_index": 10,
+          "chapter_number": 12,
+          "chapter_title": "Ang Araw ng mga Patay",
+          "sentence_text": "Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote na siyang si Padre Damaso.",
+          "scores": {
+            "semantic": 5,
+            "lexical": 3,
+            "final": 4,
+            "precision": 63
+          },
+          "concept_match_type": "partial",
+          "context_text": "Dalawang tao ang mabilis na naghuhukay sa isang bahagi ng sementeryo. Ang isa ay dalubhasa na sa pagiging sepulturero at ang isa naman ay baguhan palang. Hinukay at iniahon ng dalawa ang bangkay na siyang kakalibing pa lamang makalipas ang dalawampung araw. <strong>Ang pagpapahukay at pagpapalipat ng bangkay sa libingan ng mga Intsik ay utos mula kay Padre Garrote na siyang si Padre Damaso.</strong> ",
+          "themes": []
+        },
+        {
+          "id": 38324,
+          "sentence_index": 18,
+          "chapter_number": 61,
+          "chapter_title": "Ang Habulan sa Lawa",
+          "sentence_text": "Sinakay rin nila sa bangka ang mga bayong na nagkalat.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 62
+          },
+          "concept_match_type": "partial",
+          "context_text": "Doon ay ibinaba ni Elias ang mga sakay na damo at nagputol naman ng mga kawayan. <strong>Sinakay rin nila sa bangka ang mga bayong na nagkalat.</strong> Nang dumaan sa Malapad na Bato ay sinipat-sipat sila ng gwardiya. Sinabi niya na ibebenta niya sa mga Intsik ang mga kawayan at bayong na nasa bangka. Agad namang naniwala ang bantay at pinalagpas ulit si Elias.",
+          "themes": []
+        },
+        {
+          "id": 38329,
+          "sentence_index": 23,
+          "chapter_number": 61,
+          "chapter_title": "Ang Habulan sa Lawa",
+          "sentence_text": "Iyon ang mga konstabularyo na mukhang ikinakasa ang kanilang mga riple at nakaasinta sa kanila.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 62
+          },
+          "concept_match_type": "partial",
+          "context_text": "Sinabi niya na ibebenta niya sa mga Intsik ang mga kawayan at bayong na nasa bangka. Agad namang naniwala ang bantay at pinalagpas ulit si Elias. Nakahinga nang maluwag ang dalawa dahil malayo na sila sa gwardiya ngunit meron silang napansin na lantsang paparating na parang sumusunod sa kanila. <strong>Iyon ang mga konstabularyo na mukhang ikinakasa ang kanilang mga riple at nakaasinta sa kanila.</strong> Naghubad ng damit si Elias at biglang talon sa tubig. Balak niyang iligaw ang mga sumusunod sa kanila. Sa tuwing inilalabas ni Elias ang ulo ay nakakarinig si Ibarra ng mga putok ng baril.",
+          "themes": []
+        },
+        {
+          "id": 37481,
+          "sentence_index": 18,
+          "chapter_number": 15,
+          "chapter_title": "Ang mga Sakristan",
+          "sentence_text": "Hindi nakapagsalita si Basilio sa narinig na mga sampal, sigaw, pagmamakaawa na unti-uning nauwi sa katahimikan.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 62
+          },
+          "concept_match_type": "partial",
+          "context_text": "Pinagmulta niya si Basilio dahil sa maling pagpapatunog ng kampana at hindi naman niya pinayagang makauwi si Crispin hangga\u2019t hindi nito nababayaran ang kanyang ninakaw. Sinabi ng sakristan mayor na maaari palang makauwi si Basilio pagsapit ng ika-sampu ng gabi ngunit mapanganib na para kay Basilio ang umuwi dahil pinagbabawal ng gwardiya sibil ang paglalakad sa daanan paglampas ng ika-siyam ng gabi. Nagalit ang sakristan mayor kaya kinaladkad nito sa Cripin palayo kay Basilio. <strong>Hindi nakapagsalita si Basilio sa narinig na mga sampal, sigaw, pagmamakaawa na unti-uning nauwi sa katahimikan.</strong> Dali-daling pumanhik si Basilio at tumakas gamit ang mga lubid ng kampana. Lumipas ang dalawang minuto, dalawang putok ng baril ang ikinagulat ng lahat.",
+          "themes": []
+        },
+        {
+          "id": 37616,
+          "sentence_index": 17,
+          "chapter_number": 24,
+          "chapter_title": "Sa Kagubatan",
+          "sentence_text": "Ayon sa pari, isang malaking pagkakasala ang maniwala sa mga kasulatang iyon.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 61
+          },
+          "concept_match_type": "partial",
+          "context_text": " <strong>Ayon sa pari, isang malaking pagkakasala ang maniwala sa mga kasulatang iyon.</strong> Sa dala ng inis, sinagot ni Albino ang kura. Aniya mas malaking pagkakasala ang mangialam sa pag-aari ng iba. Dahil sa narinig ay galit na umalis ang kura pabalik sa kumbento.",
+          "themes": []
+        },
+        {
+          "id": 37610,
+          "sentence_index": 11,
+          "chapter_number": 24,
+          "chapter_title": "Sa Kagubatan",
+          "sentence_text": "Nakisali si Ibarra sa mga naglalaro ng Gulong ng Kapalaran.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 4,
+            "final": 4,
+            "precision": 61
+          },
+          "concept_match_type": "partial",
+          "context_text": "Naging usapan sa salu-salo ang balitang pagkawala ng mga anak ni Sisa bagay na pinagtalunan ni Don Filipo at Padre Salvi. Ayon kay Don Filipo ay mas pinahahalagahan pa ang dalawang onsa na nawala kaysa sa pagkawala ng mga bata. Agad namang pumagitna sa usapan ng dalawa si Ibarra upang di na umabot sa malaking gulo. <strong>Nakisali si Ibarra sa mga naglalaro ng Gulong ng Kapalaran.</strong> ",
+          "themes": []
+        },
+        {
+          "id": 38331,
+          "sentence_index": 25,
+          "chapter_number": 61,
+          "chapter_title": "Ang Habulan sa Lawa",
+          "sentence_text": "Balak niyang iligaw ang mga sumusunod sa kanila.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 3,
+            "precision": 63
+          },
+          "concept_match_type": "partial",
+          "context_text": "Nakahinga nang maluwag ang dalawa dahil malayo na sila sa gwardiya ngunit meron silang napansin na lantsang paparating na parang sumusunod sa kanila. Iyon ang mga konstabularyo na mukhang ikinakasa ang kanilang mga riple at nakaasinta sa kanila. Naghubad ng damit si Elias at biglang talon sa tubig. <strong>Balak niyang iligaw ang mga sumusunod sa kanila.</strong> Sa tuwing inilalabas ni Elias ang ulo ay nakakarinig si Ibarra ng mga putok ng baril. Habang nililito ni Elias ang mga gwardiya payapa namang inaanod ang bangkang hinihigaan ni Ibarra. Nagpatuloy sa pagsisid at paglangoy si Elias.",
+          "themes": []
+        }
+      ],
+      "elfili": [
+        {
+          "id": 38912,
+          "sentence_index": 12,
+          "chapter_number": 25,
+          "chapter_title": "Tawanan at Iyakan",
+          "sentence_text": "Kahabag-habag daw na inihambing ang alimasag sa mga prayle.",
+          "scores": {
+            "semantic": 9,
+            "lexical": 12,
+            "final": 10,
+            "precision": 74
+          },
+          "concept_match_type": "partial",
+          "context_text": " <strong>Kahabag-habag daw na inihambing ang alimasag sa mga prayle.</strong> Ang pansit gisado naman ay inukol sa pamahalaan at sa bayan. Ani Makaraig, ang pansit ay katutubong lutuing Pilipino. May gusto daw mag-alay ng pansit  kay Quiroga na isa raw sa apat na kapangyarihan sa Pilipinas.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ]
+        },
+        {
+          "id": 39230,
+          "sentence_index": 10,
+          "chapter_number": 36,
+          "chapter_title": "Mga Kapighatian ni Ben Zayb",
+          "sentence_text": "May balita naman mula sa Pasig na nilusob daw ng maraming tulisan ang bahay-pahingahan ng mga prayle at nakatangay ng may dalawang libong piso.",
+          "scores": {
+            "semantic": 9,
+            "lexical": 12,
+            "final": 11,
+            "precision": 71
+          },
+          "concept_match_type": "partial",
+          "context_text": "Kay Don Custodio naman ay inalala ang katalinuhan at paglalakbay, samantalang ang pagkahimatay ni Padre Salvi ay gawa umano ng malaking dalamhati ng mabait na Pransiskano. Ngunit matapos niyang isulat ng lahat ng iyon ay ibinalik sa kanya ng patnugon ng pahayagan ang kanyang sinulat. Ipinagbawal pala ng Kapitan Heneral ang pagbanggit sa nangyari nang gabing iyon. <strong>May balita naman mula sa Pasig na nilusob daw ng maraming tulisan ang bahay-pahingahan ng mga prayle at nakatangay ng may dalawang libong piso.</strong> Malubha umano ang prayle at dalawang utusan nito.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ]
+        },
+        {
+          "id": 38969,
+          "sentence_index": 11,
+          "chapter_number": 27,
+          "chapter_title": "Ang Prayle at ang Estudyante",
+          "sentence_text": "Saka nisa-isa ang mga sakit sa pagtuturo ng mga prayle.",
+          "scores": {
+            "semantic": 7,
+            "lexical": 13,
+            "final": 10,
+            "precision": 70
+          },
+          "concept_match_type": "partial",
+          "context_text": "Sinabi ng pari na \u2018di niya inuusig si Isagani at malaya itong nakapagsasalita ng anuman sa kanyang klase. Sa halip ay paborito pa nga daw niya si Isagani. Pangiti namang nagpasalamat ang binata at sinabing itinatangi rin niya ang katedratiko. \u2018Di raw gaya ni Padre Fernandez ang ibang prayleng Dominikong  katedratiko. <strong>Saka nisa-isa ang mga sakit sa pagtuturo ng mga prayle.</strong> Napakagat-labi lamang si Padre Fernandez at sinabi nitong lampas na sa guhit ng pag-uusap ang mga paratang ni Isagani. Giit naman ni Isagani na ang mga prayle sa lahat ng orden ay naging mga kontratista ng karunungan at sila umano ang nagsasabi mismo sa mga mag- aaral na hindi raw sila nararapat matuto dahil balang araw ay magpapahayag ang mga ito ng paglaya. Dagdag pa ni Isagani, ang kalayaan ay katambal ng tao at gayundin ng talino at katarungan.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ]
+        },
+        {
+          "id": 38973,
+          "sentence_index": 15,
+          "chapter_number": 27,
+          "chapter_title": "Ang Prayle at ang Estudyante",
+          "sentence_text": "Ang pagtanggi ng mga prayle na matuto sila at lumaya ang dahilan ng kawalan ng kanilang kasiyahan.",
+          "scores": {
+            "semantic": 8,
+            "lexical": 12,
+            "final": 10,
+            "precision": 69
+          },
+          "concept_match_type": "partial",
+          "context_text": "Napakagat-labi lamang si Padre Fernandez at sinabi nitong lampas na sa guhit ng pag-uusap ang mga paratang ni Isagani. Giit naman ni Isagani na ang mga prayle sa lahat ng orden ay naging mga kontratista ng karunungan at sila umano ang nagsasabi mismo sa mga mag- aaral na hindi raw sila nararapat matuto dahil balang araw ay magpapahayag ang mga ito ng paglaya. Dagdag pa ni Isagani, ang kalayaan ay katambal ng tao at gayundin ng talino at katarungan. <strong>Ang pagtanggi ng mga prayle na matuto sila at lumaya ang dahilan ng kawalan ng kanilang kasiyahan.</strong> Anang pari, ang karunungan daw ay hindi ipinagkakaloob kundi sa karapat- dapat lamang. Ipagkaloob daw iyon sa mga walang tibay ng loob at kapos sa wastong asal ay taliwas sa layunin. Ngunit tinutulan ito ni Isagani.",
+          "themes": []
+        },
+        {
+          "id": 39028,
+          "sentence_index": 34,
+          "chapter_number": 28,
+          "chapter_title": "Pagkatakot",
+          "sentence_text": "Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 65
+          },
+          "concept_match_type": "partial",
+          "context_text": "Nag-agawan ang mga bata kaya maingay sa may pinto ng simbahan. May nagdaang opisyal at nabigla ito sa mga nakita. <strong>Inakala niyang gawa iyon ng mga pilibusterilyo kaya hinabol ng sable ang mga batang nagsipasok sa simbahan.</strong> ",
+          "themes": []
+        },
+        {
+          "id": 38745,
+          "sentence_index": 14,
+          "chapter_number": 18,
+          "chapter_title": "Ang mga Kadayaan",
+          "sentence_text": "Dahil sa takot na isumbong siya kay Cambises ay binalak niyang patayin si Imuthis sa tulong ng mga saserdoteng taga-Ehipto.",
+          "scores": {
+            "semantic": 7,
+            "lexical": 3,
+            "final": 5,
+            "precision": 63
+          },
+          "concept_match_type": "partial",
+          "context_text": "Lumabas ang isang ulo at sinabi nitong siya si Imuthis. Siya daw ay umuwi sa kanyang bayan pagkatapos ng pag-aaral at mahabang paglalakbay. Nang dumaan daw siya sa Babilonia ay nalaman niya ang isang lihim na hindi ang tunay na Sumerdis ang namamahala doon kundi si Gautama, isang magnanakaw ng kapangyarihan at namamahala sa tulong ng pandaraya. <strong>Dahil sa takot na isumbong siya kay Cambises ay binalak niyang patayin si Imuthis sa tulong ng mga saserdoteng taga-Ehipto.</strong> Samantala, si Imuthis ay umibig sa isang anak ng pari at naging kaagaw niya rito ang pari sa Abidos. Nagpanukala ang pari ng kaguluhan at siya ang sinangkalan. Isinakdal si Imuthis, napiit, tumakas, at saka napatay.",
+          "themes": []
+        },
+        {
+          "id": 38922,
+          "sentence_index": 22,
+          "chapter_number": 25,
+          "chapter_title": "Tawanan at Iyakan",
+          "sentence_text": "Nasambit tuloy ni Makaraig ang mga katagang, \u201cAng busabos ng bise-rektor na pinglilingkuran ng panginoon ng Heneral!\u201d",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 63
+          },
+          "concept_match_type": "partial",
+          "context_text": "Aniya, mula raw sa kamusmusan hanggang sa libingan ay mga pari ang kasama natin. May nakakita sa isang utusan ni Padre Sibyla (biserektor sa Unibersidad) na sumakay sa karwahe ni Simoun. Nagtitiktik pala ito sa mga mag-aaral. <strong>Nasambit tuloy ni Makaraig ang mga katagang, \u201cAng busabos ng bise-rektor na pinglilingkuran ng panginoon ng Heneral!\u201d</strong> ",
+          "themes": []
+        },
+        {
+          "id": 39062,
+          "sentence_index": 3,
+          "chapter_number": 29,
+          "chapter_title": "Ang Huling Pati-ukol kay Kapitan",
+          "sentence_text": "Ang malaking kayamanan ng namatay ay napunta sa Sta. Clara, sa Papa, sa Arsobispo, at sa mga orden.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 62
+          },
+          "concept_match_type": "partial",
+          "context_text": "Tiyago Marangya ang libing ni Kapitan Tiyago. Hinirang si Padre Irene na tagapamahala at tagapagpatupad ng testamento ng kapitan. <strong>Ang malaking kayamanan ng namatay ay napunta sa Sta. Clara, sa Papa, sa Arsobispo, at sa mga orden.</strong> Ang dalawanpung piso ay itinira para pangmatrikula ng mga estudyanteng mahihiraP. Inalis ni Kapitan Tiyago ang dalawampu\u2019t limang piso na pamana kay Basilio dahil sa kawalang-utang na loob umano nito ngunit isinauli ni Padre Irene at siya na raw ang magpapaluwal sa sariling bulsa. Pinagtatalunan nila kung anong damit ang susuotin ni Kapitan Tiyago. Ipinirisinta ni Kapitan Tinong ang kanyang sirang damit-Pransiskano na nabili niya sa isang prayle sa halagang tatlumpu\u2019t anim na piso.",
+          "themes": []
+        },
+        {
+          "id": 39238,
+          "sentence_index": 18,
+          "chapter_number": 36,
+          "chapter_title": "Mga Kapighatian ni Ben Zayb",
+          "sentence_text": "Kailangan daw gawing marami ang mga tulisan.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 3,
+            "precision": 63
+          },
+          "concept_match_type": "partial",
+          "context_text": "May isang maliit na sugat sa kamay at may pasa sa ulo ang pari. Tatlo diumano ang mga magnanakaw na may dalang gulok at limampung piso ang nanakaw. Ayon kay Ben Zayb ay hindi tama ang salaysay ni Padre Camorra. <strong>Kailangan daw gawing marami ang mga tulisan.</strong> Samantala, may nadakip sa mga tulisan. Pinaamin ito at sinabing sila raw ay inanyayahang sumama sa pangkat nina Matanglawin upang sumalakay sa kumbento at mga bahay ng mayayaman. Isang Kastila na mataas, kayumanggi, puti ang buhok at ang pasabi ay kumikilos sa utos ng Kapitan Heneral na kaibigan niyang matalik ang diumano\u2019y mangunguna sa kanila.",
+          "themes": []
+        },
+        {
+          "id": 38975,
+          "sentence_index": 17,
+          "chapter_number": 27,
+          "chapter_title": "Ang Prayle at ang Estudyante",
+          "sentence_text": "Ipagkaloob daw iyon sa mga walang tibay ng loob at kapos sa wastong asal ay taliwas sa layunin.",
+          "scores": {
+            "semantic": 6,
+            "lexical": 3,
+            "final": 4,
+            "precision": 61
+          },
+          "concept_match_type": "partial",
+          "context_text": "Dagdag pa ni Isagani, ang kalayaan ay katambal ng tao at gayundin ng talino at katarungan. Ang pagtanggi ng mga prayle na matuto sila at lumaya ang dahilan ng kawalan ng kanilang kasiyahan. Anang pari, ang karunungan daw ay hindi ipinagkakaloob kundi sa karapat- dapat lamang. <strong>Ipagkaloob daw iyon sa mga walang tibay ng loob at kapos sa wastong asal ay taliwas sa layunin.</strong> Ngunit tinutulan ito ni Isagani. Aniya, kung ano daw sila ngayon ay ang mga pari ang may gawa. Ang bayan daw na inaalipin ay natutong magkunwari; ang paghaharian ay lumikha ng mga alipin.",
+          "themes": []
+        }
+      ],
+      "precise_matches": [
+        {
+          "id": 38912,
+          "sentence_index": 12,
+          "chapter_number": 25,
+          "chapter_title": "Tawanan at Iyakan",
+          "sentence_text": "Kahabag-habag daw na inihambing ang alimasag sa mga prayle.",
+          "scores": {
+            "semantic": 9,
+            "lexical": 12,
+            "final": 10,
+            "precision": 74
+          },
+          "concept_match_type": "partial",
+          "context_text": " <strong>Kahabag-habag daw na inihambing ang alimasag sa mga prayle.</strong> Ang pansit gisado naman ay inukol sa pamahalaan at sa bayan. Ani Makaraig, ang pansit ay katutubong lutuing Pilipino. May gusto daw mag-alay ng pansit  kay Quiroga na isa raw sa apat na kapangyarihan sa Pilipinas.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ],
+          "book": "Fili"
+        },
+        {
+          "id": 39230,
+          "sentence_index": 10,
+          "chapter_number": 36,
+          "chapter_title": "Mga Kapighatian ni Ben Zayb",
+          "sentence_text": "May balita naman mula sa Pasig na nilusob daw ng maraming tulisan ang bahay-pahingahan ng mga prayle at nakatangay ng may dalawang libong piso.",
+          "scores": {
+            "semantic": 9,
+            "lexical": 12,
+            "final": 11,
+            "precision": 71
+          },
+          "concept_match_type": "partial",
+          "context_text": "Kay Don Custodio naman ay inalala ang katalinuhan at paglalakbay, samantalang ang pagkahimatay ni Padre Salvi ay gawa umano ng malaking dalamhati ng mabait na Pransiskano. Ngunit matapos niyang isulat ng lahat ng iyon ay ibinalik sa kanya ng patnugon ng pahayagan ang kanyang sinulat. Ipinagbawal pala ng Kapitan Heneral ang pagbanggit sa nangyari nang gabing iyon. <strong>May balita naman mula sa Pasig na nilusob daw ng maraming tulisan ang bahay-pahingahan ng mga prayle at nakatangay ng may dalawang libong piso.</strong> Malubha umano ang prayle at dalawang utusan nito.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ],
+          "book": "Fili"
+        },
+        {
+          "id": 38969,
+          "sentence_index": 11,
+          "chapter_number": 27,
+          "chapter_title": "Ang Prayle at ang Estudyante",
+          "sentence_text": "Saka nisa-isa ang mga sakit sa pagtuturo ng mga prayle.",
+          "scores": {
+            "semantic": 7,
+            "lexical": 13,
+            "final": 10,
+            "precision": 70
+          },
+          "concept_match_type": "partial",
+          "context_text": "Sinabi ng pari na \u2018di niya inuusig si Isagani at malaya itong nakapagsasalita ng anuman sa kanyang klase. Sa halip ay paborito pa nga daw niya si Isagani. Pangiti namang nagpasalamat ang binata at sinabing itinatangi rin niya ang katedratiko. \u2018Di raw gaya ni Padre Fernandez ang ibang prayleng Dominikong  katedratiko. <strong>Saka nisa-isa ang mga sakit sa pagtuturo ng mga prayle.</strong> Napakagat-labi lamang si Padre Fernandez at sinabi nitong lampas na sa guhit ng pag-uusap ang mga paratang ni Isagani. Giit naman ni Isagani na ang mga prayle sa lahat ng orden ay naging mga kontratista ng karunungan at sila umano ang nagsasabi mismo sa mga mag- aaral na hindi raw sila nararapat matuto dahil balang araw ay magpapahayag ang mga ito ng paglaya. Dagdag pa ni Isagani, ang kalayaan ay katambal ng tao at gayundin ng talino at katarungan.",
+          "themes": [],
+          "component_matches": [
+            {
+              "component": "karahasan",
+              "type": "semantic"
+            },
+            {
+              "component": "mga prayle",
+              "type": "lexical"
+            },
+            {
+              "component": "ng",
+              "type": "lexical"
+            },
+            {
+              "component": "mga",
+              "type": "lexical"
+            },
+            {
+              "component": "prayle",
+              "type": "lexical"
+            }
+          ],
+          "book": "Fili"
+        }
+      ],
+      "metadata": {
+        "result_mode": "lexical",
+        "reason": "matches_found",
+        "has_lexical_hits": true,
+        "suggestions": [
+          "kapangyarihan ng simbahan",
+          "padre damaso",
+          "impluwensya ng prayle"
+        ],
+        "components": [
+          "karahasan",
+          "mga prayle",
+          "ng",
+          "mga",
+          "prayle"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.17,
+          "translator": 993.16,
+          "base_model_encode": 61.26,
+          "query_components_encode": 233.08,
+          "theme_expansion": 2.63,
+          "concept_vector_encode": 87.42,
+          "dapt_model_encode": 388.17,
+          "lexical_retrieval": 53.07,
+          "sig_words_encode": 63.31,
+          "rerank_loop": 79.05,
+          "context_fetch": 113.23,
+          "context_expansion": 4.26,
+          "theme_classification": 61.03,
+          "serialization": 0.19,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "base_model_encode_count": 1,
+          "query_components_encode_count": 5,
+          "theme_expansion_count": 1,
+          "concept_vector_encode_count": 1,
+          "dapt_model_encode_count": 1,
+          "lexical_retrieval_count": 1,
+          "sig_words_encode_count": 1,
+          "rerank_loop_count": 1,
+          "context_fetch_count": 1,
+          "context_expansion_count": 20,
+          "theme_classification_count": 20,
+          "serialization_count": 1,
+          "translator_network_call": true,
+          "translator_input": "karahasan ng mga prayle",
+          "translator_output": null,
+          "theme_keywords_count": 6,
+          "lexical_candidates": 0,
+          "cache_size": 0,
+          "encode_calls": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "encode_time_ms": 0.0,
+          "validation_entered": 0,
+          "validation_skipped": 0,
+          "encode_calls_total": 1,
+          "encode_time_total_ms": 63.3,
+          "process_cache_hits": 0,
+          "process_cache_misses": 0,
+          "process_cache_size": 24770,
+          "search_total_ms": 4936.05,
+          "engine_stage_sum_ms": 2140.03,
+          "untimed_gap_ms": 2796.02,
+          "translator_ms": 993.16,
+          "translator_network_calls": true,
+          "query_vector_sha256": "6ca1549a754671be149bbbe03ceeaf7e9641532b1f49d23e15ca857bad45962e",
+          "query_expansion_text": "Pribilehiyo kalakip pribilehiyo nagbukas pinto gabay yaman",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "6ca1549a754671be149bbbe03ceeaf7e9641532b1f49d23e15ca857bad45962e",
+        "query_expansion_text": "Pribilehiyo kalakip pribilehiyo nagbukas pinto gabay yaman",
+        "bridge_tokens": [],
+        "translator_input": "karahasan ng mga prayle",
+        "translator_output": null
+      }
+    },
+    "tiktok": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "tiktok ng bayan",
+          "tiktok sa simbahan",
+          "tiktok laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.18,
+          "translator": 1097.55,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "tiktok",
+          "translator_output": null,
+          "search_total_ms": 1242.7,
+          "diagnostic_suggestions_ms": 144.94,
+          "translator_ms": 1097.55,
+          "translator_network_calls": true,
+          "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "tiktok",
+        "translator_output": null
+      }
+    },
+    "bitcoin": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "bitcoin ng bayan",
+          "bitcoin sa simbahan",
+          "bitcoin laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.18,
+          "translator": 1215.86,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "bitcoin",
+          "translator_output": null,
+          "search_total_ms": 1374.67,
+          "diagnostic_suggestions_ms": 158.58,
+          "translator_ms": 1215.86,
+          "translator_network_calls": true,
+          "query_vector_sha256": "f703a046726078c4a57de3c67274dfb0cef164272e041ea3ebca1127c6e3c2b0",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "f703a046726078c4a57de3c67274dfb0cef164272e041ea3ebca1127c6e3c2b0",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "bitcoin",
+        "translator_output": null
+      }
+    },
+    "covid": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "covid ng bayan",
+          "covid sa simbahan",
+          "covid laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.15,
+          "translator": 1077.2,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "covid",
+          "translator_output": null,
+          "search_total_ms": 1211.19,
+          "diagnostic_suggestions_ms": 133.79,
+          "translator_ms": 1077.2,
+          "translator_network_calls": true,
+          "query_vector_sha256": "7527ebd66422f2b563d8e1907d74708af7a5130441c90a50bf92486074451db3",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "7527ebd66422f2b563d8e1907d74708af7a5130441c90a50bf92486074451db3",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "covid",
+        "translator_output": null
+      }
+    },
+    "facebook": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "facebook ng bayan",
+          "facebook sa simbahan",
+          "facebook laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.11,
+          "translator": 975.97,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "facebook",
+          "translator_output": null,
+          "search_total_ms": 1114.13,
+          "diagnostic_suggestions_ms": 138.03,
+          "translator_ms": 975.97,
+          "translator_network_calls": true,
+          "query_vector_sha256": "1d92f290f7c599195bcba6ddcb975e9ee8d6f8051ebb4e5b5323434a06938938",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "1d92f290f7c599195bcba6ddcb975e9ee8d6f8051ebb4e5b5323434a06938938",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "facebook",
+        "translator_output": null
+      }
+    },
+    "internet": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "internet ng bayan",
+          "internet sa simbahan",
+          "internet laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.09,
+          "translator": 1049.08,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "internet",
+          "translator_output": null,
+          "search_total_ms": 1186.17,
+          "diagnostic_suggestions_ms": 136.97,
+          "translator_ms": 1049.08,
+          "translator_network_calls": true,
+          "query_vector_sha256": "527b272d04613678a498cf010988f6e391f5b8ba091a415f32c93308ebaa9ba0",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "527b272d04613678a498cf010988f6e391f5b8ba091a415f32c93308ebaa9ba0",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "internet",
+        "translator_output": null
+      }
+    },
+    "computer": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "computer ng bayan",
+          "computer sa simbahan",
+          "computer laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.12,
+          "translator": 1134.73,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "computer",
+          "translator_output": null,
+          "search_total_ms": 1256.14,
+          "diagnostic_suggestions_ms": 121.26,
+          "translator_ms": 1134.73,
+          "translator_network_calls": true,
+          "query_vector_sha256": "ac1517982456b62da9aa09ef3cc56ab718af59a052b46d5e20da279a419f70d4",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "ac1517982456b62da9aa09ef3cc56ab718af59a052b46d5e20da279a419f70d4",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "computer",
+        "translator_output": null
+      }
+    },
+    "cellphone": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "cellphone ng bayan",
+          "cellphone sa simbahan",
+          "cellphone laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.1,
+          "translator": 1210.04,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "cellphone",
+          "translator_output": null,
+          "search_total_ms": 1359.48,
+          "diagnostic_suggestions_ms": 149.31,
+          "translator_ms": 1210.04,
+          "translator_network_calls": true,
+          "query_vector_sha256": "d235a37950d19e9779066e0aea664f5affc6b1b520ea4d3a436e2ef9b67a2765",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "d235a37950d19e9779066e0aea664f5affc6b1b520ea4d3a436e2ef9b67a2765",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "cellphone",
+        "translator_output": null
+      }
+    },
+    "online": {
+      "noli": [],
+      "elfili": [],
+      "precise_matches": [],
+      "metadata": {
+        "result_mode": "none",
+        "reason": "unmapped_standalone_concept",
+        "suggestions": [
+          "online ng bayan",
+          "online sa simbahan",
+          "online laban sa kastila"
+        ],
+        "engine_timings": {
+          "preprocessing": 0.14,
+          "translator": 1231.28,
+          "preprocessing_count": 1,
+          "translator_count": 1,
+          "translator_network_call": true,
+          "translator_input": "online",
+          "translator_output": null,
+          "search_total_ms": 1347.68,
+          "diagnostic_suggestions_ms": 116.23,
+          "translator_ms": 1231.28,
+          "translator_network_calls": true,
+          "query_vector_sha256": "7069fe07fc34f1d12ba51267df9eb41126c77fd8f7d2b85241ec3a58290565d4",
+          "query_expansion_text": "",
+          "bridge_tokens": []
+        },
+        "query_vector_sha256": "7069fe07fc34f1d12ba51267df9eb41126c77fd8f7d2b85241ec3a58290565d4",
+        "query_expansion_text": "",
+        "bridge_tokens": [],
+        "translator_input": "online",
+        "translator_output": null
+      }
+    }
+  }
+}

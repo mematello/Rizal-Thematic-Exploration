@@ -1,0 +1,136 @@
+================================================================================
+ITEM 6: MECHANICAL SET-SITE INVENTORY VIA AST IMPORT-GRAPH ANALYSIS
+================================================================================
+
+IMPORT GRAPH METHOD:
+1. Parsed backend/app/api/v1/search.py using Python's `ast` module.
+2. Extracted all ast.ImportFrom nodes; resolved internal `app.*` package imports and relative imports against the filesystem.
+3. Transitively parsed all discovered dependencies until the full reachable import set closed.
+4. Total reachable files discovered: 12
+   - app\api\v1\search.py
+   - app\core\analyzer.py
+   - app\core\config.py
+   - app\core\engine.py
+   - app\core\perf_instrumentation.py
+   - app\core\query_counter.py
+   - app\core\robust_aligner.py
+   - app\core\sequence_aligner.py
+   - app\core\tagalog_parser.py
+   - app\core\tagalog_stemmer.py
+   - app\models\database.py
+   - app\services\suggestions.py
+
+--------------------------------------------------------------------------------
+FULL CSV OF DETECTED SET / SET-LIKE SITES (file:line, kind, code)
+--------------------------------------------------------------------------------
+file:line,kind,code
+"app/api/v1/search.py:64","set() Call","seen_noli_ids = set()"
+"app/api/v1/search.py:65","set() Call","seen_elfili_ids = set()"
+"app/api/v1/search.py:66","set() Call","seen_precise_ids = set()"
+"app/core/analyzer.py:25","set() Call","return set(stopwords('tl'))"
+"app/core/analyzer.py:30","set() Call","return set()"
+"app/core/engine.py:266","Set Literal","self.MODERN_TERMS = {"
+"app/core/engine.py:272","Set Literal","self.LOW_INFO_WORDS = {"
+"app/core/engine.py:285","Set Literal","self.EN_STOPWORDS = {"
+"app/core/engine.py:402","set() Call","return """", set()"
+"app/core/engine.py:409","set() Call","return """", set()"
+"app/core/engine.py:417","set() Call","candidates = set()"
+"app/core/engine.py:439","set() Call","return """", set()"
+"app/core/engine.py:482","set() Call","vocab = set()"
+"app/core/engine.py:668","set() Call","candidate_themes: set[str] = set()"
+"app/core/engine.py:694","Set Literal","KEYWORD_BLACKLIST = {"
+"app/core/engine.py:703","set() Call","ignore_names = set()"
+"app/core/engine.py:760","set() Call","bridge_tokens = set()"
+"app/core/engine.py:783","set() Call","translated_words = set(extract_words(translated_query.lower()))"
+"app/core/engine.py:798","set() Call","translated_words = set(extract_words(translated_query.lower()))"
+"app/core/engine.py:842","set() Call","theme_tokens = set()"
+"app/core/engine.py:874","set() Call","theme_tokens = set(extracted_tokens) if extracted_tokens else set()"
+"app/core/engine.py:874","set() Call","theme_tokens = set(extracted_tokens) if extracted_tokens else set()"
+"app/core/engine.py:965","set() Call","seen = set([c.id for c in candidates])"
+"app/core/engine.py:996","set() Call","seen = set([c.id for c in candidates])"
+"app/core/engine.py:1016","set() Call","seen = set([c.id for c in candidates])"
+"app/core/engine.py:1122","set() Call","raw_valid_tokens = set(sig_words) | theme_tokens | set(bridge_tokens or [])"
+"app/core/engine.py:1122","set() Call","raw_valid_tokens = set(sig_words) | theme_tokens | set(bridge_tokens or [])"
+"app/core/engine.py:1123","Set Comprehension","valid_tokens = {t for t in raw_valid_tokens if t.lower() not in self.LOW_INFO_WORDS}"
+"app/core/engine.py:1148","set() Call","seen = set([c.id for c in candidates])"
+"app/core/engine.py:1169","set() Call","seen = set([c.id for c in candidates])"
+"app/core/engine.py:1228","set() Call","sent_words_set = set(extract_words(sent.sentence_text.lower()))"
+"app/core/engine.py:1288","set() Call","sent_words = set(extract_words(text_lower))"
+"app/core/engine.py:1527","set() Call","seen_text = set()"
+"app/core/engine.py:1704","set() Call","sentence_words = set(extract_words(sentence_lower))"
+"app/core/engine.py:1810","set() Call","seen = set()"
+"app/core/engine.py:1945","set() Call","words = set(extract_words(t.meaning.lower()))"
+"app/core/engine.py:1980","set() Call","pool_indices = set()"
+"app/core/engine.py:2106","Set Literal","STRICT_THEMES = {""Kapangyarihan at Kawalang-Katarungan""}"
+"app/core/engine.py:2134","set() Call","query_words = set([w.lower().strip() for w in query.split()])"
+"app/core/engine.py:2136","set() Call","theme_words = set([w.lower().strip(' ,.!?""\'') for w in best_theme['label'].split()])"
+"app/core/engine.py:2227","Set Literal","STRICT_THEMES = {""Kapangyarihan at Kawalang-Katarungan""}"
+"app/core/engine.py:2253","set() Call","w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))"
+"app/core/engine.py:2253","set() Call","w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))"
+"app/core/engine.py:2300","set() Call","w1, w2 = set(extract_words(center.sentence_text.lower())), set(extract_words(neighbor.sentence_text.lower()))"
+"app/core/engine.py:2300","set() Call","w1, w2 = set(extract_words(center.sentence_text.lower())), set(extract_words(neighbor.sentence_text.lower()))"
+"app/core/robust_aligner.py:125","Set Literal","stopwords = {"
+"app/core/robust_aligner.py:351","set() Call","found = set()"
+"app/core/sequence_aligner.py:171","set() Call","blk_chars: set = set()"
+"app/core/sequence_aligner.py:218","set() Call","blk_chars: set = set()"
+"app/core/sequence_aligner.py:253","set() Call","found = set()"
+"app/services/suggestions.py:109","set() Call","QUESTION_WORDS = set(["
+"app/services/suggestions.py:128","set() Call","query_words_set = set(extract_words(query_cleaned))"
+
+--------------------------------------------------------------------------------
+DISPOSITION TABLE FOR EVERY ROW
+--------------------------------------------------------------------------------
+Site                                | Kind               | Iterated?  | Reaches Output/Order?  | Disposition Notes
+-----------------------------------------------------------------------------------------------------------------------------
+app/api/v1/search.py:64             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/api/v1/search.py:65             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/api/v1/search.py:66             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/analyzer.py:25             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/analyzer.py:30             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:266              | Set Literal        | No         | No                     | Static lookup set for O(1) membership testing (`in`). Order immaterial.
+app/core/engine.py:272              | Set Literal        | No         | No                     | Static lookup set for O(1) membership testing (`in`). Order immaterial.
+app/core/engine.py:285              | Set Literal        | No         | No                     | Static lookup set for O(1) membership testing (`in`). Order immaterial.
+app/core/engine.py:402              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:409              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:417              | set() Call         | Yes        | Yes (E1)               | Theme candidates; stabilized via sorted(candidates) in Commit E1.
+app/core/engine.py:439              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:482              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:668              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:694              | Set Literal        | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:703              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:760              | set() Call         | No         | Yes (E2)               | Initialized / populated set; feeds into bridge_text.
+app/core/engine.py:783              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:798              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:842              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:874              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:874              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:965              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:996              | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1016             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1122             | set() Call         | No         | Yes (E2)               | Initialized / populated set; feeds into bridge_text.
+app/core/engine.py:1122             | set() Call         | No         | Yes (E2)               | Initialized / populated set; feeds into bridge_text.
+app/core/engine.py:1123             | Set Comprehension  | No         | No                     | Static lookup set for O(1) membership testing (`in`). Order immaterial.
+app/core/engine.py:1148             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1169             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1228             | set() Call         | Yes        | Yes (E3)               | Candidate sentence words; stabilized via sorted(sent_words) in Commit E3.
+app/core/engine.py:1288             | set() Call         | Yes        | Yes (E3)               | Candidate sentence words; stabilized via sorted(sent_words) in Commit E3.
+app/core/engine.py:1527             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Order governed by candidate list.
+app/core/engine.py:1704             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1810             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1945             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:1980             | set() Call         | Yes        | No                     | Integer indices; set iteration order is identical across seeds.
+app/core/engine.py:2106             | Set Literal        | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2134             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2136             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2227             | Set Literal        | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2253             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2253             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2300             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/engine.py:2300             | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/robust_aligner.py:125      | Set Literal        | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/robust_aligner.py:351      | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/sequence_aligner.py:171    | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/sequence_aligner.py:218    | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/core/sequence_aligner.py:253    | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/services/suggestions.py:109     | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
+app/services/suggestions.py:128     | set() Call         | Lookup     | No                     | Set used for membership filtering or uniqueness.
