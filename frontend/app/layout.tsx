@@ -20,6 +20,15 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "Rizal Thematic Exploration",
   description: "Semantic search for Noli Me Tangere and El Filibusterismo",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
