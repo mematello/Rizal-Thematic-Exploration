@@ -1,6 +1,6 @@
 ---
 title: Rizal Thematic Search API
-emoji: 🇵🇭
+emoji: 📖
 colorFrom: blue
 colorTo: indigo
 sdk: gradio
