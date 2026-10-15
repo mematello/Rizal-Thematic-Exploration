@@ -1,10 +1,16 @@
 import numpy as np
 import re
 import os
+import time
+import threading
+import concurrent.futures
+import hashlib
+import logging
 from functools import lru_cache
+from typing import Dict, Tuple, Optional, Any, List
 from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_, event
 from pgvector.sqlalchemy import Vector
 
 from app.core.config import get_settings
@@ -14,8 +20,123 @@ from app.core.tagalog_parser import TagalogRoleParser
 from app.services.suggestions import DynamicSuggestionGenerator
 from app.core.sequence_aligner import SequenceAligner
 from app.core.robust_aligner import RobustAligner
+from app.core.perf_instrumentation import PerfTimer
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+# Performance monitoring flag
+PERF_BENCHMARK = os.getenv("PERF_BENCHMARK") == "1"
+
+# Process-level word embedding cache (persists across requests, bounded)
+_MAX_WORD_VEC_CACHE_SIZE = 50000
+_word_vec_cache: Dict[str, np.ndarray] = {}
+_word_vec_cache_lock = threading.Lock()
+# Track insertion to implement simple FIFO eviction beyond max size
+_word_vec_cache_order: list[str] = []
+
+# Process-level translator cache (lock-protected, TTL, negative cache, request timeout)
+class TranslatorCache:
+    """
+    Process-level, lock-protected translator cache with positive and negative TTL,
+    and a bounded request timeout.
+
+    - Lock-protected: synchronized across all worker threads.
+    - Key: exact stripped lowercase input (text.strip().lower()).
+    - Value: exact returned string from GoogleTranslator.
+    - Positive TTL: 24 hours (86,400s) for successful translations.
+    - Negative TTL: 60 seconds for failures / timeouts / rate limits.
+    - Request timeout: 5.0 seconds to prevent hanging the search pipeline.
+    """
+    def __init__(self, positive_ttl: float = 86400.0, negative_ttl: float = 60.0, request_timeout: float = 5.0):
+        self._cache: Dict[str, Tuple[Optional[str], float, bool]] = {}  # key -> (result_str, expire_timestamp, is_success)
+        self._lock = threading.Lock()
+        self.positive_ttl = positive_ttl
+        self.negative_ttl = negative_ttl
+        self.request_timeout = request_timeout
+        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="translator")
+
+    def get(self, text: str) -> Tuple[bool, Optional[str]]:
+        """
+        Check cache for text.
+        Returns:
+            (True, translated_str) if positive cache hit
+            (True, None) if negative cache hit (recent failure)
+            (False, None) if cache miss or expired
+        """
+        if os.getenv("DISABLE_TRANSLATOR_CACHE") == "1":
+            return False, None
+        key = text.strip().lower()
+        now = time.time()
+        with self._lock:
+            entry = self._cache.get(key)
+            if entry is not None:
+                val, expire_at, _ = entry
+                if now < expire_at:
+                    return True, val
+                else:
+                    del self._cache[key]
+        return False, None
+
+    def set_success(self, text: str, result: str):
+        if os.getenv("DISABLE_TRANSLATOR_CACHE") == "1":
+            return
+        key = text.strip().lower()
+        expire_at = time.time() + self.positive_ttl
+        with self._lock:
+            self._cache[key] = (result, expire_at, True)
+
+    def set_failure(self, text: str):
+        if os.getenv("DISABLE_TRANSLATOR_CACHE") == "1":
+            return
+        key = text.strip().lower()
+        expire_at = time.time() + self.negative_ttl
+        with self._lock:
+            self._cache[key] = (None, expire_at, False)
+
+    def translate(self, text: str) -> Tuple[Optional[str], bool]:
+        """
+        Translate text to Tagalog with caching and timeout.
+        Returns:
+            (translated_string_or_none, network_call_made)
+        """
+        hit, cached_val = self.get(text)
+        if hit:
+            logger.info(f"[TRANSLATOR] input='{text}' -> output='{cached_val}' (cache_hit=True)")
+            return cached_val, False
+
+        # Cache miss: execute network call with bounded timeout
+        def _do_translate():
+            from deep_translator import GoogleTranslator
+            return GoogleTranslator(source='auto', target='tl').translate(text)
+
+        network_call_made = True
+        try:
+            future = self._executor.submit(_do_translate)
+            res = future.result(timeout=self.request_timeout)
+            if res:
+                self.set_success(text, res)
+                logger.info(f"[TRANSLATOR] input='{text}' -> output='{res}' (network={network_call_made})")
+                return res, network_call_made
+            else:
+                self.set_failure(text)
+                logger.info(f"[TRANSLATOR] input='{text}' -> output=None (network={network_call_made})")
+                return None, network_call_made
+        except Exception as e:
+            if os.getenv("DEBUG_SEARCH"):
+                print(f"[DEBUG] Dynamic Translation Failed for '{text}': {e}")
+            self.set_failure(text)
+            logger.info(f"[TRANSLATOR] input='{text}' -> output=None (error='{e}')")
+            return None, network_call_made
+
+    def clear(self):
+        with self._lock:
+            self._cache.clear()
+
+_translator_cache = TranslatorCache()
+
+def get_translator_cache() -> TranslatorCache:
+    return _translator_cache
 
 class RizalEngine:
     def __init__(self):
@@ -90,8 +211,11 @@ class RizalEngine:
                     scoring_map[canon_name.lower()] = canon_name
         
         self.robust_aligner = RobustAligner(tauhan_map=scoring_map)
-        
+
         print(f"Aligners ready (DAPT={self.has_dapt}).")
+
+        # Load precomputed word vector cache if available
+        self._load_precomputed_word_vectors()
 
         # Tier A: Bounded Precision Layer (Cross-Lingual Dictionary)
         # Strictly constrained to foundational thesis domain concepts. Evaluated dynamically.
@@ -171,25 +295,98 @@ class RizalEngine:
         }
 
     
-    def _get_passage_context_with_embedding(self, db: Session, center: Sentence, window: int = 8):
+    def _fetch_context_cache(
+        self,
+        db: Session,
+        candidates: List[Sentence],
+        window: int = 8
+    ) -> Dict[Tuple[str, int, str, int], Sentence]:
+        """
+        Fetches the union bounding window (+-window) for all candidate sentences
+        in a single batched query, grouped by (book, chapter_number, source_type).
+        Returns an in-memory dictionary keyed by (book, chapter_number, source_type, sentence_index).
+        """
+        if not candidates:
+            return {}
+
+        # Group sentence indices by (book, chapter_number, source_type)
+        groups: Dict[Tuple[str, int, str], List[int]] = {}
+        for sent in candidates:
+            key = (sent.book, sent.chapter_number, sent.source_type)
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(sent.sentence_index)
+
+        # Merge overlapping/adjacent intervals [idx - window, idx + window] for each group
+        clauses = []
+        for (b, ch, st), indices in groups.items():
+            intervals = sorted([[idx - window, idx + window] for idx in indices])
+            merged = []
+            for interval in intervals:
+                if not merged:
+                    merged.append(interval)
+                else:
+                    prev = merged[-1]
+                    if interval[0] <= prev[1] + 1:
+                        prev[1] = max(prev[1], interval[1])
+                    else:
+                        merged.append(interval)
+
+            for start_idx, end_idx in merged:
+                clauses.append(and_(
+                    Sentence.book == b,
+                    Sentence.chapter_number == ch,
+                    Sentence.source_type == st,
+                    Sentence.sentence_index >= start_idx,
+                    Sentence.sentence_index <= end_idx
+                ))
+
+        if not clauses:
+            return {}
+
+        stmt = select(Sentence).where(or_(*clauses)).order_by(
+            Sentence.book,
+            Sentence.chapter_number,
+            Sentence.source_type,
+            Sentence.sentence_index,
+            Sentence.id
+        )
+        records = db.scalars(stmt).all()
+
+        return {(s.book, s.chapter_number, s.source_type, s.sentence_index): s for s in records}
+
+    def _get_passage_context_with_embedding(
+        self,
+        db: Session,
+        center: Sentence,
+        window: int = 8,
+        context_cache: Optional[Dict[Tuple[str, int, str, int], Sentence]] = None
+    ):
         range_start, range_end = center.sentence_index - window, center.sentence_index + window
-        candidates = db.scalars(select(Sentence).filter(
-            Sentence.book == center.book, 
-            Sentence.chapter_number == center.chapter_number, 
-            Sentence.source_type == center.source_type,
-            Sentence.sentence_index >= range_start, 
-            Sentence.sentence_index <= range_end
-        ).order_by(Sentence.sentence_index)).all()
-        
+        if context_cache is not None:
+            candidates = []
+            for idx in range(range_start, range_end + 1):
+                key = (center.book, center.chapter_number, center.source_type, idx)
+                if key in context_cache:
+                    candidates.append(context_cache[key])
+        else:
+            candidates = db.scalars(select(Sentence).filter(
+                Sentence.book == center.book,
+                Sentence.chapter_number == center.chapter_number,
+                Sentence.source_type == center.source_type,
+                Sentence.sentence_index >= range_start,
+                Sentence.sentence_index <= range_end
+            ).order_by(Sentence.sentence_index, Sentence.id)).all()
+
         text = " ".join([s.sentence_text for s in candidates])
-        
+
         # Average embeddings
         embs = [np.array(s.embedding) for s in candidates if s.embedding is not None]
         if embs:
             avg_emb = np.mean(embs, axis=0)
         else:
             avg_emb = None
-            
+
         return text, avg_emb
 
     def _get_passage_context(self, db: Session, center: Sentence, window: int = 8) -> str:
@@ -245,32 +442,32 @@ class RizalEngine:
         # P(Theme | Word) = Count(Word in Theme) / Count(Word in All Themes)
         
         final_tokens = []
-        
-        for w in candidates:
+
+        for w in sorted(candidates):
             if len(w) <= 3: continue
-            
+
             # Global DF check (still useful for super common words)
             df = self.theme_word_df.get(w, 0)
-            if df < 1: continue 
-            
+            if df < 1: continue
+
             # Specificity calculation
             theme_counts = self.word_theme_map.get(w, {})
             count_in_target = theme_counts.get(target_theme_key, 0)
-            
+
             if count_in_target == 0: continue
-            
+
             # Specificity score
             specificity = count_in_target / df
-            
+
             # Specificity threshold
             # word must be primarily associated with this theme
             # Lowered to 0.30 to capture terms like "paaralan" which might appear in related themes (Reform, Town)
             # but still filter generic terms like "indio" (low specificity)
-            if specificity >= 0.30: 
+            if specificity >= 0.30:
                 final_tokens.append(w)
-        
-        # Sort by specificity (descending)
-        final_tokens.sort(key=lambda w: self.word_theme_map.get(w, {}).get(target_theme_key, 0) / self.theme_word_df.get(w, 1), reverse=True)
+
+        # Sort by specificity (descending), secondary key word (ascending)
+        final_tokens.sort(key=lambda w: (-self.word_theme_map.get(w, {}).get(target_theme_key, 0) / self.theme_word_df.get(w, 1), w))
         top_tokens = final_tokens[:12]
         
         if not top_tokens:
@@ -300,6 +497,76 @@ class RizalEngine:
                 except Exception as e:
                     pass
         return vocab
+
+    def _load_precomputed_word_vectors(self):
+        """
+        Loads precomputed word vectors from versioned disk cache into _word_vec_cache.
+        - Respects the 50k cap (_MAX_WORD_VEC_CACHE_SIZE)
+        - Marks arrays read-only (vec.flags.writeable = False)
+        - Falls back to lazy encode for missing words
+        - Bypasses/ignores file if model name or vocabulary hash does not match
+        - Logs load time and entry count
+        """
+        global _word_vec_cache, _word_vec_cache_order
+        if os.getenv("DISABLE_WORD_VEC_CACHE") == "1":
+            print("[INFO] Word vector cache disabled via DISABLE_WORD_VEC_CACHE=1.")
+            return
+
+        import hashlib
+        import pickle
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # app/
+        data_dir = os.path.join(base_dir, 'data')
+        cache_paths = [
+            os.path.join(data_dir, 'word_vec_cache_v1.pkl'),
+            os.path.join(os.path.dirname(base_dir), 'docs', 'perf', 'word_vec_cache_v1.pkl'),
+            os.path.join(os.path.dirname(base_dir), 'backend', 'app', 'data', 'word_vec_cache_v1.pkl')
+        ]
+
+        target_path = None
+        for p in cache_paths:
+            if os.path.exists(p):
+                target_path = p
+                break
+
+        if not target_path:
+            print("[INFO] No precomputed word vector cache found. Using lazy on-demand encoding.")
+            return
+
+        t0 = time.perf_counter()
+        try:
+            with open(target_path, 'rb') as f:
+                data = pickle.load(f)
+
+            model_name = data.get("model_name")
+            if model_name != settings.BERT_MODEL_NAME:
+                print(f"[WARN] Word vector cache model mismatch ('{model_name}' != '{settings.BERT_MODEL_NAME}'). Ignoring cache.")
+                return
+
+            recorded_hash = data.get("vocab_hash")
+            vocab_str = "\n".join(sorted(self.vocabulary))
+            current_vocab_hash = hashlib.sha256(vocab_str.encode("utf-8")).hexdigest()
+            if recorded_hash != current_vocab_hash:
+                print(f"[WARN] Word vector cache vocabulary hash mismatch ({recorded_hash[:8]} != {current_vocab_hash[:8]}). Ignoring cache.")
+                return
+
+            raw_vectors = data.get("vectors", {})
+            loaded_count = 0
+            with _word_vec_cache_lock:
+                _word_vec_cache.clear()
+                _word_vec_cache_order.clear()
+                for word, vec in raw_vectors.items():
+                    if loaded_count >= _MAX_WORD_VEC_CACHE_SIZE:
+                        break
+                    vec = np.asarray(vec, dtype=np.float32)
+                    vec.flags.writeable = False
+                    _word_vec_cache[word] = vec
+                    _word_vec_cache_order.append(word)
+                    loaded_count += 1
+
+            elapsed_ms = (time.perf_counter() - t0) * 1000
+            print(f"[INFO] Loaded {loaded_count} precomputed word vectors from '{os.path.basename(target_path)}' into _word_vec_cache in {elapsed_ms:.1f} ms.")
+        except Exception as e:
+            print(f"[WARN] Failed to load precomputed word vector cache: {e}. Falling back to lazy on-demand encoding.")
 
     def _load_character_theme_maps(self):
         """Load character->theme JSON maps and TF-IDF keyword maps for both books."""
@@ -454,34 +721,47 @@ class RizalEngine:
         return count
 
 
-    def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both"):
+    def search(self, db: Session, query: str, top_k: int = 10, source_type: str = "summary", novel: str = "both", bypass_word_vec_cache: bool = False):
+        # Initialize performance timer
+        timer = PerfTimer() if PERF_BENCHMARK else None
+        search_start = time.perf_counter() if timer else None
+
         if not self._validate_query_semantics(db, query):
              return {
                  'results': {'noli': [], 'elfili': []},
                  'metadata': {'result_mode': 'none', 'reason': 'invalid_query'}
              }
-             
-        query_words = extract_words(query.lower())
-        
-        # Query Analysis for dynamic behavior
-        query_analysis = self.query_analyzer.analyze_query_words(query)
-        stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
-        sig_items = [item for item in query_analysis if not item['is_stopword']]
-        sig_words = [item['word'].lower() for item in sig_items]
 
-        # --- English Stopword Preprocessing ---
-        discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
-        sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
-
-        # --- Multilingual & Categorical Token Splitting ---
-        # Instead of generic OOV ratio, explicitly split words
-        native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
-        foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
+        # Stage 1: Query preprocessing and analysis
+        if timer:
+            with timer.stage("preprocessing"):
+                query_words = extract_words(query.lower())
+                query_analysis = self.query_analyzer.analyze_query_words(query)
+                stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+                sig_items = [item for item in query_analysis if not item['is_stopword']]
+                sig_words = [item['word'].lower() for item in sig_items]
+                discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
+                sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
+                native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
+                foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
+        else:
+            query_words = extract_words(query.lower())
+            query_analysis = self.query_analyzer.analyze_query_words(query)
+            stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+            sig_items = [item for item in query_analysis if not item['is_stopword']]
+            sig_words = [item['word'].lower() for item in sig_items]
+            discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
+            sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
+            native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
+            foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
         
         is_cross_lingual = len(foreign_tokens) > 0
-        
+
         bridge_tokens = set()
-        
+        unmapped_foreign = []
+        translated_query = None
+        expanded_text = ""
+
         # 1. Check small static dictionary for major thesis domains
         if is_cross_lingual:
             for w in foreign_tokens:
@@ -492,37 +772,66 @@ class RizalEngine:
             # If any foreign tokens are NOT in EN_TL_DICTIONARY, dynamically translate the full query
             unmapped_foreign = [w for w in foreign_tokens if w not in self.EN_TL_DICTIONARY]
             if unmapped_foreign:
-                try:
-                    from deep_translator import GoogleTranslator
-                    # Contextual translation of the full original query
-                    translated_query = GoogleTranslator(source='auto', target='tl').translate(query)
-                    
+                network_call_made = False
+                translated_query = None
+                if timer:
+                    with timer.stage("translator"):
+                        translated_query, network_call_made = _translator_cache.translate(query)
+                        if translated_query and os.getenv("DEBUG_SEARCH"):
+                            print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
+                        if translated_query:
+                            translated_words = set(extract_words(translated_query.lower()))
+                            valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
+                            if valid_dynamic_bridges:
+                                bridge_tokens.update(valid_dynamic_bridges)
+                                if os.getenv("DEBUG_SEARCH"):
+                                    print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
+                    timer.record_metadata("translator_network_call", network_call_made)
+                    if PERF_BENCHMARK:
+                        timer.record_metadata("translator_input", query)
+                        timer.record_metadata("translator_output", translated_query)
+                else:
+                    translated_query, network_call_made = _translator_cache.translate(query)
                     if translated_query and os.getenv("DEBUG_SEARCH"):
                         print(f"[DEBUG] Tier A2 Dynamic Translation: '{query}' -> '{translated_query}'")
-                        
-                    # Extract words from the translated Tagalog sentence
-                    translated_words = set(extract_words(translated_query.lower()))
-                    
-                    # Security Gate: Only accept translated words if they exist in the corpus vocabulary
-                    valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
-                    
-                    if valid_dynamic_bridges:
-                        bridge_tokens.update(valid_dynamic_bridges)
-                        if os.getenv("DEBUG_SEARCH"):
-                            print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
-                            
-                except Exception as e:
-                    if os.getenv("DEBUG_SEARCH"):
-                        print(f"[DEBUG] Tier A2 Dynamic Translation Failed: {e}")
-        
+                    if translated_query:
+                        translated_words = set(extract_words(translated_query.lower()))
+                        valid_dynamic_bridges = [tw for tw in translated_words if len(tw) > 3 and tw in self.vocabulary and tw not in self.LOW_INFO_WORDS]
+                        if valid_dynamic_bridges:
+                            bridge_tokens.update(valid_dynamic_bridges)
+                            if os.getenv("DEBUG_SEARCH"):
+                                print(f"[DEBUG] Tier A2 Validated Vocabulary Tokens: {valid_dynamic_bridges}")
+
         # If a cross-lingual query has NO native tokens and failed ALL mapping (Dictionary + Translator),
         # it is either an unsupported domain concept or gibberish. Block it immediately to prevent hallucination.
         if is_cross_lingual and not native_tokens and not bridge_tokens:
+            t_sug_start = time.perf_counter()
             query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
             suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
+            t_sug_end = time.perf_counter()
+
+            meta = {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+            if timer:
+                total_elapsed = (time.perf_counter() - search_start) * 1000
+                timer.metadata["search_total_ms"] = round(total_elapsed, 2)
+                timer.metadata["diagnostic_suggestions_ms"] = round((t_sug_end - t_sug_start) * 1000, 2)
+                timer.metadata["translator_ms"] = round(timer.timings.get("translator", 0), 2)
+                timer.metadata["translator_network_calls"] = timer.metadata.get("translator_network_call", False)
+                if PERF_BENCHMARK:
+                    timer.record_metadata("query_vector_sha256", hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest())
+                    timer.record_metadata("query_expansion_text", "")
+                    timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+                meta["engine_timings"] = timer.get_timings()
+            if PERF_BENCHMARK:
+                meta["query_vector_sha256"] = hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest()
+                meta["query_expansion_text"] = ""
+                meta["bridge_tokens"] = sorted(list(bridge_tokens))
+                if unmapped_foreign:
+                    meta["translator_input"] = query
+                    meta["translator_output"] = translated_query
             return {
                 'results': {'noli': [], 'elfili': []},
-                'metadata': {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+                'metadata': meta
             }
 
         # If there are 2 or more significant words, it's NOT a single-word query
@@ -535,20 +844,33 @@ class RizalEngine:
         # Always attempt to expand query using Themes (both single and multi-word)
         self._ensure_themes_loaded(db)
         # Use base model for initial concept embedding
-        query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        if timer:
+            with timer.stage("base_model_encode"):
+                query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
+        else:
+            query_vec_initial = self.base_model.encode(query, show_progress_bar=False)
         
         # --- CWPR: Component Decomposition ---
         components = self._get_query_components(query)
         component_vecs = []
         for comp in components:
-            cv = self.base_model.encode(comp, show_progress_bar=False)
+            if timer:
+                with timer.stage("query_components_encode"):
+                    cv = self.base_model.encode(comp, show_progress_bar=False)
+            else:
+                cv = self.base_model.encode(comp, show_progress_bar=False)
             cv = cv / np.linalg.norm(cv) if np.linalg.norm(cv) > 0 else cv
             component_vecs.append(cv)
 
         # Determine if safely mapped BEFORE expansion
         is_safely_mapped = is_cross_lingual and len(foreign_tokens) > 0 and (all(ft in self.EN_TL_DICTIONARY for ft in foreign_tokens) or len(bridge_tokens) > 0)
-        
-        expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
+
+        if timer:
+            with timer.stage("theme_expansion"):
+                expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
+            timer.record_metadata("theme_keywords_count", len(extracted_tokens))
+        else:
+            expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial, is_safely_mapped=is_safely_mapped)
         theme_tokens = set(extracted_tokens) if extracted_tokens else set()
         
         enrichment_anchor = None
@@ -570,20 +892,28 @@ class RizalEngine:
             # Re-embed with expansion
             # We combine query + expansion to form a "Concept Vector"
             combined_text = f"{query} {expanded_text}"
-            query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
+            if timer:
+                with timer.stage("concept_vector_encode"):
+                    query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
+            else:
+                query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
         else:
             query_embedding_base = query_vec_initial
             
         if is_single_word:
             query_embedding = query_embedding_base
-            dapt_query_embedding = None 
+            dapt_query_embedding = None
         else:
             # Dynamic Mix for multi-word
             # Use structured info + DAPT for adaptive mix
             structured_info = self.parser.structured_string(query)
             combined_query = f"{query} [SEP] {structured_info}"
-            dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
-            
+            if timer:
+                with timer.stage("dapt_model_encode"):
+                    dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
+            else:
+                dapt_query_embedding = self.dapt_model.encode(combined_query, show_progress_bar=False)
+
             # Hybrid selection embedding (mix base concept with DAPT syntax)
             query_embedding = (query_embedding_base + dapt_query_embedding) / 2
 
@@ -605,36 +935,69 @@ class RizalEngine:
             books = all_books
 
         lex_word = sig_words[0] if sig_words else query_words[0]
-        
-        for key, book_name in books.items():
-            stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
-            
-            if is_cross_lingual:
-                # Mandate native entities/tokens
-                for nt in native_tokens:
-                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
-                
-                # Expand foreign tokens via bridge tokens
-                if bridge_tokens:
-                    filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
-                    if filters:
-                        stmt = stmt.filter(or_(*filters))
-                elif foreign_tokens:
+
+        if timer:
+            with timer.stage("lexical_retrieval"):
+                for key, book_name in books.items():
+                    stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+
+                    if is_cross_lingual:
+                        # Mandate native entities/tokens
+                        for nt in native_tokens:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
+
+                        # Expand foreign tokens via bridge tokens
+                        if bridge_tokens:
+                            filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
+                            if filters:
+                                stmt = stmt.filter(or_(*filters))
+                        elif foreign_tokens:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+                    elif not is_single_word and sig_words:
+                        # Require all significant words to appear for a true lexical phrase match
+                        for w in sig_words:
+                            stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+                    else:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+
+                    lex_results = db.scalars(stmt.order_by(Sentence.id).limit(top_k * 20)).all()
+
+                    seen = set([c.id for c in candidates])
+                    for c in lex_results:
+                        if c.id not in seen:
+                            candidates.append(c)
+                            seen.add(c.id)
+            timer.record_metadata("lexical_candidates", len(candidates))
+        else:
+            for key, book_name in books.items():
+                stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+
+                if is_cross_lingual:
+                    # Mandate native entities/tokens
+                    for nt in native_tokens:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
+
+                    # Expand foreign tokens via bridge tokens
+                    if bridge_tokens:
+                        filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
+                        if filters:
+                            stmt = stmt.filter(or_(*filters))
+                    elif foreign_tokens:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
+                elif not is_single_word and sig_words:
+                    # Require all significant words to appear for a true lexical phrase match
+                    for w in sig_words:
+                        stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+                else:
                     stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
-            elif not is_single_word and sig_words:
-                # Require all significant words to appear for a true lexical phrase match
-                for w in sig_words:
-                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
-            else:
-                stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
-                
-            lex_results = db.scalars(stmt.limit(top_k * 20)).all()
-            
-            seen = set([c.id for c in candidates])
-            for c in lex_results:
-                if c.id not in seen:
-                    candidates.append(c)
-                    seen.add(c.id)
+
+                lex_results = db.scalars(stmt.order_by(Sentence.id).limit(top_k * 20)).all()
+
+                seen = set([c.id for c in candidates])
+                for c in lex_results:
+                    if c.id not in seen:
+                        candidates.append(c)
+                        seen.add(c.id)
 
         # --- Stage A-2: Multi-Anchor Semantic Retrieval ---
         # If multi-word, fetch neighbors for each component to ensure we don't miss 
@@ -646,7 +1009,7 @@ class RizalEngine:
                         select(Sentence)
                         .filter(Sentence.book == book_name)
                         .filter(Sentence.source_type == source_type)
-                        .order_by(Sentence.embedding.cosine_distance(comp_vec.tolist()))
+                        .order_by(Sentence.embedding.cosine_distance(comp_vec.tolist()), Sentence.id)
                         .limit(20) # Small targeted pool per component
                     ).all()
                     
@@ -674,9 +1037,23 @@ class RizalEngine:
             
             # 1. Blocklist Check
             if any(term in query.lower() for term in self.MODERN_TERMS):
+                 meta_out = {'result_mode': 'none', 'reason': 'out_of_domain'}
+                 if PERF_BENCHMARK:
+                     q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                     meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+                     meta_out["query_expansion_text"] = expanded_text
+                     meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+                     if unmapped_foreign:
+                         meta_out["translator_input"] = query
+                         meta_out["translator_output"] = translated_query
+                     if timer:
+                         timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+                         timer.record_metadata("query_expansion_text", expanded_text)
+                         timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+                         meta_out["engine_timings"] = timer.get_timings()
                  return {
                         'results': {'noli': [], 'elfili': []},
-                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                        'metadata': meta_out
                     }
 
             # 2. Similarity Gate
@@ -690,7 +1067,7 @@ class RizalEngine:
                 # If we have generated valid cross-lingual bridge tokens, their Tagalog vectors
                 # can naturally realign the English query vector into the Tagalog theme space before the gate.
                 if is_cross_lingual and bridge_tokens:
-                    bridge_text = " ".join([bt for bt in bridge_tokens if len(bt) > 3])
+                    bridge_text = " ".join(sorted([bt for bt in bridge_tokens if len(bt) > 3]))
                     if bridge_text:
                         bridge_embedding = self.base_model.encode(bridge_text, show_progress_bar=False)
                         # Blend the raw query with its synthesized Tagalog bridge translation
@@ -718,21 +1095,33 @@ class RizalEngine:
                 if max_theme_score < threshold and not is_safely_mapped:
                     if is_single_word and is_cross_lingual and not bridge_tokens:
                         suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
-                        return {
-                            'results': {'noli': [], 'elfili': []},
-                            'metadata': {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
-                        }
+                        meta_out = {'result_mode': 'none', 'reason': 'unmapped_standalone_concept', 'suggestions': suggestions}
+                    else:
+                        meta_out = {'result_mode': 'none', 'reason': 'out_of_domain'}
+                    if PERF_BENCHMARK:
+                        q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                        meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+                        meta_out["query_expansion_text"] = expanded_text
+                        meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+                        if unmapped_foreign:
+                            meta_out["translator_input"] = query
+                            meta_out["translator_output"] = translated_query
+                        if timer:
+                            timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+                            timer.record_metadata("query_expansion_text", expanded_text)
+                            timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+                            meta_out["engine_timings"] = timer.get_timings()
                     return {
                         'results': {'noli': [], 'elfili': []},
-                        'metadata': {'result_mode': 'none', 'reason': 'out_of_domain'}
+                        'metadata': meta_out
                     }
 
             result_mode = "semantic_fallback"
-            
+
             # Build valid tokens using significant query words (no stopwords) + theme tokens + cross-lingual bridge tokens
             raw_valid_tokens = set(sig_words) | theme_tokens | set(bridge_tokens or [])
             valid_tokens = {t for t in raw_valid_tokens if t.lower() not in self.LOW_INFO_WORDS}
-            
+
             # Pre-compute vectors for each individual significant word to avoid phrase-inflation drift
             sig_word_vecs = []
             for sw in sig_words:
@@ -740,25 +1129,48 @@ class RizalEngine:
                 if np.linalg.norm(vec) > 0:
                     vec = vec / np.linalg.norm(vec)
                 sig_word_vecs.append((sw, vec))
-            
+
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Valid tokens for validation: {list(valid_tokens)[:10]}")
 
-            for key, book_name in books.items():
-                sem_results = db.scalars(
-                    select(Sentence)
-                    .filter(Sentence.book == book_name)
-                    .filter(Sentence.source_type == source_type)
-                    .order_by(Sentence.embedding.cosine_distance(query_list))
-                    .limit(top_k * 15)
-                ).all()
-                
-                # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
-                seen = set([c.id for c in candidates])
-                for c in sem_results:
-                    if c.id not in seen:
-                        candidates.append(c)
-                        seen.add(c.id)
+            if timer:
+                with timer.stage("semantic_fallback"):
+                    for key, book_name in books.items():
+                        sem_results = db.scalars(
+                            select(Sentence)
+                            .filter(Sentence.book == book_name)
+                            .filter(Sentence.source_type == source_type)
+                            .order_by(Sentence.embedding.cosine_distance(query_list), Sentence.id)
+                            .limit(top_k * 15)
+                        ).all()
+
+                        # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
+                        seen = set([c.id for c in candidates])
+                        for c in sem_results:
+                            if c.id not in seen:
+                                candidates.append(c)
+                                seen.add(c.id)
+                timer.record_metadata("semantic_candidates_requested", top_k * 15 * len(books))
+                timer.record_metadata("semantic_candidates_returned", len(candidates))
+                timer.record_metadata("semantic_candidate_ids", [c.id for c in candidates])
+                timer.record_metadata("query_expansion_text", expanded_text)
+                timer.record_metadata("bridge_tokens", list(bridge_tokens) if bridge_tokens else [])
+            else:
+                for key, book_name in books.items():
+                    sem_results = db.scalars(
+                        select(Sentence)
+                        .filter(Sentence.book == book_name)
+                        .filter(Sentence.source_type == source_type)
+                        .order_by(Sentence.embedding.cosine_distance(query_list), Sentence.id)
+                        .limit(top_k * 15)
+                    ).all()
+
+                    # print(f"DEBUG: Selected {len(sem_results)} semantic candidates for {book_name}")
+                    seen = set([c.id for c in candidates])
+                    for c in sem_results:
+                        if c.id not in seen:
+                            candidates.append(c)
+                            seen.add(c.id)
 
             if os.getenv("DEBUG_SEARCH"):
                 print(f"[DEBUG] Raw semantic candidates retrieved: {len(candidates)}")
@@ -768,9 +1180,41 @@ class RizalEngine:
 
         # 3. Hybrid Re-ranking
         results = {'noli': [], 'elfili': []}
-        
+
+        rerank_start = time.perf_counter() if timer else None
+
+        # Initialize counters for entire rerank loop
+        encode_calls = 0
+        cache_hits = 0
+        cache_misses = 0
+        encode_time = 0.0
+        validation_entered = 0
+        validation_skipped = 0
+        process_cache_hits = 0
+        process_cache_misses = 0
+
+        # Wrap base_model.encode to track all calls
+        encode_calls_total = 0
+        encode_time_total = 0.0
+        original_encode = self.base_model.encode
+
+        def tracked_encode(*args, **kwargs):
+            nonlocal encode_calls_total, encode_time_total
+            encode_calls_total += 1
+            start = time.perf_counter()
+            result = original_encode(*args, **kwargs)
+            encode_time_total += (time.perf_counter() - start)
+            return result
+
+        if os.getenv("PERF_BENCHMARK"):
+            self.base_model.encode = tracked_encode
+
         if sig_words:
-            sig_vecs = self.base_model.encode(sig_words, show_progress_bar=False)
+            if timer:
+                with timer.stage("sig_words_encode"):
+                    sig_vecs = self.base_model.encode(sig_words, show_progress_bar=False)
+            else:
+                sig_vecs = self.base_model.encode(sig_words, show_progress_bar=False)
             norm_sig_vecs = [v / np.linalg.norm(v) if np.linalg.norm(v) > 0 else v for v in sig_vecs]
         else:
             norm_sig_vecs = []
@@ -838,25 +1282,53 @@ class RizalEngine:
                 # STRICTER: Only allow dynamic validation if at least one significant query word is in the corpus vocabulary.
                 # This prevents OOV modern terms (like 'tiktok') from using this loose check.
                 vocab_check_passed = any(w in self.vocabulary for w in sig_words)
+
                 if not has_validation and vocab_check_passed:
+                    validation_entered += 1
                     sent_words = set(extract_words(text_lower))
                     # Filter short words and low-info words immediately
-                    cand_words = [w for w in sent_words if len(w) > 4 and w not in self.LOW_INFO_WORDS]
-                    
+                    cand_words = [w for w in sorted(sent_words) if len(w) > 4 and w not in self.LOW_INFO_WORDS]
+
                     for w in cand_words:
                         if w in valid_tokens: continue # Already checked
-                        
+
                         # Vocabulary Guard: Only allow words that exist in the corpus vocabulary
                         if w not in self.vocabulary:
                             continue
 
                         # Check cache
                         if w not in self.word_sim_cache:
-                            # Compute similarity on the fly
-                            w_vec = self.base_model.encode(w, show_progress_bar=False)
+                            cache_misses += 1
+
+                            # Check process-level word vector cache first (if enabled)
+                            use_cache = (os.getenv("DISABLE_WORD_VEC_CACHE") != "1") and (not bypass_word_vec_cache)
+                            if use_cache and w in _word_vec_cache:
+                                process_cache_hits += 1
+                                w_vec = _word_vec_cache[w]
+                            else:
+                                process_cache_misses += 1
+                                # Compute similarity on the fly
+                                encode_start = time.perf_counter()
+                                w_vec = self.base_model.encode(w, show_progress_bar=False)
+                                encode_calls += 1
+                                encode_time += (time.perf_counter() - encode_start)
+
+                                # Store in process-level cache with thread safety (if enabled)
+                                if use_cache:
+                                    with _word_vec_cache_lock:
+                                        w_vec.flags.writeable = False
+                                        _word_vec_cache[w] = w_vec
+                                        # Add to order and evict if too large
+                                        _word_vec_cache_order.append(w)
+                                        if len(_word_vec_cache_order) > _MAX_WORD_VEC_CACHE_SIZE:
+                                            # Evict oldest item
+                                            oldest = _word_vec_cache_order.pop(0)
+                                            if w != oldest and oldest in _word_vec_cache:
+                                                del _word_vec_cache[oldest]
+
                             if np.linalg.norm(w_vec) > 0:
                                 w_vec = w_vec / np.linalg.norm(w_vec)
-                            
+
                             # Use max similarity against any individual significant word
                             max_sim = 0.0
                             if sig_word_vecs:
@@ -869,15 +1341,19 @@ class RizalEngine:
                                 q_vec = self.base_model.encode(query, show_progress_bar=False)
                                 if np.linalg.norm(q_vec) > 0: q_vec = q_vec / np.linalg.norm(q_vec)
                                 max_sim = float(np.dot(q_vec, w_vec))
-                                
+
                             self.word_sim_cache[w] = max_sim
-                        
+                        else:
+                            cache_hits += 1
+
                         if self.word_sim_cache[w] > 0.55: # Strict single-word synonym threshold
                             has_validation = True
                             matched_token = f"{w} (dynamic)"
                             # Add to valid_tokens to speed up future checks
-                            valid_tokens.add(w) 
+                            valid_tokens.add(w)
                             break
+                else:
+                    validation_skipped += 1
                 
                 if os.getenv("DEBUG_SEARCH"):
                     print(f"  [DEBUG] ID: {sent.id} | Sem Score: {sem_score:.3f} | Thresh: 0.30")
@@ -1009,11 +1485,41 @@ class RizalEngine:
             }
             if not is_single_word:
                 result_item['concept_match_type'] = 'strong' if is_strong_match else 'partial'
-            
+
             if 'noli' in sent.book.lower():
                 results['noli'].append(result_item)
             else:
                 results['elfili'].append(result_item)
+
+        # Restore original encode method
+        if os.getenv("PERF_BENCHMARK"):
+            self.base_model.encode = original_encode
+
+        if timer:
+            rerank_elapsed = (time.perf_counter() - rerank_start) * 1000
+            timer.record_stage("rerank_loop", rerank_elapsed)
+            if os.getenv("PERF_BENCHMARK"):
+                timer.record_metadata("cache_size", len(self.word_sim_cache))
+                timer.record_metadata("encode_calls", encode_calls)
+                timer.record_metadata("cache_hits", cache_hits)
+                timer.record_metadata("cache_misses", cache_misses)
+                timer.record_metadata("encode_time_ms", round(encode_time * 1000, 2))
+                timer.record_metadata("validation_entered", validation_entered)
+                timer.record_metadata("validation_skipped", validation_skipped)
+                timer.record_metadata("encode_calls_total", encode_calls_total)
+                timer.record_metadata("encode_time_total_ms", round(encode_time_total * 1000, 2))
+                timer.record_metadata("process_cache_hits", process_cache_hits)
+                timer.record_metadata("process_cache_misses", process_cache_misses)
+                timer.record_metadata("process_cache_size", len(_word_vec_cache))
+                timer.record_metadata("cache_size", len(self.word_sim_cache))
+                timer.record_metadata("encode_calls", encode_calls)
+                timer.record_metadata("cache_hits", cache_hits)
+                timer.record_metadata("cache_misses", cache_misses)
+                timer.record_metadata("encode_time_ms", round(encode_time * 1000, 2))
+                timer.record_metadata("validation_entered", validation_entered)
+                timer.record_metadata("validation_skipped", validation_skipped)
+                timer.record_metadata("encode_calls_total", encode_calls_total)
+                timer.record_metadata("encode_time_total_ms", round(encode_time_total * 1000, 2))
         
         def finalize(lst, label):
             # Sort by final score primarily, but use precision as a tie-breaker or boost
@@ -1064,6 +1570,19 @@ class RizalEngine:
             results['elfili'] = finalize(results['elfili'], 'elfili')
             
         # 4. Post-processing: Add context, themes, and identify PRECISE matches
+        candidates_to_fetch = []
+        if os.getenv("DISABLE_BATCHED_CONTEXT_FETCH") != "1":
+            for book_key in ['noli', 'elfili']:
+                for item in results[book_key]:
+                    if 'sent_obj' in item:
+                        candidates_to_fetch.append(item['sent_obj'])
+
+        if timer:
+            with timer.stage("context_fetch"):
+                context_cache = self._fetch_context_cache(db, candidates_to_fetch, window=8) if candidates_to_fetch else None
+        else:
+            context_cache = self._fetch_context_cache(db, candidates_to_fetch, window=8) if candidates_to_fetch else None
+
         precise_matches = []
         for book_key in ['noli', 'elfili']:
             final_list = []
@@ -1071,11 +1590,19 @@ class RizalEngine:
                 sent = item.pop('sent_obj')
                 # Remove embedding early to prevent serialization issues in precise_matches
                 item.pop('embedding', None)
-                
+
                 # Add context
-                item['context_text'] = self._expand_context(db, sent)
+                if timer:
+                    with timer.stage("context_expansion"):
+                        item['context_text'] = self._expand_context(db, sent, context_cache=context_cache)
+                else:
+                    item['context_text'] = self._expand_context(db, sent, context_cache=context_cache)
                 # Add themes (using pre-computed query embedding)
-                item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial)
+                if timer:
+                    with timer.stage("theme_classification"):
+                        item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial, context_cache=context_cache)
+                else:
+                    item['themes'] = self._classify_themes(db, sent, query, query_vec=query_vec_initial, context_cache=context_cache)
                 
                 # Check for Precision Threshold (Tumpak na Tugma)
                 if not is_single_word and item['scores'].get('precision', 0) >= 70:
@@ -1123,21 +1650,52 @@ class RizalEngine:
         top_combined = sorted(results['noli'] + results['elfili'], key=lambda x: x['scores']['final'], reverse=True)[:5]
         suggestions = DynamicSuggestionGenerator.generate_suggestions(query, top_combined, theme_metadata)
 
-        # --- Late Diagnostic Fallback (If survived gate but failed lexical/precision) ---
+        # Late Diagnostic Fallback (If survived gate but failed lexical/precision)
         if not top_combined and is_single_word and is_cross_lingual and not bridge_tokens:
             reason = "unmapped_standalone_concept"
             suggestions = self._generate_diagnostic_suggestions(query, query_vec_initial)
 
+        if timer:
+            with timer.stage("serialization"):
+                import json
+                json.dumps(results, default=str)
+
+            total_elapsed = (time.perf_counter() - search_start) * 1000
+            stage_sum = sum(t for k, t in timer.timings.items() if not k.endswith('_count'))
+            translator_calls = timer.metadata.get("translator_network_call", False)
+            translator_ms = timer.timings.get("translator", 0)
+            timer.metadata["search_total_ms"] = round(total_elapsed, 2)
+            timer.metadata["engine_stage_sum_ms"] = round(stage_sum, 2)
+            timer.metadata["untimed_gap_ms"] = round(total_elapsed - stage_sum, 2)
+            timer.metadata["translator_ms"] = round(translator_ms, 2)
+            timer.metadata["translator_network_calls"] = translator_calls
+            if PERF_BENCHMARK:
+                q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+                timer.record_metadata("query_vector_sha256", hashlib.sha256(q_vec_bytes).hexdigest())
+                timer.record_metadata("query_expansion_text", expanded_text)
+                timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+
+        metadata_dict = {
+            "result_mode": result_mode,
+            "reason": reason,
+            "has_lexical_hits": has_lexical_hits,
+            "suggestions": suggestions,
+            "components": components if not is_single_word else [],
+            **({"engine_timings": timer.get_timings()} if timer else {})
+        }
+        if PERF_BENCHMARK:
+            q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+            metadata_dict["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+            metadata_dict["query_expansion_text"] = expanded_text
+            metadata_dict["bridge_tokens"] = sorted(list(bridge_tokens))
+            if unmapped_foreign:
+                metadata_dict["translator_input"] = query
+                metadata_dict["translator_output"] = translated_query
+
         return {
             "results": results,
-            "precise_matches": precise_matches[:5], # Return top 5 precise matches
-            "metadata": {
-                "result_mode": result_mode,
-                "reason": reason,
-                "has_lexical_hits": has_lexical_hits,
-                "suggestions": suggestions,
-                "components": components if not is_single_word else []
-            }
+            "precise_matches": precise_matches[:5],  # Return top 5 precise matches
+            "metadata": metadata_dict
         }
 
     def _compute_lexical_score(self, query, sentence_text, query_analysis, stopword_ratio):
@@ -1346,7 +1904,7 @@ class RizalEngine:
     def _ensure_themes_loaded(self, db: Session):
         if not hasattr(self, 'theme_cache'):
             from app.models.database import Theme
-            themes = db.query(Theme).all()
+            themes = db.query(Theme).order_by(Theme.id).all()
             self.theme_cache = []
             self.theme_matrix = []
             
@@ -1463,14 +2021,21 @@ class RizalEngine:
             
         return list(pool_indices) if len(pool_indices) > 0 else list(range(len(self.theme_cache)))
 
-    def _classify_themes(self, db: Session, center_sent: Sentence, query: str = "", query_vec: np.ndarray = None):
+    def _classify_themes(
+        self,
+        db: Session,
+        center_sent: Sentence,
+        query: str = "",
+        query_vec: np.ndarray = None,
+        context_cache: Optional[Dict[Tuple[str, int, str, int], Sentence]] = None
+    ):
         self._ensure_themes_loaded(db)
         if self.theme_matrix is None or center_sent.embedding is None:
             return []
-            
+
         q_type = self._determine_query_type(query) if query else "Abstract Phrase"
         pool_indices = self._generate_hybrid_theme_pool(query, target_pool_size=5, query_vec=query_vec) if query else list(range(len(self.theme_cache)))
-            
+
         import json
         emb_data = center_sent.embedding
         if isinstance(emb_data, str):
@@ -1485,7 +2050,9 @@ class RizalEngine:
         if sent_norm > 0: sent_vec = sent_vec / sent_norm
         else: return []
 
-        passage_text, passage_emb = self._get_passage_context_with_embedding(db, center_sent, window=8)
+        passage_text, passage_emb = self._get_passage_context_with_embedding(
+            db, center_sent, window=8, context_cache=context_cache
+        )
         
         if passage_emb is None:
             # Fallback only if no embeddings found in passage
@@ -1688,21 +2255,42 @@ class RizalEngine:
             return 0.0
         return len(w1 & w2) / len(w1 | w2)
 
-    def _expand_context(self, db: Session, center_sentence: Sentence) -> str:
+    def _expand_context(
+        self,
+        db: Session,
+        center_sentence: Sentence,
+        context_cache: Optional[Dict[Tuple[str, int, str, int], Sentence]] = None
+    ) -> str:
         max_dist = self.MAX_CONTEXT_EXPANSION
         range_start, range_end = center_sentence.sentence_index - max_dist, center_sentence.sentence_index + max_dist
-        candidates = db.scalars(select(Sentence).filter(Sentence.book == center_sentence.book, Sentence.chapter_number == center_sentence.chapter_number, Sentence.sentence_index >= range_start, Sentence.sentence_index <= range_end)).all()
-        sent_map = {s.sentence_index: s for s in candidates}
-        
+        if context_cache is not None:
+            sent_map = {}
+            for idx in range(range_start, range_end + 1):
+                key = (center_sentence.book, center_sentence.chapter_number, center_sentence.source_type, idx)
+                if key in context_cache:
+                    sent_map[idx] = context_cache[key]
+        else:
+            candidates = db.scalars(select(Sentence).filter(
+                Sentence.book == center_sentence.book,
+                Sentence.chapter_number == center_sentence.chapter_number,
+                Sentence.sentence_index >= range_start,
+                Sentence.sentence_index <= range_end
+            ).order_by(Sentence.sentence_index, Sentence.id)).all()
+            sent_map = {s.sentence_index: s for s in candidates}
+
         prefix, suffix = [], []
         for i in range(1, max_dist + 1):
             idx = center_sentence.sentence_index - i
-            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD: prefix.append(sent_map[idx].sentence_text)
-            else: break
+            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                prefix.append(sent_map[idx].sentence_text)
+            else:
+                break
         for i in range(1, max_dist + 1):
             idx = center_sentence.sentence_index + i
-            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD: suffix.append(sent_map[idx].sentence_text)
-            else: break
+            if idx in sent_map and self._compute_neighbor_score(center_sentence, sent_map[idx]) >= self.NEIGHBOR_RELEVANCE_THRESHOLD:
+                suffix.append(sent_map[idx].sentence_text)
+            else:
+                break
         return " ".join(reversed(prefix)) + f" <strong>{center_sentence.sentence_text}</strong> " + " ".join(suffix)
 
     def _compute_neighbor_score(self, center, neighbor):

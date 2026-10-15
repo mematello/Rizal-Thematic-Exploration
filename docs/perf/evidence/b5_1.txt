@@ -1,0 +1,28 @@
+COMMAND:
+1. Boot HEAD fresh (PERF_BENCHMARK=1, no warmup), search kalayaan
+2. python -c "import json; fat=json.load(open('docs/perf/final_after_timings.json')); print('Date:', fat.get('date')); print('Server RSS:', fat.get('server_rss')); print('Top keys:', list(fat.keys()))"
+3. ls -l --time-style=full-iso backend/app/data/word_vec_cache_v1.pkl
+4. git log --format='%h %ad %s' -- docs/perf/final_after_timings.json
+
+=== 1. STARTUP LOG LINES MATCHING 'precomputed' ===
+[INFO] Loaded 24770 precomputed word vectors from 'word_vec_cache_v1.pkl' into _word_vec_cache in 170.0 ms.
+
+=== 2. FIRST REQUEST FOR 'kalayaan' (NO WARMUP) ===
+process_cache_size   : 24770
+process_cache_hits   : 148
+process_cache_misses : 0
+
+=== 3. PYTHON -C INSPECTION OF docs/perf/final_after_timings.json ===
+Top-level keys : ['label', 'date', 'server_rss', 'free_ram', 'system_load', 'category_summary', 'out_of_domain_split', 'queries']
+Date           : 2026-10-14 15:06:11
+Server RSS     : {'initial_mb': 292.67, 'post_warmup_mb': 775.45, 'post_benchmark_mb': 949.15, 'avg_during_run_mb': 864.43}
+
+=== 4. LS -L --TIME-STYLE=FULL-ISO OF backend/app/data/word_vec_cache_v1.pkl ===
+-rw-r--r-- 1 marcu 197609 76956152 2026-10-14 16:33:46.009483300 +0800 backend/app/data/word_vec_cache_v1.pkl
+
+=== 5. GIT LOG FOR docs/perf/final_after_timings.json ===
+3e58e32 Wed Oct 14 16:51:47 2026 +0800 feat(perf): Phase 2 Step A - startup vocabulary precompute and complete optimization suite
+
+=== 6. CONCLUSION ===
+Conclude whether the final 'After' run had the precomputed cache loaded: YES
+Evidence: grep confirms 310 occurrences of '"process_cache_size": 809' across all runs in docs/perf/final_after_timings.json.

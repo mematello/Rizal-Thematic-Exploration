@@ -1,0 +1,299 @@
+================================================================================
+ITEM 4: RAW JSON & DB VERIFICATION FROM proc1_unset_fwd.json AND proc3_seed1.json
+================================================================================
+
+################################################################################
+SNAPSHOT: proc1_unset_fwd.json
+################################################################################
+
+--------------------------------------------------------------------------------
+QUERY: oppression in proc1_unset_fwd.json
+--------------------------------------------------------------------------------
+Top Noli ID   : 38386 -> DB: ID 38386: book="noli", source_type="summary", chapter=64
+Top ElFili ID : 39331 -> DB: ID 39331: book="elfili", source_type="summary", chapter=39
+Raw JSON (first 40 lines):
+{
+  "noli": [
+    {
+      "id": 38386,
+      "sentence_index": 13,
+      "chapter_number": 64,
+      "chapter_title": "Katapusan",
+      "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
+      "scores": {
+        "semantic": 74,
+        "lexical": 50,
+        "final": 70,
+        "precision": 0,
+        "rerank": 64,
+        "initial_rank": 1
+      },
+      "context_text": "Humuhusay narin siya sa pagsasalita ng Espanyol. Pinaturuan niyang magpatakbo ng kabayo ang kanyang asawa ngunit hindi ito natuto kung kaya\u2019t si Donya Victorina nalang ang naging kutsero. Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara. <strong>Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.</strong> Nagpakalunod naman sa alak si Donya Consolacion matapos mawala ang kaniyang ganda dahilan kung bakit siya namayat. Ang alperes ay nakipaghiwalay sa nangangamoy niyang asawa.",
+      "themes": []
+    },
+    {
+      "id": 38070,
+      "sentence_index": 24,
+      "chapter_number": 50,
+      "chapter_title": "Mga Kamag-anak ni Elias",
+      "sentence_text": "Paglaon ay unti-unting nakaipon ng salapi at napaunlad ang sarili.",
+      "scores": {
+        "semantic": 72,
+        "lexical": 50,
+        "final": 68,
+        "precision": 0,
+        "rerank": 62,
+        "initial_rank": 2
+      },
+      "context_text": "Ikinagulat naman ng bunsong anak nang makita ang duguang ulo ng kapatid na nakasabit sa sanga ng puno. Matapos maipalibing ng bunsong anak ang bangkay ng kapatid at ina ay nagpakalayu-layo ito. Maraming narating hanggang sa mapilitang maglingkod sa mayamang mangangalakal na may malaking kapital sa lalawigan ng Tayabas. <strong>Paglaon ay unti-unting nakaipon ng salapi at napaunlad ang sarili.</strong> Nakakilala siya ng isang dalaga na may mahigpit na magulang. Nang minsang may mangyari sa kanila ay nangako naman na ito\u2019y papanindigan. Ngunit imbes na makasal ay pinakulong ito ng magulang ng babae.",
+      "themes": []
+    },
+    {
+      "id": 37838,
+      "sentence_index": 9,
+      "chapter_number": 38,
+
+
+--------------------------------------------------------------------------------
+QUERY: kalayaan in proc1_unset_fwd.json
+--------------------------------------------------------------------------------
+Top Noli ID   : 38300 -> DB: ID 38300: book="noli", source_type="summary", chapter=60
+Top ElFili ID : 39345 -> DB: ID 39345: book="elfili", source_type="summary", chapter=39
+Raw JSON (first 40 lines):
+{
+  "noli": [
+    {
+      "id": 38300,
+      "sentence_index": 22,
+      "chapter_number": 60,
+      "chapter_title": "Ang Kasal ni Maria Clara",
+      "sentence_text": "Saglit na dumaan si Ibarra sa bahay ng dalaga upang ibigay ang kalayaan ng dalaga.",
+      "scores": {
+        "semantic": 75,
+        "lexical": 100,
+        "final": 80,
+        "precision": 0,
+        "rerank": 65,
+        "initial_rank": 1
+      },
+      "context_text": "Natanaw niya ang isang bangka malapit sa kanilang bahay. Ang bangka ay makikitaan ng mga damo na parang galing pa mula sa pagtakas. Sakay ng bangka sina Elias at Ibarra. <strong>Saglit na dumaan si Ibarra sa bahay ng dalaga upang ibigay ang kalayaan ng dalaga.</strong> Ipinahayag din ni Ibarra ang kanyang nararamdaman para sa dalaga. Ipinagtapat naman ng dalaga ang dahilan kung bakit siya magpapakasal kay Linares. Ayon sa kanya, hindi siya magpapakasal kay Linares dahil sa mahal niya ito.",
+      "themes": [
+        {
+          "id": "2500",
+          "label": "Kalayaan at Pagmamahal sa Bayan",
+          "score": 0.4662459168226242
+        }
+      ]
+    },
+    {
+      "id": 37644,
+      "sentence_index": 22,
+      "chapter_number": 25,
+      "chapter_title": "Sa Bahay ni Pilosopo Tasyo",
+      "sentence_text": "Dagdag pa ng pilosopo, hindi sapat ang kayamanan at kabutihan ng loob.",
+      "scores": {
+        "semantic": 86,
+        "lexical": 50,
+        "final": 79,
+        "precision": 0,
+        "rerank": 76,
+        "initial_rank": 2
+      },
+      "context_text": "Kung hindi niya ito gagawin ay malabong may  mangyari sa kanyang mga plano. Hindi matanggap ni Ibarra ang pananaw na ito ni Pilosopo Tasyo dahil iba ang pananaw na kinalakihan nito mula sa Europa. Ayon kay Pilosopo Tasyo, hindi katanggap-tanggap ang ganitong prinsipyo, dahil ang lupang nais pag-anihan ni Ibarra ay pagmamay-ari ng kanyang kaaway. <strong>Dagdag pa ng pilosopo, hindi sapat ang kayamanan at kabutihan ng loob.</strong> Dapat ring maunawaan ni Ibarra na ang lupang nais pagtaniman ay puno pa ng mga damo. Batid ni Ibarra ang kahalagahan ng payo ni Tasyo ngunit hindi parin siya nawawalan ng loob. Kung sakaling hindi magtagumpay ang mga plano ni Maaaring hindi magtagumpay ang planong ito ngunit naniniwala siya na mayroong uusbong na punla na siyang magpapatuloy sa pangarap na sinimulan ni Pilosopo Tasyo.",
+
+
+--------------------------------------------------------------------------------
+QUERY: tiktok in proc1_unset_fwd.json
+--------------------------------------------------------------------------------
+Top Noli ID   : None -> DB: None
+Top ElFili ID : None -> DB: None
+Raw JSON (first 40 lines):
+{
+  "noli": [],
+  "elfili": [],
+  "metadata": {
+    "result_mode": "none",
+    "reason": "unmapped_standalone_concept",
+    "suggestions": [
+      "tiktok ng bayan",
+      "tiktok sa simbahan",
+      "tiktok laban sa kastila"
+    ],
+    "engine_timings": {
+      "preprocessing": 0.23,
+      "translator": 961.69,
+      "preprocessing_count": 1,
+      "translator_count": 1,
+      "translator_network_call": true,
+      "translator_input": "tiktok",
+      "translator_output": null,
+      "search_total_ms": 1106.78,
+      "diagnostic_suggestions_ms": 144.84,
+      "translator_ms": 961.69,
+      "translator_network_calls": true,
+      "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+      "query_expansion_text": "",
+      "bridge_tokens": []
+    },
+    "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+    "query_expansion_text": "",
+    "bridge_tokens": [],
+    "translator_input": "tiktok",
+    "translator_output": null,
+    "db_query_count": 0,
+    "fastapi_layer": {
+      "db_session_create_ms": 0.026,
+      "di_and_routing_ms": 0.739,
+      "route_pre_search_ms": 0.003,
+      "engine_search_ms": 1106.839,
+      "route_post_search_ms": 0.001,
+      "route_handler_total_ms": 1106.843,
+
+
+################################################################################
+SNAPSHOT: proc3_seed1.json
+################################################################################
+
+--------------------------------------------------------------------------------
+QUERY: oppression in proc3_seed1.json
+--------------------------------------------------------------------------------
+Top Noli ID   : 38386 -> DB: ID 38386: book="noli", source_type="summary", chapter=64
+Top ElFili ID : 39331 -> DB: ID 39331: book="elfili", source_type="summary", chapter=39
+Raw JSON (first 40 lines):
+{
+  "noli": [
+    {
+      "id": 38386,
+      "sentence_index": 13,
+      "chapter_number": 64,
+      "chapter_title": "Katapusan",
+      "sentence_text": "Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.",
+      "scores": {
+        "semantic": 74,
+        "lexical": 50,
+        "final": 70,
+        "precision": 0,
+        "rerank": 64,
+        "initial_rank": 1
+      },
+      "context_text": "Humuhusay narin siya sa pagsasalita ng Espanyol. Pinaturuan niyang magpatakbo ng kabayo ang kanyang asawa ngunit hindi ito natuto kung kaya\u2019t si Donya Victorina nalang ang naging kutsero. Nagkasakit at nangayayat naman si Linares matapos iwan ni Maria Clara. <strong>Namatay ito sa sakit na disenterya na nakuha niya sa pagkaing nabibili sa daan.</strong> Nagpakalunod naman sa alak si Donya Consolacion matapos mawala ang kaniyang ganda dahilan kung bakit siya namayat. Ang alperes ay nakipaghiwalay sa nangangamoy niyang asawa.",
+      "themes": []
+    },
+    {
+      "id": 38070,
+      "sentence_index": 24,
+      "chapter_number": 50,
+      "chapter_title": "Mga Kamag-anak ni Elias",
+      "sentence_text": "Paglaon ay unti-unting nakaipon ng salapi at napaunlad ang sarili.",
+      "scores": {
+        "semantic": 72,
+        "lexical": 50,
+        "final": 68,
+        "precision": 0,
+        "rerank": 62,
+        "initial_rank": 2
+      },
+      "context_text": "Ikinagulat naman ng bunsong anak nang makita ang duguang ulo ng kapatid na nakasabit sa sanga ng puno. Matapos maipalibing ng bunsong anak ang bangkay ng kapatid at ina ay nagpakalayu-layo ito. Maraming narating hanggang sa mapilitang maglingkod sa mayamang mangangalakal na may malaking kapital sa lalawigan ng Tayabas. <strong>Paglaon ay unti-unting nakaipon ng salapi at napaunlad ang sarili.</strong> Nakakilala siya ng isang dalaga na may mahigpit na magulang. Nang minsang may mangyari sa kanila ay nangako naman na ito\u2019y papanindigan. Ngunit imbes na makasal ay pinakulong ito ng magulang ng babae.",
+      "themes": []
+    },
+    {
+      "id": 37838,
+      "sentence_index": 9,
+      "chapter_number": 38,
+
+
+--------------------------------------------------------------------------------
+QUERY: kalayaan in proc3_seed1.json
+--------------------------------------------------------------------------------
+Top Noli ID   : 38300 -> DB: ID 38300: book="noli", source_type="summary", chapter=60
+Top ElFili ID : 39345 -> DB: ID 39345: book="elfili", source_type="summary", chapter=39
+Raw JSON (first 40 lines):
+{
+  "noli": [
+    {
+      "id": 38300,
+      "sentence_index": 22,
+      "chapter_number": 60,
+      "chapter_title": "Ang Kasal ni Maria Clara",
+      "sentence_text": "Saglit na dumaan si Ibarra sa bahay ng dalaga upang ibigay ang kalayaan ng dalaga.",
+      "scores": {
+        "semantic": 75,
+        "lexical": 100,
+        "final": 80,
+        "precision": 0,
+        "rerank": 65,
+        "initial_rank": 1
+      },
+      "context_text": "Natanaw niya ang isang bangka malapit sa kanilang bahay. Ang bangka ay makikitaan ng mga damo na parang galing pa mula sa pagtakas. Sakay ng bangka sina Elias at Ibarra. <strong>Saglit na dumaan si Ibarra sa bahay ng dalaga upang ibigay ang kalayaan ng dalaga.</strong> Ipinahayag din ni Ibarra ang kanyang nararamdaman para sa dalaga. Ipinagtapat naman ng dalaga ang dahilan kung bakit siya magpapakasal kay Linares. Ayon sa kanya, hindi siya magpapakasal kay Linares dahil sa mahal niya ito.",
+      "themes": [
+        {
+          "id": "2500",
+          "label": "Kalayaan at Pagmamahal sa Bayan",
+          "score": 0.4662459168226242
+        }
+      ]
+    },
+    {
+      "id": 37644,
+      "sentence_index": 22,
+      "chapter_number": 25,
+      "chapter_title": "Sa Bahay ni Pilosopo Tasyo",
+      "sentence_text": "Dagdag pa ng pilosopo, hindi sapat ang kayamanan at kabutihan ng loob.",
+      "scores": {
+        "semantic": 86,
+        "lexical": 50,
+        "final": 79,
+        "precision": 0,
+        "rerank": 76,
+        "initial_rank": 2
+      },
+      "context_text": "Kung hindi niya ito gagawin ay malabong may  mangyari sa kanyang mga plano. Hindi matanggap ni Ibarra ang pananaw na ito ni Pilosopo Tasyo dahil iba ang pananaw na kinalakihan nito mula sa Europa. Ayon kay Pilosopo Tasyo, hindi katanggap-tanggap ang ganitong prinsipyo, dahil ang lupang nais pag-anihan ni Ibarra ay pagmamay-ari ng kanyang kaaway. <strong>Dagdag pa ng pilosopo, hindi sapat ang kayamanan at kabutihan ng loob.</strong> Dapat ring maunawaan ni Ibarra na ang lupang nais pagtaniman ay puno pa ng mga damo. Batid ni Ibarra ang kahalagahan ng payo ni Tasyo ngunit hindi parin siya nawawalan ng loob. Kung sakaling hindi magtagumpay ang mga plano ni Maaaring hindi magtagumpay ang planong ito ngunit naniniwala siya na mayroong uusbong na punla na siyang magpapatuloy sa pangarap na sinimulan ni Pilosopo Tasyo.",
+
+
+--------------------------------------------------------------------------------
+QUERY: tiktok in proc3_seed1.json
+--------------------------------------------------------------------------------
+Top Noli ID   : None -> DB: None
+Top ElFili ID : None -> DB: None
+Raw JSON (first 40 lines):
+{
+  "noli": [],
+  "elfili": [],
+  "metadata": {
+    "result_mode": "none",
+    "reason": "unmapped_standalone_concept",
+    "suggestions": [
+      "tiktok ng bayan",
+      "tiktok sa simbahan",
+      "tiktok laban sa kastila"
+    ],
+    "engine_timings": {
+      "preprocessing": 0.18,
+      "translator": 859.44,
+      "preprocessing_count": 1,
+      "translator_count": 1,
+      "translator_network_call": true,
+      "translator_input": "tiktok",
+      "translator_output": null,
+      "search_total_ms": 979.28,
+      "diagnostic_suggestions_ms": 119.64,
+      "translator_ms": 859.44,
+      "translator_network_calls": true,
+      "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+      "query_expansion_text": "",
+      "bridge_tokens": []
+    },
+    "query_vector_sha256": "30e96156d793b591f2e3b383932252800fb72e4d900b025c409ef838c0c62210",
+    "query_expansion_text": "",
+    "bridge_tokens": [],
+    "translator_input": "tiktok",
+    "translator_output": null,
+    "db_query_count": 0,
+    "fastapi_layer": {
+      "db_session_create_ms": 0.032,
+      "di_and_routing_ms": 0.754,
+      "route_pre_search_ms": 0.004,
+      "engine_search_ms": 979.333,
+      "route_post_search_ms": 0.001,
+      "route_handler_total_ms": 979.338,
+

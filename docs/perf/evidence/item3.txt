@@ -1,0 +1,125 @@
+================================================================================
+ITEM 3: BRIDGE_TOKENS AND BRIDGE_TEXT PRE/POST E2
+================================================================================
+
+1. ENGINE.PY LINES WHERE BRIDGE_TOKENS IS STORED IN METADATA:
+820-                if PERF_BENCHMARK:
+821-                    timer.record_metadata("query_vector_sha256", hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest())
+822-                    timer.record_metadata("query_expansion_text", "")
+823:                    timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+824-                meta["engine_timings"] = timer.get_timings()
+825-            if PERF_BENCHMARK:
+826-                meta["query_vector_sha256"] = hashlib.sha256(np.ascontiguousarray(query_vec_initial).tobytes()).hexdigest()
+827-                meta["query_expansion_text"] = ""
+828:                meta["bridge_tokens"] = sorted(list(bridge_tokens))
+829-                if unmapped_foreign:
+830-                    meta["translator_input"] = query
+831-                    meta["translator_output"] = translated_query
+--
+1042-                     q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+1043-                     meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+1044-                     meta_out["query_expansion_text"] = expanded_text
+1045:                     meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+1046-                     if unmapped_foreign:
+1047-                         meta_out["translator_input"] = query
+1048-                         meta_out["translator_output"] = translated_query
+1049-                     if timer:
+1050-                         timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+1051-                         timer.record_metadata("query_expansion_text", expanded_text)
+1052:                         timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+1053-                         meta_out["engine_timings"] = timer.get_timings()
+1054-                 return {
+1055-                        'results': {'noli': [], 'elfili': []},
+--
+1102-                        q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+1103-                        meta_out["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+1104-                        meta_out["query_expansion_text"] = expanded_text
+1105:                        meta_out["bridge_tokens"] = sorted(list(bridge_tokens))
+1106-                        if unmapped_foreign:
+1107-                            meta_out["translator_input"] = query
+1108-                            meta_out["translator_output"] = translated_query
+1109-                        if timer:
+1110-                            timer.record_metadata("query_vector_sha256", meta_out["query_vector_sha256"])
+1111-                            timer.record_metadata("query_expansion_text", expanded_text)
+1112:                            timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+1113-                            meta_out["engine_timings"] = timer.get_timings()
+1114-                    return {
+1115-                        'results': {'noli': [], 'elfili': []},
+--
+1154-                timer.record_metadata("semantic_candidates_returned", len(candidates))
+1155-                timer.record_metadata("semantic_candidate_ids", [c.id for c in candidates])
+1156-                timer.record_metadata("query_expansion_text", expanded_text)
+1157:                timer.record_metadata("bridge_tokens", list(bridge_tokens) if bridge_tokens else [])
+1158-            else:
+1159-                for key, book_name in books.items():
+1160-                    sem_results = db.scalars(
+--
+1673-                q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+1674-                timer.record_metadata("query_vector_sha256", hashlib.sha256(q_vec_bytes).hexdigest())
+1675-                timer.record_metadata("query_expansion_text", expanded_text)
+1676:                timer.record_metadata("bridge_tokens", sorted(list(bridge_tokens)))
+1677-
+1678-        metadata_dict = {
+1679-            "result_mode": result_mode,
+--
+1687-            q_vec_bytes = np.ascontiguousarray(query_embedding).tobytes()
+1688-            metadata_dict["query_vector_sha256"] = hashlib.sha256(q_vec_bytes).hexdigest()
+1689-            metadata_dict["query_expansion_text"] = expanded_text
+1690:            metadata_dict["bridge_tokens"] = sorted(list(bridge_tokens))
+1691-            if unmapped_foreign:
+1692-                metadata_dict["translator_input"] = query
+1693-                metadata_dict["translator_output"] = translated_query
+
+2. SCRATCH SCRIPT UNDER PYTHONHASHSEED=1 and PYTHONHASHSEED=2:
+=== RUNNING UNDER PYTHONHASHSEED=1 ===
+Query: oppression
+  bridge_tokens set       : {'pang-aapi', 'kalupitan'}
+  raw list(bridge_tokens) : ['pang-aapi', 'kalupitan']
+  filtered (len > 3)      : ['pang-aapi', 'kalupitan']
+  pre-E2 bridge_text      : "pang-aapi kalupitan"
+  post-E2 bridge_text     : "kalupitan pang-aapi"
+Query: love
+  bridge_tokens set       : {'pagmamahal', 'pag-ibig'}
+  raw list(bridge_tokens) : ['pagmamahal', 'pag-ibig']
+  filtered (len > 3)      : ['pagmamahal', 'pag-ibig']
+  pre-E2 bridge_text      : "pagmamahal pag-ibig"
+  post-E2 bridge_text     : "pag-ibig pagmamahal"
+Query: justice
+  bridge_tokens set       : {'katarungan', 'hustisya'}
+  raw list(bridge_tokens) : ['katarungan', 'hustisya']
+  filtered (len > 3)      : ['katarungan', 'hustisya']
+  pre-E2 bridge_text      : "katarungan hustisya"
+  post-E2 bridge_text     : "hustisya katarungan"
+Query: corruption
+  bridge_tokens set       : {'korapsyon', 'katiwalian'}
+  raw list(bridge_tokens) : ['korapsyon', 'katiwalian']
+  filtered (len > 3)      : ['korapsyon', 'katiwalian']
+  pre-E2 bridge_text      : "korapsyon katiwalian"
+  post-E2 bridge_text     : "katiwalian korapsyon"
+
+=== RUNNING UNDER PYTHONHASHSEED=2 ===
+Query: oppression
+  bridge_tokens set       : {'pang-aapi', 'kalupitan'}
+  raw list(bridge_tokens) : ['pang-aapi', 'kalupitan']
+  filtered (len > 3)      : ['pang-aapi', 'kalupitan']
+  pre-E2 bridge_text      : "pang-aapi kalupitan"
+  post-E2 bridge_text     : "kalupitan pang-aapi"
+Query: love
+  bridge_tokens set       : {'pag-ibig', 'pagmamahal'}
+  raw list(bridge_tokens) : ['pag-ibig', 'pagmamahal']
+  filtered (len > 3)      : ['pag-ibig', 'pagmamahal']
+  pre-E2 bridge_text      : "pag-ibig pagmamahal"
+  post-E2 bridge_text     : "pag-ibig pagmamahal"
+Query: justice
+  bridge_tokens set       : {'katarungan', 'hustisya'}
+  raw list(bridge_tokens) : ['katarungan', 'hustisya']
+  filtered (len > 3)      : ['katarungan', 'hustisya']
+  pre-E2 bridge_text      : "katarungan hustisya"
+  post-E2 bridge_text     : "hustisya katarungan"
+Query: corruption
+  bridge_tokens set       : {'katiwalian', 'korapsyon'}
+  raw list(bridge_tokens) : ['katiwalian', 'korapsyon']
+  filtered (len > 3)      : ['katiwalian', 'korapsyon']
+  pre-E2 bridge_text      : "katiwalian korapsyon"
+  post-E2 bridge_text     : "katiwalian korapsyon"
+

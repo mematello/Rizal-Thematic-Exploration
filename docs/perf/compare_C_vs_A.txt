@@ -1,0 +1,230 @@
+Loading golden snapshot: docs\perf\snapshot_A_cache_disabled.json
+Loading new snapshot: docs\perf\snapshot_C_cache_disabled_2.json
+Loading golden snapshot: docs\perf\snapshot_A_cache_disabled.json
+Loading new snapshot: docs\perf\snapshot_C_cache_disabled_2.json
+
+================================================================================
+GOLDEN SNAPSHOT COMPARISON REPORT
+================================================================================
+
+Golden baseline: unknown
+New snapshot:    unknown
+
+Total queries compared: 40
+Queries with changes:   10
+
+Aggregate Changes:
+  Position changes: 37
+  Score deltas:     147
+  Theme changes:    0
+
+--------------------------------------------------------------------------------
+DETAILED QUERY DIFFERENCES
+--------------------------------------------------------------------------------
+
+Query: 'kalayaan'
+  NOLI:
+    Position changes (3):
+      ID 38249: #8 -> #5 (delta-3)
+        "Samantalang ang balita na patungkol sa bilanggo ay..."
+      ID 38386: #2 -> #3 (delta+1)
+        "Namatay ito sa sakit na disenterya na nakuha niya ..."
+      ID 38258: #5 -> #4 (delta-1)
+        "Pinangangambahan ni Kapitana Tinchang na baka maku..."
+    Score changes (8):
+      ID 38300 semantic: 76 -> 74 (delta-2.0)
+      ID 38300 final: 81 -> 79 (delta-2.0)
+      ID 38386 semantic: 87 -> 85 (delta-2.0)
+      ID 38258 semantic: 85 -> 83 (delta-2.0)
+      ID 38386 final: 79 -> 78 (delta-1.0)
+    Missing results: 6 results dropped
+    New results: 6 results added
+  ELFILI:
+    Position changes (6):
+      ID 39347: #4 -> #6 (delta+2)
+        "Gumawa tayo ng mabuti, tapat at marangal hanggang ..."
+      ID 39345: #2 -> #1 (delta-1)
+        "Ang kalayaan ay ‘di natin dapat tuklasin sa tulong..."
+      ID 39324: #1 -> #2 (delta+1)
+        "Ngunit isang kaguluhan ang dumating sa kanyang buh..."
+      ID 39110: #5 -> #4 (delta-1)
+        "Kapag itinanggi umano sa isang bayan ang liwanag, ..."
+      ID 38535: #6 -> #5 (delta-1)
+        "Ayon kay Simoun, magbibigay lamang daw ito ng daan..."
+    Score changes (13):
+      ID 39345 semantic: 82 -> 88 (delta+6.0)
+      ID 39345 final: 86 -> 90 (delta+4.0)
+      ID 39347 semantic: 78 -> 74 (delta-4.0)
+      ID 39347 final: 82 -> 78 (delta-4.0)
+      ID 38972 semantic: 63 -> 59 (delta-4.0)
+    Missing results: 2 results dropped
+    New results: 2 results added
+
+Query: 'edukasyon'
+  NOLI:
+    Position changes (2):
+      ID 38136: #8 -> #9 (delta+1)
+        "Sa halip ay ibigay nalang iyon sa mga maiiwan...."
+      ID 37995: #9 -> #10 (delta+1)
+        "Para sa pamahalaan, hindi mahalaga kung sino ang n..."
+    Score changes (18):
+      ID 37542 semantic: 56 -> 61 (delta+5.0)
+      ID 37541 semantic: 71 -> 75 (delta+4.0)
+      ID 37538 semantic: 65 -> 69 (delta+4.0)
+      ID 37540 semantic: 59 -> 63 (delta+4.0)
+      ID 37542 final: 55 -> 59 (delta+4.0)
+    Missing results: 1 results dropped
+    New results: 1 results added
+  ELFILI:
+    Position changes (1):
+      ID 38403: #9 -> #7 (delta-2)
+        "Napunta naman ang usapan sa paaralang balak ng mga..."
+    Score changes (18):
+      ID 38400 semantic: 58 -> 63 (delta+5.0)
+      ID 39012 semantic: 60 -> 64 (delta+4.0)
+      ID 38400 final: 57 -> 61 (delta+4.0)
+      ID 39353 semantic: 53 -> 57 (delta+4.0)
+      ID 38403 semantic: 52 -> 56 (delta+4.0)
+    Missing results: 1 results dropped
+    New results: 1 results added
+
+Query: 'kapangyarihan ng simbahan'
+  NOLI:
+    Score changes (1):
+      ID 37408 semantic: 13 -> 12 (delta-1.0)
+
+Query: 'education'
+  NOLI:
+    Position changes (6):
+      ID 37302: #4 -> #6 (delta+2)
+        "Mayamang maituturing ang mga magulang nito ngunit ..."
+      ID 37538: #5 -> #4 (delta-1)
+        "Nagtanong si Ibarra kung ano ang kinahinatnat ng p..."
+      ID 37540: #6 -> #5 (delta-1)
+        "Kabilang na dito ang kawalan ng motibasyon at inte..."
+      ID 37551: #8 -> #7 (delta-1)
+        "Kabilang din sa pagpupulong ang pagtatayo ng paara..."
+      ID 37623: #9 -> #8 (delta-1)
+        "Nagtungo si Ibarra sa bahay ni Pilosopo Tasyo upan..."
+    Score changes (9):
+      ID 37539 semantic: 65 -> 64 (delta-1.0)
+      ID 37541 semantic: 57 -> 56 (delta-1.0)
+      ID 37544 semantic: 60 -> 59 (delta-1.0)
+      ID 37538 semantic: 50 -> 49 (delta-1.0)
+      ID 37540 semantic: 44 -> 43 (delta-1.0)
+    Missing results: 1 results dropped
+    New results: 1 results added
+  ELFILI:
+    Score changes (8):
+      ID 38403 semantic: 37 -> 36 (delta-1.0)
+      ID 38514 semantic: 25 -> 26 (delta+1.0)
+      ID 38516 semantic: 19 -> 20 (delta+1.0)
+      ID 38518 semantic: 21 -> 22 (delta+1.0)
+      ID 38547 semantic: 23 -> 22 (delta-1.0)
+
+Query: 'oppression'
+  NOLI:
+    Score changes (7):
+      ID 38070 semantic: 72 -> 70 (delta-2.0)
+      ID 38386 semantic: 73 -> 74 (delta+1.0)
+      ID 38070 final: 67 -> 66 (delta-1.0)
+      ID 37838 semantic: 70 -> 69 (delta-1.0)
+      ID 37838 final: 66 -> 65 (delta-1.0)
+  ELFILI:
+    Position changes (6):
+      ID 38581: #4 -> #2 (delta-2)
+        "Samantala, nakauwi na si Kabesang Tales dahil sa t..."
+      ID 39312: #8 -> #6 (delta-2)
+        "Ngunit sa kabila ng lahat ng ito maging ang pagtul..."
+      ID 39047: #2 -> #3 (delta+1)
+        "Pinadulasan ang mga kawani sa adwana at nakalusot ..."
+      ID 38925: #3 -> #4 (delta+1)
+        "Kakatagpuin rin niya si Makaraig para mangutang ng..."
+      ID 38949: #6 -> #7 (delta+1)
+        "Ani Isagani ay hindi na daw mahalaga kung sino ang..."
+    Score changes (15):
+      ID 39331 semantic: 71 -> 73 (delta+2.0)
+      ID 38925 semantic: 71 -> 69 (delta-2.0)
+      ID 38925 final: 67 -> 65 (delta-2.0)
+      ID 39312 semantic: 66 -> 68 (delta+2.0)
+      ID 38949 final: 65 -> 63 (delta-2.0)
+    Missing results: 1 results dropped
+
+Query: 'church'
+  NOLI:
+    Score changes (8):
+      ID 37468 semantic: 61 -> 63 (delta+2.0)
+      ID 37385 semantic: 48 -> 50 (delta+2.0)
+      ID 37638 semantic: 48 -> 50 (delta+2.0)
+      ID 37639 semantic: 42 -> 44 (delta+2.0)
+      ID 37290 semantic: 40 -> 41 (delta+1.0)
+  ELFILI:
+    Score changes (7):
+      ID 39026 semantic: 45 -> 48 (delta+3.0)
+      ID 39028 semantic: 50 -> 52 (delta+2.0)
+      ID 38425 semantic: 46 -> 47 (delta+1.0)
+      ID 38533 semantic: 37 -> 38 (delta+1.0)
+      ID 38660 semantic: 42 -> 43 (delta+1.0)
+
+Query: 'Crisostomo Ibarra'
+  NOLI:
+    Score changes (7):
+      ID 37666 semantic: 11 -> 10 (delta-1.0)
+      ID 37701 semantic: 10 -> 9 (delta-1.0)
+      ID 37200 semantic: 16 -> 15 (delta-1.0)
+      ID 37676 semantic: 11 -> 10 (delta-1.0)
+      ID 38198 semantic: 11 -> 10 (delta-1.0)
+  ELFILI:
+    Score changes (1):
+      ID 39207 semantic: 18 -> 17 (delta-1.0)
+
+Query: 'Simoun'
+  ELFILI:
+    Score changes (5):
+      ID 39308 semantic: 71 -> 70 (delta-1.0)
+      ID 39321 semantic: 82 -> 81 (delta-1.0)
+      ID 39337 semantic: 76 -> 75 (delta-1.0)
+      ID 38593 semantic: 80 -> 79 (delta-1.0)
+      ID 39248 semantic: 75 -> 76 (delta+1.0)
+
+Query: 'Padre Damaso'
+  NOLI:
+    Position changes (9):
+      ID 37191: #6 -> #2 (delta-4)
+        "Nagkaroon ng kanya kanyang pagpapahayag na nagresu..."
+      ID 37798: #4 -> #1 (delta-3)
+        "Bilin ni Padre Damaso na putulin na ang relasyon n..."
+      ID 37235: #1 -> #3 (delta+2)
+        "Mas lalo namang tumindi ang galit ni Padre Damaso ..."
+      ID 37710: #2 -> #4 (delta+2)
+        "Nagsimula na si Padre Damaso sa kanyang sermon nan..."
+      ID 37423: #3 -> #5 (delta+2)
+        "Ang pagpapahukay at pagpapalipat ng bangkay sa lib..."
+    Score changes (14):
+      ID 37191 semantic: 17 -> 15 (delta-2.0)
+      ID 37235 semantic: 19 -> 17 (delta-2.0)
+      ID 37710 semantic: 18 -> 16 (delta-2.0)
+      ID 37423 semantic: 15 -> 13 (delta-2.0)
+      ID 37877 semantic: 13 -> 11 (delta-2.0)
+    Missing results: 1 results dropped
+    New results: 1 results added
+
+Query: 'Sisa'
+  NOLI:
+    Position changes (4):
+      ID 37680: #7 -> #3 (delta-4)
+        "Lumapit naman ang baliw na si Sisa sa ketongin...."
+      ID 37488: #5 -> #7 (delta+2)
+        "Madalas pang bugbugin ang asawang si Sisa...."
+      ID 37466: #3 -> #4 (delta+1)
+        "Sila ang anak ni Sisa...."
+      ID 37484: #4 -> #5 (delta+1)
+        "Si Sisa ang ina nina Crispin at Basilio...."
+    Score changes (8):
+      ID 37488 semantic: 40 -> 38 (delta-2.0)
+      ID 37606 semantic: 56 -> 54 (delta-2.0)
+      ID 37533 semantic: 55 -> 56 (delta+1.0)
+      ID 37680 semantic: 58 -> 59 (delta+1.0)
+      ID 37680 final: 96 -> 97 (delta+1.0)
+
+[PASS] Detailed report saved: C:\Users\marcu\Desktop\thesis\docs\perf\comparison_report.json

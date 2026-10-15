@@ -1,0 +1,21 @@
+commit 73f1d1a08d7a90e6b2e9f03509ac9d5ef540e130
+Author: Marcus Oliver <51258370+mematello@users.noreply.github.com>
+Date:   Thu Oct 15 06:18:50 2026 +0800
+
+    feat(perf): Commit E3 - sorted sent_words in dynamic validation
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+diff --git a/backend/app/core/engine.py b/backend/app/core/engine.py
+index 2cb8ca5..5239db3 100644
+--- a/backend/app/core/engine.py
++++ b/backend/app/core/engine.py
+@@ -1287,7 +1287,7 @@ class RizalEngine:
+                     validation_entered += 1
+                     sent_words = set(extract_words(text_lower))
+                     # Filter short words and low-info words immediately
+-                    cand_words = [w for w in sent_words if len(w) > 4 and w not in self.LOW_INFO_WORDS]
++                    cand_words = [w for w in sorted(sent_words) if len(w) > 4 and w not in self.LOW_INFO_WORDS]
+ 
+                     for w in cand_words:
+                         if w in valid_tokens: continue # Already checked

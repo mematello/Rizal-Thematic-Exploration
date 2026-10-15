@@ -1,0 +1,96 @@
+================================================================================
+ITEM 2: AST SET-SITE INVENTORY & GREP COMPARISON FOR ALL 12 REACHABLE FILES
+================================================================================
+
+1. IMPORT GRAPH REACHABILITY (from backend/app/api/v1/search.py):
+Total reachable files: 12
+  - app\api\v1\search.py
+  - app\core\analyzer.py
+  - app\core\config.py
+  - app\core\engine.py
+  - app\core\perf_instrumentation.py
+  - app\core\query_counter.py
+  - app\core\robust_aligner.py
+  - app\core\sequence_aligner.py
+  - app\core\tagalog_parser.py
+  - app\core\tagalog_stemmer.py
+  - app\models\database.py
+  - app\services\suggestions.py
+
+--------------------------------------------------------------------------------
+2. PER-FILE COUNT: AST INVENTORY vs GREP -C 'set('
+--------------------------------------------------------------------------------
+Reachable File                      | AST Count  | grep -c set(    | Difference & Explanation
+-----------------------------------------------------------------------------------------------
+app/api/v1/search.py                | 3          | 3               | Exact match between AST set calls and grep.
+app/core/analyzer.py                | 2          | 2               | Exact match between AST set calls and grep.
+app/core/config.py                  | 0          | 0               | Exact match between AST set calls and grep.
+app/core/engine.py                  | 40         | 29              | AST found 11 more: set literals/comprehensions/joins not matching 'set('.
+app/core/perf_instrumentation.py    | 0          | 0               | Exact match between AST set calls and grep.
+app/core/query_counter.py           | 0          | 0               | Exact match between AST set calls and grep.
+app/core/robust_aligner.py          | 2          | 1               | AST found 1 more: set literals/comprehensions/joins not matching 'set('.
+app/core/sequence_aligner.py        | 3          | 3               | Exact match between AST set calls and grep.
+app/core/tagalog_parser.py          | 0          | 0               | Exact match between AST set calls and grep.
+app/core/tagalog_stemmer.py         | 0          | 0               | Exact match between AST set calls and grep.
+app/models/database.py              | 0          | 0               | Exact match between AST set calls and grep.
+app/services/suggestions.py         | 2          | 2               | Exact match between AST set calls and grep.
+-----------------------------------------------------------------------------------------------
+TOTAL                               | 52         | 40              | AST total covers all sets/literals/comprehensions/joins
+
+--------------------------------------------------------------------------------
+3. COMPLETE DISPOSITION TABLE FOR EVERY SINGLE AST SET / SET-LIKE OCCURRENCE
+--------------------------------------------------------------------------------
+Site                                | Kind               | Iterated?  | Reaches Output/Order?  | Disposition Notes
+-----------------------------------------------------------------------------------------------------------------------------
+app/api/v1/search.py:64             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/api/v1/search.py:65             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/api/v1/search.py:66             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/analyzer.py:25             | set() Call         | No         | No                     | Stopwords lookup set in analyzer.py. Order immaterial.
+app/core/analyzer.py:30             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:266              | Set Literal        | No         | No                     | Static constant set for O(1) membership lookup (`in`). Order has zero effect.
+app/core/engine.py:272              | Set Literal        | No         | No                     | Static constant set for O(1) membership lookup (`in`). Order has zero effect.
+app/core/engine.py:285              | Set Literal        | No         | No                     | Static constant set for O(1) membership lookup (`in`). Order has zero effect.
+app/core/engine.py:402              | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:409              | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:417              | set() Call         | Yes        | Yes (E1)               | Theme candidate set; stabilized via sorted(candidates) in Commit E1.
+app/core/engine.py:439              | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:482              | set() Call         | No         | No                     | Vocabulary lookup set for OOV checks in query analyzer.
+app/core/engine.py:668              | set() Call         | No         | No                     | Set membership accumulator for theme candidate labels.
+app/core/engine.py:694              | Set Literal        | No         | No                     | Static constant set for O(1) membership lookup (`in`). Order has zero effect.
+app/core/engine.py:703              | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:760              | set() Call         | No         | Yes (E2)               | Set accumulator for cross-lingual bridge tokens; consumed by sorted() in E2.
+app/core/engine.py:783              | set() Call         | No         | No                     | Membership check for translated query words (`if w in translated_words`).
+app/core/engine.py:798              | set() Call         | No         | No                     | Membership check for translated query words (`if w in translated_words`).
+app/core/engine.py:842              | set() Call         | No         | No                     | Union operand in raw_valid_tokens = set(sig_words) | theme_tokens.
+app/core/engine.py:874              | set() Call         | No         | No                     | Union operand in raw_valid_tokens = set(sig_words) | theme_tokens.
+app/core/engine.py:874              | set() Call         | No         | No                     | Union operand in raw_valid_tokens = set(sig_words) | theme_tokens.
+app/core/engine.py:965              | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:996              | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1016             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1122             | set() Call         | No         | Yes (E2)               | Set accumulator for cross-lingual bridge tokens; consumed by sorted() in E2.
+app/core/engine.py:1122             | set() Call         | No         | Yes (E2)               | Set accumulator for cross-lingual bridge tokens; consumed by sorted() in E2.
+app/core/engine.py:1123             | Set Comprehension  | No         | No                     | Static constant set for O(1) membership lookup (`in`). Order has zero effect.
+app/core/engine.py:1148             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1169             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1228             | set() Call         | Yes        | Yes (E3)               | Sentence word tokens; candidate words sorted before validation in Commit E3.
+app/core/engine.py:1288             | set() Call         | Yes        | Yes (E3)               | Sentence word tokens; candidate words sorted before validation in Commit E3.
+app/core/engine.py:1527             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1704             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:1810             | set() Call         | No         | No                     | Deduplication lookup set (`id not in seen`). Filter order governed by candidate list.
+app/core/engine.py:1945             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:1980             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2106             | Set Literal        | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2134             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2136             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2227             | Set Literal        | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2253             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2253             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2300             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/engine.py:2300             | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/robust_aligner.py:125      | Set Literal        | No         | No                     | Stopwords lookup set in analyzer.py. Order immaterial.
+app/core/robust_aligner.py:351      | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/sequence_aligner.py:171    | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/sequence_aligner.py:218    | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/core/sequence_aligner.py:253    | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/services/suggestions.py:109     | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.
+app/services/suggestions.py:128     | set() Call         | Lookup     | No                     | Set used for membership testing or uniqueness.

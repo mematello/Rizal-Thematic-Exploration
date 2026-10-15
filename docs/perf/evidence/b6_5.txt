@@ -1,0 +1,456 @@
+================================================================================
+ITEM 5: CUMULATIVE TRANSITIONS, DIFF ATTRIBUTIONS & ANOMALY EXPLANATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+TRANSITION: golden -> b1
+  File 1: docs/perf/golden_snapshot_seed0.json
+  File 2: docs/perf/b1_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 18 | Result changes: 16 | Metadata only: 2
+
+Per-Query / Per-Book Breakdown:
+
+  Query: 'Basilio' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (6): [38450, 38498, 38503, 38505, 38509, 38512] | Left (6): [38544, 38546, 38923, 38934, 38937, 38939] | Reordered: False
+
+  Query: 'Crisostomo Ibarra' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'Elias' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'Isagani' [RESULT CHANGE]
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'Maria Clara' [RESULT CHANGE]
+    [NOLI] Entered (3): [37333, 37337, 37344] | Left (3): [37377, 37673, 37877] | Reordered: False
+
+  Query: 'Padre Damaso' [RESULT CHANGE]
+    [NOLI] Entered (1): [37193] | Left (1): [37877] | Reordered: False
+
+  Query: 'Simoun' [RESULT CHANGE]
+    [ELFILI] Entered (1): [38410] | Left (1): [38523] | Reordered: False
+
+  Query: 'Sisa' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'bayan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (1): [38978] | Left (1): [39299] | Reordered: False
+
+  Query: 'church' [RESULT CHANGE]
+    [NOLI] Entered (5): [37185, 37193, 37330, 37457, 37459] | Left (5): [37517, 37636, 37638, 37639, 37794] | Reordered: False
+
+  Query: 'death' [RESULT CHANGE]
+    [NOLI] Entered (1): [37360] | Left (1): [37378] | Reordered: False
+    [ELFILI] Entered (4): [38633, 38745, 38748, 39016] | Left (4): [39079, 39151, 39213, 39295] | Reordered: False
+
+  Query: 'education' [RESULT CHANGE]
+    [NOLI] Entered (3): [37324, 37445, 37446] | Left (3): [37551, 37623, 37631] | Reordered: False
+    [ELFILI] Entered (4): [38500, 38631, 38632, 38640] | Left (4): [38643, 38660, 38661, 38662] | Reordered: False
+
+  Query: 'freedom' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (3): [38480, 38482, 38853] | Left (3): [39086, 39310, 39324] | Reordered: False
+
+  Query: 'kalayaan' [METADATA ONLY]
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'kamatayan' [METADATA ONLY]
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'love' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'paaralan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'simbahan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+
+--------------------------------------------------------------------------------
+TRANSITION: b1 -> d
+  File 1: docs/perf/b1_snapshot_seed0.json
+  File 2: docs/perf/d_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 40 | Result changes: 0 | Metadata only: 40
+
+Per-Query / Per-Book Breakdown:
+
+  Query: 'Basilio' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Crisostomo Ibarra' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Elias' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Isagani' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Maria Clara' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Padre Damaso' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Simoun' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Sisa' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'bayan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'bitcoin' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'cellphone' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'church' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'computer' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'corruption' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'covid' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'death' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'education' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'edukasyon' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'edukasyon para sa kalayaan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'facebook' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'freedom' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'internet' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'justice' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kalayaan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kalayaan ng Pilipinas' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kamatayan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kamatayan ni Elias' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kapangyarihan ng simbahan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'karahasan ng mga prayle' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'katarungan sa lipunan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'korapsyon' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'love' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'online' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+  Query: 'oppression' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'paaralan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'pag-ibig' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'pag-ibig ni Maria Clara' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'paghihirap ng bayan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'simbahan' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'tiktok' [METADATA ONLY]
+    [METADATA] Differing keys: ['bridge_tokens', 'engine_timings_bridge_tokens', 'engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256', 'translator_input']
+
+
+--------------------------------------------------------------------------------
+TRANSITION: d -> e1
+  File 1: docs/perf/d_snapshot_seed0.json
+  File 2: docs/perf/e1_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 12 | Result changes: 11 | Metadata only: 1
+
+Per-Query / Per-Book Breakdown:
+
+  Query: 'Crisostomo Ibarra' [RESULT CHANGE]
+    [NOLI] Candidate set and rank order identical, but 7 items had score deltas:
+      Rank 3 (ID 38255): score 82 -> 82
+      Rank 4 (ID 37217): score 81 -> 81
+      Rank 5 (ID 38272): score 81 -> 81
+    [ELFILI] Candidate set and rank order identical, but 2 items had score deltas:
+      Rank 1 (ID 39207): score 79 -> 79
+      Rank 2 (ID 39212): score 75 -> 75
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Padre Damaso' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Simoun' [RESULT CHANGE]
+    [ELFILI] Candidate set and rank order identical, but 7 items had score deltas:
+      Rank 4 (ID 39301): score 99 -> 99
+      Rank 5 (ID 39308): score 99 -> 99
+      Rank 6 (ID 39317): score 99 -> 99
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'Sisa' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'church' [RESULT CHANGE]
+    [NOLI] Candidate set and rank order identical, but 7 items had score deltas:
+      Rank 2 (ID 37185): score 83 -> 83
+      Rank 3 (ID 37193): score 83 -> 83
+      Rank 4 (ID 37290): score 83 -> 83
+    [ELFILI] Candidate set and rank order identical, but 5 items had score deltas:
+      Rank 1 (ID 38415): score 83 -> 83
+      Rank 4 (ID 38660): score 83 -> 83
+      Rank 5 (ID 38831): score 83 -> 83
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'education' [RESULT CHANGE]
+    [NOLI] Candidate set and rank order identical, but 10 items had score deltas:
+      Rank 1 (ID 37539): score 84 -> 84
+      Rank 2 (ID 37541): score 84 -> 84
+      Rank 3 (ID 37544): score 84 -> 84
+    [ELFILI] Entered (2): [38698, 38699] | Left (2): [38632, 38640] | Reordered: False
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'edukasyon' [RESULT CHANGE]
+    [NOLI] Entered (1): [37969] | Left (1): [38136] | Reordered: False
+    [ELFILI] Entered (1): [39106] | Left (1): [38987] | Reordered: False
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'engine_timings_semantic_candidate_ids', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'edukasyon para sa kalayaan' [METADATA ONLY]
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kalayaan' [RESULT CHANGE]
+    [NOLI] Entered (4): [37345, 37599, 38136, 37705] | Left (4): [37677, 37618, 38071, 38383] | Reordered: False
+    [ELFILI] Entered (2): [38447, 39319] | Left (2): [38809, 38884] | Reordered: False
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'engine_timings_semantic_candidate_ids', 'query_expansion_text', 'query_vector_sha256', 'reason']
+
+  Query: 'kalayaan ng Pilipinas' [RESULT CHANGE]
+    [ELFILI] Candidate set and rank order identical, but 1 items had score deltas:
+      Rank 1 (ID 38535): score 55 -> 55
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'kapangyarihan ng simbahan' [RESULT CHANGE]
+    [NOLI] Candidate set and rank order identical, but 1 items had score deltas:
+      Rank 1 (ID 37408): score 53 -> 53
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'query_expansion_text', 'query_vector_sha256']
+
+  Query: 'oppression' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (1): [38308] | Reordered: False
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_query_expansion_text', 'engine_timings_query_vector_sha256', 'engine_timings_semantic_candidate_ids', 'query_expansion_text', 'query_vector_sha256']
+
+
+--------------------------------------------------------------------------------
+TRANSITION: e1 -> e2
+  File 1: docs/perf/e1_snapshot_seed0.json
+  File 2: docs/perf/e2_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 0 | Result changes: 0 | Metadata only: 0
+
+Per-Query / Per-Book Breakdown:
+  [ZERO DIFFERENCES - 100% BIT-IDENTICAL]
+
+
+--------------------------------------------------------------------------------
+TRANSITION: e2 -> e3
+  File 1: docs/perf/e2_snapshot_seed0.json
+  File 2: docs/perf/e3_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 0 | Result changes: 0 | Metadata only: 0
+
+Per-Query / Per-Book Breakdown:
+  [ZERO DIFFERENCES - 100% BIT-IDENTICAL]
+
+
+--------------------------------------------------------------------------------
+TRANSITION: golden -> HEAD
+  File 1: docs/perf/golden_snapshot_seed0.json
+  File 2: docs/perf/e3_snapshot_seed0.json
+--------------------------------------------------------------------------------
+Total strict diffs: 22 | Result changes: 21 | Metadata only: 1
+
+Per-Query / Per-Book Breakdown:
+
+  Query: 'Basilio' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (6): [38450, 38498, 38503, 38505, 38509, 38512] | Left (6): [38544, 38546, 38923, 38934, 38937, 38939] | Reordered: False
+
+  Query: 'Crisostomo Ibarra' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Candidate set and rank order identical, but 2 items had score deltas:
+      Rank 1 (ID 39207): score 79 -> 79
+      Rank 2 (ID 39212): score 75 -> 75
+
+  Query: 'Elias' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'Isagani' [RESULT CHANGE]
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'Maria Clara' [RESULT CHANGE]
+    [NOLI] Entered (3): [37333, 37337, 37344] | Left (3): [37377, 37673, 37877] | Reordered: False
+
+  Query: 'Padre Damaso' [RESULT CHANGE]
+    [NOLI] Entered (1): [37193] | Left (1): [37877] | Reordered: False
+
+  Query: 'Simoun' [RESULT CHANGE]
+    [ELFILI] Entered (1): [38410] | Left (1): [38523] | Reordered: False
+
+  Query: 'Sisa' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'bayan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (1): [38978] | Left (1): [39299] | Reordered: False
+
+  Query: 'church' [RESULT CHANGE]
+    [NOLI] Entered (5): [37185, 37193, 37330, 37457, 37459] | Left (5): [37517, 37636, 37638, 37639, 37794] | Reordered: False
+    [ELFILI] Candidate set and rank order identical, but 5 items had score deltas:
+      Rank 1 (ID 38415): score 83 -> 83
+      Rank 4 (ID 38660): score 83 -> 83
+      Rank 5 (ID 38831): score 83 -> 83
+
+  Query: 'death' [RESULT CHANGE]
+    [NOLI] Entered (1): [37360] | Left (1): [37378] | Reordered: False
+    [ELFILI] Entered (4): [38633, 38745, 38748, 39016] | Left (4): [39079, 39151, 39213, 39295] | Reordered: False
+
+  Query: 'education' [RESULT CHANGE]
+    [NOLI] Entered (3): [37324, 37445, 37446] | Left (3): [37551, 37623, 37631] | Reordered: False
+    [ELFILI] Entered (4): [38698, 38699, 38500, 38631] | Left (4): [38643, 38660, 38661, 38662] | Reordered: False
+
+  Query: 'edukasyon' [RESULT CHANGE]
+    [NOLI] Entered (1): [37969] | Left (1): [38136] | Reordered: False
+    [ELFILI] Entered (1): [39106] | Left (1): [38987] | Reordered: False
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'freedom' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (3): [38480, 38482, 38853] | Left (3): [39086, 39310, 39324] | Reordered: False
+
+  Query: 'kalayaan' [RESULT CHANGE]
+    [NOLI] Entered (4): [37345, 37599, 38136, 37705] | Left (4): [37677, 37618, 38071, 38383] | Reordered: False
+    [ELFILI] Entered (2): [38447, 39319] | Left (2): [38809, 38884] | Reordered: False
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids', 'reason']
+
+  Query: 'kalayaan ng Pilipinas' [RESULT CHANGE]
+    [ELFILI] Candidate set and rank order identical, but 1 items had score deltas:
+      Rank 1 (ID 38535): score 55 -> 55
+
+  Query: 'kamatayan' [METADATA ONLY]
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'kapangyarihan ng simbahan' [RESULT CHANGE]
+    [NOLI] Candidate set and rank order identical, but 1 items had score deltas:
+      Rank 1 (ID 37408): score 53 -> 53
+
+  Query: 'love' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'oppression' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (1): [38308] | Reordered: False
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+    [METADATA] Differing keys: ['engine_timings_semantic_candidate_ids']
+
+  Query: 'paaralan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+    [ELFILI] Entered (0): [] | Left (0): [] | Reordered: True
+
+  Query: 'simbahan' [RESULT CHANGE]
+    [NOLI] Entered (0): [] | Left (0): [] | Reordered: True
+
+
+================================================================================
+RECONCILIATION AND EXPLANATIONS OF AUDIT QUESTIONS
+================================================================================
+
+1. EXPLANATION OF 101 vs 133 POSITION CHANGES:
+   - '101' is the genuine, verified output of `compare_golden.py b1_snapshot_seed0.json golden_snapshot_seed0.json`.
+     In that run, exactly 16 queries had candidate position changes, summing to exactly 101 position shifts.
+   - '133' appeared in earlier unverified drafts (e.g., DECISIONS_DRAFT.md) where an assistant miscalculated
+     position shifts by summing gross absolute rank displacements across books rather than counting candidates
+     whose positions changed. The authentic comparator output for Commit B1 is exactly 101.
+
+2. WHY 'simbahan' WAS ABSENT AND 'kamatayan' PRESENT IN THE EARLIER 'B1-only' LIST:
+   - 'simbahan' has a genuine ranking order change in Noli under B1:
+     In Noli, the top 10 candidate IDs are identical, but their relative rank order changed:
+       Golden: [37185, 37193, 37330, 37457, 37459, 37517, 37636, 37638, 37639, 37794]
+       B1:     [37185, 37193, 37330, 37457, 37459, 37517, 37636, 37638, 37794, 37639]
+     Because entered=[] and left=[] (pure reorder), a naive script filtering on `entered or left` omitted 'simbahan'.
+   - 'kamatayan' has ZERO ranking changes in Noli and ZERO ranking changes in El Fili under B1.
+     The candidate lists and rank positions are 100% identical between Golden and B1.
+     However, in `engine_timings.semantic_candidate_ids`, the unordered SQL query in golden had returned candidate IDs
+     in a slightly different order into the timing log. When a raw metadata diff was checked without filtering
+     diagnostics, 'kamatayan' was erroneously flagged as changed.
+   - Conclusion: 'simbahan' belongs in the B1 ranking change list (pure reorder); 'kamatayan' had 0 ranking changes.
+
+3. WHY E1 WAS REPORTED AS 12 QUERIES IN d->e1 BUT 6 ELSEWHERE:
+   In the transition from Commit D to Commit E1 (d_snapshot_seed0.json -> e1_snapshot_seed0.json):
+   - 4 queries have candidate ID set changes (entered/left candidates):
+       education, edukasyon, kalayaan, oppression
+   - 2 queries have pure candidate reordering (same candidate set, order shifted):
+       Padre Damaso, Sisa
+     -> Exactly 4 + 2 = 6 QUERIES with candidate ranking / position changes.
+   - 5 queries have score deltas on identical candidate orders due to theme expansion text changes:
+       Crisostomo Ibarra, Simoun, church, kalayaan ng Pilipinas, kapangyarihan ng simbahan
+     -> Exactly 6 + 5 = 11 QUERIES reported by `compare_golden.py` (which tracks position changes and score deltas).
+   - 1 query has ONLY an expansion text metadata change with 0 score or position deltas:
+       edukasyon para sa kalayaan
+     -> Exactly 11 + 1 = 12 QUERIES reported by `strict_comparator.py` (which includes metadata.query_expansion_text).
+   This completely reconciles the 6 vs 11 vs 12 query counts across comparator definitions.
+
+4. HOW 21 QUERIES IS OBTAINED IN golden -> HEAD:
+   In comparing golden_snapshot_seed0.json directly against HEAD (e3_snapshot_seed0.json):
+   - Commit B1 introduced ranking changes across 16 queries:
+       Basilio, Crisostomo Ibarra, Elias, Isagani, Maria Clara, Padre Damaso, Simoun, Sisa,
+       bayan, church, death, education, freedom, love, paaralan, simbahan
+   - Commit E1 introduced ranking changes across 5 additional queries that were unchanged in B1:
+       edukasyon, kalayaan, kalayaan ng Pilipinas, kapangyarihan ng simbahan, oppression
+   - The union of changed queries is exactly 16 + 5 = 21 QUERIES.
+   `compare_golden.py` reports exactly 21 queries with changes between golden and HEAD.
+   (Strict comparator reports 22 queries because it additionally catches the metadata timing key in 'kamatayan'.)

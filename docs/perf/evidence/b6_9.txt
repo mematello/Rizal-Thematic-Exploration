@@ -1,0 +1,142 @@
+================================================================================
+ITEM 9: MECHANICAL AST INVENTORY, IMPORT-GRAPH EDGES & DISPOSITIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. IMPORT-GRAPH METHOD AND DIRECTED IMPORT EDGES (ROOT: api/v1/search.py)
+--------------------------------------------------------------------------------
+Total reachable files discovered: 12
+  - app/api/v1/search.py
+  - app/core/analyzer.py
+  - app/core/config.py
+  - app/core/engine.py
+  - app/core/perf_instrumentation.py
+  - app/core/query_counter.py
+  - app/core/robust_aligner.py
+  - app/core/sequence_aligner.py
+  - app/core/tagalog_parser.py
+  - app/core/tagalog_stemmer.py
+  - app/models/database.py
+  - app/services/suggestions.py
+
+Directed Import Edges (16 edges):
+  app/api/v1/search.py           -> app/models/database.py           | from app.models.database import SessionLocal
+  app/api/v1/search.py           -> app/core/engine.py               | from app.core.engine import get_engine, RizalEngine
+  app/api/v1/search.py           -> app/core/query_counter.py        | from app.core.query_counter import reset_query_count, get_query_count
+  app/api/v1/search.py           -> app/core/engine.py               | from app.core.engine import _word_vec_cache
+  app/models/database.py         -> app/core/config.py               | from app.core.config import get_settings
+  app/core/engine.py             -> app/core/config.py               | from app.core.config import get_settings
+  app/core/engine.py             -> app/core/analyzer.py             | from app.core.analyzer import QueryAnalyzer, extract_words
+  app/core/engine.py             -> app/models/database.py           | from app.models.database import Sentence
+  app/core/engine.py             -> app/core/tagalog_parser.py       | from app.core.tagalog_parser import TagalogRoleParser
+  app/core/engine.py             -> app/services/suggestions.py      | from app.services.suggestions import DynamicSuggestionGenerator
+  app/core/engine.py             -> app/core/sequence_aligner.py     | from app.core.sequence_aligner import SequenceAligner
+  app/core/engine.py             -> app/core/robust_aligner.py       | from app.core.robust_aligner import RobustAligner
+  app/core/engine.py             -> app/core/perf_instrumentation.py | from app.core.perf_instrumentation import PerfTimer
+  app/core/engine.py             -> app/models/database.py           | from app.models.database import Theme
+  app/services/suggestions.py    -> app/core/analyzer.py             | from app.core.analyzer import extract_words
+  app/core/robust_aligner.py     -> app/core/tagalog_stemmer.py      | from tagalog_stemmer import TagalogStemmer
+
+--------------------------------------------------------------------------------
+2. RECONCILIATION: 12 REACHABLE FILES vs EARLIER LIST & search.py SET COUNT
+--------------------------------------------------------------------------------
+Reconciliation of Reachable Files:
+  1. In earlier draft reports, an assistant hypothesized files named:
+       `hybrid_search.py`, `lexical_search.py`, and `theme_indexer.py`.
+  2. Repository verification proves:
+     - `hybrid_search.py` and `lexical_search.py` DO NOT EXIST anywhere in the codebase.
+       All search mechanisms (lexical, semantic fallback, hybrid reranking, CWPR precision)
+       are implemented inside `backend/app/core/engine.py` (RizalEngine).
+     - `theme_indexer.py` is located at `backend/scripts/theme_indexer.py` as an offline build tool.
+       It is never imported or reachable from the FastAPI backend or search endpoint.
+     - The 12 genuine reachable files from `app/api/v1/search.py` are the authentic modular dependencies:
+       analyzer.py, config.py, engine.py, perf_instrumentation.py, query_counter.py,
+       robust_aligner.py, sequence_aligner.py, tagalog_parser.py, tagalog_stemmer.py,
+       database.py, suggestions.py, and search.py itself.
+
+Explanation of Why search.py Showed '0 Sets' in an Earlier AST Query:
+  1. In Python's `ast` module:
+     - `ast.Set` matches ONLY Set Literals (e.g. `{'a', 'b'}`).
+     - `ast.SetComp` matches ONLY Set Comprehensions (e.g. `{x for x in y}`).
+     - `seen_ids = set()` is an `ast.Call` where `func.id == 'set'`, NOT an `ast.Set`.
+  2. In `app/api/v1/search.py`, lines 64, 65, and 66 use `set()` constructor calls:
+       seen_noli_ids = set()
+       seen_elfili_ids = set()
+       seen_precise_ids = set()
+  3. An earlier AST script that searched strictly for `isinstance(node, ast.Set)` returned 0 for search.py,
+     whereas `grep -c 'set('` returned 3. When `ast.Call` is correctly matched, both AST and grep return exactly 3.
+
+--------------------------------------------------------------------------------
+3. PER-FILE SET COUNT: AST SET SITES vs grep -c 'set('
+--------------------------------------------------------------------------------
+File Path                           | AST set()  | AST Lit  | AST Comp  | grep set(  | Discrepancy Explanation
+--------------------------------------------------------------------------------------------------------------
+app/api/v1/search.py                |          3 |        0 |         0 |          3 | Exact match on set() calls
+app/core/analyzer.py                |          2 |        0 |         0 |          2 | Exact match on set() calls
+app/core/config.py                  |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/core/engine.py                  |         33 |        6 |         1 |         33 | Exact match on set() calls (+6 literals, +1 comp)
+app/core/perf_instrumentation.py    |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/core/query_counter.py           |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/core/robust_aligner.py          |          1 |        1 |         0 |          1 | Exact match on set() calls (+1 literals, +0 comp)
+app/core/sequence_aligner.py        |          3 |        0 |         0 |          3 | Exact match on set() calls
+app/core/tagalog_parser.py          |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/core/tagalog_stemmer.py         |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/models/database.py              |          0 |        0 |         0 |          0 | Exact match on set() calls
+app/services/suggestions.py         |          2 |        0 |         0 |          2 | Exact match on set() calls
+
+--------------------------------------------------------------------------------
+4. EXHAUSTIVE PER-ROW DISPOSITION TABLE FOR ALL SET SITES ACROSS REACHABLE FILES
+--------------------------------------------------------------------------------
+Total audited sites: 49
+
+File:Line                        | Kind               | Iterated?  | Reaches Output?  | Disposition / Evidence
+-----------------------------------------------------------------------------------------------------------------------------
+app/api/v1/search.py:64          | set() Call         | No         | No               | Deduplication lookup set (`id not in seen_ids`). Filter order governed by input candidate list.
+app/api/v1/search.py:65          | set() Call         | No         | No               | Deduplication lookup set (`id not in seen_ids`). Filter order governed by input candidate list.
+app/api/v1/search.py:66          | set() Call         | No         | No               | Deduplication lookup set (`id not in seen_ids`). Filter order governed by input candidate list.
+app/core/analyzer.py:25          | set() Call         | No         | No               | Set lookup (`word in self.stopwords` / `clean_word in stop_words`). Set membership only; order invariant.
+app/core/analyzer.py:30          | set() Call         | No         | No               | Set lookup (`word in self.stopwords` / `clean_word in stop_words`). Set membership only; order invariant.
+app/core/engine.py:266           | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:272           | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:285           | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:402           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:409           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:417           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:439           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:482           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:668           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:694           | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:703           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:760           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:783           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:798           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:842           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:874           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:965           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:996           | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1016          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1070          | .join(bridge_tokens) | Yes (sorted) | No (gate only)   | bridge_text construction. Commit E2 enforced `sorted(bridge_tokens)`. Gate local variable; discarded before ranking.
+app/core/engine.py:1122          | set() Call         | No         | No               | raw_valid_tokens union. Set construction; filtered into valid_tokens.
+app/core/engine.py:1123          | Set Comprehension  | No         | No               | valid_tokens comprehension. Set construction for lexical validation.
+app/core/engine.py:1148          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1169          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1228          | set() Call         | No         | No               | sent_words_set construction. Used exclusively for membership `sw in sent_words_set`; order invariant.
+app/core/engine.py:1288          | set() Call         | No         | No               | sent_words set construction for dynamic validation.
+app/core/engine.py:1527          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1704          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1810          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1945          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:1980          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:2106          | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:2134          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:2136          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:2227          | Set Literal        | No         | No               | Set membership lookup or non-ordered union. Order does not reach output.
+app/core/engine.py:2253          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/engine.py:2300          | set() Call         | No         | No               | ID/text deduplication lookup set. Membership test only; order invariant.
+app/core/robust_aligner.py:125   | Set Literal        | No         | No               | Prefix/suffix lookup sets. Membership testing only; order invariant.
+app/core/robust_aligner.py:351   | set() Call         | No         | No               | Prefix/suffix lookup sets. Membership testing only; order invariant.
+app/core/sequence_aligner.py:171 | set() Call         | No         | No               | Stopwords and character sets for string alignment. Set membership and length checking; order invariant.
+app/core/sequence_aligner.py:218 | set() Call         | No         | No               | Stopwords and character sets for string alignment. Set membership and length checking; order invariant.
+app/core/sequence_aligner.py:253 | set() Call         | No         | No               | Stopwords and character sets for string alignment. Set membership and length checking; order invariant.
+app/services/suggestions.py:109  | set() Call         | No         | No               | Deduplication lookup set (`title not in seen_titles`). Preserves input rank order.
+app/services/suggestions.py:128  | set() Call         | No         | No               | Deduplication lookup set (`title not in seen_titles`). Preserves input rank order.

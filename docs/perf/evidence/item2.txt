@@ -1,0 +1,436 @@
+================================================================================
+ITEM 2: EN_TL_DICTIONARY ENTRIES & GIT HISTORY RECONCILIATION
+================================================================================
+
+1. GREP ENTRIES WITH FILE:LINE FROM backend/app/core/engine.py:
+223-            # --- Social / Political ---
+224:            "oppression": ["pang-aapi", "kalupitan"],
+225:            "justice": ["katarungan", "hustisya"],
+226:            "corruption": ["korapsyon", "katiwalian"],
+227-            "power": ["kapangyarihan"],
+--
+234-            "religion": ["relihiyon", "pananampalataya"],
+235:            "church": ["simbahan"],
+236-            "faith": ["pananampalataya", "pananalig"],
+--
+240-            # --- Human Experience ---
+241:            "love": ["pag-ibig", "pagmamahal"],
+242-            "suffering": ["paghihirap", "dusa"],
+--
+249-            # --- Life / Existence ---
+250:            "death": ["kamatayan", "patay"],
+251-            "life": ["buhay"],
+
+2. GIT LOG -P -S"pang-aapi" SHOWING DICTIONARY EVOLUTION:
+commit 8edc6fbe0f23b9046eaf5ccf453971db7fefe57f
+Author: mematello <marcuskentoliver1205@gmail.com>
+Date:   Thu Apr 16 21:44:02 2026 +0800
+
+    Add cross-lingual query bridge with categorical token splitting
+
+diff --git a/backend/app/core/engine.py b/backend/app/core/engine.py
+index 6e99bfb..f8def18 100644
+--- a/backend/app/core/engine.py
++++ b/backend/app/core/engine.py
+@@ -93,6 +93,21 @@ class RizalEngine:
+         
+         print(f"Aligners ready (DAPT={self.has_dapt}).")
+ 
++        # Cross-lingual Fallback Dictionary (English to Tagalog)
++        # Backup layer for most common thesis domain queries.
++        self.EN_TL_DICTIONARY = {
++            "education": ["edukasyon", "pag-aaral", "paaralan", "karunungan"],
++            "justice": ["katarungan", "hustisya", "batas"],
++            "oppression": ["pang-aapi", "pang-aabuso", "kalupitan", "api"],
++            "revolution": ["rebolusyon", "himagsikan", "paghihimagsik", "pag-aalsa"],
++            "corruption": ["korapsyon", "katiwalian", "kasakiman"],
++            "religion": ["relihiyon", "simbahan", "pananampalataya", "prayle"],
++            "colonialism": ["kolonyalismo", "dayuhan", "kastila", "espanya"],
++            "violence": ["karahasan", "dahas", "gulo", "pagpatay"],
++            "greed": ["kasakiman", "katakawan", "hangad"],
++            "suffering": ["paghihirap", "dusa", "pagdurusa", "sakit"]
++        }
++
+         # Hardcoded blocklist for modern terms that might trigger semantic matches
+         self.MODERN_TERMS = {
+             'tiktok', 'bitcoin', 'crypto', 'facebook', 'instagram', 'twitter', 
+@@ -113,6 +128,18 @@ class RizalEngine:
+             "upang", "gayon", "ngunit", "datapwat", "subalit", "bagaman", "palibhasa", "sapagkat"
+         }
+ 
++        self.EN_STOPWORDS = {
++            "the", "a", "an", "and", "or", "but", "if", "because", "as", "what",
++            "which", "this", "that", "these", "those", "then", "just", "so", "than",
++            "such", "both", "through", "about", "for", "is", "of", "while", "during", 
++            "to", "from", "in", "out", "on", "off", "over", "under", "again", "further", 
++            "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", 
++            "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", 
++            "not", "only", "own", "same", "so", "than", "too", "very", "can", "will", 
++            "just", "don", "should", "now", "against", "between", "into", "through", "with",
++            "by"
++        }
++
+     
+     def _get_passage_context_with_embedding(self, db: Session, center: Sentence, window: int = 8):
+         range_start, range_end = center.sentence_index - window, center.sentence_index + window
+@@ -213,12 +240,12 @@ class RizalEngine:
+         top_tokens = final_tokens[:12]
+         
+         if not top_tokens:
+-            return "", set()
++            return "", []
+ 
+         # Construct expansion text
+         expansion_text = f"{best_title} {' '.join(top_tokens)}"
+         
+-        return expansion_text, set(top_tokens)
++        return expansion_text, top_tokens
+ 
+     def _load_vocabulary(self):
+         vocab = set()
+@@ -407,6 +434,25 @@ class RizalEngine:
+         stopword_ratio = self.query_analyzer.get_stopword_ratio(query)
+         sig_items = [item for item in query_analysis if not item['is_stopword']]
+         sig_words = [item['word'].lower() for item in sig_items]
++
++        # --- English Stopword Preprocessing ---
++        discarded_words = [w for w in sig_words if w in self.EN_STOPWORDS]
++        sig_words = [w for w in sig_words if w not in self.EN_STOPWORDS]
++
++        # --- Multilingual & Categorical Token Splitting ---
++        # Instead of generic OOV ratio, explicitly split words
++        native_tokens = [w for w in sig_words if w in self.vocabulary and w not in self.LOW_INFO_WORDS]
++        foreign_tokens = [w for w in sig_words if w not in self.vocabulary and len(w) > 2]
++        
++        is_cross_lingual = len(foreign_tokens) > 0
++        
++        bridge_tokens = set()
++        
++        # 1. Check small static dictionary for major thesis domains
++        if is_cross_lingual:
++            for w in foreign_tokens:
++                if w in self.EN_TL_DICTIONARY:
++                    bridge_tokens.update(self.EN_TL_DICTIONARY[w])
+         
+         # If there are 2 or more significant words, it's NOT a single-word query
+         is_single_word = len(sig_words) < 2
+@@ -429,6 +475,16 @@ class RizalEngine:
+             component_vecs.append(cv)
+ 
+         expanded_text, extracted_tokens = self._expand_query_with_themes(query_vec_initial)
++        theme_tokens = set(extracted_tokens) if extracted_tokens else set()
++        
++        if is_cross_lingual and extracted_tokens:
++            # 2. Add top 2-3 strongest Tagalog anchor tokens from XLM-R expansion
++            top_anchor_tokens = extracted_tokens[:3]
++            bridge_tokens.update(top_anchor_tokens)
++
++        if os.getenv("DEBUG_SEARCH"):
++            print(f"[DEBUG] is_cross_lingual: {is_cross_lingual} | Native: {native_tokens} | Foreign: {foreign_tokens} | Bridge Tokens: {bridge_tokens} | Discarded: {discarded_words}")
++
+         if expanded_text:
+             if os.getenv("DEBUG_SEARCH"):
+                 print(f"[DEBUG] Expanding query '{query}' with: {expanded_text[:50]}...")
+@@ -437,7 +493,6 @@ class RizalEngine:
+             # We combine query + expansion to form a "Concept Vector"
+             combined_text = f"{query} {expanded_text}"
+             query_embedding_base = self.base_model.encode(combined_text, show_progress_bar=False)
+-            theme_tokens = extracted_tokens
+         else:
+             query_embedding_base = query_vec_initial
+             
+@@ -464,10 +519,23 @@ class RizalEngine:
+         }
+ 
+         lex_word = sig_words[0] if sig_words else query_words[0]
++        
+         for key, book_name in books.items():
+             stmt = select(Sentence).filter(Sentence.book == book_name).filter(Sentence.source_type == source_type)
+             
+-            if not is_single_word and sig_words:
++            if is_cross_lingual:
++                # Mandate native entities/tokens
++                for nt in native_tokens:
++                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{nt}%"))
++                
++                # Expand foreign tokens via bridge tokens
++                if bridge_tokens:
++                    filters = [Sentence.sentence_text.ilike(f"%{bt}%") for bt in bridge_tokens if len(bt) > 3]
++                    if filters:
++                        stmt = stmt.filter(or_(*filters))
++                elif foreign_tokens:
++                    stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{lex_word}%"))
++            elif not is_single_word and sig_words:
+                 # Require all significant words to appear for a true lexical phrase match
+                 for w in sig_words:
+                     stmt = stmt.filter(Sentence.sentence_text.ilike(f"%{w}%"))
+@@ -607,6 +675,16 @@ class RizalEngine:
+             
+             # Lexical Score Calculation
+             lex_score = self._compute_lexical_score(query, sent.sentence_text, query_analysis, stopword_ratio)
++            sent_words_set = set(extract_words(sent.sentence_text.lower()))
++            sent_text_lower = sent.sentence_text.lower()
++            
++            # Cross-Lingual Lexical Grounding
++            if is_cross_lingual and bridge_tokens:
++                bt_matches = sum(1 for bt in bridge_tokens if len(bt) > 3 and (bt in sent_words_set or bt in sent_text_lower))
++                if bt_matches > 0:
++                    # Ensure any lexical score improvement only applies proportionally to valid bridge grounding
++                    bridge_ratio = min(1.0, bt_matches / max(len(foreign_tokens), 1))
++                    lex_score = max(lex_score, 0.85 * bridge_ratio)
+             
+             # STRICT FILTER: For single words in lexical mode, must have lexical match
+             if is_single_word and result_mode == "lexical" and lex_score < 0.1:
+@@ -718,8 +796,6 @@ class RizalEngine:
+                         print(f"  [DEBUG] Passed Validation: ID: {sent.id} | Trigger Token: {matched_token} | Boosted Sem: {sem_score:.3f}")
+ 
+             # Coverage & Noise Penalty
+-            sent_words_set = set(extract_words(sent.sentence_text.lower()))
+-            
+             # Multi-word Coverage: Ensure all significant words are represented
+             if not is_single_word and sig_words:
+                 coverage_count = 0
+@@ -728,16 +804,21 @@ class RizalEngine:
+                 
+                 # STRICT: track lexical and semantic separately
+                 lexical_matches = 0
+-                sent_text_lower = sent.sentence_text.lower()
+                 for i, sw in enumerate(sig_words):
+                     if sw in sent_words_set or sw in sent_text_lower:
+                         coverage_count += 1
+                         lexical_matches += 1
++                    elif is_cross_lingual and sw in foreign_tokens:
++                        # For foreign words, allow valid bridge tokens to legitimately stand in for lexical grounding
++                        if any(bt in sent_words_set or bt in sent_text_lower for bt in bridge_tokens if len(bt) > 3):
++                            coverage_count += 1
++                            lexical_matches += 1
+                     else:
+                         # Semantic representation check for missing lexical word
+                         word_sim = float(np.dot(norm_sig_vecs[i], v_sent))
+                         if word_sim >= threshold:
+                             coverage_count += 1
++                
+                 coverage_ratio = coverage_count / len(sig_words)
+                 is_strong_match = coverage_ratio >= 1.0
+                 
+@@ -762,6 +843,8 @@ class RizalEngine:
+             # Stopword dominance check
+             if result_mode == "semantic_fallback":
+                 match_sig = True  # We already did strict synonym validation
++            elif is_cross_lingual and bridge_tokens:
++                match_sig = any(bt in sent_words_set or bt in sent_text_lower for bt in bridge_tokens if len(bt) > 3)
+             else:
+                 match_sig = any(w in sent_words_set for w in sig_words)
+                 
+
+commit b33af3e7b210b93e7156ce0c128a2515899108df
+Author: Marcus Oliver <marcuskentoliver1205@gmail.com>
+Date:   Sat Mar 14 14:47:26 2026 +0800
+
+    fix: explicit theme keyword override for classification threshold
+    
+    - prevents suppression of explicit theme queries (e.g. edukasyon, kalayaan)
+    - maintains 0.55 suppression floor for non-explicit matches
+    - ensures theme label appears in expanded context view
+    - updates engine classification logic
+
+diff --git a/backend/app/core/engine.py b/backend/app/core/engine.py
+index 41178d5..dc240a1 100644
+--- a/backend/app/core/engine.py
++++ b/backend/app/core/engine.py
+@@ -67,6 +67,18 @@ class RizalEngine:
+             "upang", "gayon", "ngunit", "datapwat", "subalit", "bagaman", "palibhasa", "sapagkat"
+         }
+ 
++    
++    def _get_passage_context(self, db: Session, center: Sentence, window: int = 8) -> str:
++        range_start, range_end = center.sentence_index - window, center.sentence_index + window
++        candidates = db.scalars(select(Sentence).filter(
++            Sentence.book == center.book, 
++            Sentence.chapter_number == center.chapter_number, 
++            Sentence.source_type == center.source_type,
++            Sentence.sentence_index >= range_start, 
++            Sentence.sentence_index <= range_end
++        ).order_by(Sentence.sentence_index)).all()
++        return " ".join([s.sentence_text for s in candidates])
++
+     def _expand_query_with_themes(self, query_vec):
+         """
+         Finds the most relevant Themes for a query vector and returns 
+@@ -554,7 +566,7 @@ class RizalEngine:
+                     'final': round(final_score * 100)
+                 }
+             }
+-            result_item['themes'] = self._classify_themes(db, sent.embedding, sent.sentence_text)
++            result_item['themes'] = self._classify_themes(db, sent, query)
+             
+             if 'noli' in sent.book.lower():
+                 results['noli'].append(result_item)
+@@ -764,30 +776,122 @@ class RizalEngine:
+         words = extract_words(query.lower())
+         return len(words) > 0
+         
+-    def _classify_themes(self, db: Session, sentence_embedding, sentence_text):
++    
++    def _generate_hybrid_theme_pool(self, query: str, target_pool_size: int = 5) -> list[int]:
++        pool_indices = set()
++        q_lower = query.lower()
++        
++        lexical_aliases = {
++            "kalayaan": ["Kalayaan at Pagmamahal sa Bayan"],
++            "bayan": ["Kalayaan at Pagmamahal sa Bayan"],
++            "edukasyon": ["Edukasyon", "Edukasyon at Kalayaan"],
++            "paaralan": ["Edukasyon"],
++            "simbahan": ["Katiwalian", "Kolonyal na Kaisipan at Paghahangad Umasenso", "Kapangyarihan at Kawalang-Katarungan"],
++            "prayle": ["Katiwalian", "Ipokrasya at Pang-aaping Kolonyal"],
++            "pang-aapi": ["Kawalang-Katarungan at Katarungan", "Kapangyarihan at Kawalang-Katarungan", "Pang-aapi sa Kababaihan"],
++            "kababaihan": ["Pang-aapi sa Kababaihan"],
++            "pag-ibig": ["Pag-ibig, Kadalisayan, at Katapatan"]
++        }
++        
++        q_emb_raw = self.base_model.encode(query, show_progress_bar=False)
++        if isinstance(q_emb_raw, list): q_emb_raw = np.array(q_emb_raw)
++        
++        q_norm = np.linalg.norm(q_emb_raw)
++        query_vec = q_emb_raw / q_norm if q_norm > 0 else q_emb_raw
++        
++        q_sims = np.dot(self.theme_matrix, query_vec)
++        ranked_indices = np.argsort(q_sims)[::-1]
++        
++        for i, theme in enumerate(self.theme_cache):
++            title_tag = theme['tagalog_title']
++            title_lower = title_tag.lower()
++            if q_lower in lexical_aliases:
++                if title_tag in lexical_aliases[q_lower]:
++                    pool_indices.add(i)
++            elif title_lower == q_lower or q_lower in title_lower.split():
++                 pool_indices.add(i)
++                    
++        for idx in ranked_indices:
++            if len(pool_indices) >= target_pool_size:
++                break
++            pool_indices.add(idx)
++            
++        return list(pool_indices) if len(pool_indices) > 0 else list(range(len(self.theme_cache)))
++
++    def _classify_themes(self, db: Session, center_sent: Sentence, query: str = ""):
+         self._ensure_themes_loaded(db)
+-        if self.theme_matrix is None or sentence_embedding is None:
++        if self.theme_matrix is None or center_sent.embedding is None:
+             return []
+             
+-        sent_vec = np.array(sentence_embedding)
++        q_type = self._determine_query_type(query) if query else "Abstract Phrase"
++        pool_indices = self._generate_hybrid_theme_pool(query, target_pool_size=5) if query else list(range(len(self.theme_cache)))
++            
++        import json
++        emb_data = center_sent.embedding
++        if isinstance(emb_data, str):
++            try:
++                emb_data = json.loads(emb_data)
++            except:
++                return []
++        sent_vec = np.array(emb_data, dtype=float)
++        if len(sent_vec.shape) > 1:
++            sent_vec = sent_vec.flatten()
+         sent_norm = np.linalg.norm(sent_vec)
+-        if sent_norm > 0: 
+-            sent_vec = sent_vec / sent_norm
+-        else:
+-            return []
++        if sent_norm > 0: sent_vec = sent_vec / sent_norm
++        else: return []
+ 
+-        # Vectorized dot product for all themes
+-        sem_sims = np.dot(self.theme_matrix, sent_vec)
++        passage_text = self._get_passage_context(db, center_sent, window=8)
++        p_emb_raw = self.base_model.encode(passage_text, show_progress_bar=False)
++        if isinstance(p_emb_raw, list): p_emb_raw = np.array(p_emb_raw)
++        p_norm = np.linalg.norm(p_emb_raw)
++        passage_emb = p_emb_raw / p_norm if p_norm > 0 else p_emb_raw
+         
+-        candidates = []
+-        for i, theme in enumerate(self.theme_cache):
+-            sem_sim = max(0.0, min(1.0, float(sem_sims[i])))
+-            lex_score = self._compute_simple_lexical(sentence_text, theme['meaning'])
+-            theme_score = (0.5 * sem_sim) + (0.5 * lex_score)
+-            candidates.append({'id': str(theme['id']), 'label': theme['tagalog_title'], 'score': theme_score})
++        sent_sims = np.dot(self.theme_matrix, sent_vec)
++        pass_sims = np.dot(self.theme_matrix, passage_emb)
+         
++        candidates = []
++        for tidx in pool_indices:
++            theme = self.theme_cache[tidx]
++            meaning = theme.get('meaning', '')
++            
++            s_score = max(0.0, float(sent_sims[tidx]))
++            p_score = max(0.0, float(pass_sims[tidx]))
++            lex_score = self._compute_simple_lexical(passage_text, meaning)
++            sent_lex = self._compute_simple_lexical(center_sent.sentence_text, meaning)
++            
++            final_s_score = (0.5 * s_score) + (0.5 * sent_lex)
++            final_p_score = (0.5 * p_score) + (0.5 * lex_score)
++            
++            score = 0
++            if q_type == "Character": score = final_p_score
++            elif q_type == "Theme Keyword": score = (0.7 * final_s_score) + (0.3 * final_p_score)
++            else: score = (0.4 * final_s_score) + (0.6 * final_p_score)
++                
++            candidates.append({'id': str(theme['id']), 'label': theme['tagalog_title'], 'score': score})
++            
+         candidates.sort(key=lambda x: x['score'], reverse=True)
+-        return candidates[:1]
++        
++        # UI DISPLAY THRESHOLD (Phase 36 Approval)
++        if candidates:
++            best_theme = candidates[0]
++            
++            # Explicit Override Rule: If query explicitly contains the theme keyword,
++            # bypass the threshold suppression to avoid confusing UX.
++            literal_override = False
++            if query and q_type == "Theme Keyword":
++                query_words = set([w.lower().strip() for w in query.split()])
++                # Split theme label into words. e.g "Edukasyon at Pag-aaral" -> "Edukasyon", "Pag", "aaral"
++                theme_words = set([w.lower().strip(' ,.!?"\'') for w in best_theme['label'].split()])
++                
++                # Check for direct word overlap
++                if len(query_words.intersection(theme_words)) > 0:
++                    literal_override = True
++
++            # Standard threshold is 0.55 unless explicitly matched directly by string
++            if best_theme['score'] >= 0.55 or literal_override:
++                return [best_theme]
++            
++        return []
+ 
+     def batch_classify_themes(self, db: Session, sentences):
+         """
+@@ -805,6 +909,8 @@ class RizalEngine:
+         for s in sentences:
+             if s.embedding is not None:
+                 sent_vec = np.array(s.embedding)
++                if len(sent_vec.shape) > 1:
++                    sent_vec = sent_vec.flatten()
+                 norm = np.linalg.norm(sent_vec)
+                 if norm > 0:
+                     sent_embeddings.append(sent_vec / norm)
+@@ -851,6 +957,16 @@ class RizalEngine:
+             
+         return results
+ 
++    
++    def _determine_query_type(self, query: str) -> str:
++        chars = ["elias", "maria clara", "ibarra", "simoun", "crisostomo", "padre", "sisa", "basilio", "crispin"]
++        if query.lower() in chars or any(c in query.lower() for c in chars):
++            return "Character"
++        exact_themes = ["edukasyon", "kalayaan", "simbahan", "bayan", "prayle", "paaralan", "pag-ibig"]
++        if query.lower() in exact_themes:
++            return "Theme Keyword"
++        return "Abstract Phrase"
++
+     def _compute_simple_lexical(self, text1, text2):
+         w1, w2 = set(extract_words(text1.lower())), set(extract_words(text2.lower()))
+         return len(w1 & w2) / len(w2) if w2 else 0.0
+
+3. RECONCILIATION WITH GOLDEN BRIDGE TOKENS:
+/usr/bin/bash: line 13: ./.venv/Scripts/python.exe: No such file or directory

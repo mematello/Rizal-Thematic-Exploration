@@ -1,0 +1,140 @@
+================================================================================
+ITEM 4: BAYAN EL FILI ROW TRACE, RECONCILIATION & RECOMPUTED TIE TABLE
+================================================================================
+
+--------------------------------------------------------------------------------
+1. 34 SQL ROWS FOR 'bayan' EL FILI: TEXT, MATCH, AND PIPELINE DISPOSITION
+--------------------------------------------------------------------------------
+Total SQL rows returned by ILIKE '%bayan%': 34
+Idx  | ID     | Contains Bayan | Pipeline Disposition             | Text (first 60 chars)
+------------------------------------------------------------------------------------------------------------------------
+1    | 38474  | True           | TRUNCATED (Rank 12, final=91)    | Gabi na noon at kasabay ng pag-uwi ni Basilio sa bayan ng Sa
+2    | 38480  | True           | TRUNCATED (Rank 13, final=91)    | Pinaniniwalaan kasi na hari ng mga Pilipino si Bernardo Carp
+3    | 38533  | True           | TRUNCATED (Rank 14, final=91)    | Siya raw ay bumalik upang gisingin ang damdamin ng bayan sa 
+4    | 38535  | True           | DROPPED (line 1469, final < 0.05) | Ayon kay Simoun, magbibigay lamang daw ito ng daan sa Pilipi
+5    | 38538  | True           | DROPPED (line 1469, final < 0.05) | Kailan man ay di raw magiging wikang pangkalahatan sa bayang
+6    | 38543  | True           | DROPPED (line 1469, final < 0.05) | Dapat din ay huwag hayaang magpalagay ang Kastila na sila an
+7    | 38549  | True           | TRUNCATED (Rank 17, final=90)    | Sa kasalukuyang kalagayan daw ng lipunan ay hindi makapangga
+8    | 38550  | True           | KEPT (Rank 8, final=92)          | Ngunit para kay Basilio, kaya nga daw niya pinili ang siyens
+9    | 38574  | True           | KEPT (Rank 3, final=95)          | Naging usap-usapan sa bayan ang mga nangyari kay Tandang Sel
+10   | 38586  | True           | TRUNCATED (Rank 15, final=91)    | Nakipanuluyan si Simoun sa bahay ni Kabesang Tales na nasa p
+11   | 38617  | True           | KEPT (Rank 9, final=92)          | Tinugon ito ni Simoun na para daw luminis ang bayan at maali
+12   | 38625  | True           | TRUNCATED (Rank 22, final=89)    | Ang kasamaan ay wala sa mga tulisan sa bundok, nasa mga tuli
+13   | 38642  | True           | DROPPED (line 1469, final < 0.05) | Palaisipan sa mga kababayan ni Placido sa Tanawan, Batangas 
+14   | 38743  | True           | KEPT (Rank 6, final=93)          | Siya daw ay umuwi sa kanyang bayan pagkatapos ng pag-aaral a
+15   | 38814  | True           | KEPT (Rank 7, final=93)          | Naaawa man sa bayan ngunit wala namang pakiaalam si Camarron
+16   | 38815  | True           | DROPPED (line 1469, final < 0.05) | Samantala, sa labas ng dulaan ay makikita si Tadeo na nilolo
+17   | 38822  | True           | DROPPED (line 1469, final < 0.05) | Dahil dito’y inanyayahan nila sa Tadeo sa loob, agad siyang 
+18   | 38884  | True           | DROPPED (line 1469, final < 0.05) | Para sa kanya, ang bayang iyon ang tangi niyang kaligayahan 
+19   | 38885  | True           | DROPPED (line 1469, final < 0.05) | Ngunit nabatid niyang parang naging may kulang sa kanya ang 
+20   | 38892  | True           | DROPPED (line 1469, final < 0.05) | Ang bayang nasa isip niya ay ‘di lamang Pilipinas kundi pati
+21   | 38913  | True           | KEPT (Rank 4, final=95)          | Ang pansit gisado naman ay inukol sa pamahalaan at sa bayan.
+22   | 38978  | True           | KEPT (Rank 10, final=92)         | Ang bayan daw na inaalipin ay natutong magkunwari; ang pagha
+23   | 38979  | True           | DROPPED (line 1469, final < 0.05) | Ipagpalagay daw nila, kahit di totoo, na ang mga estudyante 
+24   | 39016  | True           | KEPT (Rank 5, final=95)          | Anang isa, pagpapatayin ang mayayaman at linisin ang bayan.
+25   | 39084  | True           | KEPT (Rank 1, final=97)          | Dinamdam ito ng buong bayan lalo na si Juli.
+26   | 39108  | True           | KEPT (Rank 2, final=96)          | Ayon sa Kawani ay dapat matakot ang Heneral sa bayan.
+27   | 39109  | True           | TRUNCATED (Rank 18, final=90)    | Natawa lamang ang Heneral dahil wala umano siyang pakialam s
+28   | 39110  | True           | TRUNCATED (Rank 19, final=90)    | Kapag itinanggi umano sa isang bayan ang liwanag, tahanan, k
+29   | 39226  | True           | DROPPED (line 1469, final < 0.05) | Ayon sa kanyang pagkakasalaysay, ang Heneral ay naging bayan
+30   | 39233  | True           | DROPPED (line 1469, final < 0.05) | Gagawin daw niyang bayani ang isang kura na sa pagtatangol a
+31   | 39299  | True           | TRUNCATED (Rank 11, final=92)    | Isang telegrama ang pinabasa ng tenyente ng guwardiya sibil 
+32   | 39302  | True           | TRUNCATED (Rank 16, final=91)    | Sugatang dumating sa bayan nina Padre Florentino si Simoun m
+33   | 39338  | True           | TRUNCATED (Rank 20, final=90)    | Inaming siya’y nagkamali at naitanong na dahil ba sa pagkaka
+34   | 39351  | True           | TRUNCATED (Rank 21, final=90)    | Napabulong na lamang ang pari ng, “Nasaan ang kabataang nagl
+------------------------------------------------------------------------------------------------------------------------
+Summary of 34 SQL rows:
+  - Dropped at line 1469 (final_score < min_threshold=0.05): 12 rows
+    (Reason: compound forms 'bayang', 'kababayan', 'katibayan', 'bayani'; lex_score ~0.032, final ~0.034)
+  - Entered finalize() pool:                                22 rows (all contain exact word 'bayan')
+    - Kept in top-10 results:                               10 rows (ranks 1 to 10)
+    - Truncated after top-10 cutoff:                        12 rows (ranks 11 to 22)
+
+--------------------------------------------------------------------------------
+2. RECONCILIATION WITH 24-ID LIST & ERRONEOUS IDs (38527, 38600, 38622, 38656, 38809)
+--------------------------------------------------------------------------------
+Examination of the 5 suspicious IDs cited in previous reports:
+  ID 38527: contains 'bayan' case-insensitively = False | Text: 'Tumugon si Basilio at sinabi na nakikilala siya nito.'
+  ID 38600: contains 'bayan' case-insensitively = False | Text: 'Nawawala rin ang rebolber ni Simoun at ang naroroon lamang a'
+  ID 38622: contains 'bayan' case-insensitively = False | Text: 'Katwiran naman ni Simoun ay marangal daw ang mga tulisan.'
+  ID 38656: contains 'bayan' case-insensitively = False | Text: 'Sa unibersidad ay naroon si Isagani na nakikipagtalo tungkol'
+  ID 38809: contains 'bayan' case-insensitively = False | Text: 'Pagkaraan ay masiglang lumapit ang kagawad sa isang karwahe '
+
+Finding and Retraction:
+  1. The 5 IDs (38527, 38600, 38622, 38656, 38809) DO NOT contain 'bayan' in their text.
+     They were NEVER returned by the SQL query (Sentence.sentence_text.ilike('%bayan%')).
+     Their inclusion in the previous report's '24-ID list' was an error caused by querying sentences
+     without the '%bayan%' filter or citing IDs from another query pool.
+  2. The actual pool entering finalize() contains 22 candidates, NOT 34.
+     The number of candidates truncated in finalize() is 12, NOT 24.
+  3. 4-Way Tie Mechanism at Score 92:
+     There are 4 candidates in the El Fili pool with final score = 92 (and precision = 0):
+       - ID 38550: final=92, sem=33, lex=95, text='Ngunit para kay Basilio, kaya nga daw niya pinili ang s'
+       - ID 38617: final=92, sem=31, lex=95, text='Tinugon ito ni Simoun na para daw luminis ang bayan at '
+       - ID 38978: final=92, sem=30, lex=95, text='Ang bayan daw na inaalipin ay natutong magkunwari; ang '
+       - ID 39299: final=92, sem=30, lex=96, text='Isang telegrama ang pinabasa ng tenyente ng guwardiya s'
+     In Golden Seed 0 (unordered SQL): arbitrary PostgreSQL disk return order placed 39299 at rank 9,
+     38617 at rank 10, and 38978 at rank 11 (truncated).
+     In B1 / HEAD (ORDER BY Sentence.id): SQL returns rows ordered by Sentence.id ascending.
+     Because Python sort is stable (Timsort), candidates tied at final score 92 maintain their ID order:
+       Rank 8:  ID 38550 (final=92)
+       Rank 9:  ID 38617 (final=92)
+       Rank 10: ID 38978 (final=92)
+       Rank 11: ID 39299 (final=92) -> Truncated (> top 10)
+     This fully explains why ID 38978 entered the top-10 and ID 39299 left.
+
+--------------------------------------------------------------------------------
+3. RECOMPUTED B1.5 TIE TABLE FOR ALL 16 CHANGED QUERIES (ACTUAL finalize() POOL)
+--------------------------------------------------------------------------------
+Query              | Book   | Pool Size | Distinct Keys | Cutoff Key | Ties in Pool | Slots in Top10 | Ent/Left
+---------------------------------------------------------------------------------------------------------------
+Basilio            | noli   |        38 |             8 |       98.0 |           11 |              9 |      0/0
+Basilio            | elfili |       115 |             9 |       98.0 |           27 |             10 |      6/6
+Crisostomo Ibarra  | noli   |        14 |             6 |      118.0 |            4 |              2 |      0/0
+Crisostomo Ibarra  | elfili |         2 |             2 | None (<10) |            0 |              0 |      0/0
+Elias              | noli   |        76 |            10 |       98.0 |           10 |              9 |      0/0
+Elias              | elfili |         0 |             0 | None (<10) |            0 |              0 |      0/0
+Isagani            | noli   |         0 |             0 | None (<10) |            0 |              0 |      0/0
+Isagani            | elfili |        60 |             9 |       97.0 |           18 |              2 |      0/0
+Maria Clara        | noli   |       107 |            12 |      123.0 |            9 |              3 |      3/3
+Maria Clara        | elfili |         9 |             5 | None (<10) |            0 |              0 |      0/0
+Padre Damaso       | noli   |        58 |            12 |      122.0 |            7 |              4 |      1/1
+Padre Damaso       | elfili |         0 |             0 | None (<10) |            0 |              0 |      0/0
+Simoun             | noli   |         0 |             0 | None (<10) |            0 |              0 |      0/0
+Simoun             | elfili |       156 |            10 |       98.0 |           25 |              2 |      1/1
+Sisa               | noli   |        53 |             9 |       95.0 |            1 |              1 |      0/0
+Sisa               | elfili |         0 |             0 | None (<10) |            0 |              0 |      0/0
+bayan              | noli   |        22 |             7 |       93.0 |            5 |              4 |      0/0
+bayan              | elfili |        22 |             8 |       92.0 |            4 |              3 |      1/1
+church             | noli   |        28 |             3 |       83.0 |           23 |              9 |      5/5
+church             | elfili |         8 |             1 | None (<10) |            0 |              0 |      0/0
+death              | noli   |        23 |             2 |       81.0 |           15 |              2 |      1/1
+death              | elfili |        25 |             2 |       82.0 |           16 |             10 |      4/4
+education          | noli   |        22 |             3 |       82.0 |           15 |              3 |      3/3
+education          | elfili |        24 |             2 |       82.0 |           21 |              7 |      4/4
+freedom            | noli   |         6 |             2 | None (<10) |            0 |              0 |      0/0
+freedom            | elfili |        19 |             2 |       81.0 |           14 |              5 |      3/3
+love               | noli   |         3 |             1 | None (<10) |            0 |              0 |      0/0
+love               | elfili |         1 |             1 | None (<10) |            0 |              0 |      0/0
+paaralan           | noli   |        11 |             6 |       93.0 |            1 |              1 |      0/0
+paaralan           | elfili |        11 |             5 |       93.0 |            2 |              2 |      0/0
+simbahan           | noli   |        27 |             7 |       97.0 |            5 |              2 |      0/0
+simbahan           | elfili |         8 |             6 | None (<10) |            0 |              0 |      0/0
+
+--------------------------------------------------------------------------------
+4. EXPLANATION OF BUG IN PREVIOUS B1/B1.5 REPORT (Total evaluated < entered + left)
+--------------------------------------------------------------------------------
+In scripts/analyze_b1_mechanisms.py line 118-122, the tie count was calculated as:
+  all_res_book = res.get('results', {}).get(book, [])
+  total_tied_pool = sum(1 for x in all_res_book if x['scores']['final'] == score_10th)
+Bug Explanation:
+  res['results'][book] is ALREADY sliced to top_k=10 by finalize() (return unique[:top_k]).
+  Inspecting res['results'][book] only counts ties among the 10 returned candidates,
+  completely missing the candidates in the pool that were truncated beyond rank 10.
+Consequence:
+  - church Noli:    Reported ties = 9.  Actual ties in pool = 23 (pool size 28).
+  - Basilio El Fili: Reported ties = 10. Actual ties in pool = 27 (pool size 115).
+  - death El Fili:   Reported ties = 10. Actual ties in pool = 16 (pool size 25).
+  - education El Fili: Reported ties = 7. Actual ties in pool = 21 (pool size 24).
+All earlier figures reporting 'Total evaluated candidates' were capped at 10 due to this slice bug.
+The recomputed table in Section 3 provides the true pool statistics directly from finalize().

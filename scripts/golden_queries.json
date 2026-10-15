@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "created": "2026-10-12",
+  "total_queries": 40,
+  "categories": {
+    "single_word_tagalog": {
+      "description": "Single-word Tagalog baseline queries",
+      "queries": [
+        "kalayaan",
+        "edukasyon",
+        "simbahan",
+        "korapsyon",
+        "pag-ibig",
+        "kamatayan",
+        "bayan",
+        "paaralan"
+      ]
+    },
+    "multi_word_tagalog": {
+      "description": "Multi-word Tagalog phrase matching",
+      "queries": [
+        "pag-ibig ni Maria Clara",
+        "karahasan ng mga prayle",
+        "paghihirap ng bayan",
+        "edukasyon para sa kalayaan",
+        "kamatayan ni Elias",
+        "kapangyarihan ng simbahan",
+        "kalayaan ng Pilipinas",
+        "katarungan sa lipunan"
+      ]
+    },
+    "english_cross_lingual": {
+      "description": "English queries requiring translation",
+      "queries": [
+        "corruption",
+        "education",
+        "freedom",
+        "oppression",
+        "love",
+        "death",
+        "justice",
+        "church"
+      ]
+    },
+    "character_names": {
+      "description": "Character entity matching",
+      "queries": [
+        "Crisostomo Ibarra",
+        "Maria Clara",
+        "Simoun",
+        "Elias",
+        "Padre Damaso",
+        "Basilio",
+        "Sisa",
+        "Isagani"
+      ]
+    },
+    "out_of_domain": {
+      "description": "Out-of-domain queries (should reject quickly)",
+      "queries": [
+        "tiktok",
+        "bitcoin",
+        "covid",
+        "facebook",
+        "internet",
+        "computer",
+        "cellphone",
+        "online"
+      ]
+    }
+  }
+}

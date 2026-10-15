@@ -1,0 +1,76 @@
+================================================================================
+ITEM 7: DETERMINISTIC TRANSLATOR STUB & CROSS-PROCESS RE-RUNS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. REAL NETWORK STATE DURING proc1..proc6 EXECUTION
+--------------------------------------------------------------------------------
+Investigation of Translator Behavior during proc1..proc6:
+  - In proc1..proc6, 10 queries triggered calls to `_translator_cache.translate()`:
+    ['korapsyon', 'karahasan ng mga prayle', 'tiktok', 'bitcoin', 'covid',
+     'facebook', 'internet', 'computer', 'cellphone', 'online']
+  - When live GoogleTranslator(source='auto', target='tl').translate() was called,
+    the unauthenticated public endpoint returned:
+      `deep_translator.exceptions.TooManyRequests: Server Error: You made too many requests to the server.`
+  - TranslatorCache.translate() caught this exception inside its ThreadPoolExecutor,
+    executed `self.set_failure(text)`, and returned `(None, True)`.
+  - Consequently, in all six processes (proc1..proc6), every unmapped query returned `output=None`.
+  - Because the negative cache behavior was identical across all processes, zero divergence
+    occurred due to network flakiness. However, live Google was blocked by bot-rate-limiting.
+
+--------------------------------------------------------------------------------
+2. DETERMINISTIC TRANSLATOR STUB IMPLEMENTATION (TEST-ONLY, FIXED DICTIONARY)
+--------------------------------------------------------------------------------
+To eliminate any external HTTP dependency and ensure 100% reproducible translation strings,
+a deterministic stub dictionary covers all 18 unmapped queries in the golden and held-out suites:
+  'bitcoin' -> 'bitcoin'
+  'cellphone' -> 'telepono'
+  'computer' -> 'kompyuter'
+  'covid' -> 'covid'
+  'facebook' -> 'facebook'
+  'internet' -> 'internet'
+  'online' -> 'online'
+  'tiktok' -> 'tiktok'
+  'korapsyon' -> 'katiwalian'
+  'laban sa korapsyon' -> 'laban sa katiwalian'
+  'karahasan ng mga prayle' -> 'karahasan ng mga prayle'
+  'dusa ng bilanggo' -> 'dusa ng bilanggo'
+  'hapis at hilahil' -> 'hapis at hilahil'
+  'lupit ng prayle' -> 'lupit ng prayle'
+  'panata sa simbahan' -> 'panata sa simbahan'
+  'tinig ng kunsensya' -> 'tinig ng budhi'
+  'noli me tangere. el filibusterismo.' -> 'noli me tangere. el filibusterismo.'
+  'sakit ng lipunan. kanser ng bayan.' -> 'sakit ng lipunan. kanser ng bayan.'
+
+--------------------------------------------------------------------------------
+3. RERUN: SIX-PROCESS 40-QUERY MATRIX WITH DETERMINISTIC TRANSLATOR STUB
+--------------------------------------------------------------------------------
+Process Pair                                  | Total  | Diffs  | Status
+------------------------------------------------------------------------
+proc1_stub (unset, fwd) vs proc2_stub (unset, rev) |   40   |   0    | 100% BIT-IDENTICAL
+proc1_stub (unset, fwd) vs proc3_stub (seed 1) |   40   |   0    | 100% BIT-IDENTICAL
+proc1_stub (unset, fwd) vs proc4_stub (seed 2) |   40   |   0    | 100% BIT-IDENTICAL
+proc1_stub (unset, fwd) vs proc5_stub (seed 12345) |   40   |   0    | 100% BIT-IDENTICAL
+proc1_stub (unset, fwd) vs proc6_stub (seed 0) |   40   |   0    | 100% BIT-IDENTICAL
+proc2_stub (unset, rev) vs proc3_stub (seed 1) |   40   |   0    | 100% BIT-IDENTICAL
+proc2_stub (unset, rev) vs proc4_stub (seed 2) |   40   |   0    | 100% BIT-IDENTICAL
+proc2_stub (unset, rev) vs proc5_stub (seed 12345) |   40   |   0    | 100% BIT-IDENTICAL
+proc2_stub (unset, rev) vs proc6_stub (seed 0) |   40   |   0    | 100% BIT-IDENTICAL
+proc3_stub (seed 1) vs proc4_stub (seed 2)    |   40   |   0    | 100% BIT-IDENTICAL
+proc3_stub (seed 1) vs proc5_stub (seed 12345) |   40   |   0    | 100% BIT-IDENTICAL
+proc3_stub (seed 1) vs proc6_stub (seed 0)    |   40   |   0    | 100% BIT-IDENTICAL
+proc4_stub (seed 2) vs proc5_stub (seed 12345) |   40   |   0    | 100% BIT-IDENTICAL
+proc4_stub (seed 2) vs proc6_stub (seed 0)    |   40   |   0    | 100% BIT-IDENTICAL
+proc5_stub (seed 12345) vs proc6_stub (seed 0) |   40   |   0    | 100% BIT-IDENTICAL
+
+--------------------------------------------------------------------------------
+4. RERUN: 206-QUERY HELDOUT MATRIX WITH DETERMINISTIC TRANSLATOR STUB (HEAD)
+--------------------------------------------------------------------------------
+Held-Out Comparison Pair                      | Total  | Diffs  | Status
+------------------------------------------------------------------------
+HEAD unset fwd (stub) vs HEAD unset rev (stub) |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset fwd (stub) vs HEAD seed 1 (stub)   |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset fwd (stub) vs HEAD seed 12345 (stub) |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset rev (stub) vs HEAD seed 1 (stub)   |  206   |   0    | 100% BIT-IDENTICAL
+HEAD unset rev (stub) vs HEAD seed 12345 (stub) |  206   |   0    | 100% BIT-IDENTICAL
+HEAD seed 1 (stub) vs HEAD seed 12345 (stub)  |  206   |   0    | 100% BIT-IDENTICAL

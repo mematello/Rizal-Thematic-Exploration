@@ -104,9 +104,14 @@ poetry run python scripts/seed_full_db.py
 # Seed the Sanggunian (DAPT) embeddings
 poetry run python scripts/seed_dapt_db.py
 
-# Start the API server
+# Precompute word vector cache for fast startup (eliminates slow first request)
+poetry run python scripts/build_word_vec_cache.py
+
+# Start the API server (PYTHONHASHSEED=0 ensures deterministic set ordering across runs)
+export PYTHONHASHSEED=0
 poetry run uvicorn app.main:app --reload
 ```
+*(On Windows PowerShell, use `$env:PYTHONHASHSEED="0"` before running uvicorn)*
 *The API will be available at `http://localhost:8000`. Explore the interactive API docs at `http://localhost:8000/docs`.*
 
 ![Swagger UI API Documentation](./docs/snapshots/swagger_ui_api.png)
@@ -133,6 +138,7 @@ docker-compose up -d
 Open a terminal:
 ```bash
 cd backend
+export PYTHONHASHSEED=0   # PowerShell: $env:PYTHONHASHSEED="0"
 poetry run uvicorn app.main:app --reload
 ```
 
@@ -157,7 +163,7 @@ If you are developing on Windows, please keep the following in mind:
 **Backend (`backend/.env`)**
 Created automatically, but ensure it contains:
 ```env
-DATABASE_URL=postgresql://rizal:rizal123@localhost:5432/rizal_db
+DATABASE_URL=postgresql://rizal:rizalpass123@localhost:5433/rizal_db
 REDIS_URL=redis://localhost:6379/0
 BERT_MODEL_NAME=sentence-transformers/paraphrase-xlm-r-multilingual-v1
 ENVIRONMENT=development

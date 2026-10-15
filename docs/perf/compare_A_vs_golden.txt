@@ -1,0 +1,21 @@
+Loading golden snapshot: docs\perf\golden_snapshot_before_optimization.json
+Loading new snapshot: docs\perf\snapshot_A_cache_disabled.json
+Loading golden snapshot: docs\perf\golden_snapshot_before_optimization.json
+Loading new snapshot: docs\perf\snapshot_A_cache_disabled.json
+
+================================================================================
+GOLDEN SNAPSHOT COMPARISON REPORT
+================================================================================
+
+Golden baseline: 2026-10-12 18:31:59
+New snapshot:    unknown
+
+Total queries compared: 40
+Queries with changes:   12
+
+Aggregate Changes:
+  Position changes: 45
+  Score deltas:     132
+  Theme changes:    0
+
+[PASS] Detailed report saved: C:\Users\marcu\Desktop\thesis\docs\perf\comparison_report.json

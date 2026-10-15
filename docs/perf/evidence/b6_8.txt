@@ -1,0 +1,124 @@
+================================================================================
+ITEM 8: COMMIT E3 VALIDATION ANALYSIS (PRE-E3 vs HEAD ACROSS SEEDS)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PRE-E3 (commit 6e16b16) BEHAVIOR ACROSS SEEDS (1, 2, 12345)
+--------------------------------------------------------------------------------
+
+Query: 'kalayaan'
+  Valid tokens count:   Seed 1=152, Seed 2=131, Seed 12345=161 (Equal: False)
+  Validation entered:   Seed 1=145, Seed 2=124, Seed 12345=154 (Equal: False)
+  Passing IDs count:    Seed 1=304, Seed 2=304, Seed 12345=304
+  Passing IDs identical in order: True
+  [DIVERGENCE PRE-E3] Tokens differing between seed 1 and seed 2 (195 tokens): ['alemanya', 'asikasuhin', 'babae', 'bahay', 'basilio', 'bayan', 'bihag', 'bilangguan']...
+
+Query: 'edukasyon'
+  Valid tokens count:   Seed 1=157, Seed 2=148, Seed 12345=150 (Equal: False)
+  Validation entered:   Seed 1=209, Seed 2=198, Seed 12345=202 (Equal: False)
+  Passing IDs count:    Seed 1=237, Seed 2=239, Seed 12345=237
+  Passing IDs identical in order: False
+  [DIVERGENCE PRE-E3] Tokens differing between seed 1 and seed 2 (55 tokens): ['batas', 'binitawan', 'buwaya', 'daliri', 'gamutin', 'hinuhubaran', 'ihahatid', 'iniwan']...
+
+Query: 'pag-ibig'
+  Valid tokens count:   Seed 1=159, Seed 2=143, Seed 12345=153 (Equal: False)
+  Validation entered:   Seed 1=157, Seed 2=141, Seed 12345=151 (Equal: False)
+  Passing IDs count:    Seed 1=300, Seed 2=300, Seed 12345=300
+  Passing IDs identical in order: True
+  [DIVERGENCE PRE-E3] Tokens differing between seed 1 and seed 2 (228 tokens): ['aanib', 'abalang', 'abot-siko', 'aginaldo', 'alemanya', 'alperes', 'arestuhin', 'awtoridad']...
+
+Query: 'kamatayan'
+  Valid tokens count:   Seed 1=157, Seed 2=142, Seed 12345=149 (Equal: False)
+  Validation entered:   Seed 1=155, Seed 2=140, Seed 12345=147 (Equal: False)
+  Passing IDs count:    Seed 1=302, Seed 2=302, Seed 12345=302
+  Passing IDs identical in order: True
+  [DIVERGENCE PRE-E3] Tokens differing between seed 1 and seed 2 (225 tokens): ['aanib', 'abot-siko', 'alemanya', 'alperes', 'anong', 'arestuhin', 'asikasuhin', 'babae']...
+
+--------------------------------------------------------------------------------
+2. HEAD (commit 73f1d1a - Commit E3) BEHAVIOR ACROSS SEEDS (1, 2, 12345)
+--------------------------------------------------------------------------------
+
+Query: 'kalayaan'
+  Valid tokens count:   Seed 1=135, Seed 2=135, Seed 12345=135 (Equal: True)
+  Validation entered:   Seed 1=128, Seed 2=128, Seed 12345=128 (Equal: True)
+  Passing IDs count:    Seed 1=304, Seed 2=304, Seed 12345=304
+  Passing IDs identical in order: True
+  Final valid_tokens sample (first 10): ['akademya', 'akala', 'aksyon', 'alahas', 'alamat', 'alemanya', 'alkalde', 'aniya', 'anuman', 'asawa']
+
+Query: 'edukasyon'
+  Valid tokens count:   Seed 1=147, Seed 2=147, Seed 12345=147 (Equal: True)
+  Validation entered:   Seed 1=194, Seed 2=194, Seed 12345=194 (Equal: True)
+  Passing IDs count:    Seed 1=242, Seed 2=242, Seed 12345=242
+  Passing IDs identical in order: True
+  Final valid_tokens sample (first 10): ['aalahas', 'aanib', 'anang', 'babalang', 'bahay', 'batas', 'bawat', 'beses', 'bibig', 'bihira']
+
+Query: 'pag-ibig'
+  Valid tokens count:   Seed 1=139, Seed 2=139, Seed 12345=139 (Equal: True)
+  Validation entered:   Seed 1=137, Seed 2=137, Seed 12345=137 (Equal: True)
+  Passing IDs count:    Seed 1=300, Seed 2=300, Seed 12345=300
+  Passing IDs identical in order: True
+  Final valid_tokens sample (first 10): ['abalang', 'abot-siko', 'adwana', 'aginaldo', 'akademya', 'alagad', 'alemanya', 'alimasag', 'alkalde', 'amang']
+
+Query: 'kamatayan'
+  Valid tokens count:   Seed 1=125, Seed 2=125, Seed 12345=125 (Equal: True)
+  Validation entered:   Seed 1=123, Seed 2=123, Seed 12345=123 (Equal: True)
+  Passing IDs count:    Seed 1=302, Seed 2=302, Seed 12345=302
+  Passing IDs identical in order: True
+  Final valid_tokens sample (first 10): ['abalang', 'abot-siko', 'adwana', 'akademya', 'alahas', 'alamat', 'alemanya', 'alimasag', 'alkalde', 'amang']
+
+--------------------------------------------------------------------------------
+3. CANDIDATE PASS / FAIL COMPARISON BETWEEN PRE-E3 AND HEAD
+--------------------------------------------------------------------------------
+Query: 'kalayaan'
+  Pre-E3 passing: 304 | failing: 0
+  HEAD   passing: 304 | failing: 0
+  Candidates changing fail -> pass: 0 []
+  Candidates changing pass -> fail: 0 []
+Query: 'edukasyon'
+  Pre-E3 passing: 237 | failing: 62
+  HEAD   passing: 242 | failing: 57
+  Candidates changing fail -> pass: 5 [37761, 39330, 39334, 38151, 37981]
+  Candidates changing pass -> fail: 0 []
+Query: 'pag-ibig'
+  Pre-E3 passing: 300 | failing: 0
+  HEAD   passing: 300 | failing: 0
+  Candidates changing fail -> pass: 0 []
+  Candidates changing pass -> fail: 0 []
+Query: 'kamatayan'
+  Pre-E3 passing: 302 | failing: 0
+  HEAD   passing: 302 | failing: 0
+  Candidates changing fail -> pass: 0 []
+  Candidates changing pass -> fail: 0 []
+
+--------------------------------------------------------------------------------
+4. EXPLANATION OF WHY pag-ibig AND kamatayan validation_entered DIFFERS FROM GOLDEN
+--------------------------------------------------------------------------------
+Observation:
+  - 'pag-ibig':  Golden validation_entered = 160 (skipped = 141, total = 301)
+                 HEAD   validation_entered = 137 (skipped = 164, total = 301)
+  - 'kamatayan': Golden validation_entered = 172 (skipped = 131, total = 303)
+                 HEAD   validation_entered = 123 (skipped = 180, total = 303)
+  - 'kalayaan':  Golden validation_entered = 158 (skipped = 146, total = 304)
+                 HEAD   validation_entered = 128 (skipped = 176, total = 304)
+  - 'edukasyon': Golden validation_entered = 194 (skipped = 106, total = 300)
+                 HEAD   validation_entered = 194 (skipped = 106, total = 300)
+
+Detailed Mechanism:
+1. Total Candidates Evaluated is Fixed:
+   For every query, `validation_entered + validation_skipped` is strictly invariant across commits.
+   Candidates either match Check 1 (Theme/valid_tokens check) or enter Check 2 (Dynamic validation).
+2. In Pre-E3 / Golden (set iteration over sent_words):
+   `sent_words` was iterated in arbitrary hash-seed order. When dynamic validation checked words,
+   the first word encountered with `word_sim_cache[w] > 0.55` was matched and appended to `valid_tokens`.
+   Because set iteration order varied by process hash seed, different words were added to `valid_tokens`.
+3. In Commit E3 / HEAD (`sorted(sent_words)`):
+   `sent_words` is sorted alphabetically. In candidate sentences with multiple synonym words,
+   the alphabetically earlier word is consistently evaluated and added to `valid_tokens` first.
+   Many of these alphabetically earlier words are common Tagalog roots/prefixes that appear across multiple
+   subsequent sentences. Consequently, MORE subsequent candidates match immediately at Check 1
+   (`if token in text_lower: has_validation = True`), skipping dynamic validation entirely.
+4. Pass/Fail Status is Unchanged for Core Queries:
+   For 'pag-ibig', 'kamatayan', and 'kalayaan', exactly 0 candidates changed pass/fail status.
+   100% of candidate sentences that passed in Golden continue to pass in HEAD.
+   The only change is the stage of validation: 23 candidates for 'pag-ibig' and 49 candidates for 'kamatayan'
+   matched at Check 1 (fast path) rather than entering Check 2 (dynamic encoding path).

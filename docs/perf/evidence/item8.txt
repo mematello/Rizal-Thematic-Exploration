@@ -1,0 +1,53 @@
+================================================================================
+ITEM 8: final_after_timings.json PROCESS CACHE SIZE & COMMIT VERIFICATION
+================================================================================
+
+1. GREP COUNTS OF process_cache_size VALUES IN docs/perf/final_after_timings.json:
+    310 "process_cache_size": 809
+
+2. FIRST-RUN (RUN 1) process_cache_size VALUE PER QUERY (FROM engine_timings):
+Query                          | Run 1 process_cache_size
+------------------------------------------------------------
+kalayaan                       | 809
+edukasyon                      | 809
+simbahan                       | 809
+korapsyon                      | None
+pag-ibig                       | 809
+kamatayan                      | 809
+bayan                          | 809
+paaralan                       | 809
+pag-ibig ni Maria Clara        | 809
+karahasan ng mga prayle        | 809
+paghihirap ng bayan            | 809
+edukasyon para sa kalayaan     | 809
+kamatayan ni Elias             | 809
+kapangyarihan ng simbahan      | 809
+kalayaan ng Pilipinas          | 809
+katarungan sa lipunan          | 809
+corruption                     | 809
+education                      | 809
+freedom                        | 809
+oppression                     | 809
+love                           | 809
+death                          | 809
+justice                        | 809
+church                         | 809
+Crisostomo Ibarra              | 809
+Maria Clara                    | 809
+Simoun                         | 809
+Elias                          | 809
+Padre Damaso                   | 809
+Basilio                        | 809
+Sisa                           | 809
+Isagani                        | 809
+tiktok                         | None
+bitcoin                        | None
+covid                          | None
+facebook                       | None
+internet                       | None
+computer                       | None
+cellphone                      | None
+online                         | None
+
+3. GIT LOG -1 --FORMAT="%H %ad" 3e58e32:
+3e58e32a93ab651384061f99dda9548069640e46 Wed Oct 14 16:51:47 2026 +0800

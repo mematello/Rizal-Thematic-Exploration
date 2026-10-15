@@ -1,0 +1,41 @@
+================================================================================
+ITEM 7: STAGE ROW COUNTS & RECONCILIATION WITH GOLDEN LEXICAL_CANDIDATES
+================================================================================
+
+1. RAW SQL ROW COUNTS IN DATABASE (source_type = 'summary'):
+Query           | Noli SQL Rows   | El Fili SQL Rows   | Total Lexical Candidates
+---------------------------------------------------------------------------
+simbahan        | 28              | 8                  | 36
+bayan           | 28              | 34                 | 62
+paaralan        | 12              | 13                 | 25
+
+--------------------------------------------------------------------------------
+2. RECONCILIATION WITH golden_snapshot_seed0.json METADATA:
+--------------------------------------------------------------------------------
+Query           | Golden lexical_candidates      | Calculated (Noli + El Fili)    | Match?
+-------------------------------------------------------------------------------------
+simbahan        | 36                             | 36                             | EXACT MATCH (100%)
+bayan           | 62                             | 62                             | EXACT MATCH (100%)
+paaralan        | 25                             | 25                             | EXACT MATCH (100%)
+
+Explanation of Previous Report Discrepancy:
+In the previous report, the table stated:
+  - bayan: Noli 32, El Fili 34 (Total 66)
+  - simbahan: Noli 13, El Fili 8 (Total 21)
+  - paaralan: Noli 12, El Fili 18 (Total 30)
+This was completely incorrect. The actual SQL count of matching summary rows is:
+  - bayan: Noli 28, El Fili 34 (Total 62 = golden lexical_candidates)
+  - simbahan: Noli 28, El Fili 8 (Total 36 = golden lexical_candidates)
+  - paaralan: Noli 12, El Fili 13 (Total 25 = golden lexical_candidates)
+
+--------------------------------------------------------------------------------
+3. DETAILED STAGE-BY-STAGE ROW COUNTS:
+--------------------------------------------------------------------------------
+Query        | Book    | Stage 1 (SQL)   | Post-Val   | Post-Dedupe  | Final Top-10
+--------------------------------------------------------------------------------
+simbahan     | noli    | 28              | 28         | 28           | 10
+simbahan     | elfili  | 8               | 8          | 8            | 8
+bayan        | noli    | 28              | 28         | 28           | 10
+bayan        | elfili  | 34              | 34         | 34           | 10
+paaralan     | noli    | 12              | 12         | 12           | 10
+paaralan     | elfili  | 13              | 13         | 13           | 10

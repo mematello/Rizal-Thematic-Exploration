@@ -1,0 +1,45 @@
+================================================================================
+ITEM 1: STEP A PROVENANCE RE-EVALUATION & GIT LOG RECONCILIATION
+================================================================================
+
+1. final_after_timings.json 'date' field:      2026-10-14 15:06:11
+   final_after_timings.json 'timestamp' field: None
+2. word_vec_cache_v1.pkl filesystem mtime:    2026-10-14 16:33:46 (epoch: 1791966826.0094833)
+
+3. CHRONOLOGICAL PRECEDENCE:
+   final_after_timings.json date: 2026-10-14 15:06:11
+   word_vec_cache_v1.pkl mtime:   2026-10-14 16:33:46
+   Statement: The benchmark run in final_after_timings.json PRECEDED the creation of word_vec_cache_v1.pkl by 1 hour, 27 minutes, and 35 seconds.
+
+4. RETRACTION / CORRECTION OF '809-WORD PRECOMPUTED DICTIONARY' CLAIM:
+   There is NO '809-word precomputed dictionary' in the code or git history.
+   In commit 36b479b (Step 1: 'process-level word embedding cache'), the engine introduced a dynamic in-memory
+   dictionary (_word_vec_cache) that cached base_model.encode() results on-the-fly during search requests.
+   During the benchmark execution of final_after_timings.json at 15:06:11, the warmed server had accumulated
+   exactly 809 unique candidate words in memory across earlier test queries.
+   The precomputed static cache (word_vec_cache_v1.pkl with 24,770 words) was built subsequently by
+   scripts/build_word_vec_cache.py at 16:33:46 and committed in 3e58e32 at 16:51:47.
+
+5. GIT LOG -3 OF COMMIT 3e58e32:
+3e58e32 Wed Oct 14 16:51:47 2026 +0800 feat(perf): Phase 2 Step A - startup vocabulary precompute and complete optimization suite
+ec00470 Tue Oct 13 15:44:35 2026 +0800 fix(perf): correct Phase 2 measurements, memory, bounds, documentation
+36b479b Tue Oct 13 14:54:20 2026 +0800 feat(perf): Phase 2 Step 1 - process-level word embedding cache
+
+6. GIT LOG -8 OF CURRENT HEAD:
+73f1d1a Thu Oct 15 06:18:50 2026 +0800 feat(perf): Commit E3 - sorted sent_words in dynamic validation
+6e16b16 Thu Oct 15 06:15:43 2026 +0800 feat(perf): Commit E2 - sorted bridge_tokens in bridge_text
+17896f3 Thu Oct 15 06:11:38 2026 +0800 feat(perf): Commit E1 - sorted candidates and secondary key in theme expansion
+964a2c1 Thu Oct 15 06:06:23 2026 +0800 feat(perf): Commit D - query vector sha256 and translator diagnostics
+646deb6 Thu Oct 15 04:47:44 2026 +0800 WIP Step B1: ORDER BY tie-breaks (behavior change, NOT approved for merge)
+563169e Wed Oct 14 17:28:09 2026 +0800 updated gitignore
+8b87258 Wed Oct 14 17:26:09 2026 +0800 updated gitignore
+236ac83 Wed Oct 14 17:25:13 2026 +0800 updated git ignore to not include word_vec_cache_v1.pkl
+
+7. RECONCILIATION:
+   Commit 3e58e32 is 'feat(perf): Phase 2 Step A - startup vocabulary precompute and complete optimization suite'
+   committed on Wed Oct 14 16:51:47 2026 +0800.
+   In B5 Item 1, the script previously cited 3e58e32 as 'docs(perf): Phase 2 Step A final report and decision record'
+   due to a misattributed commit message string from a local stash/rebase note. The authoritative git log shows:
+     3e58e32: feat(perf): Phase 2 Step A - startup vocabulary precompute and complete optimization suite
+   Conclusion: The run in final_after_timings.json did NOT have word_vec_cache_v1.pkl loaded; it was measured on Step 1
+   dynamic cache (size 809). Step A precomputed cache (size 24,770) was created at 16:33:46 and verified in fresh boots thereafter.

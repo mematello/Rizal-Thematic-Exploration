@@ -85,6 +85,8 @@ debug_*.json
 *_results.txt
 *_output.txt
 custom_queries_results.json
-figure*.json
-multilingual_report.json
 threshold_experiment.json
+*.sql
+backend/app/data/*.pkl
+!backend/app/data/word_vec_cache_v1.pkl
+

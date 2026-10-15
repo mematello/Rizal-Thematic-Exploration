@@ -1,0 +1,112 @@
+================================================================================
+ITEM 4: TRANSLATOR PERSISTENCE, LOGS, AND ONLINE NETWORK EXPERIMENTS
+================================================================================
+
+1. GREP TranslatorCache FOR DISK PERSISTENCE (translator_cache.json):
+  Result: No occurrences of 'translator_cache.json' in backend/.
+  TranslatorCache implementation (backend/app/core/engine.py:45-96) is purely in-memory:
+    - self._cache: Dict[str, Tuple[Optional[str], float, bool]] = {}
+    - No disk read, write, pickle, or JSON dump/load exists in TranslatorCache.
+
+--------------------------------------------------------------------------------
+2. [TRANSLATOR] METADATA LOGS FOR 10 UNMAPPED QUERIES ACROSS proc1..proc6:
+--------------------------------------------------------------------------------
+Network state during proc1..proc6: OFFLINE (TRANSFORMERS_OFFLINE=1, HF_HUB_OFFLINE=1, network calls blocked).
+
+Snapshot: proc1_unset_fwd.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+Snapshot: proc2_unset_rev.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+Snapshot: proc3_seed1.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+Snapshot: proc4_seed2.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+Snapshot: proc5_seed12345.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+Snapshot: proc6_seed0.json
+  [TRANSLATOR] query='korapsyon                ' -> input='korapsyon', output='None', network_calls=None
+  [TRANSLATOR] query='karahasan ng mga prayle  ' -> input='karahasan ng mga prayle', output='None', network_calls=None
+  [TRANSLATOR] query='tiktok                   ' -> input='tiktok', output='None', network_calls=None
+  [TRANSLATOR] query='bitcoin                  ' -> input='bitcoin', output='None', network_calls=None
+  [TRANSLATOR] query='covid                    ' -> input='covid', output='None', network_calls=None
+  [TRANSLATOR] query='facebook                 ' -> input='facebook', output='None', network_calls=None
+  [TRANSLATOR] query='internet                 ' -> input='internet', output='None', network_calls=None
+  [TRANSLATOR] query='computer                 ' -> input='computer', output='None', network_calls=None
+  [TRANSLATOR] query='cellphone                ' -> input='cellphone', output='None', network_calls=None
+  [TRANSLATOR] query='online                   ' -> input='online', output='None', network_calls=None
+
+--------------------------------------------------------------------------------
+3. FRESH ONLINE PROCESSES (NETWORK ON: unset vs seed 1):
+--------------------------------------------------------------------------------
+Saved online_unset.json and online_seed1.json (10 queries).
+
+Logged Translator Strings in Online Run (unset):
+  Query: 'korapsyon                ' -> translator_input='korapsyon', translator_output='None'
+  Query: 'karahasan ng mga prayle  ' -> translator_input='karahasan ng mga prayle', translator_output='None'
+  Query: 'tiktok                   ' -> translator_input='tiktok', translator_output='None'
+  Query: 'bitcoin                  ' -> translator_input='bitcoin', translator_output='None'
+  Query: 'covid                    ' -> translator_input='covid', translator_output='None'
+  Query: 'facebook                 ' -> translator_input='facebook', translator_output='None'
+  Query: 'internet                 ' -> translator_input='internet', translator_output='None'
+  Query: 'computer                 ' -> translator_input='computer', translator_output='None'
+  Query: 'cellphone                ' -> translator_input='cellphone', translator_output='None'
+  Query: 'online                   ' -> translator_input='online', translator_output='None'
+
+Strict Comparison: online_unset vs online_seed1:
+  Total queries: 10 | Diffs: 0
+  [SUCCESS] 100% BIT-IDENTICAL between unset and seed 1 with network ON!
+
+Comparison of Online Run against golden_snapshot_deterministic.json (10 unmapped queries):
+  Total queries compared: 10
+  Queries with changes  : 1
+  Query 'karahasan ng mga prayle' diff: ['precise_matches']

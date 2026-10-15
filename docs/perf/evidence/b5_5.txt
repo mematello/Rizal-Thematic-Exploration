@@ -1,0 +1,28 @@
+================================================================================
+ITEM 5: POOL VS SQL TRACE FOR 'bayan' EL FILI & RECONCILIATION
+================================================================================
+
+1. STAGE-BY-STAGE ROW COUNTS FOR 'bayan' (book='elfili', source_type='summary'):
+  Stage 1 (SQL Query: Sentence.sentence_text.ilike('%bayan%')) : 34 rows
+    SQL IDs (34): [38474, 38480, 38533, 38535, 38538, 38543, 38549, 38550, 38574, 38586, 38617, 38625, 38642, 38743, 38814, 38815, 38822, 38884, 38885, 38892, 38913, 38978, 38979, 39016, 39084, 39108, 39109, 39110, 39226, 39233, 39299, 39302, 39338, 39351]
+
+  Stage 2 (Lexical Candidate Build, engine.py:994-1000)       : 34 candidates
+    (No candidates dropped; all 34 SQL rows appended to candidates list)
+
+  Stage 3 (Scoring Loop, engine.py:1220-1492)                  : 34 candidates
+    Dropped in scoring: 0
+
+  Stage 4 (seen_text Deduplication, engine.py:1527-1533)       : 34 unique sentences
+    Dropped in dedupe: 0 (IDs: [])
+
+  Stage 5 (Finalize Top-10 Truncation, engine.py:1549)        : 10 results
+    Final Top-10 IDs: [39084, 39108, 38574, 38913, 39016, 38743, 38814, 38550, 38617, 38978]
+
+--------------------------------------------------------------------------------
+2. RECONCILIATION WITH B1.5 FIGURE 'pool 22 (SQL 34)':
+--------------------------------------------------------------------------------
+SQL row count in DB for El Fili summary ILIKE '%bayan%' is exactly 34.
+Exact whole-word regex r'\bbayan\b' matches: 22 rows.
+Partial substring matches (e.g., 'mamamayan', 'kabayanan', 'sambayanan'): 12 rows.
+Explanation: The previous report's figure of '22' was the count of exact whole-word token matches for 'bayan' (excluding compound words like mamamayan/kabayanan), whereas the actual SQL query executes `ILIKE '%bayan%'` which returns all 34 rows.
+In the engine pipeline, NO rows are dropped by threshold (threshold=0.05, scores > 30) and NO rows are dropped by seen_text dedupe (all 34 texts are unique). The full evaluated candidate pool entering finalize is exactly 34.

@@ -1,0 +1,1660 @@
+[
+  {
+    "query": "kalayaan",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 82.49,
+    "mean_sem_b": 82.49,
+    "top10_a_ids": [
+      38300,
+      37644,
+      38386,
+      38258,
+      38249,
+      37345,
+      37600,
+      37599,
+      38136,
+      37705
+    ],
+    "top10_b_ids": [
+      38300,
+      37644,
+      38386,
+      38258,
+      38249,
+      37345,
+      37600,
+      37599,
+      38136,
+      37705
+    ]
+  },
+  {
+    "query": "kalayaan",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 81.32,
+    "mean_sem_b": 81.32,
+    "top10_a_ids": [
+      39345,
+      39324,
+      39338,
+      38535,
+      39110,
+      39347,
+      38706,
+      38447,
+      39319,
+      38809
+    ],
+    "top10_b_ids": [
+      39345,
+      39324,
+      39338,
+      39110,
+      38535,
+      39347,
+      38706,
+      38447,
+      39319,
+      38809
+    ]
+  },
+  {
+    "query": "edukasyon",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 64.34,
+    "mean_sem_b": 64.34,
+    "top10_a_ids": [
+      37539,
+      37544,
+      37541,
+      37538,
+      37540,
+      37542,
+      38119,
+      37862,
+      37481,
+      37969
+    ],
+    "top10_b_ids": [
+      37539,
+      37544,
+      37541,
+      37538,
+      37540,
+      37542,
+      38119,
+      37862,
+      37481,
+      37969
+    ]
+  },
+  {
+    "query": "edukasyon",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 57.13,
+    "mean_sem_b": 57.13,
+    "top10_a_ids": [
+      39012,
+      39345,
+      38400,
+      39353,
+      39305,
+      39113,
+      38966,
+      39106,
+      38696,
+      38403
+    ],
+    "top10_b_ids": [
+      39012,
+      39345,
+      38400,
+      39353,
+      39305,
+      39113,
+      38966,
+      39106,
+      38696,
+      38403
+    ]
+  },
+  {
+    "query": "simbahan",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 53.61,
+    "mean_sem_b": 52.65,
+    "top10_a_ids": [
+      37304,
+      37385,
+      37408,
+      37468,
+      37636,
+      37638,
+      37639,
+      38157,
+      37464,
+      37649
+    ],
+    "top10_b_ids": [
+      37468,
+      37638,
+      37408,
+      37639,
+      38157,
+      37385,
+      37636,
+      37304,
+      37649,
+      37702
+    ]
+  },
+  {
+    "query": "simbahan",
+    "book": "elfili",
+    "overlap": 8,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 49.19,
+    "mean_sem_b": 49.19,
+    "top10_a_ids": [
+      39026,
+      38425,
+      39028,
+      38415,
+      38533,
+      38831,
+      39152,
+      38660
+    ],
+    "top10_b_ids": [
+      39026,
+      38425,
+      39028,
+      38415,
+      38831,
+      38533,
+      39152,
+      38660
+    ]
+  },
+  {
+    "query": "korapsyon",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "korapsyon",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "pag-ibig",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 75.97,
+    "mean_sem_b": 75.97,
+    "top10_a_ids": [
+      37860,
+      37231,
+      37191,
+      37193,
+      38222,
+      38244,
+      38258,
+      37195,
+      38277,
+      37744
+    ],
+    "top10_b_ids": [
+      37860,
+      37231,
+      37191,
+      37193,
+      38222,
+      38244,
+      38258,
+      37195,
+      38277,
+      37744
+    ]
+  },
+  {
+    "query": "pag-ibig",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 75.22,
+    "mean_sem_b": 75.22,
+    "top10_a_ids": [
+      39324,
+      39288,
+      38743,
+      38918,
+      38574,
+      38747,
+      38912,
+      38569,
+      38885,
+      39359
+    ],
+    "top10_b_ids": [
+      39324,
+      39288,
+      38743,
+      38918,
+      38574,
+      38747,
+      38912,
+      38569,
+      38885,
+      39359
+    ]
+  },
+  {
+    "query": "kamatayan",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 73.81,
+    "mean_sem_b": 73.81,
+    "top10_a_ids": [
+      38277,
+      37360,
+      37370,
+      37184,
+      37231,
+      38387,
+      38258,
+      38222,
+      38388,
+      37232
+    ],
+    "top10_b_ids": [
+      38277,
+      37360,
+      37370,
+      37184,
+      37231,
+      38387,
+      38258,
+      38222,
+      38388,
+      37232
+    ]
+  },
+  {
+    "query": "kamatayan",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 75.53,
+    "mean_sem_b": 75.53,
+    "top10_a_ids": [
+      39325,
+      39288,
+      39327,
+      38588,
+      39295,
+      39280,
+      38834,
+      39022,
+      39350,
+      38569
+    ],
+    "top10_b_ids": [
+      39325,
+      39288,
+      39327,
+      38588,
+      39295,
+      39280,
+      38834,
+      39022,
+      39350,
+      38569
+    ]
+  },
+  {
+    "query": "bayan",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 33.14,
+    "mean_sem_b": 32.17,
+    "top10_a_ids": [
+      37241,
+      38187,
+      37385,
+      37551,
+      37572,
+      38131,
+      37379,
+      37571,
+      37783,
+      37823
+    ],
+    "top10_b_ids": [
+      37241,
+      38187,
+      38131,
+      37572,
+      37385,
+      37551,
+      37823,
+      37990,
+      37783,
+      37571
+    ]
+  },
+  {
+    "query": "bayan",
+    "book": "elfili",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 33.48,
+    "mean_sem_b": 33.1,
+    "top10_a_ids": [
+      39084,
+      39108,
+      38574,
+      38913,
+      39016,
+      38743,
+      38814,
+      38550,
+      38617,
+      38978
+    ],
+    "top10_b_ids": [
+      39084,
+      39108,
+      39016,
+      38913,
+      38574,
+      38814,
+      38743,
+      38617,
+      39299,
+      38978
+    ]
+  },
+  {
+    "query": "paaralan",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 40.56,
+    "mean_sem_b": 40.56,
+    "top10_a_ids": [
+      37551,
+      37730,
+      37792,
+      37631,
+      37661,
+      37672,
+      37623,
+      37793,
+      38027,
+      38273
+    ],
+    "top10_b_ids": [
+      37551,
+      37792,
+      37730,
+      37661,
+      37631,
+      37672,
+      37623,
+      37793,
+      38027,
+      38273
+    ]
+  },
+  {
+    "query": "paaralan",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 40.67,
+    "mean_sem_b": 40.67,
+    "top10_a_ids": [
+      38631,
+      38661,
+      38662,
+      38699,
+      38857,
+      38547,
+      38643,
+      38858,
+      38632,
+      38703
+    ],
+    "top10_b_ids": [
+      38631,
+      38857,
+      38699,
+      38662,
+      38661,
+      38643,
+      38547,
+      38858,
+      38703,
+      38632
+    ]
+  },
+  {
+    "query": "pag-ibig ni Maria Clara",
+    "book": "noli",
+    "overlap": 5,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 6.79,
+    "mean_sem_b": 6.79,
+    "top10_a_ids": [
+      37331,
+      37345,
+      38385,
+      37824,
+      37330
+    ],
+    "top10_b_ids": [
+      37331,
+      37345,
+      38385,
+      37330,
+      37824
+    ]
+  },
+  {
+    "query": "pag-ibig ni Maria Clara",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "karahasan ng mga prayle",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 5.91,
+    "mean_sem_b": 6.02,
+    "top10_a_ids": [
+      37193,
+      37599,
+      38332,
+      37423,
+      38324,
+      38329,
+      37481,
+      37616,
+      37610,
+      38331
+    ],
+    "top10_b_ids": [
+      37193,
+      37481,
+      38332,
+      37423,
+      37610,
+      38329,
+      37616,
+      37599,
+      38324,
+      38247
+    ]
+  },
+  {
+    "query": "karahasan ng mga prayle",
+    "book": "elfili",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 7.07,
+    "mean_sem_b": 7.07,
+    "top10_a_ids": [
+      38912,
+      39230,
+      38969,
+      38973,
+      39028,
+      38745,
+      38922,
+      39062,
+      39238,
+      38975
+    ],
+    "top10_b_ids": [
+      39230,
+      38973,
+      38912,
+      38969,
+      38745,
+      39062,
+      39028,
+      38922,
+      38975,
+      39238
+    ]
+  },
+  {
+    "query": "paghihirap ng bayan",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "paghihirap ng bayan",
+    "book": "elfili",
+    "overlap": 1,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 3.31,
+    "mean_sem_b": 3.31,
+    "top10_a_ids": [
+      39084
+    ],
+    "top10_b_ids": [
+      39084
+    ]
+  },
+  {
+    "query": "edukasyon para sa kalayaan",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "edukasyon para sa kalayaan",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "kamatayan ni Elias",
+    "book": "noli",
+    "overlap": 7,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 6.03,
+    "mean_sem_b": 6.03,
+    "top10_a_ids": [
+      38332,
+      38312,
+      38313,
+      38319,
+      38153,
+      38327,
+      38180
+    ],
+    "top10_b_ids": [
+      38180,
+      38313,
+      38153,
+      38312,
+      38327,
+      38332,
+      38319
+    ]
+  },
+  {
+    "query": "kamatayan ni Elias",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "kapangyarihan ng simbahan",
+    "book": "noli",
+    "overlap": 5,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 5.51,
+    "mean_sem_b": 5.51,
+    "top10_a_ids": [
+      37408,
+      37468,
+      37638,
+      37330,
+      37862
+    ],
+    "top10_b_ids": [
+      37408,
+      37468,
+      37638,
+      37330,
+      37862
+    ]
+  },
+  {
+    "query": "kapangyarihan ng simbahan",
+    "book": "elfili",
+    "overlap": 2,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 5.3,
+    "mean_sem_b": 5.3,
+    "top10_a_ids": [
+      39028,
+      39216
+    ],
+    "top10_b_ids": [
+      39028,
+      39216
+    ]
+  },
+  {
+    "query": "kalayaan ng Pilipinas",
+    "book": "noli",
+    "overlap": 1,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 4.23,
+    "mean_sem_b": 4.23,
+    "top10_a_ids": [
+      37385
+    ],
+    "top10_b_ids": [
+      37385
+    ]
+  },
+  {
+    "query": "kalayaan ng Pilipinas",
+    "book": "elfili",
+    "overlap": 2,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 10.17,
+    "mean_sem_b": 10.17,
+    "top10_a_ids": [
+      38535,
+      39216
+    ],
+    "top10_b_ids": [
+      38535,
+      39216
+    ]
+  },
+  {
+    "query": "katarungan sa lipunan",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "katarungan sa lipunan",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "corruption",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "corruption",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "education",
+    "book": "noli",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 43.69,
+    "mean_sem_b": 46.52,
+    "top10_a_ids": [
+      37539,
+      37541,
+      37544,
+      37302,
+      37538,
+      37540,
+      37793,
+      37324,
+      37445,
+      37446
+    ],
+    "top10_b_ids": [
+      37539,
+      37544,
+      37541,
+      37538,
+      37540,
+      37302,
+      37793,
+      38273,
+      37613,
+      37324
+    ]
+  },
+  {
+    "query": "education",
+    "book": "elfili",
+    "overlap": 3,
+    "overlap_pct": 30.0,
+    "mean_sem_a": 28.18,
+    "mean_sem_b": 33.59,
+    "top10_a_ids": [
+      38403,
+      38698,
+      38699,
+      38500,
+      38514,
+      38516,
+      38518,
+      38547,
+      38558,
+      38631
+    ],
+    "top10_b_ids": [
+      38403,
+      38698,
+      38699,
+      38743,
+      38632,
+      38703,
+      38641,
+      38660,
+      38940,
+      38858
+    ]
+  },
+  {
+    "query": "freedom",
+    "book": "noli",
+    "overlap": 6,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 11.32,
+    "mean_sem_b": 11.32,
+    "top10_a_ids": [
+      37414,
+      37226,
+      37379,
+      37579,
+      37591,
+      38300
+    ],
+    "top10_b_ids": [
+      37414,
+      37226,
+      37379,
+      38300,
+      37579,
+      37591
+    ]
+  },
+  {
+    "query": "freedom",
+    "book": "elfili",
+    "overlap": 7,
+    "overlap_pct": 70.0,
+    "mean_sem_a": 14.23,
+    "mean_sem_b": 15.06,
+    "top10_a_ids": [
+      38389,
+      38637,
+      38971,
+      39110,
+      39345,
+      38480,
+      38482,
+      38535,
+      38544,
+      38853
+    ],
+    "top10_b_ids": [
+      39345,
+      38637,
+      38971,
+      39110,
+      38389,
+      39324,
+      39089,
+      39086,
+      38535,
+      38482
+    ]
+  },
+  {
+    "query": "oppression",
+    "book": "noli",
+    "overlap": 6,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 71.09,
+    "mean_sem_b": 71.09,
+    "top10_a_ids": [
+      38386,
+      38070,
+      37838,
+      38034,
+      38275,
+      38149
+    ],
+    "top10_b_ids": [
+      38386,
+      38070,
+      37838,
+      38034,
+      38275,
+      38149
+    ]
+  },
+  {
+    "query": "oppression",
+    "book": "elfili",
+    "overlap": 8,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 70.04,
+    "mean_sem_b": 70.04,
+    "top10_a_ids": [
+      38556,
+      39331,
+      38925,
+      39047,
+      38581,
+      39002,
+      38949,
+      39312
+    ],
+    "top10_b_ids": [
+      38556,
+      39331,
+      38925,
+      39047,
+      38581,
+      39002,
+      38949,
+      39312
+    ]
+  },
+  {
+    "query": "love",
+    "book": "noli",
+    "overlap": 3,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 26.26,
+    "mean_sem_b": 26.26,
+    "top10_a_ids": [
+      37320,
+      37860,
+      38074
+    ],
+    "top10_b_ids": [
+      37860,
+      37320,
+      38074
+    ]
+  },
+  {
+    "query": "love",
+    "book": "elfili",
+    "overlap": 1,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 23.79,
+    "mean_sem_b": 23.79,
+    "top10_a_ids": [
+      39324
+    ],
+    "top10_b_ids": [
+      39324
+    ]
+  },
+  {
+    "query": "death",
+    "book": "noli",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 16.91,
+    "mean_sem_b": 17.3,
+    "top10_a_ids": [
+      37184,
+      37623,
+      37631,
+      37784,
+      38213,
+      38277,
+      38343,
+      38375,
+      37360,
+      37370
+    ],
+    "top10_b_ids": [
+      38213,
+      38277,
+      38375,
+      37623,
+      38343,
+      37184,
+      37631,
+      37784,
+      37730,
+      38114
+    ]
+  },
+  {
+    "query": "death",
+    "book": "elfili",
+    "overlap": 6,
+    "overlap_pct": 60.0,
+    "mean_sem_a": 18.19,
+    "mean_sem_b": 19.21,
+    "top10_a_ids": [
+      38418,
+      38442,
+      38530,
+      38633,
+      38745,
+      38748,
+      38782,
+      39016,
+      39033,
+      39034
+    ],
+    "top10_b_ids": [
+      38748,
+      38745,
+      39016,
+      39357,
+      39213,
+      39295,
+      38418,
+      39034,
+      38442,
+      39079
+    ]
+  },
+  {
+    "query": "justice",
+    "book": "noli",
+    "overlap": 3,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 22.51,
+    "mean_sem_b": 22.51,
+    "top10_a_ids": [
+      37981,
+      37184,
+      37992
+    ],
+    "top10_b_ids": [
+      37981,
+      37184,
+      37992
+    ]
+  },
+  {
+    "query": "justice",
+    "book": "elfili",
+    "overlap": 4,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 23.14,
+    "mean_sem_b": 23.14,
+    "top10_a_ids": [
+      38531,
+      39110,
+      39343,
+      38972
+    ],
+    "top10_b_ids": [
+      38531,
+      39110,
+      39343,
+      38972
+    ]
+  },
+  {
+    "query": "church",
+    "book": "noli",
+    "overlap": 5,
+    "overlap_pct": 50.0,
+    "mean_sem_a": 46.27,
+    "mean_sem_b": 49.9,
+    "top10_a_ids": [
+      37468,
+      37185,
+      37193,
+      37290,
+      37297,
+      37330,
+      37385,
+      37408,
+      37457,
+      37459
+    ],
+    "top10_b_ids": [
+      37468,
+      37464,
+      37517,
+      37385,
+      37638,
+      37193,
+      37459,
+      37330,
+      38020,
+      37702
+    ]
+  },
+  {
+    "query": "church",
+    "book": "elfili",
+    "overlap": 8,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 42.97,
+    "mean_sem_b": 42.97,
+    "top10_a_ids": [
+      38415,
+      38425,
+      38533,
+      38660,
+      38831,
+      39026,
+      39028,
+      39152
+    ],
+    "top10_b_ids": [
+      39028,
+      38415,
+      39026,
+      38425,
+      38660,
+      38831,
+      39152,
+      38533
+    ]
+  },
+  {
+    "query": "Crisostomo Ibarra",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 12.55,
+    "mean_sem_b": 12.36,
+    "top10_a_ids": [
+      37666,
+      37701,
+      38255,
+      37217,
+      38272,
+      37200,
+      37676,
+      38198,
+      37327,
+      37690
+    ],
+    "top10_b_ids": [
+      38255,
+      37666,
+      37701,
+      37217,
+      38272,
+      37200,
+      38198,
+      37676,
+      37690,
+      38236
+    ]
+  },
+  {
+    "query": "Crisostomo Ibarra",
+    "book": "elfili",
+    "overlap": 2,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 13.86,
+    "mean_sem_b": 13.86,
+    "top10_a_ids": [
+      39207,
+      39212
+    ],
+    "top10_b_ids": [
+      39207,
+      39212
+    ]
+  },
+  {
+    "query": "Maria Clara",
+    "book": "noli",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 22.01,
+    "mean_sem_b": 22.3,
+    "top10_a_ids": [
+      37330,
+      37364,
+      37670,
+      37829,
+      37916,
+      38344,
+      38345,
+      37333,
+      37337,
+      37344
+    ],
+    "top10_b_ids": [
+      37330,
+      37670,
+      38344,
+      37364,
+      37829,
+      38345,
+      37916,
+      38160,
+      37689,
+      37344
+    ]
+  },
+  {
+    "query": "Maria Clara",
+    "book": "elfili",
+    "overlap": 9,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 20.14,
+    "mean_sem_b": 20.14,
+    "top10_a_ids": [
+      38497,
+      38600,
+      38873,
+      38875,
+      38877,
+      38595,
+      38469,
+      38782,
+      38515
+    ],
+    "top10_b_ids": [
+      38877,
+      38873,
+      38497,
+      38875,
+      38600,
+      38595,
+      38469,
+      38782,
+      38515
+    ]
+  },
+  {
+    "query": "Simoun",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "Simoun",
+    "book": "elfili",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 72.58,
+    "mean_sem_b": 74.35,
+    "top10_a_ids": [
+      38593,
+      38622,
+      39248,
+      39301,
+      39308,
+      39317,
+      39321,
+      39337,
+      38398,
+      38410
+    ],
+    "top10_b_ids": [
+      39321,
+      38593,
+      39248,
+      39337,
+      38622,
+      39317,
+      39301,
+      39308,
+      39003,
+      39156
+    ]
+  },
+  {
+    "query": "Elias",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 60.29,
+    "mean_sem_b": 60.58,
+    "top10_a_ids": [
+      37893,
+      37757,
+      37765,
+      37906,
+      38117,
+      38150,
+      38180,
+      38299,
+      38313,
+      38330
+    ],
+    "top10_b_ids": [
+      37893,
+      38313,
+      38334,
+      38150,
+      37757,
+      38180,
+      37906,
+      38117,
+      38299,
+      38330
+    ]
+  },
+  {
+    "query": "Elias",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "Padre Damaso",
+    "book": "noli",
+    "overlap": 9,
+    "overlap_pct": 90.0,
+    "mean_sem_a": 15.92,
+    "mean_sem_b": 15.33,
+    "top10_a_ids": [
+      37235,
+      37191,
+      37309,
+      37710,
+      37798,
+      38344,
+      37193,
+      37228,
+      37364,
+      37423
+    ],
+    "top10_b_ids": [
+      37235,
+      37710,
+      37798,
+      37191,
+      38344,
+      37309,
+      37423,
+      37877,
+      37193,
+      37364
+    ]
+  },
+  {
+    "query": "Padre Damaso",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "Basilio",
+    "book": "noli",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 63.05,
+    "mean_sem_b": 63.74,
+    "top10_a_ids": [
+      38364,
+      37465,
+      37482,
+      37505,
+      37510,
+      37511,
+      37513,
+      37515,
+      37520,
+      38352
+    ],
+    "top10_b_ids": [
+      38364,
+      37510,
+      37465,
+      37511,
+      38359,
+      37482,
+      38362,
+      37520,
+      37505,
+      37515
+    ]
+  },
+  {
+    "query": "Basilio",
+    "book": "elfili",
+    "overlap": 4,
+    "overlap_pct": 40.0,
+    "mean_sem_a": 60.6,
+    "mean_sem_b": 62.47,
+    "top10_a_ids": [
+      38404,
+      38406,
+      38411,
+      38450,
+      38498,
+      38503,
+      38505,
+      38509,
+      38512,
+      38527
+    ],
+    "top10_b_ids": [
+      39149,
+      39154,
+      38512,
+      38544,
+      38411,
+      38404,
+      38923,
+      38937,
+      39137,
+      38406
+    ]
+  },
+  {
+    "query": "Sisa",
+    "book": "noli",
+    "overlap": 10,
+    "overlap_pct": 100.0,
+    "mean_sem_a": 51.06,
+    "mean_sem_b": 51.06,
+    "top10_a_ids": [
+      38358,
+      37466,
+      37484,
+      37533,
+      37680,
+      37488,
+      37491,
+      37496,
+      37606,
+      37865
+    ],
+    "top10_b_ids": [
+      38358,
+      37484,
+      37466,
+      37533,
+      37680,
+      37488,
+      37496,
+      37606,
+      37491,
+      37865
+    ]
+  },
+  {
+    "query": "Sisa",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "Isagani",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "Isagani",
+    "book": "elfili",
+    "overlap": 8,
+    "overlap_pct": 80.0,
+    "mean_sem_a": 52.72,
+    "mean_sem_b": 53.98,
+    "top10_a_ids": [
+      38726,
+      38776,
+      38777,
+      38894,
+      39162,
+      39202,
+      39203,
+      39278,
+      38411,
+      38656
+    ],
+    "top10_b_ids": [
+      39162,
+      39278,
+      38894,
+      38776,
+      38726,
+      39202,
+      39203,
+      38777,
+      39154,
+      38909
+    ]
+  },
+  {
+    "query": "tiktok",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "tiktok",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "bitcoin",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "bitcoin",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "covid",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "covid",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "facebook",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "facebook",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "internet",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "internet",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "computer",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "computer",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "cellphone",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "cellphone",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "online",
+    "book": "noli",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  },
+  {
+    "query": "online",
+    "book": "elfili",
+    "overlap": 0,
+    "overlap_pct": 0.0,
+    "mean_sem_a": 0.0,
+    "mean_sem_b": 0.0,
+    "top10_a_ids": [],
+    "top10_b_ids": []
+  }
+]

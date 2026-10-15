@@ -28,6 +28,7 @@ FastAPI backend for performing semantic and lexical search on Rizal's novels usi
 
 5. **Run Development Server**
    ```bash
+   export PYTHONHASHSEED=0   # PowerShell: $env:PYTHONHASHSEED="0"
    poetry run uvicorn app.main:app --reload
    ```
 
