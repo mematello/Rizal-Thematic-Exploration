@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -16,6 +16,12 @@ const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "RizalEngine — Thematic Exploration of Rizal's Novels",
@@ -39,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-screen flex flex-col justify-between`}
+        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-[100dvh] flex flex-col justify-between`}
         suppressHydrationWarning
       >
         <Providers>
