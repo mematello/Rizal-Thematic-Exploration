@@ -159,7 +159,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         transition={{ duration: 0.7, delay: 0.15 }}
                     >
                         {novel === "noli" && (
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block"
@@ -175,7 +175,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </h2>
                         )}
                         {novel === "fili" && (
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block italic"
@@ -189,7 +189,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </h2>
                         )}
                         {novel === "both" && (
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.08] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block"
@@ -204,7 +204,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                 </span>
                                 <br />
                                 <span
-                                    className="text-3xl md:text-4xl lg:text-5xl font-light italic"
+                                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light italic"
                                     style={{
                                         color: "rgba(141,45,45,0.7)",
                                     }}
@@ -220,7 +220,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
                         transition={{ duration: 0.7, delay: 0.3 }}
-                        className="origin-left h-px w-40"
+                        className="origin-left h-px w-32 sm:w-40"
                         style={{
                             background:
                                 "linear-gradient(to right, #C5A065, transparent)",
@@ -232,7 +232,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.35 }}
-                        className="text-base md:text-lg text-brand-text/70 font-serif leading-relaxed max-w-xl"
+                        className="text-sm sm:text-base md:text-lg text-brand-text/75 font-serif leading-relaxed max-w-[42ch] sm:max-w-xl"
                     >
                         Isang matalinong sistema ng paghahanap na nagsasama ng{" "}
                         <em>leksikal</em> at <em>semantikong</em> pag-unawa — upang mas
@@ -245,15 +245,15 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.45 }}
-                        className="flex items-center gap-3 flex-wrap"
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-wrap"
                     >
                         <span
-                            className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-widest border transition-all duration-700 ${!isFili ? "bg-brand-gold/10 border-brand-gold/40 text-brand-gold shadow-[0_0_12px_rgba(197,160,101,0.2)]" : "bg-brand-gold/5 border-brand-gold/20 text-brand-gold/60"}`}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-bold tracking-widest border transition-all duration-700 ${!isFili ? "bg-brand-gold/10 border-brand-gold/40 text-brand-gold shadow-[0_0_12px_rgba(197,160,101,0.2)]" : "bg-brand-gold/5 border-brand-gold/20 text-brand-gold/60"}`}
                         >
                             NOLI ME TANGERE · 1887
                         </span>
                         <span
-                            className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-widest border transition-all duration-700 ${isFili ? "bg-fili-accent/10 border-fili-accent/40 text-fili-accent shadow-[0_0_12px_rgba(141,45,45,0.2)]" : "bg-fili-accent/5 border-fili-accent/20 text-fili-accent/60"}`}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-bold tracking-widest border transition-all duration-700 ${isFili ? "bg-fili-accent/10 border-fili-accent/40 text-fili-accent shadow-[0_0_12px_rgba(141,45,45,0.2)]" : "bg-fili-accent/5 border-fili-accent/20 text-fili-accent/60"}`}
                         >
                             EL FILIBUSTERISMO · 1891
                         </span>
@@ -472,7 +472,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             <motion.div
                                 animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
                                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-                                className="absolute top-1/2 -right-8 -translate-y-1/2 w-8 h-8 flex items-center justify-center"
+                                className="absolute top-1/2 -right-3 sm:-right-8 -translate-y-1/2 w-8 h-8 flex items-center justify-center pointer-events-none"
                             >
                                 <svg viewBox="0 0 24 24" className="w-full h-full">
                                     <path
@@ -488,7 +488,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
 
                     {/* ── STATS CARD ── */}
                     <div
-                        className="rounded-3xl p-7 border overflow-hidden relative transition-all duration-1000"
+                        className="rounded-3xl p-5 sm:p-7 border overflow-hidden relative transition-all duration-1000"
                         style={{
                             background: isFili
                                 ? "linear-gradient(145deg, rgba(242,240,237,0.95) 0%, rgba(235,230,225,0.90) 100%)"
@@ -529,9 +529,9 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </svg>
                         </div>
 
-                        <div className="relative z-10 space-y-6">
-                            <div className="flex justify-between items-end">
-                                <div>
+                        <div className="relative z-10 space-y-5 sm:space-y-6">
+                            <div className="flex flex-row justify-between items-start gap-2">
+                                <div className="min-w-0 pr-2">
                                     <h4 className={`text-base font-serif font-bold leading-tight transition-colors duration-1000 text-brand-navy`}>
                                         Kahusayan ng Modelo
                                     </h4>
@@ -540,7 +540,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                     </p>
                                 </div>
                                 <span
-                                    className="text-[9px] font-black tracking-widest px-2 py-1 rounded-full transition-all duration-1000"
+                                    className="shrink-0 text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full transition-all duration-1000"
                                     style={{
                                         color: isFili ? "#A64D4D" : "#C5A065",
                                         background: isFili ? "rgba(141,45,45,0.08)" : "rgba(197,160,101,0.10)",
@@ -551,14 +551,14 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                 </span>
                             </div>
 
-                            <div className="space-y-5">
+                            <div className="space-y-4 sm:space-y-5">
                                 {stats.map((stat, idx) => (
-                                    <div key={idx} className="space-y-2">
-                                        <div className="flex justify-between text-sm">
+                                    <div key={idx} className="space-y-1.5 sm:space-y-2">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-2 text-xs sm:text-sm">
                                             <span className={`font-medium transition-colors duration-1000 text-brand-text/80`}>{stat.label}</span>
-                                            <span className={`font-bold transition-colors duration-1000 text-brand-navy`}>{stat.value}%</span>
+                                            <span className={`font-bold transition-colors duration-1000 text-brand-navy self-end sm:self-auto`}>{stat.value}%</span>
                                         </div>
-                                        <div className={`w-full h-1.5 rounded-full overflow-hidden transition-colors duration-1000 bg-brand-cream`}>
+                                        <div className={`w-full h-2 sm:h-1.5 rounded-full overflow-hidden transition-colors duration-1000 bg-brand-cream/80 border border-brand-gold/10`}>
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${stat.value}%` }}
@@ -578,7 +578,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </div>
 
                             {/* Novel labels at bottom */}
-                            <div className={`flex gap-3 pt-1 border-t transition-colors duration-1000 ${isFili ? "border-brand-navy/10" : "border-brand-gold/10"}`}>
+                            <div className={`flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t transition-colors duration-1000 ${isFili ? "border-brand-navy/10" : "border-brand-gold/10"}`}>
                                 <div className="flex items-center gap-1.5">
                                     <div className="w-2 h-2 rounded-full bg-[#C5A065]" />
                                     <span className={`text-[10px] font-semibold uppercase tracking-widest transition-colors duration-1000 text-brand-text-light`}>
