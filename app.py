@@ -8,13 +8,25 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 import gradio as gr
+
+try:
+    import spaces
+except ImportError:
+    class spaces:
+        @staticmethod
+        def GPU(fn=None, **kwargs):
+            if fn is None:
+                return lambda f: f
+            return fn
+
 from app.main import app as fastapi_app
 
+@spaces.GPU
 def check_status():
     return "✅ Rizal Thematic Exploration API is Online and Healthy!\nAPI endpoints available at /api/v1/search and /api/v1/chapters."
 
 with gr.Blocks(title="Rizal Search API") as demo:
-    gr.Markdown("# 🇵🇭 Rizal Thematic Exploration Search API")
+    gr.Markdown("# 📖 Rizal Thematic Exploration Search API")
     gr.Markdown("FastAPI backend engine powered by PyTorch, SentenceTransformers (XLM-RoBERTa), and Supabase PostgreSQL with pgvector.")
     status_btn = gr.Button("Check Health Status")
     output = gr.Textbox(label="API Status", value="Ready")
