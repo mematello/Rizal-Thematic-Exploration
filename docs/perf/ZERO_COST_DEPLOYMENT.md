@@ -148,9 +148,9 @@ Hugging Face builds the container and provides your public API URL:
 
 ## 6. Pre-Merge Verification Checklist
 
-Before merging `perf/speed-optimization` into `main`:
-- [ ] `.gitignore` updated to track `backend/app/data/word_vec_cache_v1.pkl`.
-- [ ] Backend `Dockerfile` committed and verified.
-- [ ] Database backup `rizal_db_backup.sql` generated and tested.
-- [ ] Frontend API URL environment variable verified in `frontend/`.
-- [ ] Merge `perf/speed-optimization` into `main`.
+- [x] `.gitignore` updated to track `backend/app/data/word_vec_cache_v1.pkl`.
+- [x] Backend `Dockerfile` committed and verified.
+- [x] Database backup `rizal_db_backup.sql` generated and tested (241 MB dump generated).
+- [x] Frontend API URL environment variable verified in `frontend/`.
+- [x] Ready to merge `perf/speed-optimization` into `main`.
+
