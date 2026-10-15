@@ -61,33 +61,67 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
 
     const COLS = 4; // matches lg:grid-cols-4
 
+    // Group into 4-chapter sections (matching Kabanata navigation groups)
+    const groups: { start: number; end: number; chapters: Chapter[] }[] = [];
+    for (let i = 0; i < items.length; i += 4) {
+        const slice = items.slice(i, i + 4);
+        groups.push({
+            start: slice[0].chapter_number,
+            end: slice[slice.length - 1].chapter_number,
+            chapters: slice,
+        });
+    }
+
     return (
-        <div className="w-full pb-20">
+        <div className="w-full pb-20 space-y-6">
             <motion.div
                 key={selectedNovel}
-                className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                className="space-y-6"
                 initial="hidden"
                 animate="show"
             >
-                {items.map((chapter, idx) => (
-                    <ChapterCard
-                        key={`${chapter.book}-${chapter.chapter_number}`}
-                        chapter={chapter}
-                        colIndex={idx % COLS}
-                        onClick={() => onChapterSelect(chapter.book, chapter.chapter_number, chapter.chapter_title)}
-                    />
+                {groups.map((group) => (
+                    <section
+                        key={`${selectedNovel}-group-${group.start}`}
+                        id={`kabanata-${group.start}`}
+                        data-group-start={group.start}
+                        className="scroll-mt-[180px] lg:scroll-mt-[104px]"
+                        style={{ scrollMarginTop: "var(--chapter-scroll-margin, 180px)" }}
+                    >
+                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                            {group.chapters.map((chapter, idx) => (
+                                <ChapterCard
+                                    key={`${chapter.book}-${chapter.chapter_number}`}
+                                    chapter={chapter}
+                                    isGroupStart={chapter.chapter_number === group.start}
+                                    colIndex={idx % COLS}
+                                    onClick={() => onChapterSelect(chapter.book, chapter.chapter_number, chapter.chapter_title)}
+                                />
+                            ))}
+                        </div>
+                    </section>
                 ))}
             </motion.div>
         </div>
     );
 }
 
-function ChapterCard({ chapter, onClick, colIndex }: { chapter: Chapter; onClick: () => void; colIndex: number }) {
+function ChapterCard({
+    chapter,
+    onClick,
+    colIndex,
+    isGroupStart,
+}: {
+    chapter: Chapter;
+    onClick: () => void;
+    colIndex: number;
+    isGroupStart?: boolean;
+}) {
     const isNoli = chapter.book === "noli";
 
     return (
         <motion.div
-            id={`kabanata-${chapter.chapter_number}`}
+            id={!isGroupStart ? `kabanata-${chapter.chapter_number}` : `kabanata-card-${chapter.chapter_number}`}
             role="button"
             tabIndex={0}
             onClick={onClick}

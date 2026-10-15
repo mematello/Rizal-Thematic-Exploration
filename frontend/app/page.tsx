@@ -321,24 +321,19 @@ export default function Home() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="min-h-[50vh]"
           >
             {activeTab === "chapters" && (
-              <div className="mt-4 sm:mt-6 flex flex-col lg:flex-row gap-6">
-                {/* Sticky sidebar navigation for Kabanata 1–64 (Noli only) */}
-                <ChapterSidebar novel={novel} />
-
-                <div className="flex-1">
-                  <ChapterGrid
-                    selectedNovel={novel}
-                    onChapterSelect={handleChapterSelect}
-                  />
-                </div>
-              </div>
+              <ChapterSidebar novel={novel}>
+                <ChapterGrid
+                  selectedNovel={novel}
+                  onChapterSelect={handleChapterSelect}
+                />
+              </ChapterSidebar>
             )}
 
             {activeTab === "characters" && (
