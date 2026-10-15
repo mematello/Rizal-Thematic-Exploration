@@ -50,10 +50,11 @@
 - [x] Evaluate fast local out-of-vocabulary (OOV) heuristic or dictionary filter vs. external translation timeout tuning — **Resolved: Pre-translator heuristics rejected to preserve academic cross-lingual recall for unmapped historical concepts; existing 5.0s timeout maintained**
 
 
-### 3. Production Deployment Sizing & Host Configuration (Pending Deployment)
-- [ ] Finalize server memory budget (account for ~460 MB initial RSS and ~1.2 GB working memory under inference)
-- [ ] Configure Uvicorn worker count based on deployment machine CPU cores and RAM limits
-- [ ] Ensure `word_vec_cache_v1.pkl` is packaged or built during deployment CI/CD
+### 3. Production Deployment Sizing & Host Configuration (Resolved 2026-10-16)
+- [x] Finalize server memory budget (account for ~460 MB initial RSS and ~1.2 GB working memory under inference) — **Resolved: Budgeted ~460 MB initial RSS, ~2.2 GB commit memory for dual models, and ~1.2–1.5 GB RSS under active inference per worker**
+- [x] Configure Uvicorn worker count based on deployment machine CPU cores and RAM limits — **Resolved: Established formula NUM_WORKERS = max(1, min(CPU_CORES, floor((RAM_GB - 2.5) / 1.5)))**
+- [x] Ensure `word_vec_cache_v1.pkl` is packaged or built during deployment CI/CD — **Resolved: Build step `python scripts/build_word_vec_cache.py` or release artifact copy integrated into deployment workflow**
+
 
 ---
 

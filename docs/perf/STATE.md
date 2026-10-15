@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-10-16  
 **Branch**: `perf/speed-optimization`  
-**Current Phase**: Steps 1–A complete; Step B (determinism) **approved, verified, and merged**. Pending Decision #2 (Translation Policy) **resolved**. Pending deployment sizing and final merge to main.
+**Current Phase**: Steps 1–A optimizations, Step B determinism, Translation Policy (#2), and Deployment Sizing (#3) **approved and finalized**. Ready for final integration merge into `main`.
 
 ---
 
@@ -54,7 +54,8 @@ Measured on a quiet system with identical protocols (`http://127.0.0.1:8002`, `r
 
 ---
 
-## Next Action: Remaining Pending Items
+## Next Action: Final Integration
  
-1. **Pending Item #3**: Production Deployment Sizing & Host Configuration (sizing budget, Uvicorn worker count, cache artifact packaging).
-2. **Final Integration**: Merge `perf/speed-optimization` → `main`.
+1. **Final Integration**: Merge `perf/speed-optimization` → `main`.
+2. Push `main` to remote repository if desired.
+

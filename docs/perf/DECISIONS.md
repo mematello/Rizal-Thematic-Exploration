@@ -546,7 +546,39 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
   2. **Amortization in Steady-State**: `TranslatorCache` slashes warm latency by 90.0% (from ~1,298 ms down to ~129.7 ms). Unmapped terms are negative-cached for 60s to prevent spam/DoS.
   3. **Preservation of Determinism**: Zero changes to search results, metadata reasons, or `golden_snapshot_deterministic.json`. 100% of Phase B6 evidence items remain bit-identical.
 
-### 3. Deliberately Unexecuted Optimizations
+---
+
+### 2026-10-16: Production Deployment Sizing & Host Configuration
+
+**Context**: Public and production deployment of the optimized search service requires explicit server memory budgets, worker process limits, and artifact packaging procedures to prevent out-of-memory crashes and guarantee fast first-seen search response times.
+
+**Decision**: Formally establish the host configuration and sizing rules:
+1. **Memory Budget**:
+   - Initial boot RSS: ~460 MB per worker.
+   - Dual-model allocation (Base XLM-R + DAPT): ~2.2 GB commit memory per worker.
+   - Steady-state working memory under inference: ~1.2 GB to ~1.5 GB RSS per worker.
+   - Dedicated RAM sizing: Minimum 4 GB RAM for 1 worker; 8 GB RAM for 2 workers; 16 GB RAM for 4–6 workers.
+2. **Worker Concurrency Formula**:
+   - `NUM_WORKERS = max(1, min(CPU_CORES, floor((TOTAL_RAM_GB - 2.5GB_RESERVED) / 1.5GB)))`
+   - Production launch: `uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers $NUM_WORKERS`
+3. **Cache Packaging**:
+   - `backend/app/data/word_vec_cache_v1.pkl` (73.39 MB, 24,770 words) must be generated via `python scripts/build_word_vec_cache.py` or copied from release storage during CI/CD build.
+   - At startup, the engine validates the vocabulary SHA-256 hash (`6efe3301743eed6b7552291a9c444e7a4ea426cd5175d89ca9d8b648b1c65569`) in 238 ms. If missing, it falls back gracefully to on-demand encoding.
+
+---
+
+## Pending Decisions
+
+### 1. ~~Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)~~ ✅ RESOLVED
+- **Status**: **Approved and committed** (2026-10-16).
+
+### 2. ~~First-Seen Out-of-Domain Translation Latency Policy~~ ✅ RESOLVED
+- **Status**: **Approved and adopted** (2026-10-16).
+
+### 3. ~~Production Deployment Sizing & Host Configuration~~ ✅ RESOLVED
+- **Status**: **Approved and finalized** (2026-10-16). See specifications above.
+
+### 4. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.
 - **Items**:
   - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.
