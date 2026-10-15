@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Footer } from "@/components/Footer";
 
 const playfair = Playfair_Display({
   variable: "--font-serif",
@@ -44,10 +43,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <div className="flex-1">
-            {children}
-          </div>
-          <Footer />
+          {children}
         </Providers>
         <Analytics />
         <SpeedInsights />

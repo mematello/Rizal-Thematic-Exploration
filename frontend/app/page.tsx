@@ -17,6 +17,7 @@ import { ChapterSidebar } from "@/components/ChapterSidebar";
 import { ArrowUp } from "lucide-react";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ChapterContent } from "@/types";
+import { Footer } from "@/components/Footer";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -115,7 +116,7 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-screen pb-20 transition-colors duration-700 ease-in-out`}
+      className={`min-h-screen flex flex-col justify-between transition-colors duration-700 ease-in-out`}
       data-novel={novel}
       style={backgroundStyle}
     >
@@ -259,6 +260,9 @@ export default function Home() {
           onNavigate={handleNavigate}
         />
       )}
+
+      {/* Homepage Footer */}
+      <Footer />
     </main>
   );
 }
