@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Footer } from "@/components/Footer";
 
 const playfair = Playfair_Display({
   variable: "--font-serif",
@@ -39,11 +40,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text`}
+        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-screen flex flex-col justify-between`}
         suppressHydrationWarning
       >
         <Providers>
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </Providers>
         <Analytics />
         <SpeedInsights />

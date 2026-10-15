@@ -245,13 +245,6 @@ export default function Home() {
         </button>
       )}
 
-      {/* Footer Decoration */}
-      <footer className="mt-20 py-10 text-center border-t border-brand-gold/30">
-        <p className="text-brand-text-light font-serif italic text-sm">
-          &quot;To foretell the destiny of a nation, it is necessary to open the book that tells of her past.&quot;
-        </p>
-      </footer>
-
       {/* Global Chapter Modal */}
       {selectedChapter && (
         <ChapterModal
