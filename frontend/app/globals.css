@@ -89,7 +89,7 @@
 
     /* Clean White Background */
     body {
-        @apply bg-brand-cream text-brand-text font-body relative min-h-screen overflow-x-hidden;
+        @apply bg-brand-cream text-brand-text font-body relative min-h-screen;
         transition: background-color var(--transition-speed) var(--transition-timing),
             color var(--transition-speed) var(--transition-timing);
     }

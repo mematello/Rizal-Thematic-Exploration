@@ -133,7 +133,7 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-[100dvh] flex flex-col justify-between transition-colors duration-700 ease-in-out`}
+      className={`w-full max-w-full min-w-0 min-h-[100dvh] flex flex-col justify-between transition-colors duration-700 ease-in-out`}
       data-novel={novel}
       style={backgroundStyle}
     >
@@ -315,7 +315,7 @@ export default function Home() {
       <HeroSection novel={novel} />
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 mt-6 sm:mt-8">
+      <div className="w-full max-w-7xl mx-auto px-4 mt-6 sm:mt-8 min-w-0">
         {/* Mobile Novel Switcher: Top to bottom on mobile: Header -> Novel Toggle -> ContentTabs -> Sticky Kabanata pill row */}
         <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2">
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text/60 font-serif">
@@ -333,7 +333,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="min-h-[50vh]"
+            className="min-h-[50vh] w-full max-w-full min-w-0"
           >
             {activeTab === "chapters" && (
               <ChapterSidebar novel={novel}>

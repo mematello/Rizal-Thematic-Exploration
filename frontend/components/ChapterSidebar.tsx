@@ -38,7 +38,7 @@ const MobilePillNav = memo(function MobilePillNav({
   containerRef,
 }: MobilePillNavProps) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full max-w-full min-w-0">
       <div className="flex items-center justify-between mb-2 px-1">
         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60 font-serif">
           {label}
@@ -48,17 +48,17 @@ const MobilePillNav = memo(function MobilePillNav({
         </span>
       </div>
 
-      <div className="relative">
+      <div className="relative w-full max-w-full min-w-0">
         {/* Horizontal scroll container: relative positioned with proximity scroll snap */}
         <div
           ref={containerRef}
           role="tablist"
           aria-label="Mga saklaw ng Kabanata"
-          className="relative overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
+          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
           style={{ scrollPaddingInline: "1.25rem" }}
         >
           {/* Inner list: display flex, width max-content, with generous end-padding so Kabanata 61-64 is fully reachable */}
-          <div className="flex w-max gap-2 px-1 pr-16">
+          <div className="flex flex-nowrap w-max gap-2 px-1 pr-16 min-w-0">
             {sections.map(({ start, end }) => {
               const id = `kabanata-${start}`;
               const isActive = start === activeSectionStart;
@@ -278,6 +278,8 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     const matchingSection = sections.find(
       (s) => chapterNum >= s.start && chapterNum <= s.end
     );
+    if (!matchingSection) return;
+
     const timer = setTimeout(() => {
       setActiveSectionStart(matchingSection.start);
       activeSectionStartRef.current = matchingSection.start;
@@ -530,13 +532,13 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     <div
       ref={sectionContainerRef}
       id="chapters-section"
-      className="mt-4 sm:mt-6 relative"
+      className="mt-4 sm:mt-6 relative w-full max-w-full min-w-0"
     >
       {/* Mobile Sticky Horizontal Pill Row: Rendered ONLY on mobile (< 1024px) */}
       {!isDesktop && (
         <div
           ref={mobileNavRef}
-          className="sticky top-[var(--header-height,110px)] z-30 -mx-4 px-4 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
+          className="sticky top-[var(--header-height,110px)] z-30 w-full max-w-full min-w-0 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
         >
           <MobilePillNav
             sections={sections}
@@ -550,7 +552,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       )}
 
       {/* Main Flex Layout for Sidebar + Chapter Grid */}
-      <div className="flex flex-col lg:flex-row gap-6 mt-4 lg:mt-0">
+      <div className="flex flex-col lg:flex-row gap-6 mt-4 lg:mt-0 w-full max-w-full min-w-0">
         {/* Desktop Sticky Sidebar: Rendered ONLY on desktop (>= 1024px) */}
         {isDesktop && (
           <aside className="w-56 shrink-0">

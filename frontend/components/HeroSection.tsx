@@ -118,7 +118,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
     const isFili = novel === "fili";
 
     return (
-        <section className="relative w-full py-14 md:py-28 overflow-hidden">
+        <section className="relative w-full max-w-full min-w-0 py-14 md:py-28 overflow-hidden">
             {/* Novel-themed illustrated background with dynamic mode */}
             <NovelBackground novel={novel === "both" ? "noli" : novel} />
 
@@ -131,7 +131,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                 }}
             />
 
-            <div className="relative z-10 max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-w-0">
                 {/* ===== LEFT: Text Content ===== */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}

@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-[100dvh] flex flex-col justify-between`}
+        className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-[100dvh] flex flex-col justify-between w-full max-w-full overflow-x-clip`}
         suppressHydrationWarning
       >
         <Providers>

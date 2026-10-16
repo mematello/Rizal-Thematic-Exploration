@@ -21,11 +21,11 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
     <div
       role="tablist"
       aria-label="Mga seksyon ng nilalaman"
-      className="w-full max-w-xl mx-auto mb-6 sm:mb-8 px-2 sm:px-0"
+      className="w-full max-w-xl mx-auto mb-6 sm:mb-8 px-2 sm:px-0 min-w-0"
     >
       {/* Mobile: Full-width segmented control with 3 equal columns (min-h-[44px]) */}
       {/* Desktop (sm+): Elegant underline tab bar */}
-      <div className="grid grid-cols-3 p-1 rounded-xl bg-brand-gold/10 border border-brand-gold/20 sm:bg-transparent sm:border-0 sm:border-b sm:border-brand-gold/20 sm:p-0 sm:flex sm:items-center sm:justify-center sm:gap-8 md:gap-12 sm:pb-3">
+      <div className="grid grid-cols-3 p-1 rounded-xl bg-brand-gold/10 border border-brand-gold/20 sm:bg-transparent sm:border-0 sm:border-b sm:border-brand-gold/20 sm:p-0 sm:flex sm:items-center sm:justify-center sm:gap-8 md:gap-12 sm:pb-3 w-full max-w-full min-w-0">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
