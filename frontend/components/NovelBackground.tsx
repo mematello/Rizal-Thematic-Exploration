@@ -42,7 +42,7 @@ export function NovelBackground({ novel }: NovelBackgroundProps) {
 
             {/* Gradient sky layers — warm gold to deep navy */}
             <motion.div
-                className="absolute inset-0 z-3"
+                className="absolute inset-0 z-3 dark:opacity-15 transition-opacity duration-700"
                 animate={{
                     filter: isFili ? "brightness(0.9) contrast(1.1) saturate(0.8)" : "brightness(1) contrast(1) saturate(1)",
                 }}

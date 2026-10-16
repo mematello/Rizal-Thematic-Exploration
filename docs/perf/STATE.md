@@ -131,7 +131,6 @@
        - Base dark canvas: `--theme-bg: #0F141C;`, `--theme-card: #18202C;`, `--theme-text: #EAE6DF;`, `--theme-text-muted: #9E9B93;`, `--theme-border: rgba(232, 201, 122, 0.18);`.
        - Dark Noli accents: `--theme-primary: #D4AF37;`, `--theme-accent: #E8C97A;`.
        - Dark Fili accents: `--theme-primary: #C94C68;`, `--theme-accent: #E28498;`.
-       - Dark mode fixed backdrops: midnight parchment wash for mobile portrait, and deep midnight landscape collage for desktop/tablet.
        - Dark mode gold drop cap (`.dark .drop-cap::first-letter: #E8C97A`) and dark scrollbars.
     5. Audited and upgraded components for WCAG AA contrast compliance:
        - `ChapterModal.tsx`: Dark mode modal shell, chapter text reading canvas, Prev/Next buttons, and full Sanggunian reference overlay.
@@ -139,15 +138,21 @@
        - `ResultCard.tsx`: Card titles (`dark:text-foreground`), meaning/themes cards (`dark:bg-brand-paper`).
        - `NovelToggle.tsx`: Novel switcher dropdown and pill buttons (`dark:bg-brand-paper/98`, `dark:text-brand-gold`).
        - `HeroSection.tsx`: Replaced hardcoded inline white styles with responsive Tailwind dark classes (`bg-white/90 dark:bg-brand-paper/95`, `dark:text-foreground`).
+       - `SearchBar.tsx`: Fixed search input text visibility in dark mode by adding `text-brand-navy dark:text-foreground`, `dark:placeholder:text-brand-text-muted/60`, high-contrast clear `X` button, and dark midnight suggestions menu (`dark:bg-brand-paper/98`).
+       - `NovelBackground.tsx`: Added `dark:opacity-15` to the sky layers to prevent the blinding white radial wash from overpowering the midnight backdrop.
+       - `search/page.tsx`: Added `data-novel` container attribute, dark header styling (`dark:bg-[#0C1424]/95`), back button contrast, and dark mode toggles for Buod/Buong Kwento, Gabay na Mapa, and Marka.
+  - **Identified & Resolved Tailwind v4 Selector Stripping**:
+    - Discovered that Tailwind CSS v4's compiler discarded bare `.dark { ... }` blocks when `@custom-variant dark` was present. Resolved by defining `html.dark, :root.dark, :root[class~="dark"]`, ensuring all midnight CSS variables (`--theme-bg: #0D131F;`, `--theme-card: #151E2E;`, etc.) properly cascade to `body`, `main`, and cards.
   - **Verification**:
-    - `npm run build` compiled cleanly in 4.8s with 0 errors.
-    - Verified locally on `http://localhost:3000` via browser subagent: tested desktop home, mobile drawer segmented toggle, dark chapter reader modal, and search results page.
+    - `npm run build` compiled cleanly with 0 errors.
+    - Verified locally on `http://localhost:3000` via browser subagent: verified midnight navy background, white typed text in search input (`search_bar_typed_kalayaan`), dark search suggestions dropdown, and fully dark-themed search results page with high-contrast result cards (`search_results_dark_mode`).
     - Zero diff on `backend/app/core/engine.py` (strictly 0 diff).
 
 ---
 
 ## Next Steps
 - Await user approval to merge `feat/dark-mode` into `main` and push to GitHub.
+
 
 
 

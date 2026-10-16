@@ -270,7 +270,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             {["bg-brand-gold/15", "bg-brand-navy/10", "bg-fili-accent/10", "bg-brand-gold/10"].map((bg, i) => (
                                 <div
                                     key={i}
-                                    className={`w-9 h-9 rounded-full border border-brand-gold/20 ${bg} flex items-center justify-center shadow-sm bg-white backdrop-blur-sm`}
+                                    className={`w-9 h-9 rounded-full border border-brand-gold/20 ${bg} flex items-center justify-center shadow-sm bg-white dark:bg-brand-paper backdrop-blur-sm`}
                                 >
                                     {i === 0 && (
                                         <svg viewBox="0 0 24 24" className="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" strokeWidth="1.5">

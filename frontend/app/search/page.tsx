@@ -171,7 +171,7 @@ function SearchContent() {
     const backgroundStyle = useNovelBackground(novelFilter);
 
     return (
-        <div className="min-h-screen flex flex-col relative">
+        <div className="min-h-screen flex flex-col relative" data-novel={novelFilter || 'both'}>
             {/* Fixed viewport backdrop: responsive framing prevents 8x zoom */}
             <div
                 className="novel-backdrop-layer"
@@ -179,12 +179,12 @@ function SearchContent() {
                 aria-hidden="true"
             />
             {/* Sticky Header */}
-            <header className="bg-brand-cream/98 border-b border-brand-gold/20 sticky top-0 z-40 backdrop-blur-sm safe-top">
+            <header className="bg-brand-cream/98 dark:bg-[#0C1424]/95 border-b border-brand-gold/20 dark:border-brand-gold/25 sticky top-0 z-40 backdrop-blur-sm safe-top transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-4">
                     <button
                         type="button"
                         onClick={() => router.push('/')}
-                        className="min-w-[44px] min-h-[44px] -ml-2 rounded-full flex items-center justify-center text-brand-navy/60 hover:text-brand-navy active:scale-95 transition-all shrink-0"
+                        className="min-w-[44px] min-h-[44px] -ml-2 rounded-full flex items-center justify-center text-brand-navy/70 dark:text-foreground/80 hover:text-brand-navy dark:hover:text-brand-gold active:scale-95 transition-all shrink-0"
                         aria-label="Bumalik sa panimulang pahina"
                     >
                         <ArrowLeft size={20} />
@@ -204,22 +204,22 @@ function SearchContent() {
                 {/* Sub-header: novel context + score toggle */}
                 <div className="max-w-6xl mx-auto px-4 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
                     <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs text-brand-text/70 font-serif truncate">
-                            Naghahanap sa: <span className="font-bold text-brand-navy">{novelLabel}</span>
+                        <span className="text-xs text-brand-text/70 dark:text-brand-text-muted font-serif truncate">
+                            Naghahanap sa: <span className="font-bold text-brand-navy dark:text-brand-gold">{novelLabel}</span>
                         </span>
                         {!isLoading && initialQuery && (
-                            <span className="text-xs text-brand-text/40 font-serif shrink-0">
+                            <span className="text-xs text-brand-text/40 dark:text-brand-text-muted/60 font-serif shrink-0">
                                 · {totalResults} {totalResults === 1 ? 'resulta' : 'mga resulta'}
                             </span>
                         )}
                     </div>
 
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-                        <div className="flex bg-white/85 rounded-full p-1 border border-brand-gold/20 shadow-xs items-center h-9 shrink-0">
+                        <div className="flex bg-white/85 dark:bg-brand-paper/90 rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-9 shrink-0">
                             <button
                                 type="button"
                                 onClick={() => useModeStore.getState().setMode('buod')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs' : 'text-brand-text dark:text-brand-text-muted hover:bg-brand-gold/10'}`}
                                 aria-pressed={mode === 'buod'}
                             >
                                 Buod
@@ -227,7 +227,7 @@ function SearchContent() {
                             <button
                                 type="button"
                                 onClick={() => useModeStore.getState().setMode('full')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs' : 'text-brand-text dark:text-brand-text-muted hover:bg-brand-gold/10'}`}
                                 aria-pressed={mode === 'full'}
                             >
                                 Buong Kwento
@@ -241,8 +241,8 @@ function SearchContent() {
                             onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
                             className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${
                                 viewMode === 'map'
-                                    ? 'bg-brand-navy text-white border-brand-navy shadow-sm'
-                                    : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy bg-white/80'
+                                    ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy border-brand-navy dark:border-brand-gold shadow-sm'
+                                    : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-brand-paper/85'
                             }`}
                             title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
                             aria-label={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
@@ -259,8 +259,8 @@ function SearchContent() {
                             type="button"
                             onClick={() => setShowScores(!showScores)}
                             className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${showScores
-                                ? 'bg-brand-navy text-white border-brand-navy shadow-xs'
-                                : 'border-brand-navy/20 text-brand-navy/60 hover:border-brand-navy/40 hover:text-brand-navy bg-white/80'
+                                ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy border-brand-navy dark:border-brand-gold shadow-xs'
+                                : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-brand-paper/85'
                                 }`}
                             aria-label={showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
                         >

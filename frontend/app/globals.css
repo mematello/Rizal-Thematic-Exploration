@@ -52,7 +52,9 @@
     --theme-overlay: rgba(25, 20, 15, 0.6);
 }
 
-.dark {
+html.dark,
+:root.dark,
+:root[class~="dark"] {
     --radius: 1rem;
     --background: #0B0F19;
     --foreground: #F0F4F8;
@@ -84,9 +86,10 @@
     --theme-border: rgba(197, 160, 101, 0.15);
 }
 
-.dark [data-novel="noli"],
+html.dark [data-novel="noli"],
+:root.dark [data-novel="noli"],
 [data-novel="noli"].dark,
-.dark[data-novel="noli"] {
+.dark [data-novel="noli"] {
     --theme-bg: #0C1424;
     --theme-card: rgba(18, 28, 46, 0.92);
     --theme-primary: #E8C97A;
@@ -109,9 +112,10 @@
     --theme-border: rgba(141, 45, 45, 0.15);
 }
 
-.dark [data-novel="fili"],
+html.dark [data-novel="fili"],
+:root.dark [data-novel="fili"],
 [data-novel="fili"].dark,
-.dark[data-novel="fili"] {
+.dark [data-novel="fili"] {
     --theme-bg: #180D0E;
     --theme-card: rgba(36, 18, 22, 0.92);
     --theme-primary: #F4A2A2;
@@ -322,6 +326,10 @@
         }
 
         /* Dark Mode Mobile Backdrops */
+        html.dark .novel-backdrop-layer[data-novel="noli"],
+        :root.dark .novel-backdrop-layer[data-novel="noli"],
+        html.dark .novel-backdrop-layer:not([data-novel]),
+        :root.dark .novel-backdrop-layer:not([data-novel]),
         .dark .novel-backdrop-layer[data-novel="noli"],
         .dark .novel-backdrop-layer:not([data-novel]) {
             background-image: 
@@ -330,6 +338,10 @@
                 url('/images/backgrounds/background_1.webp');
             background-position: center;
         }
+        html.dark .novel-backdrop-layer[data-novel="fili"],
+        :root.dark .novel-backdrop-layer[data-novel="fili"],
+        html.dark .novel-backdrop-layer[data-novel="elfili"],
+        :root.dark .novel-backdrop-layer[data-novel="elfili"],
         .dark .novel-backdrop-layer[data-novel="fili"],
         .dark .novel-backdrop-layer[data-novel="elfili"] {
             background-image: 
@@ -364,12 +376,18 @@
         }
 
         /* Dark Mode Desktop Backdrops */
+        html.dark .novel-backdrop-layer[data-novel="noli"],
+        :root.dark .novel-backdrop-layer[data-novel="noli"],
         .dark .novel-backdrop-layer[data-novel="noli"] {
             background-image: 
                 linear-gradient(to bottom, rgba(12, 20, 36, 0.90) 0%, rgba(12, 20, 36, 0.95) 50%, rgba(12, 20, 36, 0.99) 100%),
                 url('/images/backgrounds/noli_background.webp');
             background-position: center top;
         }
+        html.dark .novel-backdrop-layer[data-novel="fili"],
+        :root.dark .novel-backdrop-layer[data-novel="fili"],
+        html.dark .novel-backdrop-layer[data-novel="elfili"],
+        :root.dark .novel-backdrop-layer[data-novel="elfili"],
         .dark .novel-backdrop-layer[data-novel="fili"],
         .dark .novel-backdrop-layer[data-novel="elfili"] {
             background-image: 
@@ -377,12 +395,15 @@
                 url('/images/backgrounds/elfili_background.webp');
             background-position: center top;
         }
+        html.dark .novel-backdrop-layer[data-novel="both"],
+        :root.dark .novel-backdrop-layer[data-novel="both"],
+        html.dark .novel-backdrop-layer:not([data-novel]),
+        :root.dark .novel-backdrop-layer:not([data-novel]),
         .dark .novel-backdrop-layer[data-novel="both"],
         .dark .novel-backdrop-layer:not([data-novel]) {
             background-image: 
                 linear-gradient(to bottom, rgba(13, 19, 31, 0.92), rgba(13, 19, 31, 0.98)),
                 url('/images/backgrounds/background_1.webp');
-            background-position: center top;
         }
     }
 }
