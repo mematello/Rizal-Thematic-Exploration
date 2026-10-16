@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, memo } from "react";
+import { useEffect, useRef, useState, useCallback, memo, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -104,14 +104,16 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const totalChapters = novel === "noli" ? 64 : 39;
-  const sections: Section[] = Array.from(
-    { length: Math.ceil(totalChapters / 4) },
-    (_, idx) => {
-      const start = idx * 4 + 1;
-      const end = Math.min(start + 3, totalChapters);
-      return { start, end };
-    }
-  );
+  const sections: Section[] = useMemo(() => {
+    return Array.from(
+      { length: Math.ceil(totalChapters / 4) },
+      (_, idx) => {
+        const start = idx * 4 + 1;
+        const end = Math.min(start + 3, totalChapters);
+        return { start, end };
+      }
+    );
+  }, [totalChapters]);
 
   const [activeSectionStart, setActiveSectionStart] = useState<number>(
     sections[0]?.start ?? 1
@@ -266,9 +268,16 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
     scrollLockTimeout.current = setTimeout(finish, 800);
   };
 
-  // Initial load with URL hash (e.g. /#kabanata-49)
+  // Initial load with URL hash (runs once on mount or when novel changes)
+  const initialHashHandledRef = useRef(false);
+  useEffect(() => {
+    initialHashHandledRef.current = false;
+  }, [novel]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (initialHashHandledRef.current) return;
+
     const hash = window.location.hash;
     if (!hash.startsWith("#kabanata-")) return;
 
@@ -279,6 +288,8 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       (s) => chapterNum >= s.start && chapterNum <= s.end
     );
     if (!matchingSection) return;
+
+    initialHashHandledRef.current = true;
 
     const timer = setTimeout(() => {
       setActiveSectionStart(matchingSection.start);
@@ -412,7 +423,9 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
           if (activeSectionStartRef.current !== firstStart) {
             activeSectionStartRef.current = firstStart;
             setActiveSectionStart(firstStart);
-            window.history.replaceState(null, "", `#kabanata-${firstStart}`);
+            if (window.location.hash !== "") {
+              window.history.replaceState(null, "", window.location.pathname);
+            }
           }
         }
       }

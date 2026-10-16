@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ChapterContent } from "@/types";
 
 
 type Novel = "noli" | "fili";
@@ -88,7 +87,7 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
                         className="scroll-mt-[180px] lg:scroll-mt-[104px]"
                         style={{ scrollMarginTop: "var(--chapter-scroll-margin, 180px)" }}
                     >
-                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-2.5 sm:gap-6 grid-cols-2 lg:grid-cols-4">
                             {group.chapters.map((chapter, idx) => (
                                 <ChapterCard
                                     key={`${chapter.book}-${chapter.chapter_number}`}
@@ -137,7 +136,7 @@ function ChapterCard({
             whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.12)" }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-                "group relative p-5 sm:p-6 min-h-[13rem] sm:h-56 flex flex-col justify-between overflow-hidden cursor-pointer select-none",
+                "group relative p-3.5 sm:p-6 min-h-[9.5rem] sm:h-56 flex flex-col justify-between overflow-hidden cursor-pointer select-none",
                 "bg-white/75 backdrop-blur-md shadow-sm transition-all duration-300",
                 "border border-brand-gold/15 hover:border-brand-gold/40 active:border-brand-gold/60 rounded-xl sm:rounded-sm",
                 "scroll-mt-32 sm:scroll-mt-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
@@ -146,7 +145,7 @@ function ChapterCard({
         >
             {/* Decorative Background Number */}
             <span className={cn(
-                "absolute -right-3 -top-6 text-8xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
+                "absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
                 "text-brand-navy pointer-events-none"
             )}>
                 {chapter.chapter_number}
@@ -160,22 +159,22 @@ function ChapterCard({
 
             <div>
                 <span className={cn(
-                    "text-[10px] font-bold tracking-[0.2em] uppercase",
+                    "text-[9px] sm:text-[10px] font-bold tracking-[0.16em] sm:tracking-[0.2em] uppercase truncate block",
                     isNoli ? "text-noli-accent" : "text-fili-accent"
                 )}>
                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-serif text-brand-navy mt-2 sm:mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight">
+                <h3 className="text-base sm:text-2xl font-serif text-brand-navy mt-1 sm:mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight font-bold">
                     Kabanata {chapter.chapter_number}
                 </h3>
-                <p className="text-sm font-serif text-brand-text/70 mt-1.5 sm:mt-2 italic line-clamp-2">
+                <p className="text-[11px] sm:text-sm font-serif text-brand-text/70 mt-1 sm:mt-2 italic line-clamp-1 sm:line-clamp-2">
                     {chapter.chapter_title}
                 </p>
             </div>
 
-            <div className="flex items-center text-xs font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300 pt-2">
-                <span className="mr-2">BASAHIN ANG KABANATA</span>
-                <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center text-[9px] sm:text-xs font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300 pt-1.5 sm:pt-2">
+                <span className="mr-1 sm:mr-2 truncate">BASAHIN</span>
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
             </div>

@@ -38,7 +38,7 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
     const options: Novel[] = ["noli", "fili"];
 
     return (
-        <div className="relative z-50" ref={containerRef}>
+        <div className="relative z-20" ref={containerRef}>
             <button
                 type="button"
                 onClick={toggleOpen}
@@ -65,7 +65,7 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-2 w-52 bg-white/98 rounded-xl shadow-xl border border-brand-gold/20 overflow-hidden z-50 backdrop-blur-md"
+                        className="absolute right-0 mt-2 w-52 bg-white/98 rounded-xl shadow-xl border border-brand-gold/20 overflow-hidden z-30 backdrop-blur-md"
                     >
                         <div className="py-1">
                             {options.map((option) => (

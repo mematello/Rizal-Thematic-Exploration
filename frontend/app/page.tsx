@@ -139,7 +139,7 @@ export default function Home() {
     >
       {/* Header Section */}
       <header
-        className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'
+        className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'
           ? 'bg-[#EAE3D5]/90 border-brand-navy/10'
           : 'bg-[#F5F1E9]/90 border-brand-gold/20'
           }`}
@@ -216,7 +216,7 @@ export default function Home() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 top-[110px] z-30 bg-black/40 backdrop-blur-xs md:hidden"
+                className="fixed inset-0 top-[110px] z-50 bg-black/40 backdrop-blur-xs md:hidden"
                 aria-hidden="true"
               />
 
@@ -229,7 +229,7 @@ export default function Home() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="relative z-40 bg-white/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5"
+                className="relative z-50 bg-white/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5"
               >
                 {/* Novel Selector for Mobile */}
                 <div>
@@ -317,7 +317,7 @@ export default function Home() {
       {/* Main Content Area */}
       <div className="w-full max-w-7xl mx-auto px-4 mt-6 sm:mt-8 min-w-0">
         {/* Mobile Novel Switcher: Top to bottom on mobile: Header -> Novel Toggle -> ContentTabs -> Sticky Kabanata pill row */}
-        <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2">
+        <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2 relative z-10">
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text/60 font-serif">
             Piling Nobela
           </span>
