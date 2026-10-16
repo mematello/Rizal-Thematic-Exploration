@@ -1,0 +1,40 @@
+Sanggunian N+1 Pattern Simulation & Audit
+======================================================================
+
+Chapter: Noli Me Tangere, Kabanata 1 (Buod)
+Sentence count in chapter: 22
+
+Call #   | Sent ID  | Index  | Cache Status | SQL Queries  | Latency (ms)
+---------------------------------------------------------------------------
+1        | 37177    | 1      | MISS         | 3            |   47793.62 ms
+2        | 37178    | 2      | HIT (in-mem) | 1            |      90.66 ms
+3        | 37179    | 3      | HIT (in-mem) | 1            |      46.88 ms
+4        | 37180    | 4      | HIT (in-mem) | 1            |      47.38 ms
+5        | 37181    | 5      | HIT (in-mem) | 1            |      50.41 ms
+6        | 37182    | 6      | HIT (in-mem) | 1            |      47.61 ms
+7        | 37183    | 7      | HIT (in-mem) | 1            |      48.56 ms
+8        | 37184    | 8      | HIT (in-mem) | 1            |      46.63 ms
+9        | 37185    | 9      | HIT (in-mem) | 1            |      48.61 ms
+10       | 37186    | 10     | HIT (in-mem) | 1            |      53.82 ms
+11       | 37187    | 11     | HIT (in-mem) | 1            |      47.72 ms
+12       | 37188    | 12     | HIT (in-mem) | 1            |      46.14 ms
+13       | 37189    | 13     | HIT (in-mem) | 1            |      46.22 ms
+14       | 37190    | 14     | HIT (in-mem) | 1            |      46.22 ms
+15       | 37191    | 15     | HIT (in-mem) | 1            |      47.03 ms
+16       | 37192    | 16     | HIT (in-mem) | 1            |      50.36 ms
+17       | 37193    | 17     | HIT (in-mem) | 1            |      47.43 ms
+18       | 37194    | 18     | HIT (in-mem) | 1            |      50.22 ms
+19       | 37195    | 19     | HIT (in-mem) | 1            |      46.96 ms
+20       | 37196    | 20     | HIT (in-mem) | 1            |      47.27 ms
+21       | 37197    | 21     | HIT (in-mem) | 1            |      46.66 ms
+22       | 37198    | 22     | HIT (in-mem) | 1            |      46.96 ms
+---------------------------------------------------------------------------
+Total Client-to-Backend HTTP Requests: 22
+Total SQL Queries Executed:            24
+Cumulative Sequential Execution Time:   48843.38 ms
+
+N+1 AUDIT VERDICT: CONFIRMED N+1 ON CLIENT AND BACKEND.
+1. Client makes N=22 separate HTTP roundtrips across batches of 5.
+2. Backend executes 1 query per sentence (SELECT WHERE id = ?) even when alignment is cached.
+3. On cold start, first sentence executes 1 (id) + 1 (buod) + 1 (full) = 3 queries, and subsequent sentences each execute 1 query (id) = 24 total queries.
+4. If batch 1 requests arrive concurrently, a race condition causes queries 2 & 3 to be executed multiple times simultaneously.

@@ -1,0 +1,118 @@
+Sanggunian Execution Breakdown & Query Analysis
+======================================================================
+
+=======================================================
+SENTENCE: Noli Ch 1 Sent 1 (ID 37177)
+=======================================================
+COLD RUN (unwarmed cache):
+  Total Server Time:      45950.28 ms
+  SQL Query Count:        3
+  Total SQL Execution:      573.85 ms (  1.2%)
+  Python / Compute Time:  45376.43 ms ( 98.8%)
+  Serialization Time:         0.33 ms
+  SQL Statements Executed in Cold Run:
+    [1] (160.42 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [2] (179.55 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [3] (233.88 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+WARM RUN (cached alignment):
+  Total Server Time:         81.83 ms
+  SQL Query Count:        1
+  Total SQL Execution:       80.64 ms ( 98.5%)
+  Python / Compute Time:      1.20 ms (  1.5%)
+  Serialization Time:         0.02 ms
+  SQL Statements Executed in Warm Run:
+    [1] ( 80.64 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+=======================================================
+SENTENCE: Noli Ch 5 Sent 1 (ID 37275)
+=======================================================
+COLD RUN (unwarmed cache):
+  Total Server Time:       1585.33 ms
+  SQL Query Count:        3
+  Total SQL Execution:      206.56 ms ( 13.0%)
+  Python / Compute Time:   1378.78 ms ( 87.0%)
+  Serialization Time:         0.04 ms
+  SQL Statements Executed in Cold Run:
+    [1] ( 40.00 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [2] ( 77.12 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [3] ( 89.44 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+WARM RUN (cached alignment):
+  Total Server Time:         39.29 ms
+  SQL Query Count:        1
+  Total SQL Execution:       38.45 ms ( 97.9%)
+  Python / Compute Time:      0.84 ms (  2.1%)
+  Serialization Time:         0.02 ms
+  SQL Statements Executed in Warm Run:
+    [1] ( 38.45 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+=======================================================
+SENTENCE: Noli Ch 34 Sent 1 (ID 37768)
+=======================================================
+COLD RUN (unwarmed cache):
+  Total Server Time:      25127.52 ms
+  SQL Query Count:        3
+  Total SQL Execution:      439.39 ms (  1.7%)
+  Python / Compute Time:  24688.13 ms ( 98.3%)
+  Serialization Time:         0.06 ms
+  SQL Statements Executed in Cold Run:
+    [1] ( 38.30 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [2] (126.81 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [3] (274.27 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+WARM RUN (cached alignment):
+  Total Server Time:         44.10 ms
+  SQL Query Count:        1
+  Total SQL Execution:       42.83 ms ( 97.1%)
+  Python / Compute Time:      1.28 ms (  2.9%)
+  Serialization Time:         0.03 ms
+  SQL Statements Executed in Warm Run:
+    [1] ( 42.83 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+=======================================================
+SENTENCE: El Fili Ch 1 Sent 1 (ID 38389)
+=======================================================
+COLD RUN (unwarmed cache):
+  Total Server Time:      20449.75 ms
+  SQL Query Count:        3
+  Total SQL Execution:      464.45 ms (  2.3%)
+  Python / Compute Time:  19985.30 ms ( 97.7%)
+  Serialization Time:         0.05 ms
+  SQL Statements Executed in Cold Run:
+    [1] ( 38.58 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [2] (110.98 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [3] (314.89 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+WARM RUN (cached alignment):
+  Total Server Time:         39.41 ms
+  SQL Query Count:        1
+  Total SQL Execution:       38.28 ms ( 97.1%)
+  Python / Compute Time:      1.13 ms (  2.9%)
+  Serialization Time:         0.03 ms
+  SQL Statements Executed in Warm Run:
+    [1] ( 38.28 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+=======================================================
+SENTENCE: El Fili Ch 10 Sent 1 (ID 38586)
+=======================================================
+COLD RUN (unwarmed cache):
+  Total Server Time:      24461.86 ms
+  SQL Query Count:        3
+  Total SQL Execution:      453.14 ms (  1.9%)
+  Python / Compute Time:  24008.72 ms ( 98.1%)
+  Serialization Time:         0.09 ms
+  SQL Statements Executed in Cold Run:
+    [1] ( 38.59 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [2] (161.99 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+    [3] (252.56 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
+WARM RUN (cached alignment):
+  Total Server Time:         79.40 ms
+  SQL Query Count:        1
+  Total SQL Execution:       78.06 ms ( 98.3%)
+  Python / Compute Time:      1.34 ms (  1.7%)
+  Serialization Time:         0.02 ms
+  SQL Statements Executed in Warm Run:
+    [1] ( 78.06 ms) SELECT sentences.id AS sentences_id, sentences.book AS sentences_book, sentences.chapter_number AS sentences_chapter_num...
+
