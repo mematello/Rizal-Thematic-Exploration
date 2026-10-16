@@ -3,11 +3,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NovelToggle } from "@/components/NovelToggle";
 import { ContentTabs } from "@/components/ContentTabs";
 import { SearchBar } from "@/components/SearchBar";
-import { ChapterGrid } from "@/components/ChapterGrid";
+import { ChapterGrid, fetchChapters, fetchChapterContent } from "@/components/ChapterGrid";
 import { CharacterList } from "@/components/CharacterList";
 import { ThemeList, fetchThemes } from "@/components/ThemeList";
 import { ChapterModal } from "@/components/ChapterModal";
@@ -37,10 +37,20 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("chapters");
 
   useEffect(() => {
-    // Prefetch themes data immediately on homepage mount for instantaneous tab switching
+    // Prefetch themes and chapters data immediately on homepage mount for instantaneous tab switching
     queryClient.prefetchQuery({
       queryKey: ["themes"],
       queryFn: fetchThemes,
+      staleTime: 1000 * 60 * 60 * 24,
+    });
+    queryClient.prefetchQuery({
+      queryKey: ["chapters", "buod"],
+      queryFn: () => fetchChapters("buod"),
+      staleTime: 1000 * 60 * 60 * 24,
+    });
+    queryClient.prefetchQuery({
+      queryKey: ["chapters", "full"],
+      queryFn: () => fetchChapters("full"),
       staleTime: 1000 * 60 * 60 * 24,
     });
   }, [queryClient]);
@@ -51,10 +61,38 @@ export default function Home() {
   // Modal State lifted from ChapterGrid
   const [selectedChapter, setSelectedChapter] = useState<SelectedChapter | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [chapterContent, setChapterContent] = useState<ChapterContent[]>([]);
-  const [loadingContent, setLoadingContent] = useState(false);
   const [highlightSentenceIndex, setHighlightSentenceIndex] = useState<number | undefined>(undefined);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // React Query for chapter content with 24-hour cache
+  const { data: chapterContent = [], isFetching: loadingContent } = useQuery<ChapterContent[]>({
+    queryKey: ["chapter", selectedChapter?.book, selectedChapter?.chapter_number, mode],
+    queryFn: () => selectedChapter ? fetchChapterContent(selectedChapter.book, selectedChapter.chapter_number, mode) : Promise.resolve([]),
+    enabled: !!selectedChapter && isModalOpen,
+    staleTime: 1000 * 60 * 60 * 24,
+  });
+
+  // Prefetch adjacent chapters (X+1 and X-1) in buod mode
+  useEffect(() => {
+    if (isModalOpen && selectedChapter && mode === "buod") {
+      const { book, chapter_number } = selectedChapter;
+      const maxChapters = book.toLowerCase() === "noli" ? 64 : 39;
+      if (chapter_number + 1 <= maxChapters) {
+        queryClient.prefetchQuery({
+          queryKey: ["chapter", book, chapter_number + 1, "buod"],
+          queryFn: () => fetchChapterContent(book, chapter_number + 1, "buod"),
+          staleTime: 1000 * 60 * 60 * 24,
+        });
+      }
+      if (chapter_number - 1 >= 1) {
+        queryClient.prefetchQuery({
+          queryKey: ["chapter", book, chapter_number - 1, "buod"],
+          queryFn: () => fetchChapterContent(book, chapter_number - 1, "buod"),
+          staleTime: 1000 * 60 * 60 * 24,
+        });
+      }
+    }
+  }, [isModalOpen, selectedChapter, mode, queryClient]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -63,35 +101,11 @@ export default function Home() {
     }
   };
 
-  const handleChapterSelect = async (book: string, chapter: number, title?: string, sentenceIndex?: number) => {
-    // If title is missing (from cross-nav), we might want to fetch it or just use "Chapter X"
+  const handleChapterSelect = (book: string, chapter: number, title?: string, sentenceIndex?: number) => {
     const displayTitle = title || `Chapter ${chapter}`;
-
     setSelectedChapter({ book, chapter_number: chapter, title: displayTitle });
     setIsModalOpen(true);
-    setLoadingContent(true);
-    setChapterContent([]);
     setHighlightSentenceIndex(sentenceIndex);
-    console.log('handleChapterSelect - sentenceIndex:', sentenceIndex);
-
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-      const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
-      if (!res.ok) throw new Error("Failed to fetch chapter content");
-      const data = await res.json();
-      setChapterContent(data);
-
-
-      // If we didn't have a title, maybe we can find it in the response? 
-      // The sentence objects don't always carry the chapter title in a unified way (they do in DB, but let's see).
-      // Actually checking content.py, currently ChapterContentResponse only has index and text.
-      // We can rely on the user knowing what they clicked or update the API later.
-    } catch (error) {
-      console.error("Error fetching chapter content:", error);
-    } finally {
-      setLoadingContent(false);
-    }
   };
 
   const handleCloseModal = () => {
@@ -99,7 +113,6 @@ export default function Home() {
     setHighlightSentenceIndex(undefined);
     setTimeout(() => {
       setSelectedChapter(null);
-      setChapterContent([]);
     }, 300);
   };
 

@@ -1,3 +1,7 @@
+import os
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,12 +12,15 @@ from app.models.database import engine, Base
 async def lifespan(app: FastAPI):
     # Setup: Create tables (for MVP - usually do migrations)
     # Ensure pgvector extension exists
-    from sqlalchemy import text
-    with engine.connect() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        conn.commit()
-    
-    Base.metadata.create_all(bind=engine)
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            conn.commit()
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        import logging
+        logging.warning(f"lifespan create_all skipped: {e}")
     
     import os
     import logging
@@ -28,10 +35,13 @@ async def lifespan(app: FastAPI):
     elif frontend_ts_path.exists() and not backend_json_path.exists():
         logging.warning("⚠️ character_aliases.json not found! Please run scripts/character_index.py.")
         
-    # Non-blocking warm-up of themes cache in background thread
+    # Non-blocking warm-up of themes and chapters cache in background thread
     import threading
-    from app.api.v1.content import warm_themes_cache
-    threading.Thread(target=warm_themes_cache, name="warm-themes-cache", daemon=True).start()
+    from app.api.v1.content import warm_themes_cache, warm_chapters_cache
+    def _warm_all():
+        warm_themes_cache()
+        warm_chapters_cache()
+    threading.Thread(target=_warm_all, name="warm-caches", daemon=True).start()
 
     yield
     # Shutdown logic

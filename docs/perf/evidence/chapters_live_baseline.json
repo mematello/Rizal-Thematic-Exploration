@@ -1,0 +1,238 @@
+{
+  "chapters_list_default_evidence": {
+    "path": "c:\\Users\\marcu\\Desktop\\thesis\\docs\\perf\\evidence\\chapters_list_default_before.json",
+    "bytes": 7591,
+    "sha256": "f22df5b309d5c338a3f1b9c1b7f9c27e07d297cafc8761552f9c51ffbe348d86"
+  },
+  "chapters_list_default": {
+    "url": "https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters",
+    "runs": [
+      {
+        "time_namelookup": 0.080324,
+        "time_connect": 0.297309,
+        "time_appconnect": 0.630397,
+        "time_starttransfer": 2.945663,
+        "time_total": 4.605391,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.020319,
+        "time_connect": 0.239582,
+        "time_appconnect": 0.460587,
+        "time_starttransfer": 2.428653,
+        "time_total": 2.430219,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.01317,
+        "time_connect": 0.247478,
+        "time_appconnect": 0.461366,
+        "time_starttransfer": 2.39472,
+        "time_total": 2.3958,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.01207,
+        "time_connect": 0.220318,
+        "time_appconnect": 0.433431,
+        "time_starttransfer": 2.377885,
+        "time_total": 2.379403,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.011645,
+        "time_connect": 0.250602,
+        "time_appconnect": 0.46984,
+        "time_starttransfer": 1.378009,
+        "time_total": 1.378595,
+        "http_code": 200
+      }
+    ],
+    "server_times_ms": [
+      2315.266,
+      1968.066,
+      1933.354,
+      1944.454,
+      908.169
+    ],
+    "mean_server_ms": 1813.8618,
+    "median_server_ms": 1944.454
+  },
+  "chapters_list_buod_evidence": {
+    "path": "c:\\Users\\marcu\\Desktop\\thesis\\docs\\perf\\evidence\\chapters_list_buod_before.json",
+    "bytes": 7591,
+    "sha256": "f22df5b309d5c338a3f1b9c1b7f9c27e07d297cafc8761552f9c51ffbe348d86"
+  },
+  "chapters_list_buod": {
+    "url": "https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters?mode=buod",
+    "runs": [
+      {
+        "time_namelookup": 0.009549,
+        "time_connect": 0.207185,
+        "time_appconnect": 0.411388,
+        "time_starttransfer": 1.275931,
+        "time_total": 1.277313,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.011326,
+        "time_connect": 0.242547,
+        "time_appconnect": 0.463974,
+        "time_starttransfer": 1.332659,
+        "time_total": 1.334814,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.004309,
+        "time_connect": 0.241479,
+        "time_appconnect": 0.464468,
+        "time_starttransfer": 1.334533,
+        "time_total": 1.337037,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.015459,
+        "time_connect": 0.238125,
+        "time_appconnect": 0.466574,
+        "time_starttransfer": 1.331718,
+        "time_total": 1.334428,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.008047,
+        "time_connect": 0.218104,
+        "time_appconnect": 0.435596,
+        "time_starttransfer": 1.337556,
+        "time_total": 1.338894,
+        "http_code": 200
+      }
+    ],
+    "server_times_ms": [
+      864.543,
+      868.6850000000001,
+      870.0649999999999,
+      865.1439999999999,
+      901.96
+    ],
+    "mean_server_ms": 874.0794,
+    "median_server_ms": 868.6850000000001
+  },
+  "chapter_content_noli_1_buod_evidence": {
+    "path": "c:\\Users\\marcu\\Desktop\\thesis\\docs\\perf\\evidence\\chapter_content_noli_1_buod_before.json",
+    "bytes": 4310,
+    "sha256": "70383658eb20f2dc6a4b14be6d71676832edc1c95c33307aed3b15926d946d37"
+  },
+  "chapter_content_noli_1_buod": {
+    "url": "https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/1?mode=buod",
+    "runs": [
+      {
+        "time_namelookup": 0.021905,
+        "time_connect": 0.226461,
+        "time_appconnect": 0.438239,
+        "time_starttransfer": 9.033127,
+        "time_total": 9.033753,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.019535,
+        "time_connect": 0.237337,
+        "time_appconnect": 0.465589,
+        "time_starttransfer": 9.382483,
+        "time_total": 9.383634,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.009742,
+        "time_connect": 0.22054,
+        "time_appconnect": 0.440644,
+        "time_starttransfer": 8.749898,
+        "time_total": 8.752065,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.010248,
+        "time_connect": 0.228335,
+        "time_appconnect": 0.442528,
+        "time_starttransfer": 9.098841,
+        "time_total": 9.100874,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.021797,
+        "time_connect": 0.245895,
+        "time_appconnect": 0.473495,
+        "time_starttransfer": 9.001387,
+        "time_total": 9.003439,
+        "http_code": 200
+      }
+    ],
+    "server_times_ms": [
+      8594.888,
+      8916.894,
+      8309.253999999999,
+      8656.313,
+      8527.892
+    ],
+    "mean_server_ms": 8601.048200000001,
+    "median_server_ms": 8594.888
+  },
+  "chapter_content_elfili_1_buod_evidence": {
+    "path": "c:\\Users\\marcu\\Desktop\\thesis\\docs\\perf\\evidence\\chapter_content_elfili_1_buod_before.json",
+    "bytes": 1748,
+    "sha256": "120491e1453a5b7ee5a464bd25b949a7d00419d8f96e9d83267494d9695af83e"
+  },
+  "chapter_content_elfili_1_buod": {
+    "url": "https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/elfili/1?mode=buod",
+    "runs": [
+      {
+        "time_namelookup": 0.015104,
+        "time_connect": 0.229959,
+        "time_appconnect": 0.451835,
+        "time_starttransfer": 4.3027,
+        "time_total": 4.303907,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.006322,
+        "time_connect": 0.224345,
+        "time_appconnect": 0.450763,
+        "time_starttransfer": 4.151144,
+        "time_total": 4.152029,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.016705,
+        "time_connect": 0.228148,
+        "time_appconnect": 0.446041,
+        "time_starttransfer": 4.078538,
+        "time_total": 4.079259,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.015882,
+        "time_connect": 0.244107,
+        "time_appconnect": 0.476419,
+        "time_starttransfer": 4.134776,
+        "time_total": 4.135351,
+        "http_code": 200
+      },
+      {
+        "time_namelookup": 0.01578,
+        "time_connect": 0.250261,
+        "time_appconnect": 0.46466,
+        "time_starttransfer": 4.304866,
+        "time_total": 4.305715,
+        "http_code": 200
+      }
+    ],
+    "server_times_ms": [
+      3850.865,
+      3700.3810000000003,
+      3632.497,
+      3658.3569999999995,
+      3840.2059999999997
+    ],
+    "mean_server_ms": 3736.4611999999997,
+    "median_server_ms": 3700.3810000000003
+  }
+}

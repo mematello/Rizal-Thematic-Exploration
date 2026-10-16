@@ -1,0 +1,54 @@
+{
+  "url": "https://mematello-rizal-thematic-search-api.hf.space/api/v1/themes",
+  "runs": [
+    {
+      "time_namelookup": 0.030121,
+      "time_connect": 0.248121,
+      "time_appconnect": 0.487205,
+      "time_starttransfer": 0.757866,
+      "time_total": 0.975827,
+      "http_code": 200
+    },
+    {
+      "time_namelookup": 0.005207,
+      "time_connect": 0.269592,
+      "time_appconnect": 0.500073,
+      "time_starttransfer": 0.75363,
+      "time_total": 0.946826,
+      "http_code": 200
+    },
+    {
+      "time_namelookup": 0.012877,
+      "time_connect": 0.240401,
+      "time_appconnect": 0.463746,
+      "time_starttransfer": 0.769435,
+      "time_total": 0.898762,
+      "http_code": 200
+    },
+    {
+      "time_namelookup": 0.007985,
+      "time_connect": 0.225697,
+      "time_appconnect": 0.450104,
+      "time_starttransfer": 0.697957,
+      "time_total": 0.911389,
+      "http_code": 200
+    },
+    {
+      "time_namelookup": 0.015211,
+      "time_connect": 0.240975,
+      "time_appconnect": 0.476764,
+      "time_starttransfer": 0.745792,
+      "time_total": 0.969044,
+      "http_code": 200
+    }
+  ],
+  "server_times_ms": [
+    270.66100000000006,
+    253.55700000000004,
+    305.68899999999996,
+    247.85300000000004,
+    269.02799999999996
+  ],
+  "mean_server_ms": 269.35760000000005,
+  "median_server_ms": 269.02799999999996
+}

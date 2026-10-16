@@ -1,17 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
+import { useModeStore } from "@/store/modeStore";
+import { ChapterContent } from "@/types";
 
 type Novel = "noli" | "fili";
 
-interface Chapter {
+export interface Chapter {
     book: string;
     chapter_number: number;
     chapter_title: string;
+}
+
+export async function fetchChapters(mode: string = "buod"): Promise<Chapter[]> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const res = await fetch(`${apiUrl}/api/v1/chapters?mode=${mode}`);
+    if (!res.ok) throw new Error("Failed to fetch chapters");
+    return res.json();
+}
+
+export async function fetchChapterContent(
+    book: string,
+    chapter: number,
+    mode: string = "buod"
+): Promise<ChapterContent[]> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
+    if (!res.ok) throw new Error(`Failed to fetch chapter ${chapter}`);
+    return res.json();
 }
 
 interface ChapterGridProps {
@@ -20,28 +40,12 @@ interface ChapterGridProps {
 }
 
 export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps) {
-
-    const [chapters, setChapters] = useState<Chapter[]>([]);
-    const [loading, setLoading] = useState(true);
-
-
-    useEffect(() => {
-        async function fetchChapters() {
-            try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-                const res = await fetch(`${apiUrl}/api/v1/chapters`);
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-                setChapters(data);
-            } catch (error) {
-                console.error("Error fetching chapters:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchChapters();
-    }, []);
-
+    const { mode } = useModeStore();
+    const { data: chapters = [], isLoading } = useQuery<Chapter[]>({
+        queryKey: ["chapters", mode],
+        queryFn: () => fetchChapters(mode),
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    });
 
     const getFilteredChapters = () => {
         const noli = chapters.filter(c => c.book === "noli").sort((a, b) => a.chapter_number - b.chapter_number);
@@ -54,8 +58,26 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
 
     const items = getFilteredChapters();
 
-    if (loading) {
-        return <div className="text-center py-20 text-brand-gold font-serif animate-pulse">Nagkakargang mga Tala...</div>;
+    if (isLoading) {
+        return (
+            <div className="w-full pb-20 space-y-6">
+                <div className="grid gap-2.5 sm:gap-6 grid-cols-2 lg:grid-cols-4 animate-pulse">
+                    {Array.from({ length: 8 }).map((_, idx) => (
+                        <div
+                            key={idx}
+                            className="p-3.5 sm:p-6 min-h-[9.5rem] sm:h-56 flex flex-col justify-between bg-white/60 backdrop-blur-md rounded-xl sm:rounded-sm border border-brand-gold/15"
+                        >
+                            <div className="space-y-2.5">
+                                <div className="h-3 w-20 bg-brand-gold/20 rounded" />
+                                <div className="h-5 sm:h-7 w-28 bg-brand-navy/15 rounded" />
+                                <div className="h-3 w-36 bg-brand-text/15 rounded" />
+                            </div>
+                            <div className="h-3 w-16 bg-brand-gold/20 rounded pt-2" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
     }
 
     const COLS = 4; // matches lg:grid-cols-4

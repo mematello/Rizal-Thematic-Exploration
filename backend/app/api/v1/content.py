@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.database import SessionLocal, Sentence, Theme
 from app.core.engine import get_engine, RizalEngine
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 from sqlalchemy import select, text
 import threading
 import numpy as np
@@ -25,6 +25,16 @@ _alignment_cache: dict = {}
 # Process-level cache for static themes response
 _themes_cache: Optional[List[dict]] = None
 _themes_lock = threading.Lock()
+
+# Process-level cache for static chapters list response (keyed by source_type: "summary" | "full")
+_chapters_cache: Dict[str, List[Any]] = {}
+_chapters_lock = threading.Lock()
+
+# Bounded in-memory LRU cache for chapter content (keyed by (book, chapter_number, mode))
+from collections import OrderedDict
+MAX_CHAPTER_CONTENT_CACHE_ENTRIES = 64
+_chapter_content_cache: OrderedDict[Tuple[str, int, str], List[Any]] = OrderedDict()
+_chapter_content_lock = threading.Lock()
 
 def get_csv_data(book: str) -> Optional[pd.DataFrame]:
     if book in _csv_cache:
@@ -62,36 +72,79 @@ class ChapterResponse(BaseModel):
 
 @router.get("/chapters", response_model=List[ChapterResponse])
 def get_chapters(
+    response: Response = None,
     mode: Optional[str] = "buod",
     db: Session = Depends(get_db)
 ):
     """
     Fetch unique chapters from the sentences table for the given mode.
+    Cached in process memory; includes Cache-Control header.
     """
-    source_type = "summary" if mode == "buod" else "full"
-    
-    # We query for distinct book, chapter_number, and chapter_title
-    chapters = db.query(
-        Sentence.book, 
-        Sentence.chapter_number, 
-        Sentence.chapter_title
-    ).filter(
-        Sentence.source_type == source_type
-    ).distinct(
-        Sentence.book, 
-        Sentence.chapter_number
-    ).order_by(
-        Sentence.book, 
-        Sentence.chapter_number
-    ).all()
-    
-    return [
-        ChapterResponse(
-            book=c.book, 
-            chapter_number=c.chapter_number, 
-            chapter_title=c.chapter_title
-        ) for c in chapters
-    ]
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+
+    source_type = "summary" if (mode == "buod" or not mode) else "full"
+
+    if source_type in _chapters_cache:
+        return _chapters_cache[source_type]
+
+    with _chapters_lock:
+        if source_type in _chapters_cache:
+            return _chapters_cache[source_type]
+
+        results = []
+        try:
+            chapters = db.query(
+                Sentence.book, 
+                Sentence.chapter_number, 
+                Sentence.chapter_title
+            ).filter(
+                Sentence.source_type == source_type
+            ).distinct(
+                Sentence.book, 
+                Sentence.chapter_number
+            ).order_by(
+                Sentence.book, 
+                Sentence.chapter_number
+            ).all()
+
+            results = [
+                ChapterResponse(
+                    book=c.book, 
+                    chapter_number=c.chapter_number, 
+                    chapter_title=c.chapter_title
+                ) for c in chapters
+            ]
+        except Exception:
+            # Bundled static fallback
+            cache_file = "chapters_cache_buod.json" if source_type == "summary" else "chapters_cache_full.json"
+            bundled_path = Path(__file__).resolve().parent.parent.parent / "data" / cache_file
+            if bundled_path.exists():
+                with open(bundled_path, "r", encoding="utf-8") as f:
+                    cached_raw = json.load(f)
+                results = [ChapterResponse(**item) for item in cached_raw]
+            else:
+                raise
+
+        _chapters_cache[source_type] = results
+        return _chapters_cache[source_type]
+
+
+def warm_chapters_cache():
+    """
+    Warms the chapters cache for both summary and full modes in a background thread at startup.
+    """
+    db = SessionLocal()
+    try:
+        get_chapters(response=None, mode="buod", db=db)
+        get_chapters(response=None, mode="full", db=db)
+        import logging
+        logging.info("Chapters cache successfully warmed at startup.")
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to warm chapters cache at startup: {e}")
+    finally:
+        db.close()
 
 class ThemeContextResponse(BaseModel):
     book: str
@@ -393,6 +446,7 @@ def get_sentence_reference(
 def get_chapter_content(
     book: str, 
     chapter_number: int, 
+    response: Response = None,
     mode: Optional[str] = "buod",
     db: Session = Depends(get_db),
     engine: RizalEngine = Depends(get_engine)
@@ -400,7 +454,17 @@ def get_chapter_content(
     """
     Fetch all sentences for a specific chapter, ordered by index.
     Includes theme classification for each sentence.
+    Cached in process memory (bounded LRU, max 64 entries); includes Cache-Control header.
     """
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+
+    cache_key = (book.lower(), chapter_number, (mode.lower() if mode else "buod"))
+    with _chapter_content_lock:
+        if cache_key in _chapter_content_cache:
+            _chapter_content_cache.move_to_end(cache_key)
+            return _chapter_content_cache[cache_key]
+
     # Mapping book names for consistency
     db_book = book
     if mode == "full":
@@ -435,6 +499,10 @@ def get_chapter_content(
                             sentence_text=row['sentence_text'],
                             themes=[]
                         ))
+                    with _chapter_content_lock:
+                        if len(_chapter_content_cache) >= MAX_CHAPTER_CONTENT_CACHE_ENTRIES:
+                            _chapter_content_cache.popitem(last=False)
+                        _chapter_content_cache[cache_key] = response_data
                     return response_data
         
         raise HTTPException(status_code=404, detail=f"Chapter {chapter_number} not found for {book} in {mode} mode")
@@ -447,11 +515,12 @@ def get_chapter_content(
             seen_indices.add(s.sentence_index)
             unique_sentences.append(s)
     
-    # Process themes for each sentence
+    # Process themes using engine._fetch_context_cache to eliminate N+1 queries
+    context_cache = engine._fetch_context_cache(db, unique_sentences, window=8)
     response_data = []
     for s in unique_sentences:
-        # Classify themes using the engine
-        themes = engine._classify_themes(db, s, "")
+        # Classify themes using the engine with pre-fetched context_cache
+        themes = engine._classify_themes(db, s, "", context_cache=context_cache)
         
         # Convert to Pydantic model format
         theme_matches = [
@@ -471,6 +540,11 @@ def get_chapter_content(
             themes=theme_matches
         ))
     
+    with _chapter_content_lock:
+        if len(_chapter_content_cache) >= MAX_CHAPTER_CONTENT_CACHE_ENTRIES:
+            _chapter_content_cache.popitem(last=False)
+        _chapter_content_cache[cache_key] = response_data
+
     return response_data
 
 class ThemeResult(BaseModel):

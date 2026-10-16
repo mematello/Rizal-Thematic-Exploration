@@ -8,6 +8,8 @@ import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
 import { ScoreVisualizer } from "@/components/ScoreVisualizer";
 import { ChapterContent, ThemeMatch } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { fetchChapters, fetchChapterContent } from "@/components/ChapterGrid";
 
 
 interface ChapterModalProps {
@@ -43,6 +45,7 @@ export function ChapterModal({
     highlightContext,
     onNavigate,
 }: ChapterModalProps) {
+    const queryClient = useQueryClient();
     const modalRef = useRef<HTMLDivElement>(null);
     const highlightRef = useRef<HTMLSpanElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -224,17 +227,17 @@ export function ChapterModal({
         if (isOpen) {
             const fetchMetadata = async () => {
                 try {
-                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-                    const res = await fetch(`${apiUrl}/api/v1/chapters?mode=${mode}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        const map: Record<number, string> = {};
-                        data.filter((c: any) => (book.toLowerCase() === 'noli' ? c.book.toLowerCase() === 'noli' || c.book === 'Noli Me Tangere' : c.book.toLowerCase() === 'elfili' || c.book === 'El Filibusterismo'))
-                            .forEach((c: any) => {
-                                map[c.chapter_number] = c.chapter_title;
-                            });
-                        setChapterMetadata(map);
-                    }
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ["chapters", mode],
+                        queryFn: () => fetchChapters(mode),
+                        staleTime: 1000 * 60 * 60 * 24,
+                    });
+                    const map: Record<number, string> = {};
+                    data.filter((c: any) => (book.toLowerCase() === 'noli' ? c.book.toLowerCase() === 'noli' || c.book === 'Noli Me Tangere' : c.book.toLowerCase() === 'elfili' || c.book === 'El Filibusterismo'))
+                        .forEach((c: any) => {
+                            map[c.chapter_number] = c.chapter_title;
+                        });
+                    setChapterMetadata(map);
                 } catch (err) {
                     console.error("Error fetching metadata:", err);
                 }
@@ -276,18 +279,12 @@ export function ChapterModal({
             setModeError(null);
 
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const targetChapter = isFullscreen ? activeChapterInView : chapterNumber;
-                const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${targetChapter}?mode=${mode}`, { signal: abortController.signal });
-
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        throw new Error(`Ang data ay hindi pa handa para sa Kabanata ${targetChapter} sa ${mode === 'full' ? 'Buong Kwento' : 'Buod'}.`);
-                    }
-                    throw new Error("Failed to fetch chapter content for the new mode");
-                }
-
-                const data = await res.json();
+                const data = await queryClient.fetchQuery({
+                    queryKey: ["chapter", book, targetChapter, mode],
+                    queryFn: () => fetchChapterContent(book, targetChapter, mode),
+                    staleTime: 1000 * 60 * 60 * 24,
+                });
 
                 if (isMounted) {
                     setLoadedChapters(prev => prev.map(chap =>
@@ -391,11 +388,12 @@ export function ChapterModal({
     };
 
     const fetchSpecificChapter = async (num: number, overrideMode?: 'buod' | 'full', signal?: AbortSignal): Promise<ChapterContent[]> => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
         const targetMode = overrideMode || mode;
-        const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${num}?mode=${targetMode}`, { signal });
-        if (!res.ok) throw new Error("Failed");
-        return await res.json();
+        return queryClient.fetchQuery({
+            queryKey: ["chapter", book, num, targetMode],
+            queryFn: () => fetchChapterContent(book, num, targetMode),
+            staleTime: 1000 * 60 * 60 * 24,
+        });
     };
 
     const loadNextChapter = async () => {

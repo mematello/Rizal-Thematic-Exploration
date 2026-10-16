@@ -15,9 +15,12 @@ import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ChapterContent } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { fetchChapterContent } from "@/components/ChapterGrid";
 
 
 function SearchContent() {
+    const queryClient = useQueryClient();
     const searchParams = useSearchParams();
     const router = useRouter();
     const initialQuery = searchParams.get("q") || "";
@@ -58,10 +61,11 @@ function SearchContent() {
         setHighlightSentenceIndex(sentenceIndex);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
-            if (!res.ok) throw new Error("Failed to fetch chapter content");
-            const data = await res.json();
+            const data = await queryClient.fetchQuery({
+                queryKey: ["chapter", book, chapter, mode],
+                queryFn: () => fetchChapterContent(book, chapter, mode),
+                staleTime: 1000 * 60 * 60 * 24,
+            });
             setChapterContent(data);
         } catch (err) {
             console.error("Error fetching chapter:", err);
@@ -86,10 +90,11 @@ function SearchContent() {
         setHighlightSentenceIndex(sentenceIndex);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-            const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}?mode=${mode}`);
-            if (!res.ok) throw new Error("Failed to fetch chapter content");
-            const data = await res.json();
+            const data = await queryClient.fetchQuery({
+                queryKey: ["chapter", book, chapter, mode],
+                queryFn: () => fetchChapterContent(book, chapter, mode),
+                staleTime: 1000 * 60 * 60 * 24,
+            });
             setChapterContent(data);
         } catch (err) {
             console.error("Error fetching chapter:", err);

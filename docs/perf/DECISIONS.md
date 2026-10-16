@@ -612,14 +612,50 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 ### 3. ~~Production Deployment Sizing & Host Configuration~~ ✅ RESOLVED
 - **Status**: **Approved and finalized** (2026-10-16). See specifications above.
 
-### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ FULLY RESOLVED
-- **Status**: **Fully implemented, verified, and queued for HF deploy** (2026-10-16).
-- **Hugging Face Rollback Target**: `09cdb417c1853a1f0bdd480e47ba6e4a2f7f0b0d` (`remotes/hf/main`). If any live verification check fails, rollback target is this commit.
-- **Backend**: Set-based LATERAL join, process cache, Cache-Control header, graceful dual fallback, non-blocking startup warmer in FastAPI lifespan (94.55 ms yield).
-- **Live Supabase Parity**: Byte-identical match against production Supabase DB (SHA-256: `a11ef242257780d624d3ba9924a558a31e971a4034eea64ff683ad91b6f9c5c5`).
-- **Frontend**: TanStack React Query (`useQuery` with 24h `staleTime`), homepage mount prefetch, and rich 8-card responsive skeleton state. Clean production build verified.
+### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ FULLY RESOLVED & DEPLOYED
+- **Status**: **Deployed to production HF Space and Vercel, verified live** (2026-10-16).
+- **Hugging Face Rollback Target**: `09cdb417c1853a1f0bdd480e47ba6e4a2f7f0b0d` (`remotes/hf/main`). Deployed commit on `hf`: `0b74a1d`. Merged to `origin/main`: `7330b81`.
+- **Live Verification**:
+  - `GET /health` = `200 OK`.
+  - `GET /api/v1/themes` byte-identical SHA-256: `a11ef242257780d624d3ba9924a558a31e971a4034eea64ff683ad91b6f9c5c5`.
+  - Live server latency: Mean **269.36 ms** (down from ~10,115 ms, -97.3%).
+  - Search invariance: 5 golden queries verified 100% invariant against `golden_snapshot_deterministic.json`.
 
-### 5. Deliberately Unexecuted Optimizations
+---
+
+### 5. Chapters Endpoint Optimization (Item A2)
+**Date**: 2026-10-16  
+**Branch**: `perf/chapters-endpoint`  
+**Status**: **Implemented and verified locally against production Supabase DB; awaiting deployment approval**.
+
+**Context**:
+Chapter retrieval (`/api/v1/chapters/{book}/{chapter_number}`) had high cold latency due to an N+1 query loop: each sentence was querying context individually. Furthermore, requests were not cached in memory, and the frontend fetched data using raw `fetch()` on every interaction.
+
+**Decisions**:
+1. **Reuse `engine._fetch_context_cache` Without Modifying `engine.py`**:
+   `backend/app/core/engine.py` has a strict zero-diff requirement. In `backend/app/api/v1/content.py`, we call `context_cache = engine._fetch_context_cache(db, unique_sentences, window=8)` and pass `context_cache=context_cache` into `engine._classify_themes(...)`. This eliminates the sentence-by-sentence DB query loop completely.
+2. **Bounded LRU Cache for Chapter Content**:
+   Added a thread-safe `OrderedDict` LRU cache bounded to `MAX_CHAPTER_CONTENT_CACHE_ENTRIES = 64`.
+   - Measured memory footprint: Average buod chapter is 3.5 KB; average full chapter is 41.6 KB; max tested (Noli 34 full) is 42.6 KB. Max 64 entries consume ~1.11 MB, which is completely safe for deployment.
+   - Warm request latency: Drops from ~2,000 ms to **2.7–7.0 ms** (-99.7%).
+3. **Process-Level Cache & Startup Warmer for Chapter List**:
+   Added lock-protected `_chapters_cache` for `/api/v1/chapters` with bundled fallback files (`chapters_cache_buod.json` and `chapters_cache_full.json`). Background thread `warm_chapters_cache()` warms both modes during startup.
+4. **HTTP Cache-Control**:
+   Added `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (24h edge, 7d stale-while-revalidate).
+5. **Frontend React Query & Prefetching**:
+   - `ChapterGrid.tsx`: Migrated to `useQuery({ queryKey: ['chapters', mode], staleTime: 24h })` with responsive 8-card skeleton state.
+   - `page.tsx`: Prefetches chapter lists on homepage mount; uses `useQuery` for modal content; prefetches $X+1$ and $X-1$ in `buod` mode. Heavy full-mode chapters are intentionally not prefetched to avoid mobile bandwidth bloat.
+   - `ChapterModal.tsx` and `search/page.tsx`: Mode switches and fullscreen navigation read and populate React Query cache via `queryClient.fetchQuery`.
+
+**Verification**:
+- 10 `buod` chapters and 3 `full` chapters tested: 200 OK, byte-identical cold vs warm.
+- 5 golden queries across both Noli and El Fili tested: 100% ID & rank match against deterministic golden snapshot.
+- `backend/app/core/engine.py`: 0 diff.
+- `npm run build`: Succeeded in 6.4s with 0 errors.
+
+---
+
+### 6. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.
 - **Items**:
   - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.
