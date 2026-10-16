@@ -744,6 +744,20 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Search Pipeline / Engine: **0 diff** on backend.
   - Mobile UX: Native-feeling fullscreen reading experience and fully readable cross-novel reference viewer without nested scroll traps or squished text.
 
+---
+
+### 10. 2026-10-17: Item E Background Image Rotation and Mobile Viewport Scaling
+- **Context**: The novel hero backgrounds (`noli_background.webp` and `elfili_background.webp`) were originally exported rotated 90 degrees counter-clockwise (height > width), displaying all artwork (Rizal, church, characters, novel scrolls) sideways. Additionally, `backgroundAttachment: 'fixed'` caused extreme mobile viewport zoom distortion on iOS Safari, and `globals.css` referenced non-existent files (`Textured.jpg`).
+- **Decision**:
+  1. Re-export the source WebP images rotated 90° clockwise to their upright landscape orientation (1308x736 and 1200x675) with lossless-grade WebP encoding.
+  2. Switch `useNovelBackground.ts` from `fixed` to `scroll` attachment (`backgroundPosition: 'center top'`), eliminating mobile Safari canvas blowout while centering key illustrative elements behind the hero section.
+  3. Clean up `globals.css` to link directly to existing asset paths (`background_1.webp`, `noli_background.webp`, etc.).
+- **Impact**:
+  - Correctness / Ranking: **0 impact**.
+  - Performance: Faster page loads by eliminating 404 image errors for missing textures.
+  - Visual: Upright, clear artwork across desktop and mobile devices.
+
+
 
 
 

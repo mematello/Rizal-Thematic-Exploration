@@ -96,8 +96,24 @@
 
 ---
 
-## Next Action: Item E (fix/background-image)
-Create feature branch `fix/background-image` to inspect source background images for EXIF rotation and CSS background-position/scaling discrepancies between desktop and mobile.
+- **Item E Background Image Orientation & Scaling (Completed 2026-10-17, branch `fix/background-image`)**:
+  - **Identified Root Causes**:
+    1. Both `noli_background.webp` (736x1308) and `elfili_background.webp` (675x1200) were exported sideways (rotated 90 degrees counter-clockwise), causing Dr. José Rizal, the Manila church, characters, and the novel title banners to display on their sides.
+    2. `frontend/app/globals.css` referenced non-existent JPEG files (`Textured.jpg`, `download (1).jpg`), causing 404 HTTP errors on every page load.
+    3. `useNovelBackground.ts` enforced `backgroundAttachment: 'fixed'`, which triggers severe scaling and blur bugs on mobile browsers (especially iOS Safari), stretching the background against the 8,000px page scroll height.
+  - **Implemented Fixes**:
+    1. Re-exported `noli_background.webp` and `elfili_background.webp` rotated 90° clockwise to their natural landscape orientation (1308x736 and 1200x675) with 95 quality WebP compression.
+    2. Updated `useNovelBackground.ts` to use `backgroundPosition: 'center top'`, `backgroundRepeat: 'no-repeat'`, and `backgroundAttachment: 'scroll'` to prevent mobile viewport distortion.
+    3. Updated `globals.css` CSS variables (`--image-bg-neutral`, `--image-bg-noli`, etc.) to point to valid existing WebP assets (`background_1.webp`, `background_2.webp`).
+  - **Verification**:
+    - `npm run build` compiled cleanly in 5.7s with 0 errors.
+    - Verified locally on `http://localhost:3000` via browser subagent on desktop (1440x900) and mobile (390x844): confirmed church, characters, Dr. José Rizal, and title banners are upright and beautifully rendered.
+
+---
+
+## Next Action: Item F (feat/dark-mode)
+Create feature branch `feat/dark-mode` to implement dark mode using `next-themes` and Tailwind `darkMode: 'class'`, auditing color palettes, result cards, and WCAG AA contrast compliance.
+
 
 
 

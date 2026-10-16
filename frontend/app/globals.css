@@ -21,10 +21,10 @@
     --color-fili-accent: var(--theme-fili);
 
     /* Background Images */
-    --image-bg-neutral: url('/images/backgrounds/Textured.jpg');
-    --image-bg-noli: url('/images/backgrounds/download%20(1).jpg');
-    --image-bg-fili: url('/images/backgrounds/download%20(2).jpg');
-    --image-bg-alt: url('/images/backgrounds/download%20(3).jpg');
+    --image-bg-neutral: url('/images/backgrounds/background_1.webp');
+    --image-bg-noli: url('/images/backgrounds/noli_background.webp');
+    --image-bg-fili: url('/images/backgrounds/elfili_background.webp');
+    --image-bg-alt: url('/images/backgrounds/background_2.webp');
 }
 
 :root {

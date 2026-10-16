@@ -16,10 +16,11 @@ export function useNovelBackground(novel: 'noli' | 'fili' | 'both' | string | nu
         const overlayColor = isFili ? '242, 240, 237' : '245, 241, 233';
 
         return {
-            backgroundImage: `linear-gradient(to bottom, rgba(${overlayColor}, 0.85), rgba(${overlayColor}, 0.98)), url('/images/backgrounds/${bgImage}')`,
+            backgroundImage: `linear-gradient(to bottom, rgba(${overlayColor}, 0.88), rgba(${overlayColor}, 0.98)), url('/images/backgrounds/${bgImage}')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'scroll',
         };
     }, [novel]);
 }
