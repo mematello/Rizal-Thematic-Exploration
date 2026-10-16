@@ -20,8 +20,10 @@ Intelligent search engine for José Rizal's novels (Noli Me Tangere, El Filibust
 - Frontend: http://localhost:3000
 
 ## Current Focus
-Performance optimization for public deployment while maintaining search quality and correctness.
-- Phase 2 Steps 1–A completed and verified (0/40 ranking changes vs `golden_snapshot_seed0.json`).
-- Step B (determinism via `sorted()` and `ORDER BY`) pending approval.
-- Always run backend with `PYTHONHASHSEED=0` and connect via `127.0.0.1` with persistent HTTP sessions.
+Performance optimization and UI modernization for public deployment while maintaining search quality and correctness.
+- Phase 2 Steps 1–A & Step 1 Chapter Precompute completed and verified.
+- Item D (Mobile Fullscreen Reading View & Sanggunian Redesign) merged to `main`.
+- Item E (Background Image Rotation, Scaling & Fixed Backdrop Architecture) merged to `main`.
+- Item F (Full Dark Mode with WCAG AA Contrast, Theme Detail Cards, Mobile Pills & Navigation Polish) merged to `main`.
+- Strictly zero diff on `backend/app/core/engine.py` preserved across all changes.
 

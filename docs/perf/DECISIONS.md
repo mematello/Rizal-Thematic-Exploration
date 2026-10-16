@@ -785,6 +785,29 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Search Pipeline / Engine: **0 diff** on `backend/app/core/engine.py`.
   - Accessibility & UX: Full WCAG AA compliant dark mode reading experience, system preference matching, zero flash of incorrect theme, and beautiful midnight gold/crimson historical aesthetic.
 
+---
+
+### 12. 2026-10-17: Dark Mode Contrast, Modal Backdrop, and Aesthetic Refinements
+- **Context**: Initial dark mode deployment left several contrast and color mismatch issues:
+  1. Opening any chapter or theme card displayed a bright yellow/gold overlay backdrop because `bg-brand-navy/70` mapped to gold (`#E8C97A` at 70% opacity) in dark mode.
+  2. Inside `ChapterModal.tsx`, active "Tauhan" and "Sanggunian" buttons had `dark:text-brand-navy` on `bg-brand-gold`, creating invisible yellow-on-yellow text.
+  3. The theme detail modal (`ItemModal.tsx`) had light definition boxes that clashed with the midnight theme, and fullscreen chapter reading had a washed-out grey sidebar (`bg-[#F5F2EB]/50`).
+  4. Mobile ContentTabs and horizontal Kabanata group pills suffered from poor active/inactive contrast.
+  5. The Noli homepage had an overpowering white radial wash and high-opacity SVG sky shimmer.
+  6. The floating "Sa Itaas" (Back to Top) button and "Buod / Buong Kwento" mode toggles rendered with bright yellow backgrounds and low-contrast white/gold text in dark mode.
+- **Decision**:
+  1. Standardize modal backdrops across `ChapterModal.tsx` and `ItemModal.tsx` to `bg-black/75 dark:bg-black/85 backdrop-blur-sm`, eliminating all light wash overlays.
+  2. Fix button contrast by pairing active gold backgrounds (`bg-brand-gold`) strictly with dark navy text (`text-[#1B263B] font-bold` or `dark:text-[#0F141C] font-bold`) across `ChapterModal.tsx`, `ContentTabs.tsx`, `ChapterSidebar.tsx`, and `page.tsx`.
+  3. Restyle `ItemModal.tsx` theme definition and contextual match cards to fit midnight dark surfaces (`dark:bg-black/40`, `dark:bg-[#1B2433]`, and `border-l-4 border-brand-gold`). Transform fullscreen reading sidebar to deep midnight navy (`dark:bg-[#121A28]`).
+  4. Redesign mobile ContentTabs (`dark:bg-black/40`, active gold pill with dark text) and chapter range pills (`dark:bg-[#182232]/90` with gold borders).
+  5. Reduce Noli homepage vignette opacity to `0.08` with `dark:opacity-0`, and adjust `#goldSky` stopColor to `#C5A065` at 15% opacity, eliminating the white fade.
+  6. Restyle the floating "Sa Itaas" button to a sleek midnight navy pill (`dark:bg-[#182232]/95 dark:text-brand-gold dark:border dark:border-brand-gold/30 dark:hover:bg-[#202C3F]`) with backdrop blur.
+  7. Restyle "Buod / Buong Kwento" toggles on homepage and search headers to dark midnight containers with high-contrast active and inactive states.
+- **Impact**:
+  - Correctness / Ranking: **0 impact** (strictly frontend styling).
+  - Search Pipeline / Engine: **0 diff** on `backend/app/core/engine.py`.
+  - Visuals & Ergonomics: Premium, high-contrast dark reading experience across all devices and modal dialogs.
+
 
 
 

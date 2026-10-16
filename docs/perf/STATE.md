@@ -1,8 +1,8 @@
 # Performance Optimization State
 
-**Last Updated**: 2026-10-16  
-**Branch**: `perf/chapters-endpoint`  
-**Current Phase**: Item A deployed to production HF Space and Vercel, verified live. Item A2 (Chapters endpoint optimization) fully implemented and locally verified against production Supabase DB; ready for user review.
+**Last Updated**: 2026-10-17  
+**Branch**: `main`  
+**Current Phase**: Items D (Mobile Fullscreen / Sanggunian), E (Background Rotation & Viewport Scaling), and F (Complete Dark Mode & Contrast Polish) successfully implemented, verified, merged into `main`, and pushed to GitHub.
 
 ---
 
@@ -152,15 +152,18 @@
        - `ContentTabs.tsx`: Container uses `dark:bg-black/40 border-brand-gold/30`. Active tab uses `dark:bg-brand-gold dark:text-[#0F141C] font-bold`. Inactive tabs use `dark:text-foreground/70`. Desktop tabs use `sm:dark:bg-transparent` with gold underline indicator.
        - `ChapterSidebar.tsx`: Active mobile pill uses `dark:bg-brand-gold dark:text-[#0F141C] dark:border-brand-gold`. Inactive pills use `dark:bg-[#182232]/90 dark:text-foreground/80 dark:border-brand-gold/30`. Desktop sidebar links use `dark:text-brand-gold dark:bg-brand-gold/20`.
     6. **Noli Homepage White Fade Elimination**: In `HeroSection.tsx`, reduced white vignette opacity to `0.08` and added `dark:opacity-0`. In `NovelBackground.tsx`, replaced `#FFFFFF` 60% opacity stop on `#goldSky` with warm `#C5A065` at 15% opacity, and replaced intense white background radial gradients with subtle gold accents, removing the bright white haze across Noli.
-  - **Verification**:
-    - `npm run build` compiled cleanly in 9.3s with 0 errors.
-    - Verified all 6 fixes across desktop and mobile (500x800) via browser subagent with recorded video artifacts and screenshots.
-    - Zero diff on `backend/app/core/engine.py`.
+    7. **Floating "Sa Itaas" Button**: Styled as midnight navy pill (`dark:bg-[#182232]/95 dark:text-brand-gold dark:border dark:border-brand-gold/30 dark:hover:bg-[#202C3F]`) with backdrop blur, replacing the bright gold pill with low-contrast white text.
+    8. **Buod / Buong Kwento Mode Toggle**: Updated desktop header (`page.tsx`), mobile drawer (`page.tsx`), and search header (`search/page.tsx`) to render active mode with `dark:bg-brand-gold dark:text-[#0F141C] font-bold` on dark midnight pill containers (`dark:bg-[#182232] border-brand-gold/30`), completely fixing the yellow-on-yellow unreadable text trap.
+  - **Verification & Deployment**:
+    - `npm run build` compiled cleanly in Turbopack with 0 errors.
+    - Verified all fixes across desktop and mobile (500x800) via browser subagent with recorded video artifacts and screenshots.
+    - Merged branch `feat/dark-mode` into `main` and pushed to GitHub (`b18ddf0`).
+    - Strictly **0 diff** on `backend/app/core/engine.py`.
 
 ---
 
 ## Next Steps
-- Await user approval to merge `feat/dark-mode` into `main` and push to GitHub.
+- Review next planned roadmap items with user.
 
 
 
