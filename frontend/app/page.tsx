@@ -19,6 +19,7 @@ import { ArrowUp, Menu, X, BookOpen } from "lucide-react";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ChapterContent } from "@/types";
 import { Footer } from "@/components/Footer";
+import { formatChapterTitle } from "@/lib/utils";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -102,7 +103,7 @@ export default function Home() {
   };
 
   const handleChapterSelect = (book: string, chapter: number, title?: string, sentenceIndex?: number) => {
-    const displayTitle = title || `Chapter ${chapter}`;
+    const displayTitle = title ? formatChapterTitle(title) : `Chapter ${chapter}`;
     setSelectedChapter({ book, chapter_number: chapter, title: displayTitle });
     setIsModalOpen(true);
     setHighlightSentenceIndex(sentenceIndex);

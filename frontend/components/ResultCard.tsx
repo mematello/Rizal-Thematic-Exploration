@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, BookOpen, ExternalLink } from "lucide-react";
 import { ResultCardProps } from "../types";
 import { ScoreVisualizer } from "./ScoreVisualizer";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatChapterTitle } from "@/lib/utils";
 
 interface ResultCardExtendedProps extends ResultCardProps {
     showScores?: boolean;
@@ -70,7 +71,7 @@ export function ResultCard({
                             id={`result-title-${id}`}
                             className="font-serif font-bold text-brand-navy text-base leading-snug group-hover:text-brand-gold transition-colors flex items-center gap-2"
                         >
-                            Kabanata {chapter}: {chapterTitle}
+                            Kabanata {chapter}: {formatChapterTitle(chapterTitle)}
                             <ExternalLink size={13} className="opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
                         </h3>
                     </div>

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn, formatChapterTitle } from "@/lib/utils";
 import { useModeStore } from "@/store/modeStore";
 import { ChapterContent } from "@/types";
 
@@ -50,11 +50,11 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     const getFilteredChapters = () => {
         const noli = chapters
             .filter(c => c.book.toLowerCase().includes("noli"))
-            .map(c => ({ ...c, book: "noli" }))
+            .map(c => ({ ...c, book: "noli", chapter_title: formatChapterTitle(c.chapter_title) }))
             .sort((a, b) => a.chapter_number - b.chapter_number);
         const fili = chapters
             .filter(c => c.book.toLowerCase().includes("fili"))
-            .map(c => ({ ...c, book: "elfili" }))
+            .map(c => ({ ...c, book: "elfili", chapter_title: formatChapterTitle(c.chapter_title) }))
             .sort((a, b) => a.chapter_number - b.chapter_number);
 
         if (selectedNovel === "noli") return noli;

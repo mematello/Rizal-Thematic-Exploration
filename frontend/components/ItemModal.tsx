@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { X, Quote } from "lucide-react";
 import { CharacterAvatar } from "@/components/CharacterAvatar";
+import { formatChapterTitle } from "@/lib/utils";
 
 interface ChapterInfo {
     book: string;
@@ -138,7 +139,7 @@ export function ItemModal({
             </div>
 
             <p className="text-sm text-brand-text-light font-serif line-clamp-2 mb-3 font-bold min-h-[2.5em]">
-                {chapter.chapter_title}
+                {formatChapterTitle(chapter.chapter_title)}
             </p>
 
             {chapter.preview_text && (
@@ -316,7 +317,7 @@ export function ItemModal({
                                                                     {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}
                                                                 </span>
                                                                 <span className="group-hover:text-brand-gold transition-colors">
-                                                                    Chapter {themeContext.chapter_number}: {themeContext.chapter_title} (Click to Read)
+                                                                    Chapter {themeContext.chapter_number}: {formatChapterTitle(themeContext.chapter_title)} (Click to Read)
                                                                 </span>
                                                             </div>
                                                         </div>

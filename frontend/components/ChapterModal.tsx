@@ -10,6 +10,7 @@ import { ScoreVisualizer } from "@/components/ScoreVisualizer";
 import { ChapterContent, ThemeMatch } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchChapters, fetchChapterContent } from "@/components/ChapterGrid";
+import { formatChapterTitle } from "@/lib/utils";
 
 
 interface ChapterModalProps {
@@ -235,7 +236,7 @@ export function ChapterModal({
                     const map: Record<number, string> = {};
                     data.filter((c: any) => (book.toLowerCase() === 'noli' ? c.book.toLowerCase() === 'noli' || c.book === 'Noli Me Tangere' : c.book.toLowerCase() === 'elfili' || c.book === 'El Filibusterismo'))
                         .forEach((c: any) => {
-                            map[c.chapter_number] = c.chapter_title;
+                            map[c.chapter_number] = formatChapterTitle(c.chapter_title);
                         });
                     setChapterMetadata(map);
                 } catch (err) {
@@ -507,7 +508,7 @@ export function ChapterModal({
         });
     };
 
-    const activeChapterTitle = chapterMetadata[activeChapterInView] || title;
+    const activeChapterTitle = formatChapterTitle(chapterMetadata[activeChapterInView] || title);
 
     return (
         <>
@@ -522,7 +523,7 @@ export function ChapterModal({
                                     <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
                                         <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
-                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{title}</p>
+                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{formatChapterTitle(title)}</p>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
