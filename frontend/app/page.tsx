@@ -409,7 +409,7 @@ export default function Home() {
         <button
           type="button"
           onClick={scrollToTop}
-          className="fixed bottom-6 right-4 md:bottom-8 md:right-10 z-40 inline-flex items-center gap-2 rounded-full bg-brand-navy text-white px-4 py-2 shadow-lg shadow-black/20 hover:shadow-xl hover:bg-brand-navy/90 transition-all text-xs md:text-sm tracking-[0.18em] uppercase font-semibold"
+          className="fixed bottom-6 right-4 md:bottom-8 md:right-10 z-40 inline-flex items-center gap-2 rounded-full bg-brand-navy text-white dark:bg-[#182232]/95 dark:text-brand-gold dark:border dark:border-brand-gold/30 dark:hover:bg-[#202C3F] dark:hover:border-brand-gold/60 backdrop-blur-sm px-4 py-2 shadow-lg shadow-black/20 dark:shadow-black/60 hover:shadow-xl hover:bg-brand-navy/90 active:scale-95 transition-all text-xs md:text-sm tracking-[0.18em] uppercase font-semibold"
           aria-label="Bumalik sa itaas"
         >
           <ArrowUp className="h-4 w-4" />
