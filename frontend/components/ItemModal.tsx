@@ -111,24 +111,27 @@ export function ItemModal({
     };
 
     const filteredChapters = chapterAppearances?.filter(c => {
-        if (selectedNovel === 'noli') return c.book === 'noli';
-        return c.book === 'fili' || c.book === 'elfili';
+        const b = c.book?.toLowerCase() || '';
+        if (selectedNovel === 'noli') return b === 'noli' || b.includes('noli');
+        return b === 'fili' || b === 'elfili' || b.includes('fili');
     });
 
 
-    const renderChapter = (chapter: ChapterInfo, idx: number) => (
-        <div
-            key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
-            onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
-            className={`
-                group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white
-                ${chapter.book === 'noli' ? 'border-noli-accent/10 hover:border-noli-accent' : 'border-fili-accent/10 hover:border-fili-accent'}
-            `}
-        >
-            <div className="flex items-center gap-2 mb-3">
-                <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${chapter.book === 'noli' ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
-                    {chapter.book === 'noli' ? 'Noli' : 'Fili'}
-                </span>
+    const renderChapter = (chapter: ChapterInfo, idx: number) => {
+        const isNoli = chapter.book?.toLowerCase().includes('noli');
+        return (
+            <div
+                key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
+                onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
+                className={`
+                    group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white
+                    ${isNoli ? 'border-noli-accent/10 hover:border-noli-accent' : 'border-fili-accent/10 hover:border-fili-accent'}
+                `}
+            >
+                <div className="flex items-center gap-2 mb-3">
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${isNoli ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
+                        {isNoli ? 'Noli' : 'Fili'}
+                    </span>
                 <span className="text-xl font-serif font-bold text-brand-navy">
                     Kabanata {chapter.chapter_number}
                 </span>
@@ -145,6 +148,7 @@ export function ItemModal({
             )}
         </div>
     );
+};
 
     const getNovelLabel = (novel: 'noli' | 'fili') => {
         switch (novel) {

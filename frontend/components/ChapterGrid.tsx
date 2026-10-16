@@ -48,9 +48,14 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
     });
 
     const getFilteredChapters = () => {
-        const noli = chapters.filter(c => c.book === "noli").sort((a, b) => a.chapter_number - b.chapter_number);
-        // DB uses 'elfili', frontend uses 'fili' convention in toggle
-        const fili = chapters.filter(c => c.book === "elfili").sort((a, b) => a.chapter_number - b.chapter_number);
+        const noli = chapters
+            .filter(c => c.book.toLowerCase().includes("noli"))
+            .map(c => ({ ...c, book: "noli" }))
+            .sort((a, b) => a.chapter_number - b.chapter_number);
+        const fili = chapters
+            .filter(c => c.book.toLowerCase().includes("fili"))
+            .map(c => ({ ...c, book: "elfili" }))
+            .sort((a, b) => a.chapter_number - b.chapter_number);
 
         if (selectedNovel === "noli") return noli;
         return fili;
@@ -138,7 +143,7 @@ function ChapterCard({
     colIndex: number;
     isGroupStart?: boolean;
 }) {
-    const isNoli = chapter.book === "noli";
+    const isNoli = chapter.book.toLowerCase().includes("noli");
 
     return (
         <motion.div
