@@ -317,7 +317,7 @@ export default function Home() {
       {/* Main Content Area */}
       <div className="w-full max-w-7xl mx-auto px-4 mt-6 sm:mt-8 min-w-0">
         {/* Mobile Novel Switcher: Top to bottom on mobile: Header -> Novel Toggle -> ContentTabs -> Sticky Kabanata pill row */}
-        <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2 relative z-10">
+        <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2 relative z-40">
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text/60 font-serif">
             Piling Nobela
           </span>
