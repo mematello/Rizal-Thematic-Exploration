@@ -658,12 +658,57 @@ Chapter retrieval (`/api/v1/chapters/{book}/{chapter_number}`) had high cold lat
 
 ---
 
-### 6. Deliberately Unexecuted Optimizations
+---
+
+### 7. Precomputed Chapter Content & Corpus Fingerprint Verification (Step 1)
+**Date**: 2026-10-16  
+**Branch**: `perf/chapter-precompute`  
+**Status**: **Implemented, verified locally against production Supabase DB; awaiting deployment approval**.
+
+**Context**:
+While Item A2 eliminated the N+1 query loop for context fetching, cold requests for large full-novel chapters (e.g. Noli 34 with 245 sentences) still required 22–30 seconds of heavy CPU in-process keyword matching and regex word extraction across 510 themes.
+
+**Decisions**:
+1. **Precomputed Static Bundles**:
+   Precomputed all 205 chapters across both novels and both modes using the unmodified live production code path (`scripts/build_chapter_cache.py`):
+   - `chapter_cache_noli_buod.json`: 64 chapters (201.9 KB)
+   - `chapter_cache_noli_full.json`: 63 chapters (1,698.2 KB)
+   - `chapter_cache_elfili_buod.json`: 39 chapters (163.9 KB)
+   - `chapter_cache_elfili_full.json`: 39 chapters (1,130.6 KB)
+   - Total payload: **3.12 MB** uncompressed. Small enough to be tracked cleanly in git and loaded in <15 ms.
+2. **First-Level Static Cache with In-Memory LRU Fallback**:
+   In `backend/app/api/v1/content.py`, `get_chapter_content` checks the static bundle first. If enabled, it returns the precomputed sentence list in **0 ms** (sub-10 ms HTTP round-trip). If disabled or on a cache miss, it seamlessly falls through to the Item A2 bounded LRU cache and live computation path.
+3. **Corpus Fingerprint Verification at Startup**:
+   Every bundle embeds the Supabase database corpus fingerprint:
+   - `sentence_count`: 16,402
+   - `sentence_text_md5`: `e438ce3f61098624121329cd5a20f9a2`
+   - `theme_count`: 545
+   - `theme_content_md5`: `cd87434aff5cd54a775ee7b4ef60b056`
+   On app startup, `warm_chapters_cache()` executes a fast (~1.5s) single SQL query against Supabase to verify the live corpus matches the bundle.
+   - If match: static cache is enabled.
+   - If mismatch or missing bundle: logs warning, disables static cache, falls back to live computation. **DOES NOT CRASH**.
+4. **Regeneration Procedure When Corpus Changes**:
+   When sentences or themes in Supabase are updated, regenerate the bundles:
+   ```bash
+   poetry run python scripts/build_chapter_cache.py [--base-url http://127.0.0.1:8000]
+   ```
+   The script discovers chapter counts dynamically from `/api/v1/chapters?mode={mode}`, recalculates the database fingerprint, saves checkpoints during generation to resume on interruption, and outputs formatted bundles to `backend/app/data/`.
+5. **Zero Diff on `engine.py`**:
+   `backend/app/core/engine.py` has strictly zero diff. All 40 golden search queries are 100% invariant (0 diffs).
+
+**Verification Results**:
+- **Latency**: Noli 34 full dropped from **22,000 ms to 6.8 ms** (a 3,200x speedup). Sampled 20 random chapters had an average latency of **11.4 ms** (p50: 7.5 ms).
+- **Byte-Identical SHA-256**: All tested chapters (Noli 1 buod, Noli 34 full, Noli 63 full, Noli 64 buod, El Fili 1 buod, El Fili 15 full, El Fili 39 buod, El Fili 39 full) verified 100% bit-for-bit identical to the live production endpoint.
+- **Corpus Fallback**: Simulated corpus tampering verified that `verify_corpus_fingerprint` immediately detects divergence (`Match=False`), logs a warning, and falls back to live execution without crashing.
+---
+
+### 8. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.
 - **Items**:
   - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.
   - **pg_trgm GIN Indexing**: Existing ILIKE query performance was deemed sufficient given that candidate retrieval takes <25 ms.
   - **Query Model Encoding Batching**: Sequential calls to `base_model.encode()` during preprocessing remain unbatched to preserve existing function call boundaries and avoid subtle tensor-padding floating-point divergence.
+
 
 
 

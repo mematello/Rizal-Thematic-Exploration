@@ -65,6 +65,8 @@ Thumbs.db
 .env.test.local
 .env.production.local
 *.env
+**/.env
+backend/.env
 !backend/.env.example
 
 # Models

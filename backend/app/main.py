@@ -39,8 +39,8 @@ async def lifespan(app: FastAPI):
     import threading
     from app.api.v1.content import warm_themes_cache, warm_chapters_cache
     def _warm_all():
-        warm_themes_cache()
         warm_chapters_cache()
+        warm_themes_cache()
     threading.Thread(target=_warm_all, name="warm-caches", daemon=True).start()
 
     yield
