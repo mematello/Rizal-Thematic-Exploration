@@ -17,6 +17,7 @@ import { useModeStore } from "@/store/modeStore";
 import { ChapterSidebar } from "@/components/ChapterSidebar";
 import { ArrowUp, Menu, X, BookOpen } from "lucide-react";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChapterContent } from "@/types";
 import { Footer } from "@/components/Footer";
 import { formatChapterTitle } from "@/lib/utils";
@@ -170,8 +171,8 @@ export default function Home() {
       {/* Header Section */}
       <header
         className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'
-          ? 'bg-[#EAE3D5]/90 border-brand-navy/10'
-          : 'bg-[#F5F1E9]/90 border-brand-gold/20'
+          ? 'bg-[#EAE3D5]/90 dark:bg-[#180D0E]/90 border-brand-navy/10 dark:border-white/10'
+          : 'bg-[#F5F1E9]/90 dark:bg-[#0C1424]/90 border-brand-gold/20 dark:border-brand-gold/20'
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3 relative">
@@ -185,20 +186,23 @@ export default function Home() {
                 className="text-left text-lg font-serif font-black text-brand-gold tracking-tighter cursor-pointer select-none py-1"
                 aria-label="Pumunta sa panimulang pahina ng RizalEngine"
               >
-                RIZAL<span className="text-brand-navy font-bold ml-1">ENGINE</span>
+                RIZAL<span className="text-brand-navy dark:text-foreground font-bold ml-1">ENGINE</span>
               </motion.button>
 
-              {/* Hamburger Button (Mobile only) */}
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden min-w-[44px] min-h-[44px] -mr-2 rounded-full flex items-center justify-center text-brand-navy hover:bg-black/5 active:scale-95 transition-all"
-                aria-expanded={isMobileMenuOpen}
-                aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
-                aria-controls="mobile-navigation-drawer"
-              >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
+              {/* Mobile Actions: Quick ThemeToggle + Hamburger */}
+              <div className="flex items-center gap-2 md:hidden">
+                <ThemeToggle className="w-9 h-9 min-w-[36px] min-h-[36px]" />
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="min-w-[44px] min-h-[44px] -mr-2 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all"
+                  aria-expanded={isMobileMenuOpen}
+                  aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
+                  aria-controls="mobile-navigation-drawer"
+                >
+                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             {/* Search Bar - Center on Desktop, Full Width below logo on Mobile */}
@@ -212,11 +216,11 @@ export default function Home() {
 
             {/* Desktop Navigation - Hidden on mobile to eliminate markup duplication */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <div className="flex bg-white/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-10">
+              <div className="flex bg-white/80 dark:bg-brand-paper/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-10">
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('buod')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'buod'}
                 >
                   Buod
@@ -224,13 +228,14 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('full')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'full'}
                 >
                   Buong Kwento
                 </button>
               </div>
               <NovelToggle selected={novel} onSelect={setNovel} />
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -259,7 +264,7 @@ export default function Home() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="relative z-50 bg-white/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5"
+                className="relative z-50 bg-white/98 dark:bg-brand-paper/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5"
               >
                 {/* Novel Selector for Mobile */}
                 <div>
@@ -275,8 +280,8 @@ export default function Home() {
                       }}
                       className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
                         novel === "noli"
-                          ? "bg-brand-gold/15 border-brand-gold text-brand-navy shadow-sm"
-                          : "bg-brand-cream/50 border-brand-gold/20 text-brand-text/70"
+                          ? "bg-brand-gold/15 border-brand-gold text-brand-navy dark:text-brand-gold shadow-sm"
+                          : "bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70"
                       }`}
                     >
                       <BookOpen size={14} className={novel === "noli" ? "text-brand-gold" : "text-brand-text/40"} />
@@ -291,7 +296,7 @@ export default function Home() {
                       className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
                         novel === "fili"
                           ? "bg-fili-accent/15 border-fili-accent text-fili-accent shadow-sm"
-                          : "bg-brand-cream/50 border-brand-gold/20 text-brand-text/70"
+                          : "bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70"
                       }`}
                     >
                       <BookOpen size={14} className={novel === "fili" ? "text-fili-accent" : "text-brand-text/40"} />
@@ -305,7 +310,7 @@ export default function Home() {
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light block mb-2">
                     Modo ng Pagbasa
                   </span>
-                  <div className="grid grid-cols-2 gap-2 bg-brand-cream/60 p-1 rounded-xl border border-brand-gold/20">
+                  <div className="grid grid-cols-2 gap-2 bg-brand-cream/60 dark:bg-black/30 p-1 rounded-xl border border-brand-gold/20">
                     <button
                       type="button"
                       onClick={() => {
@@ -314,7 +319,7 @@ export default function Home() {
                       }}
                       className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                         mode === 'buod'
-                          ? 'bg-brand-navy text-white shadow-sm font-semibold'
+                          ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm font-semibold'
                           : 'text-brand-text hover:bg-brand-gold/10'
                       }`}
                     >
@@ -328,13 +333,21 @@ export default function Home() {
                       }}
                       className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                         mode === 'full'
-                          ? 'bg-brand-navy text-white shadow-sm font-semibold'
+                          ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm font-semibold'
                           : 'text-brand-text hover:bg-brand-gold/10'
                       }`}
                     >
                       Buong Kwento
                     </button>
                   </div>
+                </div>
+
+                {/* Theme Selector for Mobile */}
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light block mb-2">
+                    Tema ng Paningin
+                  </span>
+                  <ThemeToggle variant="segmented" className="w-full justify-between" />
                 </div>
               </motion.div>
             </>

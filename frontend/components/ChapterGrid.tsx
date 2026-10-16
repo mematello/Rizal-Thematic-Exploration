@@ -70,11 +70,11 @@ export function ChapterGrid({ selectedNovel, onChapterSelect }: ChapterGridProps
                     {Array.from({ length: 8 }).map((_, idx) => (
                         <div
                             key={idx}
-                            className="p-3.5 sm:p-6 min-h-[9.5rem] sm:h-56 flex flex-col justify-between bg-white/60 backdrop-blur-md rounded-xl sm:rounded-sm border border-brand-gold/15"
+                            className="p-3.5 sm:p-6 min-h-[9.5rem] sm:h-56 flex flex-col justify-between bg-white/60 dark:bg-brand-paper/60 backdrop-blur-md rounded-xl sm:rounded-sm border border-brand-gold/15"
                         >
                             <div className="space-y-2.5">
                                 <div className="h-3 w-20 bg-brand-gold/20 rounded" />
-                                <div className="h-5 sm:h-7 w-28 bg-brand-navy/15 rounded" />
+                                <div className="h-5 sm:h-7 w-28 bg-brand-navy/15 dark:bg-brand-gold/15 rounded" />
                                 <div className="h-3 w-36 bg-brand-text/15 rounded" />
                             </div>
                             <div className="h-3 w-16 bg-brand-gold/20 rounded pt-2" />
@@ -164,7 +164,7 @@ function ChapterCard({
             whileTap={{ scale: 0.98 }}
             className={cn(
                 "group relative p-3.5 sm:p-6 min-h-[9.5rem] sm:h-56 flex flex-col justify-between overflow-hidden cursor-pointer select-none",
-                "bg-white/75 backdrop-blur-md shadow-sm transition-all duration-300",
+                "bg-white/75 dark:bg-brand-paper/85 backdrop-blur-md shadow-sm transition-all duration-300",
                 "border border-brand-gold/15 hover:border-brand-gold/40 active:border-brand-gold/60 rounded-xl sm:rounded-sm",
                 "scroll-mt-32 sm:scroll-mt-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
             )}
@@ -173,7 +173,7 @@ function ChapterCard({
             {/* Decorative Background Number */}
             <span className={cn(
                 "absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
-                "text-brand-navy pointer-events-none"
+                "text-brand-navy dark:text-brand-gold pointer-events-none"
             )}>
                 {chapter.chapter_number}
             </span>
@@ -191,7 +191,7 @@ function ChapterCard({
                 )}>
                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                 </span>
-                <h3 className="text-base sm:text-2xl font-serif text-brand-navy mt-1 sm:mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight font-bold">
+                <h3 className="text-base sm:text-2xl font-serif text-brand-navy dark:text-foreground mt-1 sm:mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight font-bold">
                     Kabanata {chapter.chapter_number}
                 </h3>
                 <p className="text-[11px] sm:text-sm font-serif text-brand-text/70 mt-1 sm:mt-2 italic line-clamp-1 sm:line-clamp-2">

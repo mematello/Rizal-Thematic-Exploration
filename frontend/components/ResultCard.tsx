@@ -69,7 +69,7 @@ export function ResultCard({
                         </span>
                         <h3
                             id={`result-title-${id}`}
-                            className="font-serif font-bold text-brand-navy text-base leading-snug group-hover:text-brand-gold transition-colors flex items-center gap-2"
+                            className="font-serif font-bold text-brand-navy dark:text-foreground text-base leading-snug group-hover:text-brand-gold transition-colors flex items-center gap-2"
                         >
                             Kabanata {chapter}: {formatChapterTitle(chapterTitle)}
                             <ExternalLink size={13} className="opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
@@ -148,8 +148,8 @@ export function ResultCard({
                             <div className="mx-4 sm:mx-5 mt-3 space-y-2">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-text/40 block">Kahulugan ng Tema</span>
                                 {themes.map((t) => (
-                                    <div key={t.id} className={`p-3 rounded-sm border-l-4 ${novelTheme.innerBorder} bg-white`}>
-                                        <h5 className="font-serif font-bold text-brand-navy text-sm mb-1">{t.label}</h5>
+                                    <div key={t.id} className={`p-3 rounded-sm border-l-4 ${novelTheme.innerBorder} bg-white dark:bg-brand-paper`}>
+                                        <h5 className="font-serif font-bold text-brand-navy dark:text-foreground text-sm mb-1">{t.label}</h5>
                                         {t.explanation && (
                                             <p className="font-serif text-xs text-brand-text/60 italic leading-relaxed break-words [overflow-wrap:anywhere]">
                                                 &ldquo;{t.explanation}&rdquo;

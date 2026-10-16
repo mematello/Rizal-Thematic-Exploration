@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme inline {
     --color-background: var(--background);
@@ -52,6 +52,27 @@
     --theme-overlay: rgba(25, 20, 15, 0.6);
 }
 
+.dark {
+    --radius: 1rem;
+    --background: #0B0F19;
+    --foreground: #F0F4F8;
+
+    /* Default (Both) - Dark Rizal Theme */
+    --theme-bg: #0D131F;
+    --theme-card: #151E2E;
+    --theme-primary: #E8C97A;
+    --theme-accent: #C5A065;
+    --theme-accent-hover: #F0D490;
+    --theme-text: #E6EDF3;
+    --theme-text-muted: #9BA8BA;
+    --theme-noli: #E8C97A;
+    --theme-fili: #E06C75;
+
+    /* Utility Colors */
+    --theme-border: rgba(197, 160, 101, 0.25);
+    --theme-overlay: rgba(5, 8, 15, 0.85);
+}
+
 [data-novel="noli"] {
     --theme-bg: #F7F3EB;
     /* Airy & Awakening */
@@ -61,6 +82,19 @@
     --theme-text: #2C2C2C;
     --theme-noli: #C5A065;
     --theme-border: rgba(197, 160, 101, 0.15);
+}
+
+.dark [data-novel="noli"],
+[data-novel="noli"].dark,
+.dark[data-novel="noli"] {
+    --theme-bg: #0C1424;
+    --theme-card: rgba(18, 28, 46, 0.92);
+    --theme-primary: #E8C97A;
+    --theme-accent: #C5A065;
+    --theme-text: #F0F4F8;
+    --theme-text-muted: #9BA8BA;
+    --theme-noli: #E8C97A;
+    --theme-border: rgba(197, 160, 101, 0.25);
 }
 
 [data-novel="fili"] {
@@ -75,6 +109,19 @@
     --theme-border: rgba(141, 45, 45, 0.15);
 }
 
+.dark [data-novel="fili"],
+[data-novel="fili"].dark,
+.dark[data-novel="fili"] {
+    --theme-bg: #180D0E;
+    --theme-card: rgba(36, 18, 22, 0.92);
+    --theme-primary: #F4A2A2;
+    --theme-accent: #E06C75;
+    --theme-accent-hover: #F28B93;
+    --theme-text: #FDE8E8;
+    --theme-text-muted: #BFA0A2;
+    --theme-fili: #E06C75;
+    --theme-border: rgba(224, 108, 117, 0.25);
+}
 
 @layer base {
     @media (prefers-reduced-motion: no-preference) {
@@ -87,7 +134,7 @@
         @apply border-brand-gold/5;
     }
 
-    /* Clean White Background */
+    /* Clean White / Dark Background */
     body {
         @apply bg-brand-cream text-brand-text font-body relative min-h-screen;
         transition: background-color var(--transition-speed) var(--transition-timing),
@@ -109,6 +156,12 @@
         background-size: cover;
         background-position: center;
         filter: sepia(0.2) contrast(0.9);
+        transition: opacity var(--transition-speed) var(--transition-timing);
+    }
+
+    .dark body::before {
+        opacity: 0.04;
+        filter: invert(1) brightness(0.4);
     }
 
     body::after {
@@ -123,6 +176,11 @@
         opacity: 0.3;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
         mix-blend-mode: overlay;
+        transition: opacity var(--transition-speed) var(--transition-timing);
+    }
+
+    .dark body::after {
+        opacity: 0.12;
     }
 
     /* Hide scrollbar for clean look but allow scroll */
@@ -141,6 +199,14 @@
 
     ::-webkit-scrollbar-thumb:hover {
         background: #1B263B;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: #4B3E26;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #C5A065;
     }
 
     /* Hide native search clear button */
@@ -199,6 +265,10 @@
         color: var(--color-brand-navy);
     }
 
+    .dark .drop-cap::first-letter {
+        color: #E8C97A;
+    }
+
     @supports not ((initial-letter: 2) or (-webkit-initial-letter: 2)) {
         .drop-cap::first-letter {
             float: left;
@@ -209,6 +279,9 @@
             margin-top: 0.08em;
             margin-bottom: -0.05em;
             color: var(--color-brand-navy);
+        }
+        .dark .drop-cap::first-letter {
+            color: #E8C97A;
         }
     }
 
@@ -247,6 +320,24 @@
                 url('/images/backgrounds/background_1.webp');
             background-position: center;
         }
+
+        /* Dark Mode Mobile Backdrops */
+        .dark .novel-backdrop-layer[data-novel="noli"],
+        .dark .novel-backdrop-layer:not([data-novel]) {
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(197, 160, 101, 0.12) 0%, transparent 60%),
+                linear-gradient(to bottom, rgba(12, 20, 36, 0.95), rgba(12, 20, 36, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center;
+        }
+        .dark .novel-backdrop-layer[data-novel="fili"],
+        .dark .novel-backdrop-layer[data-novel="elfili"] {
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(224, 108, 117, 0.12) 0%, transparent 60%),
+                linear-gradient(to bottom, rgba(24, 13, 14, 0.95), rgba(24, 13, 14, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center;
+        }
     }
 
     /* Tablet & Desktop (>= 768px): Full panoramic upright artwork framing */
@@ -268,6 +359,28 @@
         .novel-backdrop-layer:not([data-novel]) {
             background-image: 
                 linear-gradient(to bottom, rgba(245, 241, 233, 0.88), rgba(245, 241, 233, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center top;
+        }
+
+        /* Dark Mode Desktop Backdrops */
+        .dark .novel-backdrop-layer[data-novel="noli"] {
+            background-image: 
+                linear-gradient(to bottom, rgba(12, 20, 36, 0.90) 0%, rgba(12, 20, 36, 0.95) 50%, rgba(12, 20, 36, 0.99) 100%),
+                url('/images/backgrounds/noli_background.webp');
+            background-position: center top;
+        }
+        .dark .novel-backdrop-layer[data-novel="fili"],
+        .dark .novel-backdrop-layer[data-novel="elfili"] {
+            background-image: 
+                linear-gradient(to bottom, rgba(24, 13, 14, 0.90) 0%, rgba(24, 13, 14, 0.95) 50%, rgba(24, 13, 14, 0.99) 100%),
+                url('/images/backgrounds/elfili_background.webp');
+            background-position: center top;
+        }
+        .dark .novel-backdrop-layer[data-novel="both"],
+        .dark .novel-backdrop-layer:not([data-novel]) {
+            background-image: 
+                linear-gradient(to bottom, rgba(13, 19, 31, 0.92), rgba(13, 19, 31, 0.98)),
                 url('/images/backgrounds/background_1.webp');
             background-position: center top;
         }

@@ -761,6 +761,31 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Performance: Faster page loads by eliminating 404 image errors for missing textures.
   - Visual: Upright, sharp artwork across desktop and mobile devices without oversized or zoomed-in elements.
 
+---
+
+### 11. 2026-10-17: Item F Dark Mode Architecture and WCAG AA Contrast Compliance
+- **Context**: The web application lacked dark mode support, defaulting to high-brightness parchment and white surfaces that caused glare in dim environments. Next.js 16 with Tailwind CSS v4 required an explicit variant definition (`@custom-variant dark (&:is(.dark, .dark *));`) to enable standard `dark:` utility class selection on both `html.dark` and all nested child components. Multiple legacy components contained hardcoded inline `style={{ backgroundColor: 'rgba(255,255,255,...)' }}` (such as `HeroSection` floating icons and stats card), preventing CSS dark mode class overrides. Text elements across result cards, chapter grid, and modals required auditing to ensure WCAG AA contrast ratio (>= 4.5:1 for body, >= 3:1 for large headings) against midnight dark backgrounds.
+- **Decision**:
+  1. Integrate `next-themes` with `ThemeProvider` (`attribute="class"`, `defaultTheme="system"`, `enableSystem`) in `frontend/app/providers.tsx` and add `suppressHydrationWarning` to `<html>` in `frontend/app/layout.tsx`.
+  2. Implement `@custom-variant dark (&:is(.dark, .dark *));` in `globals.css` ensuring seamless Tailwind v4 compilation across all React components.
+  3. Create `ThemeToggle.tsx` supporting both an icon toggle for desktop headers and an accessible 3-way segmented control (Liwanag / Dilim / Sistema) for mobile drawers and setting panels.
+  4. Establish comprehensive dark mode design tokens in `globals.css`:
+     - Deep midnight navy base (`--theme-bg: #0F141C;`, `--theme-card: #18202C;`, `--theme-text: #EAE6DF;`, etc.).
+     - Novel specific dark accents (Noli: `#E8C97A` gold, Fili: `#E28498` magenta/rose).
+     - Dark mode fixed backdrops: midnight parchment wash for mobile portrait, and deep midnight landscape collage for desktop/tablet.
+     - Dark mode gold drop cap (`.dark .drop-cap::first-letter: #E8C97A`) and dark scrollbars.
+  5. Audit and upgrade components for WCAG AA contrast compliance:
+     - `ChapterModal.tsx`: Dark mode modal shell, chapter text reading canvas, Prev/Next buttons, and full Sanggunian reference overlay.
+     - `ChapterGrid.tsx`: Card surfaces (`dark:bg-brand-paper/85`), decorative chapter numerals, and headings (`dark:text-foreground`).
+     - `ResultCard.tsx`: Card titles (`dark:text-foreground`), meaning/themes cards (`dark:bg-brand-paper`).
+     - `NovelToggle.tsx`: Novel switcher dropdown and pill buttons (`dark:bg-brand-paper/98`, `dark:text-brand-gold`).
+     - `HeroSection.tsx`: Replaced hardcoded inline white styles with responsive Tailwind dark classes (`bg-white/90 dark:bg-brand-paper/95`, `dark:text-foreground`).
+- **Impact**:
+  - Correctness / Ranking: **0 impact** (backend completely untouched).
+  - Search Pipeline / Engine: **0 diff** on `backend/app/core/engine.py`.
+  - Accessibility & UX: Full WCAG AA compliant dark mode reading experience, system preference matching, zero flash of incorrect theme, and beautiful midnight gold/crimson historical aesthetic.
+
+
 
 
 

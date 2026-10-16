@@ -117,8 +117,38 @@
 
 ---
 
-## Next Action: Item F (feat/dark-mode)
-Create feature branch `feat/dark-mode` to implement dark mode using `next-themes` and Tailwind `darkMode: 'class'`, auditing color palettes, result cards, and WCAG AA contrast compliance.
+- **Item F Dark Mode Implementation & WCAG AA Contrast Audit (Completed 2026-10-17, branch `feat/dark-mode`)**:
+  - **Identified Contrast & Dark Theme Requirements**:
+    1. The application lacked dark mode support, defaulting to high-brightness parchment and white surfaces that caused glare in dim environments.
+    2. Next.js 16 with Tailwind CSS v4 required an explicit variant definition (`@custom-variant dark (&:is(.dark, .dark *));`) to enable standard `dark:` utility class selection on both `html.dark` and all nested child components.
+    3. Multiple legacy components contained hardcoded inline `style={{ backgroundColor: 'rgba(255,255,255,...)' }}` (such as `HeroSection` floating icons and stats card), preventing CSS dark mode class overrides.
+    4. Text elements in `ResultCard.tsx`, `ChapterGrid.tsx`, and `ChapterModal.tsx` required auditing to ensure WCAG AA contrast ratio (>= 4.5:1 for body, >= 3:1 for large headings) against midnight dark backgrounds.
+  - **Implemented Architecture & Theming**:
+    1. Installed and integrated `next-themes` with `ThemeProvider` (`attribute="class"`, `defaultTheme="system"`, `enableSystem`) in `frontend/app/providers.tsx` and added `suppressHydrationWarning` to `<html>` in `frontend/app/layout.tsx`.
+    2. Created `frontend/components/ThemeToggle.tsx` providing both a compact icon toggle for desktop headers and an accessible 3-way segmented control (Liwanag / Dilim / Sistema) for mobile drawers and setting panels.
+    3. Integrated `ThemeToggle` into desktop header navigation, mobile drawer (`page.tsx`), and search bar header (`search/page.tsx`).
+    4. Engineered complete dark mode design system tokens in `frontend/app/globals.css`:
+       - Base dark canvas: `--theme-bg: #0F141C;`, `--theme-card: #18202C;`, `--theme-text: #EAE6DF;`, `--theme-text-muted: #9E9B93;`, `--theme-border: rgba(232, 201, 122, 0.18);`.
+       - Dark Noli accents: `--theme-primary: #D4AF37;`, `--theme-accent: #E8C97A;`.
+       - Dark Fili accents: `--theme-primary: #C94C68;`, `--theme-accent: #E28498;`.
+       - Dark mode fixed backdrops: midnight parchment wash for mobile portrait, and deep midnight landscape collage for desktop/tablet.
+       - Dark mode gold drop cap (`.dark .drop-cap::first-letter: #E8C97A`) and dark scrollbars.
+    5. Audited and upgraded components for WCAG AA contrast compliance:
+       - `ChapterModal.tsx`: Dark mode modal shell, chapter text reading canvas, Prev/Next buttons, and full Sanggunian reference overlay.
+       - `ChapterGrid.tsx`: Card surfaces (`dark:bg-brand-paper/85`), decorative chapter numerals, and headings (`dark:text-foreground`).
+       - `ResultCard.tsx`: Card titles (`dark:text-foreground`), meaning/themes cards (`dark:bg-brand-paper`).
+       - `NovelToggle.tsx`: Novel switcher dropdown and pill buttons (`dark:bg-brand-paper/98`, `dark:text-brand-gold`).
+       - `HeroSection.tsx`: Replaced hardcoded inline white styles with responsive Tailwind dark classes (`bg-white/90 dark:bg-brand-paper/95`, `dark:text-foreground`).
+  - **Verification**:
+    - `npm run build` compiled cleanly in 4.8s with 0 errors.
+    - Verified locally on `http://localhost:3000` via browser subagent: tested desktop home, mobile drawer segmented toggle, dark chapter reader modal, and search results page.
+    - Zero diff on `backend/app/core/engine.py` (strictly 0 diff).
+
+---
+
+## Next Steps
+- Await user approval to merge `feat/dark-mode` into `main` and push to GitHub.
+
 
 
 

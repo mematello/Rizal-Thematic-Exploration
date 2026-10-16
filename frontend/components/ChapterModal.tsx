@@ -516,18 +516,18 @@ export function ChapterModal({
                 {isOpen && (
                     <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm" />
-                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
+                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-brand-cream' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
                             
                             {!isFullscreen && (
                                 <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream">
                                     <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
-                                        <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
+                                        <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy dark:text-foreground mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
                                         <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{formatChapterTitle(title)}</p>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
-                                        <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy" aria-label="Isara ang kabanata"><X size={22} /></button>
+                                        <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy dark:hover:text-brand-gold" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
+                                        <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy dark:hover:text-brand-gold" aria-label="Isara ang kabanata"><X size={22} /></button>
                                     </div>
                                 </div>
                             )}
@@ -535,8 +535,8 @@ export function ChapterModal({
                             {!isFullscreen && (
                                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
                                     <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full py-0.5">
-                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/70 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
-                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-white/70 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
+                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'bg-white/70 dark:bg-brand-paper/70 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
+                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'bg-white/70 dark:bg-brand-paper/70 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
                                     </div>
                                 </div>
                             )}
@@ -677,9 +677,9 @@ export function ChapterModal({
 
                             {!isFullscreen && (
                                 <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 bg-brand-cream pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
+                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-brand-paper text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
                                     <div className="hidden sm:block text-[10px] text-brand-accent/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
-                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
+                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-brand-paper text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
                                 </div>
                             )}
                         </motion.div>
@@ -687,31 +687,31 @@ export function ChapterModal({
 
                         <AnimatePresence>
                             {refFullscreen && selectedSentenceForRef !== null && (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white flex flex-col h-[100dvh] overscroll-contain">
-                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-6 px-4 sm:px-6">
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white dark:bg-brand-cream flex flex-col h-[100dvh] overscroll-contain">
+                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 dark:bg-brand-paper/50 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-6 px-4 sm:px-6">
                                         <div className="max-w-7xl mx-auto text-center space-y-2 relative">
-                                            <h2 className="text-xl sm:text-2xl font-serif text-brand-navy font-bold">Kaugnay na Sanggunian</h2>
+                                            <h2 className="text-xl sm:text-2xl font-serif text-brand-navy dark:text-foreground font-bold">Kaugnay na Sanggunian</h2>
                                             <p className="text-sm sm:text-lg text-brand-text">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
                                             <div className="flex items-center justify-center gap-2 pt-1 sm:pt-2">
-                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy text-white text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
                                                 <span className="text-brand-gold">→</span>
-                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-gold text-white text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-gold text-white dark:text-brand-navy text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
                                             </div>
-                                            <button type="button" onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); }} className="absolute top-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-navy transition-all" aria-label="Isara ang sanggunian"><X size={22} /></button>
+                                            <button type="button" onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); }} className="absolute top-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full text-brand-navy dark:text-brand-gold transition-all" aria-label="Isara ang sanggunian"><X size={22} /></button>
                                         </div>
                                     </div>
                                     {/* Mobile View (< lg): Single unified scroll view with prominent comparison cards */}
                                     <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30">
                                         {/* Source sentence card - fully visible and prominent */}
-                                        <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
+                                        <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
                                             <div className="flex items-center justify-between border-b border-brand-gold/10 pb-2">
-                                                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/60 flex items-center gap-1.5">
+                                                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/60 dark:text-brand-gold/70 flex items-center gap-1.5">
                                                     <Quote size={13} className="text-brand-gold shrink-0" />
                                                     Pinagmulang Teksto ({mode === 'buod' ? 'Buod' : 'Buong Kwento'})
                                                 </span>
                                                 <span className="text-[10px] font-bold text-brand-accent/70 uppercase tracking-wider">Kabanata {chapterNumber}</span>
                                             </div>
-                                            <p className="font-serif text-brand-navy text-base sm:text-lg italic leading-relaxed text-left">
+                                            <p className="font-serif text-brand-navy dark:text-foreground text-base sm:text-lg italic leading-relaxed text-left">
                                                 &quot;{chapContentOnRef()?.sentence_text}&quot;
                                             </p>
                                         </div>
@@ -725,59 +725,59 @@ export function ChapterModal({
 
                                         {/* Matched reference content */}
                                         {isRefLoading ? (
-                                            <div className="flex flex-col items-center py-12 space-y-4 bg-white rounded-xl border border-brand-gold/20 p-6">
+                                            <div className="flex flex-col items-center py-12 space-y-4 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/20 p-6">
                                                 <div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" />
                                                 <p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p>
                                             </div>
                                         ) : refError ? (
-                                            <div className="py-8 px-6 bg-red-50 text-red-600 rounded-xl border border-red-200 text-center space-y-2">
+                                            <div className="py-8 px-6 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-900/40 text-center space-y-2">
                                                 <X size={24} className="mx-auto text-red-400" />
                                                 <p className="font-serif text-sm">{refError}</p>
                                             </div>
                                         ) : selectedReference && (
                                             <div className="space-y-5">
                                                 {/* Target sentence card */}
-                                                <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
+                                                <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
                                                     <div className="flex justify-between items-center border-b border-brand-gold/10 pb-2">
-                                                        <span className="text-[11px] font-bold text-brand-navy/60 uppercase tracking-widest flex items-center gap-1.5">
+                                                        <span className="text-[11px] font-bold text-brand-navy/60 dark:text-brand-gold/70 uppercase tracking-widest flex items-center gap-1.5">
                                                             <BookOpen size={13} className="text-brand-gold shrink-0" />
                                                             Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}
                                                         </span>
                                                         {selectedReference.alignment_status && (
-                                                            <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                            <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
                                                                 {selectedReference.alignment_status}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <p className="font-serif text-brand-navy text-base sm:text-lg leading-relaxed text-left">
+                                                    <p className="font-serif text-brand-navy dark:text-foreground text-base sm:text-lg leading-relaxed text-left">
                                                         &quot;{selectedReference.sentence_text}&quot;
                                                     </p>
                                                     {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
                                                         <div className="pt-3 border-t border-brand-gold/10">
-                                                            <span className="text-[10px] font-bold text-brand-navy/50 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
+                                                            <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
                                                             <div className="flex flex-wrap gap-1.5">
                                                                 {selectedReference.matched_characters.map(c => (
-                                                                    <span key={c} className="bg-brand-gold/10 text-brand-navy px-2 py-0.5 rounded text-xs font-bold">{c}</span>
+                                                                    <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{c}</span>
                                                                 ))}
                                                             </div>
                                                         </div>
                                                     )}
                                                     {selectedReference.buod_sentence_index !== undefined && (
                                                         <div className="pt-3 border-t border-brand-gold/10">
-                                                            <span className="text-[10px] font-bold text-brand-navy/50 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
-                                                            <div className="bg-brand-navy/5 p-3 rounded-lg text-xs text-slate-600 font-medium space-y-1">
-                                                                <div><strong className="text-brand-navy">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
-                                                                <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
+                                                            <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
+                                                            <div className="bg-brand-navy/5 dark:bg-black/20 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 font-medium space-y-1">
+                                                                <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
+                                                                <div><strong className="text-brand-navy dark:text-brand-gold">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
                                                             </div>
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {/* Similarity score card */}
-                                                <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-4">
+                                                <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-4">
                                                     <div className="flex justify-between items-end">
                                                         <span className="text-[11px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
-                                                        <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy'}`}>
+                                                        <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                             {Math.round(selectedReference.score * 100)}%
                                                         </span>
                                                     </div>
@@ -797,18 +797,18 @@ export function ChapterModal({
 
                                     {/* Desktop View (>= lg): Split Screen side-by-side */}
                                     <div className="hidden lg:flex flex-1 overflow-hidden flex-row">
-                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
-                                        <div className="w-[500px] border-l border-brand-gold/30 bg-white overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
+                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 dark:text-brand-gold/60 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
+                                        <div className="w-[500px] border-l border-brand-gold/30 bg-white dark:bg-brand-paper overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
                                             <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
-                                            {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 font-serif">{refError}</p></div>) : selectedReference && (
+                                            {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 dark:bg-red-950/40 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 dark:text-red-300 font-serif">{refError}</p></div>) : selectedReference && (
                                                 <div className="space-y-8">
                                                     <div className="p-6 bg-brand-cream/20 rounded-xl border border-brand-gold/10">
                                                         <div className="mb-4 flex justify-between items-start">
                                                             <div>
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span>
                                                             </div>
                                                             {selectedReference.alignment_status && (
-                                                                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
                                                                     {selectedReference.alignment_status}
                                                                 </span>
                                                             )}
@@ -817,10 +817,10 @@ export function ChapterModal({
                                                         
                                                         {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
                                                             <div className="mt-6 pt-4 border-t border-brand-gold/10">
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {selectedReference.matched_characters.map(c => (
-                                                                        <span key={c} className="bg-brand-gold/10 text-brand-navy px-2 py-1 rounded text-xs font-bold">{c}</span>
+                                                                        <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-1 rounded text-xs font-bold">{c}</span>
                                                                     ))}
                                                                 </div>
                                                             </div>
@@ -828,17 +828,17 @@ export function ChapterModal({
 
                                                         {selectedReference.buod_sentence_index !== undefined && (
                                                             <div className="mt-6 pt-4 border-t border-brand-gold/10">
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
-                                                                <div className="bg-brand-navy/5 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10">
-                                                                    <div className="flex flex-col text-sm text-slate-600 font-medium">
-                                                                        <div><strong className="text-brand-navy">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
-                                                                        <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
+                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
+                                                                <div className="bg-brand-navy/5 dark:bg-black/20 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10 dark:border-white/10">
+                                                                    <div className="flex flex-col text-sm text-slate-600 dark:text-slate-300 font-medium">
+                                                                        <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
+                                                                        <div><strong className="text-brand-navy dark:text-brand-gold">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
                                                                     </div>
                                                                 </div>                                               </div>
                                                         )}
                                                     </div>
 
-                                                    <div className="p-6 bg-white rounded-xl border border-brand-gold/10 shadow-sm space-y-4">
+                                                    <div className="p-6 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/10 shadow-sm space-y-4">
                                                         <div className="flex justify-between items-end">
                                                             <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
                                                             <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy'}`}>

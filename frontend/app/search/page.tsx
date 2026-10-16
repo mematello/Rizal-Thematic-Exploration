@@ -14,6 +14,7 @@ import { ArrowLeft, BarChart2, LayoutGrid, MapPinned } from "lucide-react";
 import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChapterContent } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchChapterContent } from "@/components/ChapterGrid";
@@ -197,6 +198,7 @@ function SearchContent() {
                             isLoading={isLoading}
                         />
                     </div>
+                    <ThemeToggle className="w-9 h-9 min-w-[36px] min-h-[36px] shrink-0" />
                 </div>
 
                 {/* Sub-header: novel context + score toggle */}

@@ -159,7 +159,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         transition={{ duration: 0.7, delay: 0.15 }}
                     >
                         {novel === "noli" && (
-                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy dark:text-foreground leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block"
@@ -175,7 +175,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </h2>
                         )}
                         {novel === "fili" && (
-                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy dark:text-foreground leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block italic"
@@ -189,7 +189,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                             </h2>
                         )}
                         {novel === "both" && (
-                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy leading-[1.12] font-black tracking-tight">
+                            <h2 className="text-[clamp(1.85rem,6.5vw,3.75rem)] md:text-5xl lg:text-6xl font-serif text-brand-navy dark:text-foreground leading-[1.12] font-black tracking-tight">
                                 Tuklasin ang{" "}
                                 <span
                                     className="relative inline-block"
@@ -422,18 +422,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                     // Counter-rotate the icon itself so it stays upright
                                     animate={{ rotate: isFili ? -180 : 0 }}
                                     transition={{ duration: 1.2, ease: "easeInOut" }}
-                                    className="absolute -top-3 -right-3 w-11 h-11 rounded-2xl flex items-center justify-center p-2.5 transition-all duration-1000"
-                                    style={{
-                                        background: isFili
-                                            ? "linear-gradient(135deg, rgba(255,250,250,0.98) 0%, rgba(245,240,240,0.95) 100%)"
-                                            : "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,250,247,0.9) 100%)",
-                                        boxShadow: isFili
-                                            ? "0 4px 16px rgba(141,45,45,0.15), 0 1px 4px rgba(0,0,0,0.05)"
-                                            : "0 4px 16px rgba(197,160,101,0.25), 0 1px 4px rgba(0,0,0,0.10)",
-                                        border: isFili
-                                            ? "1px solid rgba(141,45,45,0.15)"
-                                            : "1px solid rgba(197,160,101,0.20)",
-                                    }}
+                                    className="absolute -top-3 -right-3 w-11 h-11 rounded-2xl flex items-center justify-center p-2.5 transition-all duration-1000 bg-white/95 dark:bg-brand-paper/95 border border-brand-gold/20 shadow-md"
                                 >
                                     <BookIcon />
                                 </motion.div>
@@ -451,18 +440,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                     // Counter-rotate the icon itself so it stays upright
                                     animate={{ rotate: isFili ? -180 : 0 }}
                                     transition={{ duration: 1.2, ease: "easeInOut" }}
-                                    className="absolute -bottom-2 -left-5 w-10 h-10 rounded-2xl flex items-center justify-center p-2 transition-all duration-1000"
-                                    style={{
-                                        background: isFili
-                                            ? "linear-gradient(135deg, rgba(255,250,250,0.98) 0%, rgba(245,240,240,0.95) 100%)"
-                                            : "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,250,247,0.9) 100%)",
-                                        boxShadow: isFili
-                                            ? "0 4px 16px rgba(141,45,45,0.15), 0 1px 4px rgba(0,0,0,0.05)"
-                                            : "0 4px 16px rgba(141,45,45,0.20), 0 1px 4px rgba(0,0,0,0.10)",
-                                        border: isFili
-                                            ? "1px solid rgba(141,45,45,0.15)"
-                                            : "1px solid rgba(141,45,45,0.18)",
-                                    }}
+                                    className="absolute -bottom-2 -left-5 w-10 h-10 rounded-2xl flex items-center justify-center p-2 transition-all duration-1000 bg-white/95 dark:bg-brand-paper/95 border border-brand-gold/20 shadow-md"
                                 >
                                     <QuillIcon />
                                 </motion.div>
@@ -488,19 +466,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
 
                     {/* ── STATS CARD ── */}
                     <div
-                        className="rounded-3xl p-5 sm:p-7 border overflow-hidden relative transition-all duration-1000"
-                        style={{
-                            background: isFili
-                                ? "linear-gradient(145deg, rgba(242,240,237,0.95) 0%, rgba(235,230,225,0.90) 100%)"
-                                : "linear-gradient(145deg, rgba(252,250,247,0.95) 0%, rgba(255,255,255,0.90) 100%)",
-                            backdropFilter: "blur(12px)",
-                            borderColor: isFili
-                                ? "rgba(141,45,45,0.15)"
-                                : "rgba(197,160,101,0.18)",
-                            boxShadow: isFili
-                                ? "0 8px 40px rgba(141,45,45,0.08), 0 2px 8px rgba(141,45,45,0.05)"
-                                : "0 8px 40px rgba(27,38,59,0.08), 0 2px 8px rgba(197,160,101,0.10)",
-                        }}
+                        className="rounded-3xl p-5 sm:p-7 border overflow-hidden relative transition-all duration-1000 bg-white/90 dark:bg-brand-paper/95 backdrop-blur-md border-brand-gold/20 shadow-xl"
                     >
                         {/* Corner ornament */}
                         <div className="absolute top-0 right-0 w-24 h-24 opacity-5 pointer-events-none">
@@ -532,7 +498,7 @@ export function HeroSection({ novel }: HeroSectionProps) {
                         <div className="relative z-10 space-y-5 sm:space-y-6">
                             <div className="flex flex-row justify-between items-start gap-2">
                                 <div className="min-w-0 pr-2">
-                                    <h4 className={`text-base font-serif font-bold leading-tight transition-colors duration-1000 text-brand-navy`}>
+                                    <h4 className={`text-base font-serif font-bold leading-tight transition-colors duration-1000 text-brand-navy dark:text-foreground`}>
                                         Kahusayan ng Modelo
                                     </h4>
                                     <p className={`text-xs mt-0.5 transition-colors duration-1000 text-brand-text-light`}>
@@ -556,9 +522,9 @@ export function HeroSection({ novel }: HeroSectionProps) {
                                     <div key={idx} className="space-y-1.5 sm:space-y-2">
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-2 text-xs sm:text-sm">
                                             <span className={`font-medium transition-colors duration-1000 text-brand-text/80`}>{stat.label}</span>
-                                            <span className={`font-bold transition-colors duration-1000 text-brand-navy self-end sm:self-auto`}>{stat.value}%</span>
+                                            <span className={`font-bold transition-colors duration-1000 text-brand-navy dark:text-foreground self-end sm:self-auto`}>{stat.value}%</span>
                                         </div>
-                                        <div className={`w-full h-2 sm:h-1.5 rounded-full overflow-hidden transition-colors duration-1000 bg-brand-cream/80 border border-brand-gold/10`}>
+                                        <div className={`w-full h-2 sm:h-1.5 rounded-full overflow-hidden transition-colors duration-1000 bg-brand-cream/80 dark:bg-black/30 border border-brand-gold/10`}>
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${stat.value}%` }}
