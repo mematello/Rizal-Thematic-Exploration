@@ -86,16 +86,24 @@ def get_corpus_fingerprint() -> dict:
         """)).fetchone()
 
     duration = time.time() - t0
+
+    # Calculate engine.py content hash
+    engine_file = BACKEND_DIR / "app" / "core" / "engine.py"
+    with open(engine_file, "rb") as ef:
+        engine_hash = hashlib.sha256(ef.read()).hexdigest()
+
     fingerprint = {
         "sentence_count": int(row[0]),
         "sentence_text_md5": str(row[1]),
         "theme_count": int(row[2]),
         "theme_content_md5": str(row[3]),
+        "engine_hash": engine_hash,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
     print(f"Fingerprint computed in {duration:.2f}s:")
-    print(f"  Sentences: {fingerprint['sentence_count']} rows (MD5: {fingerprint['sentence_text_md5']})")
-    print(f"  Themes:    {fingerprint['theme_count']} rows (MD5: {fingerprint['theme_content_md5']})")
+    print(f"  Sentences:   {fingerprint['sentence_count']} rows (MD5: {fingerprint['sentence_text_md5']})")
+    print(f"  Themes:      {fingerprint['theme_count']} rows (MD5: {fingerprint['theme_content_md5']})")
+    print(f"  engine.py:   SHA-256: {fingerprint['engine_hash']}")
     return fingerprint
 
 

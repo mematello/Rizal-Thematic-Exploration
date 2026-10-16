@@ -1,130 +1,182 @@
-import urllib.request
-import hashlib
+#!/usr/bin/env python3
+"""
+Gate 1 Full Parity Verification Script:
+Fetches all 205 chapter/mode combinations over HTTP sequentially from:
+  - Port 8001 (main branch, live computation)
+  - Port 8000 (perf/chapter-precompute, static bundle)
+
+Writes docs/perf/evidence/chapter_parity_205.txt with:
+  - Chapter, Mode, Book
+  - Full 64-character SHA-256 for old and new
+  - Byte counts
+  - Header comparison (Content-Type, Cache-Control)
+  - Match status
+"""
+
+import sys
 import json
 import time
-import sys
+import hashlib
+import urllib.request
+import urllib.error
+from pathlib import Path
 
-CHAPTERS = [
-    # 10 buod from last report
-    ("noli", 1, "buod"),
-    ("noli", 2, "buod"),
-    ("noli", 3, "buod"),
-    ("noli", 4, "buod"),
-    ("noli", 5, "buod"),
-    ("elfili", 1, "buod"),
-    ("elfili", 2, "buod"),
-    ("elfili", 3, "buod"),
-    ("elfili", 4, "buod"),
-    ("elfili", 5, "buod"),
-    # 3 full from last report
-    ("noli", 1, "full"),
-    ("noli", 34, "full"),
-    ("elfili", 1, "full"),
-    # 5 additional random buod chapters
-    ("noli", 12, "buod"),
-    ("noli", 25, "buod"),
-    ("elfili", 15, "buod"),
-    ("elfili", 22, "buod"),
-    ("elfili", 35, "buod"),
-]
+REPO_ROOT = Path(__file__).resolve().parent.parent
+EVIDENCE_DIR = REPO_ROOT / "docs" / "perf" / "evidence"
+EVIDENCE_FILE = EVIDENCE_DIR / "chapter_parity_205.txt"
 
-def fetch_url(url, retries=2):
-    for attempt in range(retries + 1):
+PORT_NEW = 8000  # perf/chapter-precompute
+PORT_OLD = 8001  # main
+
+NOVELS = ["noli", "elfili"]
+MODES = ["buod", "full"]
+
+
+def get_chapter_list(base_url, book, mode):
+    url = f"{base_url}/api/v1/chapters?mode={mode}"
+    req = urllib.request.Request(url, headers={"User-Agent": "ParityCheck/1.0"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    chs = []
+    for item in data:
+        item_book = item["book"].lower()
+        if book == "noli" and "noli" in item_book:
+            chs.append(item["chapter_number"])
+        elif book == "elfili" and "fili" in item_book:
+            chs.append(item["chapter_number"])
+    return sorted(list(set(chs)))
+
+
+def fetch_response(port, book, chapter, mode):
+    url = f"http://127.0.0.1:{port}/api/v1/chapters/{book}/{chapter}?mode={mode}"
+    req = urllib.request.Request(url, headers={"User-Agent": "ParityCheck/1.0"})
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            body = resp.read()
+            elapsed = time.time() - t0
+            headers = {
+                "status": resp.status,
+                "content-type": resp.headers.get("Content-Type", ""),
+                "cache-control": resp.headers.get("Cache-Control", ""),
+            }
+            return body, headers, elapsed
+    except urllib.error.HTTPError as e:
+        elapsed = time.time() - t0
+        body = e.read()
+        headers = {
+            "status": e.code,
+            "content-type": e.headers.get("Content-Type", ""),
+            "cache-control": e.headers.get("Cache-Control", ""),
+        }
+        return body, headers, elapsed
+
+
+def run_parity():
+    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+
+    print("Checking health on port 8000 and 8001...")
+    for p in [PORT_NEW, PORT_OLD]:
         try:
-            t0 = time.perf_counter()
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                data = resp.read()
-                status = resp.status
-            dur = (time.perf_counter() - t0) * 1000
-            return status, data, dur
+            with urllib.request.urlopen(f"http://127.0.0.1:{p}/health", timeout=5) as r:
+                assert r.status == 200
         except Exception as e:
-            if attempt == retries:
-                raise e
-            time.sleep(2)
+            print(f"Error: port {p} is not responding to /health: {e}")
+            sys.exit(1)
+    print("Both servers healthy.\n")
 
-def main():
-    print("=== GATE 1: OLD (PORT 8001) VS NEW (PORT 8000) PARITY VERIFICATION ===")
-    results = []
-    any_mismatch = False
+    # Discover all chapters
+    all_tasks = []
+    for book in NOVELS:
+        for mode in MODES:
+            chs = get_chapter_list(f"http://127.0.0.1:{PORT_NEW}", book, mode)
+            for ch in chs:
+                all_tasks.append((book, ch, mode))
 
-    for idx, (book, ch, mode) in enumerate(CHAPTERS, 1):
-        url_old = f"http://127.0.0.1:8001/api/v1/chapters/{book}/{ch}?mode={mode}"
-        url_new = f"http://127.0.0.1:8000/api/v1/chapters/{book}/{ch}?mode={mode}"
+    total = len(all_tasks)
+    print(f"Total chapter/mode combinations to verify: {total}")
 
-        print(f"[{idx:02d}/{len(CHAPTERS):02d}] Testing {book.upper()} Ch {ch:2d} ({mode:4s})...", end=" ", flush=True)
+    # Check already verified tasks in evidence file for resume
+    completed_keys = set()
+    if EVIDENCE_FILE.exists():
+        with open(EVIDENCE_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split(" | ")
+                if len(parts) >= 6 and not parts[0].startswith("Novel"):
+                    completed_keys.add(parts[0])
+        print(f"Resuming with {len(completed_keys)} already verified chapters.")
+    else:
+        # Write header
+        with open(EVIDENCE_FILE, "w", encoding="utf-8") as f:
+            f.write("# Chapter Precompute Full Parity Gate 1 (205 combinations)\n")
+            f.write("# Generated: " + time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()) + "\n")
+            f.write("# Port 8001 (main, live DB compute) vs Port 8000 (perf/chapter-precompute, static bundle)\n")
+            f.write("-" * 180 + "\n")
+            f.write(f"{'Novel/Chapter/Mode':24} | {'Old SHA-256 (port 8001)':64} | {'New SHA-256 (port 8000)':64} | {'Bytes':7} | {'Headers':7} | {'Match'}\n")
+            f.write("-" * 180 + "\n")
 
-        status_old, bytes_old, dur_old = fetch_url(url_old)
-        status_new, bytes_new, dur_new = fetch_url(url_new)
+    mismatches = []
+    start_time = time.time()
 
-        assert status_old == 200, f"Old returned status {status_old}"
-        assert status_new == 200, f"New returned status {status_new}"
+    for idx, (book, ch, mode) in enumerate(all_tasks, start=1):
+        task_key = f"{book.upper()} ch {ch} ({mode})"
+        if task_key in completed_keys:
+            continue
 
-        hash_old = hashlib.sha256(bytes_old).hexdigest()
-        hash_new = hashlib.sha256(bytes_new).hexdigest()
+        # 1. Fetch old from port 8001 (live main)
+        old_body, old_headers, old_time = fetch_response(PORT_OLD, book, ch, mode)
+        old_sha = hashlib.sha256(old_body).hexdigest()
 
-        match = (hash_old == hash_new)
-        if match:
-            print(f"PASS (byte-identical) | SHA-256: {hash_new[:16]}... | old: {dur_old:6.1f}ms, new: {dur_new:6.1f}ms")
-            results.append({
-                "book": book,
-                "chapter": ch,
-                "mode": mode,
-                "match": True,
-                "hash_old": hash_old,
-                "hash_new": hash_new,
-                "dur_old_ms": dur_old,
-                "dur_new_ms": dur_new,
-            })
-        else:
-            print(f"MISMATCH!")
-            print(f"  Old Hash: {hash_old}")
-            print(f"  New Hash: {hash_new}")
-            any_mismatch = True
+        # 2. Fetch new from port 8000 (precompute bundle)
+        new_body, new_headers, new_time = fetch_response(PORT_NEW, book, ch, mode)
+        new_sha = hashlib.sha256(new_body).hexdigest()
 
-            # Analyze detailed JSON difference
+        # Compare headers
+        headers_match = (
+            old_headers.get("content-type") == new_headers.get("content-type") and
+            old_headers.get("cache-control") == new_headers.get("cache-control") and
+            old_headers.get("status") == new_headers.get("status")
+        )
+        bytes_match = (old_sha == new_sha and len(old_body) == len(new_body))
+
+        match_str = "MATCH" if (bytes_match and headers_match) else "MISMATCH"
+
+        line = f"{task_key:24} | {old_sha} | {new_sha} | {len(old_body):7} | {'MATCH' if headers_match else 'DIFF'} | {match_str}\n"
+
+        with open(EVIDENCE_FILE, "a", encoding="utf-8") as f:
+            f.write(line)
+
+        print(f"[{idx:3}/{total}] {task_key:24} | Old: {old_time:5.2f}s | New: {new_time:5.3f}s | Bytes: {len(old_body):6} | {match_str}")
+
+        if not bytes_match:
+            print(f"!!! MISMATCH DETECTED ON {task_key} !!!")
+            # Parse sentences and find exact difference
             try:
-                json_old = json.loads(bytes_old)
-                json_new = json.loads(bytes_new)
-                if len(json_old) != len(json_new):
-                    print(f"  Length mismatch: old has {len(json_old)} sentences, new has {len(json_new)}")
-                for s_idx in range(min(len(json_old), len(json_new))):
-                    o = json_old[s_idx]
-                    n = json_new[s_idx]
-                    if o != n:
-                        print(f"  First sentence diff at index {s_idx} (id={o.get('id')} vs {n.get('id')}):")
-                        print(f"    Old text: {o.get('sentence_text')}")
-                        print(f"    New text: {n.get('sentence_text')}")
-                        print(f"    Old themes: {o.get('themes')}")
-                        print(f"    New themes: {n.get('themes')}")
+                old_json = json.loads(old_body.decode("utf-8"))
+                new_json = json.loads(new_body.decode("utf-8"))
+                print(f"Old sentence count: {len(old_json)}, New sentence count: {len(new_json)}")
+                for s_idx, (s_old, s_new) in enumerate(zip(old_json, new_json)):
+                    if s_old != s_new:
+                        print(f"Sentence {s_idx} mismatch:")
+                        print(f"  Old: {s_old}")
+                        print(f"  New: {s_new}")
                         break
             except Exception as e:
-                print(f"  Failed to parse JSON diff: {e}")
+                print(f"Could not parse JSON diff: {e}")
+            mismatches.append(task_key)
+            sys.exit(1)
 
-            results.append({
-                "book": book,
-                "chapter": ch,
-                "mode": mode,
-                "match": False,
-                "hash_old": hash_old,
-                "hash_new": hash_new,
-                "dur_old_ms": dur_old,
-                "dur_new_ms": dur_new,
-            })
+        # Brief pause between live queries to avoid straining Supabase DB
+        time.sleep(0.1)
 
-    print("\n--- Summary Table ---")
-    print(f"{'Novel':<8} | {'Ch':<3} | {'Mode':<5} | {'Match?':<6} | {'SHA-256 (64 hex)':<64} | {'Old ms':<8} | {'New ms':<8}")
-    print("-" * 115)
-    for r in results:
-        m_str = "YES" if r["match"] else "NO"
-        h_str = r["hash_new"] if r["match"] else f"{r['hash_old'][:8]}!={r['hash_new'][:8]}"
-        print(f"{r['book']:<8} | {r['chapter']:<3} | {r['mode']:<5} | {m_str:<6} | {h_str:<64} | {r['dur_old_ms']:<8.1f} | {r['dur_new_ms']:<8.1f}")
+    elapsed_total = time.time() - start_time
+    print("\n" + "=" * 70)
+    print(f"GATE 1 PARITY COMPLETE IN {elapsed_total:.1f}s")
+    print(f"Total Checked: {total} combinations")
+    print(f"Mismatches:    {len(mismatches)}")
+    print(f"Evidence file: {EVIDENCE_FILE}")
+    print("=" * 70)
 
-    if any_mismatch:
-        print("\nGATE 1 FAILED: Discrepancy detected between old and new chapter endpoint outputs!")
-        sys.exit(1)
-    else:
-        print("\nGATE 1 PASSED: All 18 chapters are 100% byte-identical between old (main) and new (perf/chapters-endpoint)!")
 
 if __name__ == "__main__":
-    main()
+    run_parity()

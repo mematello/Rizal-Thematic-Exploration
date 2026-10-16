@@ -77,11 +77,26 @@ def load_static_chapter_cache() -> None:
         _static_cache_fingerprint = bundle_fp
         _static_cache_loaded = True
 
+        # Check engine.py content hash
+        engine_file = Path(__file__).resolve().parent.parent.parent / "core" / "engine.py"
+        if engine_file.exists() and bundle_fp and "engine_hash" in bundle_fp:
+            import hashlib
+            with open(engine_file, "rb") as ef:
+                current_engine_hash = hashlib.sha256(ef.read()).hexdigest()
+            expected_hash = bundle_fp["engine_hash"]
+            if current_engine_hash != expected_hash:
+                import logging
+                logging.warning(
+                    f"⚠️ ENGINE.PY CONTENT HASH MISMATCH! Expected {expected_hash}, got {current_engine_hash}. "
+                    "Any change to _classify_themes requires regenerating chapter bundles with scripts/build_chapter_cache.py."
+                )
+
 def verify_corpus_fingerprint(db: Session) -> bool:
     """
     Queries live database to verify corpus integrity against static cache fingerprint.
-    Returns True if row counts and deterministic sentence/theme MD5 hashes match.
-    Returns False and logs warning on mismatch or DB error.
+    - If fingerprint matches: enables static cache (0ms lookup).
+    - If fingerprint mismatches: disables static cache and falls back to live computation.
+    - If DB connection fails: serves the static bundle and logs a warning.
     DOES NOT CRASH.
     """
     global _static_cache_enabled, _fingerprint_checked
@@ -129,21 +144,28 @@ def verify_corpus_fingerprint(db: Session) -> bool:
                 logging.info("Chapter static cache verified against Supabase corpus (205 chapters active).")
                 return True
             else:
+                # Fingerprint mismatch: database was reached, but content changed.
+                # Disable static cache and fall back to live computation.
                 _static_cache_enabled = False
                 _fingerprint_checked = True
                 import logging
                 logging.warning(
-                    f"Chapter static cache fingerprint mismatch! Live DB: {live_fp} vs Cache: {fp}. "
+                    f"⚠️ Chapter static cache fingerprint mismatch! Live DB: {live_fp} vs Cache: {fp}. "
                     "Disabling static chapter cache, falling back to live computation. "
                     "Run scripts/build_chapter_cache.py to regenerate."
                 )
                 return False
         except Exception as e:
-            _static_cache_enabled = False
+            # DB connectivity failure: database is unreachable.
+            # Serve the static bundle and log a warning.
+            _static_cache_enabled = True
             _fingerprint_checked = True
             import logging
-            logging.warning(f"Error checking corpus fingerprint: {e}. Falling back to live computation.")
-            return False
+            logging.warning(
+                f"⚠️ Database connectivity failure during corpus fingerprint check ({e}). "
+                "Serving precomputed static chapter bundles as fallback."
+            )
+            return True
 
 # Initialize cache at module load
 try:
@@ -569,8 +591,7 @@ def get_chapter_content(
     chapter_number: int, 
     response: Response = None,
     mode: Optional[str] = "buod",
-    db: Session = Depends(get_db),
-    engine: RizalEngine = Depends(get_engine)
+    db: Session = Depends(get_db)
 ):
     """
     Fetch all sentences for a specific chapter, ordered by index.
@@ -659,6 +680,7 @@ def get_chapter_content(
             unique_sentences.append(s)
     
     # Process themes using engine._fetch_context_cache to eliminate N+1 queries
+    engine = get_engine()
     context_cache = engine._fetch_context_cache(db, unique_sentences, window=8)
     response_data = []
     for s in unique_sentences:

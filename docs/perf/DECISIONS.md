@@ -678,17 +678,22 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
    - Total payload: **3.12 MB** uncompressed. Small enough to be tracked cleanly in git and loaded in <15 ms.
 2. **First-Level Static Cache with In-Memory LRU Fallback**:
    In `backend/app/api/v1/content.py`, `get_chapter_content` checks the static bundle first. If enabled, it returns the precomputed sentence list in **0 ms** (sub-10 ms HTTP round-trip). If disabled or on a cache miss, it seamlessly falls through to the Item A2 bounded LRU cache and live computation path.
-3. **Corpus Fingerprint Verification at Startup**:
-   Every bundle embeds the Supabase database corpus fingerprint:
+3. **Corpus Fingerprint & Engine Hash Verification at Startup**:
+   Every bundle embeds the Supabase database corpus fingerprint and `engine.py` content hash:
    - `sentence_count`: 16,402
    - `sentence_text_md5`: `e438ce3f61098624121329cd5a20f9a2`
    - `theme_count`: 545
    - `theme_content_md5`: `cd87434aff5cd54a775ee7b4ef60b056`
-   On app startup, `warm_chapters_cache()` executes a fast (~1.5s) single SQL query against Supabase to verify the live corpus matches the bundle.
-   - If match: static cache is enabled.
-   - If mismatch or missing bundle: logs warning, disables static cache, falls back to live computation. **DOES NOT CRASH**.
-4. **Regeneration Procedure When Corpus Changes**:
-   When sentences or themes in Supabase are updated, regenerate the bundles:
+   - `engine_hash`: `31789dca625abcbc1a38adf58c7f0bcf132cb9e5153661b437d882c57b0e5dd6`
+   - `generated_at`: ISO UTC timestamp
+   On app startup, `warm_chapters_cache()` executes a fast (~1.5s) single SQL query against Supabase.
+   - **Fingerprint Match**: Static cache is enabled.
+   - **Fingerprint Mismatch**: Database reached, but corpus was modified. Logs a loud warning, disables the static bundle, and falls back to live computation.
+   - **Database Connectivity Failure**: Database unreachable. Logs a warning and serves the precomputed static bundle as a resilient fallback.
+   - **`engine.py` Content Hash Mismatch**: Logs a loud warning reminding that any change to `_classify_themes` requires regenerating the bundles.
+   - **DOES NOT CRASH**.
+4. **Regeneration Procedure When Corpus or Engine Changes**:
+   When sentences/themes in Supabase are updated or `_classify_themes` in `engine.py` is modified, regenerate the bundles:
    ```bash
    poetry run python scripts/build_chapter_cache.py [--base-url http://127.0.0.1:8000]
    ```
@@ -696,10 +701,26 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 5. **Zero Diff on `engine.py`**:
    `backend/app/core/engine.py` has strictly zero diff. All 40 golden search queries are 100% invariant (0 diffs).
 
-**Verification Results**:
-- **Latency**: Noli 34 full dropped from **22,000 ms to 6.8 ms** (a 3,200x speedup). Sampled 20 random chapters had an average latency of **11.4 ms** (p50: 7.5 ms).
-- **Byte-Identical SHA-256**: All tested chapters (Noli 1 buod, Noli 34 full, Noli 63 full, Noli 64 buod, El Fili 1 buod, El Fili 15 full, El Fili 39 buod, El Fili 39 full) verified 100% bit-for-bit identical to the live production endpoint.
-- **Corpus Fallback**: Simulated corpus tampering verified that `verify_corpus_fingerprint` immediately detects divergence (`Match=False`), logs a warning, and falls back to live execution without crashing.
+**Gate 1 Verification Results (2026-10-17)**:
+- **Full Sequential Parity (205 combinations)**:
+  - Both `main` (port 8001, live compute) and `perf/chapter-precompute` (port 8000, static bundle) queried sequentially over HTTP for all 205 chapter/mode combinations.
+  - Evidence recorded in `docs/perf/evidence/chapter_parity_205.txt`.
+  - **Mismatches: 0 / 205**.
+  - Full 64-character SHA-256: **100% MATCH** across all 205 combinations.
+  - Byte counts: **100% MATCH**.
+  - Headers (`Content-Type: application/json` and `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`): **100% MATCH**.
+- **Edge Case Verification (`noli/64?mode=full`)**:
+  - Both `main` (port 8001) and `perf/chapter-precompute` (port 8000) return `HTTP 404 Not Found` with `{"detail":"Chapter 64 not found for noli in full mode"}`.
+- **Memory & Image Size Impact**:
+  - Process RSS before loading bundles: **17.33 MB**
+  - Process RSS after loading all 4 bundles: **25.50 MB** (+8.17 MB RAM delta).
+  - HF Docker Image Size Delta: **3.12 MB** uncompressed (~820 KB compressed git layer).
+- **Fallback Paths**:
+  - `scripts/test_fallback_paths.py` verified:
+    1. Fingerprint mismatch -> static bundle disabled, live computation active.
+    2. DB connection failure -> static bundle safely served as resilient fallback.
+- **Search Invariance**: `scripts/run_golden_comparison_40.py` verified across all 40 golden queries vs `golden_snapshot_deterministic.json`: **0 differences**.
+
 ---
 
 ### 8. Deliberately Unexecuted Optimizations

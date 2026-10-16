@@ -6,10 +6,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
 BASE_URL = "http://127.0.0.1:8000"
-GOLDEN_QUERIES_PATH = Path(r"c:\Users\marcu\Desktop\thesis\scripts\golden_queries.json")
-DETERMINISTIC_SNAPSHOT_PATH = Path(r"c:\Users\marcu\Desktop\thesis\docs\perf\golden_snapshot_deterministic.json")
-OUT_SNAPSHOT_PATH = Path(r"C:\Users\marcu\.gemini\antigravity-ide\brain\a2fef412-2ca7-472c-b983-74cfb8b69887\scratch\golden_test_snapshot.json")
+GOLDEN_QUERIES_PATH = REPO_ROOT / "scripts" / "golden_queries.json"
+DETERMINISTIC_SNAPSHOT_PATH = REPO_ROOT / "docs" / "perf" / "golden_snapshot_deterministic.json"
+OUT_SNAPSHOT_PATH = REPO_ROOT / "docs" / "perf" / "golden_test_snapshot.json"
 
 def load_all_40_queries():
     with open(GOLDEN_QUERIES_PATH, "r", encoding="utf-8") as f:
