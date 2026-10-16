@@ -46,8 +46,18 @@
   - **Latency Improvement**: Cold full chapter (e.g. Noli 34 full) dropped from **22,000 ms to 6.8 ms** (3,200x speedup). Average across 20 random chapters: **11.4 ms**.
   - **Byte Parity**: 100% SHA-256 match on raw HTTP response bytes across all tested chapters.
 
+- **Gate 1 Full Parity Verification (Completed 2026-10-17, branch `perf/chapter-precompute`)**:
+  - **Sequential Parity (All 205 Combinations)**: Tested all 205 chapter/mode combinations sequentially over HTTP against production Supabase DB between `main` (port 8001, live compute) and `perf/chapter-precompute` (port 8000, static bundle).
+  - **Result**: **205 / 205 MATCHES, 0 MISMATCHES**. Full 64-character SHA-256 hashes, byte counts, `Content-Type: application/json`, and `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` are 100% bit-for-bit identical. Recorded in `docs/perf/evidence/chapter_parity_205.txt`.
+  - **Edge Case Verified**: `noli/64?mode=full` returns identical `HTTP 404 Not Found` with `{"detail":"Chapter 64 not found for noli in full mode"}` on both servers.
+  - **Process RSS Delta**: Process RSS before loading bundles: **17.33 MB**; after loading all 4 bundles: **25.50 MB** (**+8.17 MB** delta). HF Docker Image Size Delta: **3.12 MB** uncompressed (~820 KB compressed git layer).
+  - **Error Handling & Fallbacks Tested**: Verified that DB connectivity failure serves static bundle safely, while corpus fingerprint mismatch disables static cache and falls back to live compute.
+  - **Engine Hash & Timestamp**: Content hash `31789dca625abcbc1a38adf58c7f0bcf132cb9e5153661b437d882c57b0e5dd6` and ISO timestamp embedded in bundle metadata; loud warning logged on mismatch.
+  - **Golden Queries**: All 40 golden queries 100% invariant (0 diffs). `engine.py` diff: **strictly 0 diff**.
+  - **Security Audit**: DB password rotated, HF secret updated, `git log --all -S` verified old password was never committed to git (0 commits).
+
 ---
 
-## Next Action: User Review & Deployment Approval for Step 1
-Once Step 1 is reviewed and approved for deploy, proceed to Item B (Keep-alive + DB health check + waking UI).
+## Next Action: User Review & Deployment Approval for Gate 2
+Gate 1 is clean and ready. Awaiting user approval to proceed with Gate 2 (Hugging Face backend deploy) and Gate 3 (Merge to main & proceed to Item B).
 
