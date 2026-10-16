@@ -731,6 +731,20 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - **pg_trgm GIN Indexing**: Existing ILIKE query performance was deemed sufficient given that candidate retrieval takes <25 ms.
   - **Query Model Encoding Batching**: Sequential calls to `base_model.encode()` during preprocessing remain unbatched to preserve existing function call boundaries and avoid subtle tensor-padding floating-point divergence.
 
+---
+
+### 9. 2026-10-17: Item D Mobile Fullscreen Architecture Refinements
+- **Context**: Mobile fullscreen reader in `ChapterModal.tsx` suffered from clipping under mobile browser URL bars, missing "Tauhan" and "Sanggunian" controls due to desktop-only sidebar layout (`hidden lg:flex`), cramped text padding (`px-8`), and horizontal blowout in the cross-reference split-screen overlay.
+- **Decision**:
+  1. Use fixed overlay `h-[100dvh]` with `overscroll-contain` instead of relying on the native HTML5 Fullscreen API (which is unsupported on iOS Safari for generic `div` elements and causes browser address-bar jumpiness).
+  2. Implement a dedicated sticky mobile header in fullscreen mode providing notch-safe top padding (`pt-[max(0.75rem,env(safe-area-inset-top))]`), minimum 44px tap targets for Minimize and Close actions, and prominent toggle pills for "Tauhan" and "Sanggunian".
+  3. Change the Sanggunian split-view overlay (`refFullscreen`) from a fixed `w-[500px]` flex-row to a responsive `flex-col lg:flex-row` layout with `w-full lg:w-[500px]` and safe-bottom padding.
+- **Impact**:
+  - Correctness / Ranking: **0 impact** (strictly frontend presentation).
+  - Search Pipeline / Engine: **0 diff** on backend.
+  - Mobile UX: Native-feeling fullscreen reading experience on iOS and Android with full feature parity.
+
+
 
 
 

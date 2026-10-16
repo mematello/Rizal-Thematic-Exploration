@@ -74,12 +74,27 @@
   - Pushed to `origin/main` on GitHub.
   - Zero changes to search ranking or engine behavior (`backend/app/core/engine.py` diff: **strictly 0 diff**).
 
+- **Item D Mobile Fullscreen Fix (Completed 2026-10-17, branch `fix/mobile-fullscreen`)**:
+  - **Identified Mobile Issues**:
+    1. Fixed-height and viewport units (`100vh`) caused clipping under iOS Safari dynamic bars and notch/Dynamic Island cutouts.
+    2. Desktop fullscreen sidebar was hidden (`hidden lg:flex`) on mobile screens (<1024px), completely locking mobile users out of the "Tauhan" (Characters) and "Sanggunian" (Cross-Novel References) toggles in fullscreen reader mode.
+    3. The mobile header lacked safe-area top insets (`env(safe-area-inset-top)`) and had tap targets smaller than 44x44px (`p-2` instead of minimum 44px).
+    4. Reading text container in fullscreen had excessive fixed margins (`px-8` / 64px stolen), squeezing text width on narrow mobile viewports.
+    5. In Sanggunian overlay (`refFullscreen`), the split view had a fixed `w-[500px]` width in a flex-row container, blowing out mobile screens horizontally.
+  - **Implemented Fixes in `frontend/components/ChapterModal.tsx`**:
+    1. Replaced modal height with `h-[100dvh]` and added `overscroll-contain` to prevent background scroll-chaining on iOS and Android.
+    2. Added dedicated sticky mobile fullscreen header with `pt-[max(0.75rem,env(safe-area-inset-top))]`, 44x44px minimum tap targets, chapter title truncation, and interactive "Tauhan" and "Sanggunian" toggle pills.
+    3. Adjusted mobile fullscreen reading padding to `px-4 sm:px-8 py-6 sm:py-20 pb-[max(4rem,env(safe-area-inset-bottom))]` for maximum readable width and notch/home-indicator clearance.
+    4. Converted Sanggunian reference overlay to responsive `flex-col lg:flex-row` with `w-full lg:w-[500px]` and safe-area padding.
+  - **Verification**:
+    - `npm run build` compiled cleanly in 4.9s with zero errors.
+    - Verified locally on `http://localhost:3000` via browser subagent at mobile viewport (390x844 iPhone size).
+    - Verified smooth fullscreen entry, sticky header layout, safe-area clearance, 44px tap targets, working "Tauhan" and "Sanggunian" toggles inside mobile fullscreen, and smooth return to normal modal mode.
+
 ---
 
-## Next Action: Item B (feat/keepalive)
-Create feature branch `feat/keepalive` to implement:
-1. Backend `/health/db` endpoint to explicitly probe database connection.
-2. Lightweight scheduled keep-alive pinger (e.g., cron or external ping) to prevent Hugging Face Space and Supabase connection pooler cold sleeps.
-3. Frontend "waking up" graceful UI state when backend or DB is cold.
+## Next Action: Item E (fix/background-image)
+Create feature branch `fix/background-image` to inspect source background images for EXIF rotation and CSS background-position/scaling discrepancies between desktop and mobile.
+
 
 

@@ -514,9 +514,9 @@ export function ChapterModal({
         <>
             <AnimatePresence>
                 {isOpen && (
-                    <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-4 sm:p-6'}`}>
+                    <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm" />
-                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-full bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
+                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
                             
                             {!isFullscreen && (
                                 <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream">
@@ -543,10 +543,10 @@ export function ChapterModal({
 
                             <div className={`flex w-full min-h-0 flex-1 ${isFullscreen ? 'flex-row' : 'flex-col'}`}>
                                 {isFullscreen && (
-                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 bg-[#F5F2EB]/50 p-12 relative">
+                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 bg-[#F5F2EB]/50 p-12 relative pt-[max(3rem,env(safe-area-inset-top))]">
                                         <div className="absolute top-6 left-6 flex gap-2">
-                                            <button onClick={() => setIsFullscreen(false)} className="p-2 hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Exit fullscreen"><Minimize2 size={20} /></button>
-                                            <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Close"><X size={20} /></button>
+                                            <button onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Exit fullscreen"><Minimize2 size={20} /></button>
+                                            <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Close"><X size={20} /></button>
                                         </div>
                                         <div className="flex flex-col space-y-8">
                                             <div>
@@ -564,18 +564,30 @@ export function ChapterModal({
                                     </div>
                                 )}
 
-                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative ${isFullscreen ? '' : 'p-6 md:p-14'}`}>
+                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
                                     {isFullscreen && (
-                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 backdrop-blur border-b border-brand-gold/10 p-4 flex justify-between items-center">
-                                            <div><span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50">Kabanata {activeChapterInView}</span><div className="text-sm font-serif font-bold text-brand-navy truncate max-w-[200px]">{activeChapterTitle}</div></div>
-                                            <div className="flex gap-2"><button onClick={() => setIsFullscreen(false)} className="p-2"><Minimize2 size={18} /></button><button onClick={onClose} className="p-2"><X size={18} /></button></div>
+                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 backdrop-blur border-b border-brand-gold/10 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
+                                            <div className="flex justify-between items-center">
+                                                <div className="min-w-0 pr-2">
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50 block">Kabanata {activeChapterInView}</span>
+                                                    <div className="text-sm font-serif font-bold text-brand-navy truncate">{activeChapterTitle}</div>
+                                                </div>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <button type="button" onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-text/60 hover:text-brand-navy transition-all" title="Exit fullscreen" aria-label="I-exit ang fullscreen"><Minimize2 size={18} /></button>
+                                                    <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-text/60 hover:text-brand-navy transition-all" title="Close" aria-label="Isara ang kabanata"><X size={20} /></button>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 pt-1 border-t border-brand-gold/10">
+                                                <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-brand-cream/80 text-brand-text/70'}`}><Users size={14} /><span>Tauhan</span></button>
+                                                <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-brand-cream/80 text-brand-text/70'}`}><BookOpen size={14} /><span>Sanggunian</span></button>
+                                            </div>
                                         </div>
                                     )}
 
                                     {isLoading && !isFullscreen ? (
                                         <div className="space-y-4 animate-pulse p-6 md:p-14">{[...Array(8)].map((_, i) => (<div key={i} className="h-4 bg-brand-gold/10 rounded w-full last:w-3/4" />))}</div>
                                     ) : (
-                                        <div className={`${isFullscreen ? 'max-w-3xl mx-auto px-8 py-20' : 'max-w-3xl mx-auto mt-4'}`}>
+                                        <div className={`${isFullscreen ? 'max-w-3xl mx-auto px-4 sm:px-8 py-6 sm:py-20 pb-[max(4rem,env(safe-area-inset-bottom))]' : 'max-w-3xl mx-auto mt-4'}`}>
                                             {isFullscreen && <div ref={topSentinelRef} className="h-40 flex items-center justify-center">{isLoadingMore && <div className="animate-pulse text-brand-gold font-serif italic text-sm">Kinakarga ang nakaraang kabanata...</div>}</div>}
                                             {modeError && (<div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-md text-red-800 flex items-center justify-between"><span className="text-sm">{modeError}</span><button onClick={() => setModeError(null)} className="text-sm font-bold underline hover:no-underline ml-4 whitespace-nowrap">Dismiss</button></div>)}
 
@@ -664,10 +676,10 @@ export function ChapterModal({
                             </div>
 
                             {!isFullscreen && (
-                                <div className="flex items-center justify-between p-4 border-t border-brand-gold/10 bg-brand-cream">
-                                    <button onClick={handlePrevChapter} className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"><ChevronLeft size={18} /><span className="text-xs font-bold uppercase tracking-widest">Nakaraan</span></button>
+                                <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 bg-brand-cream pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
                                     <div className="hidden sm:block text-[10px] text-brand-accent/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
-                                    <button onClick={handleNextChapter} className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10"><span className="text-xs font-bold uppercase tracking-widest">Susunod</span><ChevronRight size={18} /></button>
+                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
                                 </div>
                             )}
                         </motion.div>
@@ -675,23 +687,23 @@ export function ChapterModal({
 
                         <AnimatePresence>
                             {refFullscreen && selectedSentenceForRef !== null && (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white flex flex-col">
-                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 py-6">
-                                        <div className="max-w-7xl mx-auto px-6 text-center space-y-2 relative">
-                                            <h2 className="text-2xl font-serif text-brand-navy font-bold">Kaugnay na Sanggunian</h2>
-                                            <p className="text-lg text-brand-text">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
-                                            <div className="flex items-center justify-center gap-2 pt-2">
-                                                <span className="px-3 py-1 bg-brand-navy text-white text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white flex flex-col h-[100dvh] overscroll-contain">
+                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-6 px-4 sm:px-6">
+                                        <div className="max-w-7xl mx-auto text-center space-y-2 relative">
+                                            <h2 className="text-xl sm:text-2xl font-serif text-brand-navy font-bold">Kaugnay na Sanggunian</h2>
+                                            <p className="text-sm sm:text-lg text-brand-text">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
+                                            <div className="flex items-center justify-center gap-2 pt-1 sm:pt-2">
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy text-white text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
                                                 <span className="text-brand-gold">→</span>
-                                                <span className="px-3 py-1 bg-brand-gold text-white text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-gold text-white text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
                                             </div>
-                                            <button onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); }} className="absolute top-0 right-0 p-2 hover:bg-black/5 rounded-full"><X size={24} className="text-brand-navy" /></button>
+                                            <button type="button" onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); }} className="absolute top-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-navy transition-all" aria-label="Isara ang sanggunian"><X size={22} /></button>
                                         </div>
                                     </div>
-                                    <div className="flex-1 overflow-hidden flex">
-                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
-                                        <div className="w-[500px] border-l border-brand-gold/30 bg-white overflow-y-auto p-10">
-                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
+                                    <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                                        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-4 sm:space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-base sm:text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
+                                        <div className="w-full lg:w-[500px] border-t lg:border-t-0 lg:border-l border-brand-gold/30 bg-white overflow-y-auto p-4 sm:p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-6 sm:mb-8">Nahanap na Kaugnayan</h3>
                                             {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 font-serif">{refError}</p></div>) : selectedReference && (
                                                 <div className="space-y-8">
                                                     <div className="p-6 bg-brand-cream/20 rounded-xl border border-brand-gold/10">
