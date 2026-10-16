@@ -4,8 +4,15 @@ from pgvector.sqlalchemy import Vector
 from app.core.config import get_settings
 
 settings = get_settings()
+
+_db_url = settings.DATABASE_URL.strip() if settings.DATABASE_URL else ""
+if _db_url.startswith("DATABASE_URL="):
+    _db_url = _db_url[len("DATABASE_URL="):].strip()
+if (_db_url.startswith('"') and _db_url.endswith('"')) or (_db_url.startswith("'") and _db_url.endswith("'")):
+    _db_url = _db_url[1:-1].strip()
+
 engine = create_engine(
-    settings.DATABASE_URL,
+    _db_url,
     pool_pre_ping=True,
     pool_recycle=300,
 )
