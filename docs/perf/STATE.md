@@ -85,11 +85,14 @@
     1. Replaced modal height with `h-[100dvh]` and added `overscroll-contain` to prevent background scroll-chaining on iOS and Android.
     2. Added dedicated sticky mobile fullscreen header with `pt-[max(0.75rem,env(safe-area-inset-top))]`, 44x44px minimum tap targets, chapter title truncation, and interactive "Tauhan" and "Sanggunian" toggle pills.
     3. Adjusted mobile fullscreen reading padding to `px-4 sm:px-8 py-6 sm:py-20 pb-[max(4rem,env(safe-area-inset-bottom))]` for maximum readable width and notch/home-indicator clearance.
-    4. Converted Sanggunian reference overlay to responsive `flex-col lg:flex-row` with `w-full lg:w-[500px]` and safe-area padding.
+    4. Converted Sanggunian reference overlay (`refFullscreen`) on mobile to a unified vertical comparison layout:
+       - **Pinagmulang Teksto**: Placed in a prominent, full-width white card at the top with quote icon, chapter badge, and full readable sentence text (resolving the issue where it was squished into an unviewable 15px sliver).
+       - **Nahanap na Katugma**: Rendered directly below with directional connector, matched sentence card, character tags, and similarity score gauge in a single smooth scroll view (zero nested scroll traps).
+       - **Desktop View**: Maintained the split-screen side-by-side (`lg:flex-row`) experience for larger screens.
   - **Verification**:
-    - `npm run build` compiled cleanly in 4.9s with zero errors.
+    - `npm run build` compiled cleanly in 5.2s with zero errors.
     - Verified locally on `http://localhost:3000` via browser subagent at mobile viewport (390x844 iPhone size).
-    - Verified smooth fullscreen entry, sticky header layout, safe-area clearance, 44px tap targets, working "Tauhan" and "Sanggunian" toggles inside mobile fullscreen, and smooth return to normal modal mode.
+    - Verified smooth fullscreen entry, sticky header layout, safe-area clearance, 44px tap targets, working "Tauhan" and "Sanggunian" toggles inside mobile fullscreen, prominent and fully readable "Pinagmulang Teksto" card, and smooth return to normal modal mode.
 
 ---
 

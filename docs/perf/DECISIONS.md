@@ -738,11 +738,11 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 - **Decision**:
   1. Use fixed overlay `h-[100dvh]` with `overscroll-contain` instead of relying on the native HTML5 Fullscreen API (which is unsupported on iOS Safari for generic `div` elements and causes browser address-bar jumpiness).
   2. Implement a dedicated sticky mobile header in fullscreen mode providing notch-safe top padding (`pt-[max(0.75rem,env(safe-area-inset-top))]`), minimum 44px tap targets for Minimize and Close actions, and prominent toggle pills for "Tauhan" and "Sanggunian".
-  3. Change the Sanggunian split-view overlay (`refFullscreen`) from a fixed `w-[500px]` flex-row to a responsive `flex-col lg:flex-row` layout with `w-full lg:w-[500px]` and safe-bottom padding.
+  3. Redesign the Kaugnay na Sanggunian overlay (`refFullscreen`) for mobile: eliminate stacked nested scroll containers and replace with a unified vertical layout featuring a prominent top card for "Pinagmulang Teksto" (source sentence) with quote badge, clear directional connector, and the matched "Nahanap na Katugma" card below. Preserved desktop side-by-side split screen (`hidden lg:flex`).
 - **Impact**:
   - Correctness / Ranking: **0 impact** (strictly frontend presentation).
   - Search Pipeline / Engine: **0 diff** on backend.
-  - Mobile UX: Native-feeling fullscreen reading experience on iOS and Android with full feature parity.
+  - Mobile UX: Native-feeling fullscreen reading experience and fully readable cross-novel reference viewer without nested scroll traps or squished text.
 
 
 
