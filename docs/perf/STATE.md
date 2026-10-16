@@ -32,21 +32,15 @@
   - **Modal & Search Integration**: `ChapterModal.tsx` and `search/page.tsx` use `queryClient.fetchQuery` for metadata, real-time mode switching, and fullscreen infinite scroll.
   - **Build Verification**: `npm run build` succeeds cleanly in 6.4s; `npx tsc --noEmit` reports 0 errors.
 
----
-
-## Latency Summary: Item A2 Chapters
-
-| Endpoint / Action | Cold Latency (Supabase) | Warm Latency (Process LRU) | Cache-Control |
-| :--- | :---: | :---: | :--- |
-| **GET /api/v1/chapters (buod)** | ~105 ms | **3.6 ms** | `public, max-age=86400, stale-while-revalidate=604800` |
-| **GET /api/v1/chapters (full)** | ~70 ms | **3.6 ms** | `public, max-age=86400, stale-while-revalidate=604800` |
-| **GET /api/v1/chapters/... (buod)** | ~1,700–2,300 ms | **2.7–6.7 ms** | `public, max-age=86400, stale-while-revalidate=604800` |
-| **GET /api/v1/chapters/... (full)** | ~17,000–23,000 ms | **4.6–7.0 ms** | `public, max-age=86400, stale-while-revalidate=604800` |
+- **Item A2 Deployment & Production Verification (Completed 2026-10-16)**:
+  - **Gate 1 (Old vs New Parity)**: All 18 chapters (10 buod + 3 full + 5 random buod) verified 100% byte-identical between old `main` and new endpoint against Supabase DB. All 40 golden search queries verified 100% invariant vs `golden_snapshot_deterministic.json` (0 differences). `engine.py` diff completely empty.
+  - **Gate 2 (Hugging Face Backend Deploy)**: Recorded rollback SHA (`0b74a1d`), pushed commit `007116d` (only 4 backend files, 0 frontend/docs leak). Verified live: `/health` (200), `/api/v1/themes` SHA (match), `/api/v1/chapters` SHA (match), `/api/v1/chapters/noli/1?mode=buod` SHA (match), `/api/v1/chapters/elfili/1?mode=buod` SHA (match), Noli 34 full mode single request (match, 22.4s), Cache-Control present on all endpoints, warm latencies ~240–260 ms, and 5 golden search queries 100% invariant.
+  - **Gate 3 (Frontend & Vercel Deploy)**: Merged `perf/chapters-endpoint` to `main` (`a0cf2be`), pushed to GitHub. Verified live on `https://rizalengine.vercel.app`: chapter grid loads fast, opening chapter modal in buod & full mode works, mode toggle works, 0 console errors, mobile viewport (375x812) verified with zero horizontal overflow.
+  - **Follow-up Profiling**: Profiled cold full-mode chapter (Noli 34 full, 245 sentences). Breakdown: SQL DB transfer: 1.17s (3.7%), JSON serialization: 1.56 ms (0.0%), `_classify_themes` in-process compute: 30.19s (96.3%) due to 125,000 keyword matches and 2.5 million regex word extractions across 510 themes.
 
 ---
 
-## Next Action: User Review & Deployment Approval (Item A2)
+## Next Action: Item B (Keep-alive + DB-touching health endpoint + "waking up" UI)
 
-1. Report Item A2 verification results to user for review.
-2. Await explicit approval before pushing to `hf` or merging `perf/chapters-endpoint` to `main`.
+Proceed to Item B on new feature branch `feat/keepalive`.
 
