@@ -649,9 +649,12 @@ Chapter retrieval (`/api/v1/chapters/{book}/{chapter_number}`) had high cold lat
 
 **Verification**:
 - 10 `buod` chapters and 3 `full` chapters tested: 200 OK, byte-identical cold vs warm.
-- 5 golden queries across both Noli and El Fili tested: 100% ID & rank match against deterministic golden snapshot.
-- `backend/app/core/engine.py`: 0 diff.
-- `npm run build`: Succeeded in 6.4s with 0 errors.
+- **Gate 1 Comprehensive Old-vs-New Parity Check (2026-10-16)**:
+  - Tested 18 chapters across `main` (old path, port 8001) vs `perf/chapters-endpoint` (new path, port 8000) against production Supabase DB: 100% byte-identical SHA-256 matches across all 18 chapters (10 buod + 3 full [including Noli 34 full and Noli 1 full] + 5 additional random buod [Noli 12, Noli 25, El Fili 15, El Fili 22, El Fili 35]).
+  - All 40 golden search queries verified vs `golden_snapshot_deterministic.json`: 0 position changes, 0 score deltas, 0 theme changes (100% invariant).
+  - `backend/app/core/engine.py`: **0 diff**.
+  - **Hugging Face Rollback Target**: `0b74a1d8e605510fc6945815e22179b2146b6099` (`remotes/hf/main`).
+- `npm run build`: Succeeded with 0 errors.
 
 ---
 

@@ -1,77 +1,12 @@
 {
-  "golden_file": "docs\\perf\\golden_snapshot_deterministic.json",
-  "new_file": "docs\\perf\\step3_new_snapshot.json",
+  "golden_file": "c:\\Users\\marcu\\Desktop\\thesis\\docs\\perf\\golden_snapshot_deterministic.json",
+  "new_file": "C:\\Users\\marcu\\.gemini\\antigravity-ide\\brain\\a2fef412-2ca7-472c-b983-74cfb8b69887\\scratch\\golden_test_snapshot.json",
   "golden_version": "proc1_unset_fwd",
-  "new_version": "step3_new_snapshot",
+  "new_version": "2026-10-16 19:49:22",
   "total_queries": 40,
-  "queries_with_changes": 2,
+  "queries_with_changes": 0,
   "total_position_changes": 0,
-  "total_score_changes": 1,
+  "total_score_changes": 0,
   "total_theme_changes": 0,
-  "query_diffs": {
-    "bayan": {
-      "noli": {
-        "position_changes": [],
-        "score_deltas": [
-          {
-            "id": 37783,
-            "score_type": "lexical",
-            "old_value": 97,
-            "new_value": 96,
-            "delta": -1
-          }
-        ],
-        "theme_changes": [],
-        "missing_results": [],
-        "new_results": []
-      },
-      "elfili": {
-        "position_changes": [],
-        "score_deltas": [],
-        "theme_changes": [],
-        "missing_results": [],
-        "new_results": []
-      },
-      "precise_matches": {
-        "position_changes": [],
-        "score_deltas": [],
-        "theme_changes": [],
-        "missing_results": [],
-        "new_results": []
-      }
-    },
-    "Simoun": {
-      "noli": {
-        "position_changes": [],
-        "score_deltas": [],
-        "theme_changes": [],
-        "missing_results": [],
-        "new_results": []
-      },
-      "elfili": {
-        "position_changes": [],
-        "score_deltas": [],
-        "theme_changes": [],
-        "missing_results": [
-          {
-            "id": 38410,
-            "sentence_text": "Ilang sandali pa’y dumating si Simoun at kinausap "
-          }
-        ],
-        "new_results": [
-          {
-            "id": 38411,
-            "sentence_text": "Agad na ipinakilala ni Basilio kay Simoun si Isaga"
-          }
-        ]
-      },
-      "precise_matches": {
-        "position_changes": [],
-        "score_deltas": [],
-        "theme_changes": [],
-        "missing_results": [],
-        "new_results": []
-      }
-    }
-  }
+  "query_diffs": {}
 }
