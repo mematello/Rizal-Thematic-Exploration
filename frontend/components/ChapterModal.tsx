@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen } from "lucide-react";
+import { X, Maximize2, Minimize2, ChevronLeft, ChevronRight, Users, BookOpen, Quote } from "lucide-react";
 import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
@@ -700,17 +700,112 @@ export function ChapterModal({
                                             <button type="button" onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); }} className="absolute top-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-navy transition-all" aria-label="Isara ang sanggunian"><X size={22} /></button>
                                         </div>
                                     </div>
-                                    <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
-                                        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-4 sm:space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-base sm:text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
-                                        <div className="w-full lg:w-[500px] border-t lg:border-t-0 lg:border-l border-brand-gold/30 bg-white overflow-y-auto p-4 sm:p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
-                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-6 sm:mb-8">Nahanap na Kaugnayan</h3>
+                                    {/* Mobile View (< lg): Single unified scroll view with prominent comparison cards */}
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30">
+                                        {/* Source sentence card - fully visible and prominent */}
+                                        <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
+                                            <div className="flex items-center justify-between border-b border-brand-gold/10 pb-2">
+                                                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/60 flex items-center gap-1.5">
+                                                    <Quote size={13} className="text-brand-gold shrink-0" />
+                                                    Pinagmulang Teksto ({mode === 'buod' ? 'Buod' : 'Buong Kwento'})
+                                                </span>
+                                                <span className="text-[10px] font-bold text-brand-accent/70 uppercase tracking-wider">Kabanata {chapterNumber}</span>
+                                            </div>
+                                            <p className="font-serif text-brand-navy text-base sm:text-lg italic leading-relaxed text-left">
+                                                &quot;{chapContentOnRef()?.sentence_text}&quot;
+                                            </p>
+                                        </div>
+
+                                        {/* Directional Connector */}
+                                        <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-gold/80 px-2">
+                                            <div className="h-px bg-brand-gold/20 flex-1" />
+                                            <span>Nahanap na Katugma</span>
+                                            <div className="h-px bg-brand-gold/20 flex-1" />
+                                        </div>
+
+                                        {/* Matched reference content */}
+                                        {isRefLoading ? (
+                                            <div className="flex flex-col items-center py-12 space-y-4 bg-white rounded-xl border border-brand-gold/20 p-6">
+                                                <div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" />
+                                                <p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p>
+                                            </div>
+                                        ) : refError ? (
+                                            <div className="py-8 px-6 bg-red-50 text-red-600 rounded-xl border border-red-200 text-center space-y-2">
+                                                <X size={24} className="mx-auto text-red-400" />
+                                                <p className="font-serif text-sm">{refError}</p>
+                                            </div>
+                                        ) : selectedReference && (
+                                            <div className="space-y-5">
+                                                {/* Target sentence card */}
+                                                <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
+                                                    <div className="flex justify-between items-center border-b border-brand-gold/10 pb-2">
+                                                        <span className="text-[11px] font-bold text-brand-navy/60 uppercase tracking-widest flex items-center gap-1.5">
+                                                            <BookOpen size={13} className="text-brand-gold shrink-0" />
+                                                            Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}
+                                                        </span>
+                                                        {selectedReference.alignment_status && (
+                                                            <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                {selectedReference.alignment_status}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="font-serif text-brand-navy text-base sm:text-lg leading-relaxed text-left">
+                                                        &quot;{selectedReference.sentence_text}&quot;
+                                                    </p>
+                                                    {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
+                                                        <div className="pt-3 border-t border-brand-gold/10">
+                                                            <span className="text-[10px] font-bold text-brand-navy/50 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
+                                                            <div className="flex flex-wrap gap-1.5">
+                                                                {selectedReference.matched_characters.map(c => (
+                                                                    <span key={c} className="bg-brand-gold/10 text-brand-navy px-2 py-0.5 rounded text-xs font-bold">{c}</span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {selectedReference.buod_sentence_index !== undefined && (
+                                                        <div className="pt-3 border-t border-brand-gold/10">
+                                                            <span className="text-[10px] font-bold text-brand-navy/50 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
+                                                            <div className="bg-brand-navy/5 p-3 rounded-lg text-xs text-slate-600 font-medium space-y-1">
+                                                                <div><strong className="text-brand-navy">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
+                                                                <div><strong className="text-brand-navy">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Similarity score card */}
+                                                <div className="p-4 sm:p-5 bg-white rounded-xl border border-brand-gold/30 shadow-sm space-y-4">
+                                                    <div className="flex justify-between items-end">
+                                                        <span className="text-[11px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
+                                                        <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy'}`}>
+                                                            {Math.round(selectedReference.score * 100)}%
+                                                        </span>
+                                                    </div>
+                                                    <ScoreVisualizer 
+                                                        semantic={Math.round(selectedReference.semantic_score * 100)} 
+                                                        lexical={Math.round(selectedReference.lexical_score * 100)}
+                                                        char={selectedReference.char_score === -1 ? -1 : Math.round(selectedReference.char_score * 100)}
+                                                        ratio={Math.round(selectedReference.ratio_score * 100)}
+                                                    />
+                                                    <p className="text-[10px] text-brand-text/50 leading-relaxed italic">
+                                                        Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Desktop View (>= lg): Split Screen side-by-side */}
+                                    <div className="hidden lg:flex flex-1 overflow-hidden flex-row">
+                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
+                                        <div className="w-[500px] border-l border-brand-gold/30 bg-white overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
                                             {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 font-serif">{refError}</p></div>) : selectedReference && (
                                                 <div className="space-y-8">
                                                     <div className="p-6 bg-brand-cream/20 rounded-xl border border-brand-gold/10">
                                                         <div className="mb-4 flex justify-between items-start">
                                                             <div>
                                                                 <span className="text-[10px] font-bold text-brand-navy/40 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span>
-                                                                {/* Just display the source chapter number if target chapter is not exactly known. It searches target-mode nearby chapters */}
                                                             </div>
                                                             {selectedReference.alignment_status && (
                                                                 <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
