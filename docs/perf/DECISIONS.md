@@ -565,6 +565,40 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
    - `backend/app/data/word_vec_cache_v1.pkl` (73.39 MB, 24,770 words) must be generated via `python scripts/build_word_vec_cache.py` or copied from release storage during CI/CD build.
    - At startup, the engine validates the vocabulary SHA-256 hash (`6efe3301743eed6b7552291a9c444e7a4ea426cd5175d89ca9d8b648b1c65569`) in 238 ms. If missing, it falls back gracefully to on-demand encoding.
 
+### 2026-10-16: Item A — Themes Endpoint Optimization (Process Cache, LATERAL Join, Cache-Control)
+
+**Context**: In production on Hugging Face Spaces (US) connected to Supabase (Singapore), `GET /api/v1/themes` took ~10.5 seconds (`TTFB - time_appconnect` ≈ 10,115 ms). Profiling revealed that `get_themes()` executed 26 sequential SQL queries: 1 query to fetch all 545 theme rows, followed by a sequential Python loop across all 25 deduplicated Tagalog titles executing individual `Sentence.embedding.cosine_distance(theme_obj.embedding)` vector scans. Each remote roundtrip took ~400 ms.
+
+**Decision**:
+1. **Set-Based LATERAL SQL Query**: Replaced the 25 sequential vector queries with a single set-based LATERAL join in PostgreSQL:
+   ```sql
+   WITH unique_t AS (
+       SELECT DISTINCT ON (tagalog_title) id, tagalog_title, meaning, embedding
+       FROM themes
+       ORDER BY tagalog_title, id
+   )
+   SELECT u.id, u.tagalog_title, u.meaning, s.book, s.chapter_number, s.chapter_title, s.sentence_text, s.sentence_index
+   FROM unique_t u
+   LEFT JOIN LATERAL (
+       SELECT s.book, s.chapter_number, s.chapter_title, s.sentence_text, s.sentence_index
+       FROM sentences s
+       WHERE u.embedding IS NOT NULL
+       ORDER BY s.embedding <=> u.embedding, s.id
+       LIMIT 1
+   ) s ON true
+   ORDER BY u.id
+   ```
+   Deterministic secondary tie-breakers (`s.id`) are enforced on both unique theme selection and sentence matching.
+2. **Process-Level Memory Cache**: Added thread-safe `_themes_cache` with double-checked locking in `backend/app/api/v1/content.py`. Because theme and novel sentence data are static, the query runs at most once per worker process lifecycle.
+3. **HTTP Cache-Control**: Added `Cache-Control: public, max-age=3600, stale-while-revalidate=86400` so intermediate CDNs and client browsers cache the response.
+4. **Resilient Dual Fallback**: Preserved sequential query execution as Fallback 1, and added static JSON bundle fallback (`backend/app/data/themes_cache.json`) as Fallback 2 if database connectivity is disrupted.
+
+**Impact & Verification**:
+- Output Equivalence: Verified against `docs/perf/evidence/themes_before.json`. All 25 themes map to the exact same sentence IDs, books, and chapter numbers.
+- SQL Queries: Cold queries slashed from 26 to 1 (-96.2%); warm queries slashed to 0 (-100%).
+- Latency: Local cold request executes in 2,285 ms; local warm requests drop to 0.013 ms mean (0.003 ms median).
+- Search Invariance: Verified against `docs/perf/golden_snapshot_deterministic.json`: 0 position changes across all 40 golden queries.
+
 ---
 
 ## Pending Decisions
@@ -578,7 +612,10 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 ### 3. ~~Production Deployment Sizing & Host Configuration~~ ✅ RESOLVED
 - **Status**: **Approved and finalized** (2026-10-16). See specifications above.
 
-### 4. Deliberately Unexecuted Optimizations
+### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ STEPS 1–3 RESOLVED
+- **Status**: **Steps 1–3 implemented & verified locally** (2026-10-16). Awaiting user review before Step 4 (frontend React Query) and live deployment.
+
+### 5. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.
 - **Items**:
   - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.

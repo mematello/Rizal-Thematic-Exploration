@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.models.database import SessionLocal, Sentence, Theme
 from app.core.engine import get_engine, RizalEngine
 from pydantic import BaseModel
 from typing import List, Optional
-from sqlalchemy import select
+from sqlalchemy import select, text
+import threading
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -20,6 +21,10 @@ _csv_cache = {}
 
 # Cache for chapter-level buod-to-full alignments  (key: (full_book, full_chapter, buod_book, buod_chapter))
 _alignment_cache: dict = {}
+
+# Process-level cache for static themes response
+_themes_cache: Optional[List[dict]] = None
+_themes_lock = threading.Lock()
 
 def get_csv_data(book: str) -> Optional[pd.DataFrame]:
     if book in _csv_cache:
@@ -101,50 +106,100 @@ class ThemeResponse(BaseModel):
     best_match: Optional[ThemeContextResponse] = None
 
 @router.get("/themes", response_model=List[ThemeResponse])
-def get_themes(db: Session = Depends(get_db)):
+def get_themes(response: Response, db: Session = Depends(get_db)):
     """
     Fetch unique themes and their best matching sentence context.
+    Cached in process memory; set-based LATERAL join eliminates N+1 query loop.
     """
-    # 1. Fetch all themes
-    all_themes = db.query(Theme).all()
-    
-    # 2. Deduplicate by tagalog_title
-    unique_themes = {}
-    for t in all_themes:
-        if t.tagalog_title not in unique_themes:
-            unique_themes[t.tagalog_title] = t
-            
-    results = []
-    
-    # 3. Find best context for each unique theme
-    for title, theme_obj in unique_themes.items():
-        best_match = None
-        
-        # If theme has embedding, find closest sentence
-        if theme_obj.embedding is not None:
-            # Using cosine distance
-            closest_sentence = db.scalars(
-                db.query(Sentence)
-                .order_by(Sentence.embedding.cosine_distance(theme_obj.embedding))
-                .limit(1)
-            ).first()
-            
-            if closest_sentence:
-                best_match = ThemeContextResponse(
-                    book=closest_sentence.book,
-                    chapter_number=closest_sentence.chapter_number,
-                    chapter_title=closest_sentence.chapter_title or "",
-                    sentence_text=closest_sentence.sentence_text,
-                    sentence_index=closest_sentence.sentence_index
+    global _themes_cache
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+
+    if _themes_cache is not None:
+        return _themes_cache
+
+    with _themes_lock:
+        if _themes_cache is not None:
+            return _themes_cache
+
+        results = []
+        try:
+            # Set-based LATERAL query: 1 single query instead of 26 sequential round-trips
+            sql = text("""
+                WITH unique_t AS (
+                    SELECT DISTINCT ON (tagalog_title) id, tagalog_title, meaning, embedding
+                    FROM themes
+                    ORDER BY tagalog_title, id
                 )
-        
-        results.append(ThemeResponse(
-            tagalog_title=title,
-            meaning=theme_obj.meaning,
-            best_match=best_match
-        ))
-        
-    return results
+                SELECT u.id, u.tagalog_title, u.meaning, s.book, s.chapter_number, s.chapter_title, s.sentence_text, s.sentence_index
+                FROM unique_t u
+                LEFT JOIN LATERAL (
+                    SELECT s.book, s.chapter_number, s.chapter_title, s.sentence_text, s.sentence_index
+                    FROM sentences s
+                    WHERE u.embedding IS NOT NULL
+                    ORDER BY s.embedding <=> u.embedding, s.id
+                    LIMIT 1
+                ) s ON true
+                ORDER BY u.id
+            """)
+            rows = db.execute(sql).fetchall()
+            for r in rows:
+                best_match = None
+                if r[3] is not None:  # s.book
+                    best_match = ThemeContextResponse(
+                        book=r[3],
+                        chapter_number=r[4],
+                        chapter_title=r[5] or "",
+                        sentence_text=r[6],
+                        sentence_index=r[7]
+                    )
+                results.append(ThemeResponse(
+                    tagalog_title=r[1],
+                    meaning=r[2],
+                    best_match=best_match
+                ))
+        except Exception as e:
+            # Fallback 1: sequential queries with explicit Theme.id and Sentence.id ordering
+            try:
+                all_themes = db.query(Theme).order_by(Theme.id).all()
+                unique_themes = {}
+                for t in all_themes:
+                    if t.tagalog_title not in unique_themes:
+                        unique_themes[t.tagalog_title] = t
+
+                for title, theme_obj in unique_themes.items():
+                    best_match = None
+                    if theme_obj.embedding is not None:
+                        closest_sentence = db.scalars(
+                            db.query(Sentence)
+                            .order_by(Sentence.embedding.cosine_distance(theme_obj.embedding), Sentence.id)
+                            .limit(1)
+                        ).first()
+
+                        if closest_sentence:
+                            best_match = ThemeContextResponse(
+                                book=closest_sentence.book,
+                                chapter_number=closest_sentence.chapter_number,
+                                chapter_title=closest_sentence.chapter_title or "",
+                                sentence_text=closest_sentence.sentence_text,
+                                sentence_index=closest_sentence.sentence_index
+                            )
+
+                    results.append(ThemeResponse(
+                        tagalog_title=title,
+                        meaning=theme_obj.meaning,
+                        best_match=best_match
+                    ))
+            except Exception:
+                # Fallback 2: bundled static cache if database is unreachable
+                bundled_path = Path(__file__).resolve().parent.parent.parent / "data" / "themes_cache.json"
+                if bundled_path.exists():
+                    with open(bundled_path, "r", encoding="utf-8") as f:
+                        cached_raw = json.load(f)
+                    results = [ThemeResponse(**item) for item in cached_raw]
+
+        _themes_cache = results
+        return _themes_cache
 
 class CharacterChapterResponse(BaseModel):
     book: str

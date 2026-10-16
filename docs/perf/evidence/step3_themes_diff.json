@@ -1,0 +1,221 @@
+{
+  "timings_ms": [
+    2285.3076999999757,
+    0.04350000017439015,
+    0.0027999994927085936,
+    0.0035999983083456755,
+    0.0031999989005271345
+  ],
+  "query_counts": [
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "cold_ms": 2285.3076999999757,
+  "warm_mean_ms": 0.013274999218992889,
+  "diff_count": 8,
+  "diffs": [
+    {
+      "index": 4,
+      "local": {
+        "tagalog_title": "Pamilya at Dang├íl",
+        "meaning": "Ipinaglaban ni Ibarra ang alaala ng kanyang ama sa pamamagitan ng pagtatayo ng paaralan bilang tanda ng dangal ng kanilang pamilya.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 35,
+          "chapter_title": "Ang Usap-usapan",
+          "sentence_text": "Naniniwala sila na ang paaralan na iyon ang magiging daan upang magkaroon ng magandang kinabukasn ang kanilang mga anak.",
+          "sentence_index": 11
+        }
+      },
+      "live": {
+        "tagalog_title": "Pamilya at Dangál",
+        "meaning": "Ipinaglaban ni Ibarra ang alaala ng kanyang ama sa pamamagitan ng pagtatayo ng paaralan bilang tanda ng dangal ng kanilang pamilya.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 35,
+          "chapter_title": "Ang Usap-usapan",
+          "sentence_text": "Naniniwala sila na ang paaralan na iyon ang magiging daan upang magkaroon ng magandang kinabukasn ang kanilang mga anak.",
+          "sentence_index": 11
+        }
+      }
+    },
+    {
+      "index": 5,
+      "local": {
+        "tagalog_title": "Pag-aalay at Pagsasakripisyo",
+        "meaning": "Itinuro ni Don Rafael kay Ibarra na kailangang magsakripisyo sa kasalukuyan para sa ikabubuti ng kinabukasan.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 19,
+          "chapter_title": "Mga Karanasan ng Isang Guro",
+          "sentence_text": "Ayon sa guro ay wala dapat itong ipagpasalamat sapagkat malaki ang utang na loob nito kay Don Rafael dahil isa ito sa mga nabigyan ng tulong nung itoΓÇÖy nabubuhay pa.",
+          "sentence_index": 4
+        }
+      },
+      "live": {
+        "tagalog_title": "Pag-aalay at Pagsasakripisyo",
+        "meaning": "Itinuro ni Don Rafael kay Ibarra na kailangang magsakripisyo sa kasalukuyan para sa ikabubuti ng kinabukasan.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 19,
+          "chapter_title": "Mga Karanasan ng Isang Guro",
+          "sentence_text": "Ayon sa guro ay wala dapat itong ipagpasalamat sapagkat malaki ang utang na loob nito kay Don Rafael dahil isa ito sa mga nabigyan ng tulong nung ito’y nabubuhay pa.",
+          "sentence_index": 4
+        }
+      }
+    },
+    {
+      "index": 9,
+      "local": {
+        "tagalog_title": "Kalayaan at Pagmamahal sa Bayan",
+        "meaning": "Si Ibarra ay nagbalik sa Pilipinas upang magtayo ng paaralan, sagisag ng kalayaan sa pamamagitan ng edukasyon.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 19,
+          "chapter_title": "Mga Karanasan ng Isang Guro",
+          "sentence_text": "Ibinahagi din ng guro ang ibaΓÇÖt-ibang problemang kinaharap ng mga guro at ng edukasyon.",
+          "sentence_index": 6
+        }
+      },
+      "live": {
+        "tagalog_title": "Kalayaan at Pagmamahal sa Bayan",
+        "meaning": "Si Ibarra ay nagbalik sa Pilipinas upang magtayo ng paaralan, sagisag ng kalayaan sa pamamagitan ng edukasyon.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 19,
+          "chapter_title": "Mga Karanasan ng Isang Guro",
+          "sentence_text": "Ibinahagi din ng guro ang iba’t-ibang problemang kinaharap ng mga guro at ng edukasyon.",
+          "sentence_index": 6
+        }
+      }
+    },
+    {
+      "index": 10,
+      "local": {
+        "tagalog_title": "Kolonyal na Kaisipan at Paghahangad Umasenso",
+        "meaning": "Si Do├▒a Victorina ay nagpanggap bilang Kastila upang maituring na mataas ang kanyang antas sa lipunan.",
+        "best_match": {
+          "book": "elfili",
+          "chapter_number": 12,
+          "chapter_title": "Placido Penitente",
+          "sentence_text": "Nginitian siya ng tiyahin ni Paulita na si Donya Victorina.",
+          "sentence_index": 21
+        }
+      },
+      "live": {
+        "tagalog_title": "Kolonyal na Kaisipan at Paghahangad Umasenso",
+        "meaning": "Si Doña Victorina ay nagpanggap bilang Kastila upang maituring na mataas ang kanyang antas sa lipunan.",
+        "best_match": {
+          "book": "elfili",
+          "chapter_number": 12,
+          "chapter_title": "Placido Penitente",
+          "sentence_text": "Nginitian siya ng tiyahin ni Paulita na si Donya Victorina.",
+          "sentence_index": 21
+        }
+      }
+    },
+    {
+      "index": 11,
+      "local": {
+        "tagalog_title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "meaning": "Ang pagmamahalan nina Ibarra at Mar├¡a Clara ay sagisag ng dalisay na pag-ibig na nahadlangan ng kapangyarihan ng simbahan.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 8,
+          "chapter_title": "Ang mga Alaala",
+          "sentence_text": "Ang kalungkutang naramdaman ni Ibarra sa pag-alis niya sa bahay ni Maria Clara ay napalitan ng kagalakan nang libutin niya ang kamaynilaan sakay sa kalesa.",
+          "sentence_index": 1
+        }
+      },
+      "live": {
+        "tagalog_title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "meaning": "Ang pagmamahalan nina Ibarra at María Clara ay sagisag ng dalisay na pag-ibig na nahadlangan ng kapangyarihan ng simbahan.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 8,
+          "chapter_title": "Ang mga Alaala",
+          "sentence_text": "Ang kalungkutang naramdaman ni Ibarra sa pag-alis niya sa bahay ni Maria Clara ay napalitan ng kagalakan nang libutin niya ang kamaynilaan sakay sa kalesa.",
+          "sentence_index": 1
+        }
+      }
+    },
+    {
+      "index": 13,
+      "local": {
+        "tagalog_title": "Pang-aapi sa Kababaihan",
+        "meaning": "Si Mar├¡a    Clara ay pinilit sa kasal na hindi niya gusto upang mapanatili ang dangal ng pamilya.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 60,
+          "chapter_title": "Ang Kasal ni Maria Clara",
+          "sentence_text": "Hindi naman matanggap ng mga kababaihan ang pagpapakasal ni Maria Clara kay Linares.",
+          "sentence_index": 13
+        }
+      },
+      "live": {
+        "tagalog_title": "Pang-aapi sa Kababaihan",
+        "meaning": "Si María    Clara ay pinilit sa kasal na hindi niya gusto upang mapanatili ang dangal ng pamilya.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 60,
+          "chapter_title": "Ang Kasal ni Maria Clara",
+          "sentence_text": "Hindi naman matanggap ng mga kababaihan ang pagpapakasal ni Maria Clara kay Linares.",
+          "sentence_index": 13
+        }
+      }
+    },
+    {
+      "index": 15,
+      "local": {
+        "tagalog_title": "Pamilya at Dangal",
+        "meaning": "Sa nobela, ipinakita na ang dangal ng pamilya ay higit na pinahahalagahan kaysa sa kaligayahan ng indibidwal.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 59,
+          "chapter_title": "Pagmamahal sa Bayan",
+          "sentence_text": "Nagkaroon ng ibaΓÇÖt-ibang kahulugan ang mga balitang ito.",
+          "sentence_index": 2
+        }
+      },
+      "live": {
+        "tagalog_title": "Pamilya at Dangal",
+        "meaning": "Sa nobela, ipinakita na ang dangal ng pamilya ay higit na pinahahalagahan kaysa sa kaligayahan ng indibidwal.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 59,
+          "chapter_title": "Pagmamahal sa Bayan",
+          "sentence_text": "Nagkaroon ng iba’t-ibang kahulugan ang mga balitang ito.",
+          "sentence_index": 2
+        }
+      }
+    },
+    {
+      "index": 22,
+      "local": {
+        "tagalog_title": "Karahasan laban sa Kapayapaan",
+        "meaning": "Ipinakita sa nobela ang tunggalian ng dalawang paraan ng pakikibakaΓÇöang marahas na rebolusyon ni Simoun at ang mapayapang reporma ng mga estudyante.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 48,
+          "chapter_title": "Ang Palaisipan",
+          "sentence_text": "Ipinakita ni Nol Juan kay Ibarra ang mga natapos nang gawain.",
+          "sentence_index": 10
+        }
+      },
+      "live": {
+        "tagalog_title": "Karahasan laban sa Kapayapaan",
+        "meaning": "Ipinakita sa nobela ang tunggalian ng dalawang paraan ng pakikibaka—ang marahas na rebolusyon ni Simoun at ang mapayapang reporma ng mga estudyante.",
+        "best_match": {
+          "book": "noli",
+          "chapter_number": 48,
+          "chapter_title": "Ang Palaisipan",
+          "sentence_text": "Ipinakita ni Nol Juan kay Ibarra ang mga natapos nang gawain.",
+          "sentence_index": 10
+        }
+      }
+    }
+  ]
+}
