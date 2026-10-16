@@ -582,7 +582,7 @@ export function ChapterModal({
                                             {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
                                                 <div key={`${chap.chapterNumber}`} id={`chapter-view-${chap.chapterNumber}`} className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}>
                                                     {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 block mb-2">Kabanata {chap.chapterNumber}</span><h2 className="text-3xl font-serif font-bold text-brand-navy">{chap.title}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></div>)}
-                                                    <div lang="tl" className="font-serif text-brand-text leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] space-y-6 sm:space-y-8 text-lg md:text-xl">
+                                                    <div lang="tl" className="font-serif text-brand-text leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] [text-wrap:pretty] space-y-6 sm:space-y-8 text-lg md:text-xl">
                                                         {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
                                                             if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) paragraphs.push([sentence]);
                                                             else paragraphs[paragraphs.length - 1].push(sentence);

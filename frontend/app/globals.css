@@ -188,13 +188,14 @@
         }
     }
 
-    /* Modern Editorial Drop Cap (2-line drop, zero underside gap) */
+    /* Modern Editorial Drop Cap (2-line drop, zero underside gap, with natural breathing room) */
     .drop-cap::first-letter {
         -webkit-initial-letter: 2;
         initial-letter: 2;
         font-family: var(--font-serif);
         font-weight: 700;
-        margin-right: 0.12em;
+        margin-right: 0.22em;
+        padding-right: 2px;
         color: var(--color-brand-navy);
     }
 
@@ -204,7 +205,7 @@
             font-size: 2.85rem;
             font-weight: 700;
             line-height: 0.72;
-            margin-right: 0.08em;
+            margin-right: 0.12em;
             margin-top: 0.08em;
             margin-bottom: -0.05em;
             color: var(--color-brand-navy);
