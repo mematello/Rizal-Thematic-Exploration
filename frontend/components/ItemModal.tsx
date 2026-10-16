@@ -125,25 +125,25 @@ export function ItemModal({
                 key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
                 onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
                 className={`
-                    group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white
-                    ${isNoli ? 'border-noli-accent/10 hover:border-noli-accent' : 'border-fili-accent/10 hover:border-fili-accent'}
+                    group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white dark:bg-[#1B2433]
+                    ${isNoli ? 'border-noli-accent/10 dark:border-brand-gold/20 hover:border-noli-accent' : 'border-fili-accent/10 dark:border-brand-gold/20 hover:border-fili-accent'}
                 `}
             >
                 <div className="flex items-center gap-2 mb-3">
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${isNoli ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
                         {isNoli ? 'Noli' : 'Fili'}
                     </span>
-                <span className="text-xl font-serif font-bold text-brand-navy">
+                <span className="text-xl font-serif font-bold text-brand-navy dark:text-foreground">
                     Kabanata {chapter.chapter_number}
                 </span>
             </div>
 
-            <p className="text-sm text-brand-text-light font-serif line-clamp-2 mb-3 font-bold min-h-[2.5em]">
+            <p className="text-sm text-brand-text-light dark:text-brand-text-muted font-serif line-clamp-2 mb-3 font-bold min-h-[2.5em]">
                 {formatChapterTitle(chapter.chapter_title)}
             </p>
 
             {chapter.preview_text && (
-                <p className="text-xs text-brand-text/60 italic line-clamp-4 border-t border-brand-gold/5 pt-3 mt-2 leading-relaxed h-[5.5em]">
+                <p className="text-xs text-brand-text/60 dark:text-foreground/60 italic line-clamp-4 border-t border-brand-gold/5 dark:border-brand-gold/15 pt-3 mt-2 leading-relaxed h-[5.5em]">
                     "{chapter.preview_text}"
                 </p>
             )}
@@ -167,7 +167,7 @@ export function ItemModal({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleBackdropClick}
-                        className="absolute inset-0 bg-brand-navy/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-black/75 dark:bg-black/85 backdrop-blur-sm"
                     />
 
                     <motion.div
@@ -176,10 +176,10 @@ export function ItemModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20`}
+                        className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper dark:bg-[#121A28] shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20`}
                     >
                         {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-brand-gold/10 bg-brand-cream gap-3 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E] gap-3 sm:gap-4">
                             <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 flex-1 min-w-0">
                                 {type === "character" && (
                                     <div className="hidden sm:block shrink-0">
@@ -196,18 +196,18 @@ export function ItemModal({
                                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold mb-0.5 sm:mb-1 block">
                                         {type === "character" ? "Profil ng Tauhan" : "Thematikong Insight"}
                                     </span>
-                                    <h2 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-navy font-bold truncate tracking-tight">
+                                    <h2 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-navy dark:text-foreground font-bold truncate tracking-tight">
                                         {title}
                                     </h2>
                                     {subtitle && (
-                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-sm sm:text-base line-clamp-1">{subtitle}</p>
+                                        <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-sm sm:text-base line-clamp-1">{subtitle}</p>
                                     )}
                                 </div>
 
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="sm:hidden min-w-[44px] min-h-[44px] -mr-1 rounded-full flex items-center justify-center hover:bg-black/5 active:scale-95 text-brand-text/70 transition-colors"
+                                    className="sm:hidden min-w-[44px] min-h-[44px] -mr-1 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 text-brand-text/70 dark:text-foreground/70 transition-colors"
                                     aria-label="Isara ang modal"
                                 >
                                     <X size={22} />
@@ -227,13 +227,13 @@ export function ItemModal({
                                 </div>
 
                                 {type === "character" && (
-                                    <div className="flex bg-white/60 p-0.5 rounded-full border border-brand-gold/20 shadow-xs">
+                                    <div className="flex bg-white/60 dark:bg-black/40 p-0.5 rounded-full border border-brand-gold/20 shadow-xs">
                                         <button
                                             type="button"
                                             onClick={() => setCharView('sentences')}
                                             className={`
                                                 min-h-[30px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all
-                                                ${charView === 'sentences' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                                ${charView === 'sentences' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-[#0F141C] shadow-xs' : 'text-brand-navy/60 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold'}
                                             `}
                                         >
                                             Mga Pangungusap
@@ -243,7 +243,7 @@ export function ItemModal({
                                             onClick={() => setCharView('paksa')}
                                             className={`
                                                 min-h-[30px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all
-                                                ${charView === 'paksa' ? 'bg-brand-navy text-white shadow-xs' : 'text-brand-navy/60 hover:text-brand-navy'}
+                                                ${charView === 'paksa' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-[#0F141C] shadow-xs' : 'text-brand-navy/60 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold'}
                                             `}
                                         >
                                             Mga Paksa
@@ -258,8 +258,8 @@ export function ItemModal({
                                         className={`
                                             min-h-[32px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-xs border active:scale-95
                                             ${sortBy === 'relevance'
-                                                ? 'bg-brand-gold text-white border-brand-gold'
-                                                : 'bg-white text-brand-text border-brand-gold/20 hover:border-brand-gold'}
+                                                ? 'bg-brand-gold text-[#0F141C] font-bold border-brand-gold'
+                                                : 'bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground border-brand-gold/20 hover:border-brand-gold'}
                                         `}
                                     >
                                         {sortBy === 'relevance' ? 'NAKA-RANK' : 'I-RANK'}
@@ -269,7 +269,7 @@ export function ItemModal({
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="hidden sm:flex min-w-[44px] min-h-[44px] items-center justify-center hover:bg-black/5 active:scale-95 rounded-full transition-colors text-brand-text/60 hover:text-brand-navy"
+                                    className="hidden sm:flex min-w-[44px] min-h-[44px] items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full transition-colors text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold"
                                     aria-label="Isara ang modal"
                                 >
                                     <X size={22} />
@@ -278,11 +278,11 @@ export function ItemModal({
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-white/50 scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent">
+                        <div className="flex-1 overflow-y-auto p-6 bg-white/50 dark:bg-transparent scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent">
                             {isLoading ? (
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse">
                                     {[...Array(8)].map((_, i) => (
-                                        <div key={i} className="h-40 bg-gray-200 rounded-lg" />
+                                        <div key={i} className="h-40 bg-gray-200 dark:bg-white/5 rounded-lg" />
                                     ))}
                                 </div>
                             ) : (
@@ -290,9 +290,9 @@ export function ItemModal({
                                     {/* Theme View */}
                                     {type === "theme" && (
                                         <div className="space-y-6">
-                                            <div className="bg-brand-cream/50 p-4 rounded-lg border border-brand-brown/5">
-                                                <h4 className="font-bold text-brand-brown mb-2 uppercase tracking-wide text-xs">Definition</h4>
-                                                <p className="font-serif text-brand-text leading-relaxed">
+                                            <div className="bg-brand-gold/10 dark:bg-black/40 p-5 rounded-lg border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs">
+                                                <h4 className="font-bold text-brand-gold mb-2 uppercase tracking-widest text-xs">Kahulugan</h4>
+                                                <p className="font-serif text-brand-text dark:text-foreground/90 leading-relaxed text-base">
                                                     {meaning}
                                                 </p>
                                             </div>
@@ -302,17 +302,17 @@ export function ItemModal({
                                                     (selectedNovel === 'noli' && themeContext.book === 'noli') ||
                                                     (selectedNovel === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
                                                     <div>
-                                                        <h4 className="font-bold text-brand-brown mb-4 uppercase tracking-wide text-xs flex items-center gap-2">
-                                                            <Quote size={14} /> Best Contextual Match
+                                                        <h4 className="font-bold text-brand-gold mb-4 uppercase tracking-wider text-xs flex items-center gap-2">
+                                                            <Quote size={14} /> Pinaka-angkop na Halimbawa
                                                         </h4>
                                                         <div
                                                             onClick={() => onNavigate?.(themeContext.book, themeContext.chapter_number, undefined)}
-                                                            className="bg-white p-6 rounded-lg border-l-4 border-brand-gold shadow-sm cursor-pointer hover:bg-brand-gold/5 transition-colors"
+                                                            className="bg-white dark:bg-[#1B2433] p-6 rounded-lg border-l-4 border-brand-gold border border-brand-gold/15 dark:border-brand-gold/25 shadow-sm cursor-pointer hover:bg-brand-gold/5 dark:hover:bg-brand-gold/10 transition-colors"
                                                         >
-                                                            <p className="font-serif text-lg text-brand-navy italic mb-4 leading-relaxed">
+                                                            <p className="font-serif text-lg text-brand-navy dark:text-foreground italic mb-4 leading-relaxed">
                                                                 "{themeContext.sentence_text}"
                                                             </p>
-                                                            <div className="flex items-center justify-between text-xs text-brand-text-light font-sans border-t border-gray-100 pt-3">
+                                                            <div className="flex items-center justify-between text-xs text-brand-text-light dark:text-foreground/60 font-sans border-t border-brand-gold/10 dark:border-brand-gold/20 pt-3">
                                                                 <span className="font-bold uppercase tracking-wider">
                                                                     {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}
                                                                 </span>
@@ -323,13 +323,13 @@ export function ItemModal({
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <p className="text-brand-text-light italic">
+                                                    <p className="text-brand-text-light dark:text-foreground/60 italic">
                                                         Best match is in {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}.
                                                         Switch story selection on main page to view.
                                                     </p>
                                                 )
                                             ) : (
-                                                <p className="text-brand-text-light italic">No context available.</p>
+                                                <p className="text-brand-text-light dark:text-foreground/60 italic">No context available.</p>
                                             )}
                                         </div>
                                     )}
@@ -358,7 +358,7 @@ export function ItemModal({
                                             ) : (
                                                 <>
                                                     <div className="flex items-center justify-between">
-                                                        <h4 className="font-bold text-brand-brown uppercase tracking-wide text-xs">
+                                                        <h4 className="font-bold text-brand-gold uppercase tracking-wide text-xs">
                                                             Mga Paksa ng Tauhan
                                                         </h4>
                                                     </div>
@@ -366,7 +366,7 @@ export function ItemModal({
                                                     {paksaLoading ? (
                                                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                                                             <div className="w-8 h-8 border-4 border-brand-gold border-t-transparent rounded-full animate-spin" />
-                                                            <span className="text-brand-text/50 font-serif italic">Naghahanap ng mga paksa...</span>
+                                                            <span className="text-brand-text/50 dark:text-foreground/50 font-serif italic">Naghahanap ng mga paksa...</span>
                                                         </div>
                                                     ) : paksaThemes.length > 0 ? (
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -374,20 +374,20 @@ export function ItemModal({
                                                                 <div
                                                                     key={i}
                                                                     className={`
-                                                                        p-6 rounded-sm border bg-white transition-all shadow-sm
-                                                                        ${selectedNovel === 'noli' ? 'border-noli-accent/10' : 'border-fili-accent/10'}
+                                                                        p-6 rounded-sm border bg-white dark:bg-[#1B2433] transition-all shadow-sm
+                                                                        ${selectedNovel === 'noli' ? 'border-noli-accent/10 dark:border-brand-gold/20' : 'border-fili-accent/10 dark:border-brand-gold/20'}
                                                                     `}
                                                                 >
                                                                     <div className="flex items-center gap-2 mb-4">
                                                                         <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent' : 'bg-fili-accent/10 text-fili-accent'}`}>
                                                                             Paksa
                                                                         </span>
-                                                                        <h3 className="text-xl font-serif font-bold text-brand-navy">
+                                                                        <h3 className="text-xl font-serif font-bold text-brand-navy dark:text-foreground">
                                                                             {theme.label}
                                                                         </h3>
                                                                     </div>
                                                                     {theme.description && (
-                                                                        <p className="text-sm text-brand-text/70 leading-relaxed font-serif italic border-t border-brand-gold/5 pt-4">
+                                                                        <p className="text-sm text-brand-text/70 dark:text-foreground/75 leading-relaxed font-serif italic border-t border-brand-gold/5 dark:border-brand-gold/15 pt-4">
                                                                             “{theme.description}”
                                                                         </p>
                                                                     )}

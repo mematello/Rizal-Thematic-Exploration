@@ -54,9 +54,9 @@ export function NovelBackground({ novel }: NovelBackgroundProps) {
             radial-gradient(ellipse 50% 40% at 10% 30%, rgba(27,38,59,0.12) 0%, transparent 55%),
             linear-gradient(to bottom, rgba(141,45,45,0.05) 0%, transparent 60%)
           ` : `
-            radial-gradient(ellipse 90% 70% at 50% -15%, rgba(255,255,255,0.9) 0%, rgba(252,250,247,0.4) 40%, transparent 80%),
-            radial-gradient(ellipse 60% 50% at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 60%),
-            linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, transparent 50%)
+            radial-gradient(ellipse 90% 70% at 50% -15%, rgba(197,160,101,0.18) 0%, rgba(197,160,101,0.06) 40%, transparent 80%),
+            radial-gradient(ellipse 60% 50% at 80% 20%, rgba(197,160,101,0.10) 0%, transparent 60%),
+            linear-gradient(to bottom, rgba(197,160,101,0.05) 0%, transparent 50%)
           `,
                 }}
             />
@@ -71,7 +71,7 @@ export function NovelBackground({ novel }: NovelBackgroundProps) {
                 <defs>
                     {/* Gold shimmer gradient */}
                     <linearGradient id="goldSky" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={isFili ? "#C5A065" : "#FFFFFF"} stopOpacity={isFili ? "0.18" : "0.6"} />
+                        <stop offset="0%" stopColor="#C5A065" stopOpacity={isFili ? "0.18" : "0.15"} />
                         <stop offset="100%" stopColor="#1B263B" stopOpacity="0.05" />
                     </linearGradient>
 

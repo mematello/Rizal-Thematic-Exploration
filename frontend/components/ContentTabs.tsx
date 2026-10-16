@@ -25,7 +25,7 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
     >
       {/* Mobile: Full-width segmented control with 3 equal columns (min-h-[44px]) */}
       {/* Desktop (sm+): Elegant underline tab bar */}
-      <div className="grid grid-cols-3 p-1 rounded-xl bg-brand-gold/10 border border-brand-gold/20 sm:bg-transparent sm:border-0 sm:border-b sm:border-brand-gold/20 sm:p-0 sm:flex sm:items-center sm:justify-center sm:gap-8 md:gap-12 sm:pb-3 w-full max-w-full min-w-0">
+      <div className="grid grid-cols-3 p-1 rounded-xl bg-brand-gold/10 dark:bg-black/40 border border-brand-gold/20 dark:border-brand-gold/30 sm:bg-transparent sm:dark:bg-transparent sm:border-0 sm:border-b sm:border-brand-gold/20 sm:p-0 sm:flex sm:items-center sm:justify-center sm:gap-8 md:gap-12 sm:pb-3 w-full max-w-full min-w-0">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -40,8 +40,8 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
               className={cn(
                 "relative min-h-[44px] px-2 sm:px-4 py-2 flex items-center justify-center font-serif tracking-[0.08em] transition-all duration-300 uppercase text-xs sm:text-sm font-bold active:scale-95 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-lg sm:rounded-none",
                 isActive
-                  ? "bg-brand-navy text-white shadow-sm sm:bg-transparent sm:text-brand-navy sm:font-black sm:shadow-none"
-                  : "text-brand-text/60 hover:text-brand-navy"
+                  ? "bg-brand-navy text-white shadow-sm dark:bg-brand-gold dark:text-[#0F141C] sm:bg-transparent sm:dark:bg-transparent sm:text-brand-navy sm:dark:text-brand-gold sm:font-black sm:shadow-none"
+                  : "text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold"
               )}
             >
               <span className="truncate">{tab.label}</span>

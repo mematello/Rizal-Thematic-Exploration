@@ -515,71 +515,71 @@ export function ChapterModal({
             <AnimatePresence>
                 {isOpen && (
                     <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-brand-navy/70 backdrop-blur-sm" />
-                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-brand-cream' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-black/75 dark:bg-black/85 backdrop-blur-sm" />
+                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-[#0D1424]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper dark:bg-[#121A28] rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
                             
                             {!isFullscreen && (
-                                <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream">
+                                <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E]">
                                     <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
                                         <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy dark:text-foreground mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
-                                        <p className="text-brand-text/70 font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{formatChapterTitle(title)}</p>
+                                        <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{formatChapterTitle(title)}</p>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy dark:hover:text-brand-gold" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
-                                        <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full transition-all text-brand-text/60 hover:text-brand-navy dark:hover:text-brand-gold" aria-label="Isara ang kabanata"><X size={22} /></button>
+                                        <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full transition-all text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
+                                        <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full transition-all text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold" aria-label="Isara ang kabanata"><X size={22} /></button>
                                     </div>
                                 </div>
                             )}
 
                             {!isFullscreen && (
-                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 border-b border-brand-gold/10 items-start sm:items-center justify-between">
+                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 dark:bg-[#121A28]/80 border-b border-brand-gold/10 items-start sm:items-center justify-between">
                                     <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full py-0.5">
-                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'bg-white/70 dark:bg-brand-paper/70 text-brand-text hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
-                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'bg-white/70 dark:bg-brand-paper/70 text-brand-text hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
+                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[#1B2433] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
+                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[#1B2433] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
                                     </div>
                                 </div>
                             )}
 
                             <div className={`flex w-full min-h-0 flex-1 ${isFullscreen ? 'flex-row' : 'flex-col'}`}>
                                 {isFullscreen && (
-                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 bg-[#F5F2EB]/50 p-12 relative pt-[max(3rem,env(safe-area-inset-top))]">
+                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 dark:border-brand-gold/20 bg-[#F5F2EB]/50 dark:bg-[#121A28] p-12 relative pt-[max(3rem,env(safe-area-inset-top))]">
                                         <div className="absolute top-6 left-6 flex gap-2">
-                                            <button onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Exit fullscreen"><Minimize2 size={20} /></button>
-                                            <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 rounded-full text-brand-text/40 hover:text-brand-navy transition-colors" title="Close"><X size={20} /></button>
+                                            <button onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-brand-text/40 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold transition-colors" title="Exit fullscreen"><Minimize2 size={20} /></button>
+                                            <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-brand-text/40 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold transition-colors" title="Close"><X size={20} /></button>
                                         </div>
                                         <div className="flex flex-col space-y-8">
                                             <div>
                                                 <span className={`text-xs font-bold tracking-[0.3em] uppercase ${accentColor} block mb-4`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
-                                                <h1 className="text-4xl font-serif text-brand-navy font-black leading-tight">Kabanata {activeChapterInView}</h1>
+                                                <h1 className="text-4xl font-serif text-brand-navy dark:text-foreground font-black leading-tight">Kabanata {activeChapterInView}</h1>
                                                 <div className="w-12 h-1 bg-brand-gold/30 my-6" />
-                                                <p className="text-xl font-serif italic text-brand-text/70 leading-relaxed">{activeChapterTitle}</p>
+                                                <p className="text-xl font-serif italic text-brand-text/70 dark:text-brand-text-muted leading-relaxed">{activeChapterTitle}</p>
                                             </div>
-                                            <div className="space-y-4 pt-4 border-t border-brand-gold/10">
-                                                <button onClick={() => setShowCharacters(!showCharacters)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showCharacters ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}>Tauhan</button>
-                                                <button onClick={() => setShowReference(!showReference)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showReference ? 'text-brand-gold' : 'text-brand-text/50 hover:text-brand-navy'}`}>Sanggunian</button>
-                                                <p className="text-[10px] text-brand-text/40 font-serif italic">I-click ang pangalan ng tauhan para makita ang Paksa</p>
+                                            <div className="space-y-4 pt-4 border-t border-brand-gold/10 dark:border-brand-gold/20">
+                                                <button onClick={() => setShowCharacters(!showCharacters)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showCharacters ? 'text-brand-gold font-black' : 'text-brand-text/50 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold'}`}>Tauhan</button>
+                                                <button onClick={() => setShowReference(!showReference)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showReference ? 'text-brand-gold font-black' : 'text-brand-text/50 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold'}`}>Sanggunian</button>
+                                                <p className="text-[10px] text-brand-text/40 dark:text-foreground/40 font-serif italic">I-click ang pangalan ng tauhan para makita ang Paksa</p>
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
+                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper dark:bg-[#0D1424] relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
                                     {isFullscreen && (
-                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 backdrop-blur border-b border-brand-gold/10 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
+                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 dark:bg-[#121A28]/95 backdrop-blur border-b border-brand-gold/10 dark:border-brand-gold/20 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
                                             <div className="flex justify-between items-center">
                                                 <div className="min-w-0 pr-2">
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50 block">Kabanata {activeChapterInView}</span>
-                                                    <div className="text-sm font-serif font-bold text-brand-navy truncate">{activeChapterTitle}</div>
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50 dark:text-foreground/50 block">Kabanata {activeChapterInView}</span>
+                                                    <div className="text-sm font-serif font-bold text-brand-navy dark:text-foreground truncate">{activeChapterTitle}</div>
                                                 </div>
                                                 <div className="flex items-center gap-1 shrink-0">
-                                                    <button type="button" onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-text/60 hover:text-brand-navy transition-all" title="Exit fullscreen" aria-label="I-exit ang fullscreen"><Minimize2 size={18} /></button>
-                                                    <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 active:scale-95 rounded-full text-brand-text/60 hover:text-brand-navy transition-all" title="Close" aria-label="Isara ang kabanata"><X size={20} /></button>
+                                                    <button type="button" onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold transition-all" title="Exit fullscreen" aria-label="I-exit ang fullscreen"><Minimize2 size={18} /></button>
+                                                    <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold transition-all" title="Close" aria-label="Isara ang kabanata"><X size={20} /></button>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 pt-1 border-t border-brand-gold/10">
-                                                <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showCharacters ? 'bg-brand-gold text-white shadow-sm' : 'bg-brand-cream/80 text-brand-text/70'}`}><Users size={14} /><span>Tauhan</span></button>
-                                                <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showReference ? 'bg-brand-gold text-white shadow-sm' : 'bg-brand-cream/80 text-brand-text/70'}`}><BookOpen size={14} /><span>Sanggunian</span></button>
+                                            <div className="flex items-center gap-2 pt-1 border-t border-brand-gold/10 dark:border-brand-gold/20">
+                                                <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[#1B2433] text-brand-text/70 dark:text-foreground/80'}`}><Users size={14} /><span>Tauhan</span></button>
+                                                <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[#1B2433] text-brand-text/70 dark:text-foreground/80'}`}><BookOpen size={14} /><span>Sanggunian</span></button>
                                             </div>
                                         </div>
                                     )}
@@ -593,8 +593,8 @@ export function ChapterModal({
 
                                             {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
                                                 <div key={`${chap.chapterNumber}`} id={`chapter-view-${chap.chapterNumber}`} className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}>
-                                                    {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 block mb-2">Kabanata {chap.chapterNumber}</span><h2 className="text-3xl font-serif font-bold text-brand-navy">{chap.title}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></div>)}
-                                                    <div lang="tl" className="font-serif text-brand-text leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] [text-wrap:pretty] space-y-6 sm:space-y-8 text-lg md:text-xl">
+                                                    {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 dark:text-foreground/40 block mb-2">Kabanata {chap.chapterNumber}</span><h2 className="text-3xl font-serif font-bold text-brand-navy dark:text-foreground">{chap.title}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></div>)}
+                                                    <div lang="tl" className="font-serif text-brand-text dark:text-foreground/90 leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] [text-wrap:pretty] space-y-6 sm:space-y-8 text-lg md:text-xl">
                                                         {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
                                                             if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) paragraphs.push([sentence]);
                                                             else paragraphs[paragraphs.length - 1].push(sentence);
@@ -676,10 +676,10 @@ export function ChapterModal({
                             </div>
 
                             {!isFullscreen && (
-                                <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 bg-brand-cream pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-brand-paper text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
-                                    <div className="hidden sm:block text-[10px] text-brand-accent/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
-                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-brand-paper text-brand-text hover:bg-brand-gold/10 transition-all border border-brand-gold/10 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
+                                <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-brand-gold/25 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
+                                    <div className="hidden sm:block text-[10px] text-brand-accent/60 dark:text-brand-gold/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
+                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-brand-gold/25 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
                                 </div>
                             )}
                         </motion.div>

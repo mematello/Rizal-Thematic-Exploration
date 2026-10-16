@@ -143,10 +143,19 @@
        - `search/page.tsx`: Added `data-novel` container attribute, dark header styling (`dark:bg-[#0C1424]/95`), back button contrast, and dark mode toggles for Buod/Buong Kwento, Gabay na Mapa, and Marka.
   - **Identified & Resolved Tailwind v4 Selector Stripping**:
     - Discovered that Tailwind CSS v4's compiler discarded bare `.dark { ... }` blocks when `@custom-variant dark` was present. Resolved by defining `html.dark, :root.dark, :root[class~="dark"]`, ensuring all midnight CSS variables (`--theme-bg: #0D131F;`, `--theme-card: #151E2E;`, etc.) properly cascade to `body`, `main`, and cards.
+  - **Dark Mode Aesthetic & Contrast Refinements (2026-10-17)**:
+    1. **Modal Backdrop Fix**: Replaced `bg-brand-navy/70` (which computed to bright gold at 70% opacity in dark mode because `--theme-primary` is gold) with `bg-black/75 dark:bg-black/85 backdrop-blur-sm` in `ChapterModal.tsx` and `ItemModal.tsx`, eliminating all light wash overlays when opening modals.
+    2. **Tauhan & Sanggunian Button Contrast**: In `ChapterModal.tsx`, active buttons now use `bg-brand-gold text-[#1B263B] font-bold` (dark navy on gold, eliminating the invisible gold-on-gold text bug). Inactive buttons use `bg-white/70 dark:bg-[#1B2433] text-brand-text dark:text-foreground/80`.
+    3. **Fullscreen Sidebar in ChapterModal**: Replaced washed-out light grey `bg-[#F5F2EB]/50` with `dark:bg-[#121A28] border-r border-brand-gold/10 dark:border-brand-gold/20`, dark headings, and gold active toggle indicators.
+    4. **Theme Detail Card / ItemModal Styling**: Overhauled `ItemModal.tsx` theme definition box (`bg-brand-gold/10 dark:bg-black/40 border border-brand-gold/20 dark:border-brand-gold/30`) and contextual match card (`bg-white dark:bg-[#1B2433] border-l-4 border-brand-gold`) to match the midnight gold palette. Chapter and paksa cards in character view updated to dark surfaces.
+    5. **Mobile View Tabs & Kabanata Pills Contrast**:
+       - `ContentTabs.tsx`: Container uses `dark:bg-black/40 border-brand-gold/30`. Active tab uses `dark:bg-brand-gold dark:text-[#0F141C] font-bold`. Inactive tabs use `dark:text-foreground/70`. Desktop tabs use `sm:dark:bg-transparent` with gold underline indicator.
+       - `ChapterSidebar.tsx`: Active mobile pill uses `dark:bg-brand-gold dark:text-[#0F141C] dark:border-brand-gold`. Inactive pills use `dark:bg-[#182232]/90 dark:text-foreground/80 dark:border-brand-gold/30`. Desktop sidebar links use `dark:text-brand-gold dark:bg-brand-gold/20`.
+    6. **Noli Homepage White Fade Elimination**: In `HeroSection.tsx`, reduced white vignette opacity to `0.08` and added `dark:opacity-0`. In `NovelBackground.tsx`, replaced `#FFFFFF` 60% opacity stop on `#goldSky` with warm `#C5A065` at 15% opacity, and replaced intense white background radial gradients with subtle gold accents, removing the bright white haze across Noli.
   - **Verification**:
-    - `npm run build` compiled cleanly with 0 errors.
-    - Verified locally on `http://localhost:3000` via browser subagent: verified midnight navy background, white typed text in search input (`search_bar_typed_kalayaan`), dark search suggestions dropdown, and fully dark-themed search results page with high-contrast result cards (`search_results_dark_mode`).
-    - Zero diff on `backend/app/core/engine.py` (strictly 0 diff).
+    - `npm run build` compiled cleanly in 9.3s with 0 errors.
+    - Verified all 6 fixes across desktop and mobile (500x800) via browser subagent with recorded video artifacts and screenshots.
+    - Zero diff on `backend/app/core/engine.py`.
 
 ---
 

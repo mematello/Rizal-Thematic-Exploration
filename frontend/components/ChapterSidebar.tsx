@@ -79,8 +79,8 @@ const MobilePillNav = memo(function MobilePillNav({
                   onClick={(e) => onGroupClick(e, start)}
                   className={`snap-start shrink-0 flex-none whitespace-nowrap min-h-[44px] min-w-[124px] px-4 py-2 rounded-full border text-xs font-serif font-bold uppercase tracking-wider flex items-center justify-center transition-colors select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
                     isActive
-                      ? "bg-brand-navy text-white border-brand-navy shadow-md shadow-brand-navy/20 font-bold"
-                      : "bg-white/90 text-brand-text/75 border-brand-gold/25 hover:border-brand-gold hover:text-brand-navy active:scale-95 shadow-xs"
+                      ? "bg-brand-navy dark:bg-brand-gold text-white dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-md shadow-brand-navy/20 dark:shadow-brand-gold/20 font-bold"
+                      : "bg-white/90 dark:bg-[#182232]/90 text-brand-text/75 dark:text-foreground/80 border-brand-gold/25 dark:border-brand-gold/30 hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold active:scale-95 shadow-xs"
                   }`}
                 >
                   {end === start
@@ -603,15 +603,15 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
                         onClick={(e) => handleGroupClick(e, start)}
                         className={`group relative flex items-center px-3 py-2 rounded-lg text-sm font-serif transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold select-none ${
                           isActive
-                            ? "text-brand-navy font-bold bg-brand-gold/15 translate-x-1"
-                            : "text-brand-text/50 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:hover:translate-x-1"
+                            ? "text-brand-navy dark:text-brand-gold font-bold bg-brand-gold/15 dark:bg-brand-gold/20 translate-x-1"
+                            : "text-brand-text/50 dark:text-foreground/60 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:dark:hover:text-brand-gold [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:dark:hover:bg-brand-gold/10 [@media(hover:hover)]:hover:translate-x-1"
                         }`}
                       >
                         {/* Left Accent Bar */}
                         <span
                           className={`absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full transition-all duration-200 ${
                             isActive
-                              ? "bg-brand-navy scale-y-100 opacity-100"
+                              ? "bg-brand-navy dark:bg-brand-gold scale-y-100 opacity-100"
                               : "bg-brand-gold/30 scale-y-0 opacity-0 group-hover:scale-y-75 group-hover:opacity-70"
                           }`}
                           aria-hidden="true"
