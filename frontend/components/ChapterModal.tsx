@@ -582,13 +582,13 @@ export function ChapterModal({
                                             {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
                                                 <div key={`${chap.chapterNumber}`} id={`chapter-view-${chap.chapterNumber}`} className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}>
                                                     {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 block mb-2">Kabanata {chap.chapterNumber}</span><h2 className="text-3xl font-serif font-bold text-brand-navy">{chap.title}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></div>)}
-                                                    <div className="font-serif text-brand-text leading-[2.1] sm:leading-[2.2] text-left space-y-6 sm:space-y-8 text-lg md:text-xl">
+                                                    <div lang="tl" className="font-serif text-brand-text leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] space-y-6 sm:space-y-8 text-lg md:text-xl">
                                                         {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
                                                             if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) paragraphs.push([sentence]);
                                                             else paragraphs[paragraphs.length - 1].push(sentence);
                                                             return paragraphs;
                                                         }, []).map((para, paraIdx) => (
-                                                            <p key={`${paraIdx}-${showCharacters}-${showReference}`} className={paraIdx === 0 ? "first-letter:float-left first-letter:text-[3.5rem] first-letter:font-serif first-letter:font-bold first-letter:leading-[0.8] first-letter:mr-[0.08em] first-letter:mt-1 first-letter:text-brand-navy indent-0" : "indent-0"}>
+                                                            <p key={`${paraIdx}-${showCharacters}-${showReference}`} className={paraIdx === 0 ? "drop-cap indent-0" : "indent-0"}>
                                                                 {para.map((sentence) => {
                                                                     const isHighlighted = !isFullscreen && sentence.sentence_index === highlightSentenceIndex;
                                                                     // Map View only: context sentences surrounding the anchor (lighter highlight)

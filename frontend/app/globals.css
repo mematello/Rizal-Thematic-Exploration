@@ -187,4 +187,27 @@
             scroll-behavior: auto !important;
         }
     }
-}
+
+    /* Modern Editorial Drop Cap (2-line drop, zero underside gap) */
+    .drop-cap::first-letter {
+        -webkit-initial-letter: 2;
+        initial-letter: 2;
+        font-family: var(--font-serif);
+        font-weight: 700;
+        margin-right: 0.12em;
+        color: var(--color-brand-navy);
+    }
+
+    @supports not ((initial-letter: 2) or (-webkit-initial-letter: 2)) {
+        .drop-cap::first-letter {
+            float: left;
+            font-size: 2.85rem;
+            font-weight: 700;
+            line-height: 0.72;
+            margin-right: 0.08em;
+            margin-top: 0.08em;
+            margin-bottom: -0.05em;
+            color: var(--color-brand-navy);
+        }
+    }
+}

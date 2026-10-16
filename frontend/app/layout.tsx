@@ -43,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="tl">
       <body
         className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-[100dvh] flex flex-col justify-between w-full max-w-full overflow-x-clip`}
         suppressHydrationWarning
