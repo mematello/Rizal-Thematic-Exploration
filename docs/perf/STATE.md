@@ -53,21 +53,33 @@
   - **Bundle Disk Sizes**: `noli_buod` = 206,795 B (201.9 KB), `noli_full` = 1,739,033 B (1,698 KB), `elfili_buod` = 167,905 B (164 KB), `elfili_full` = 1,157,817 B (1,130 KB). Total = 3.12 MB.
   - **Cache Miss Path Tested**: Forced miss with `_static_cache_enabled = False` and cleared LRU cache. Verified lazy `engine = get_engine()` runs and produces 100% byte-identical output.
 
-- **Gate 2 Deployment & Immediate Rollback (2026-10-17)**:
-  - **HF Space Push**: Pushed `1a4057b` containing strictly 6 backend files (0 frontend/docs leak).
+- **Gate 2 Deployment & Live Verification (Completed 2026-10-17)**:
+  - **HF Space Deployment**: Pushed commit `2b15166` containing strictly 7 backend files (0 frontend/docs leaks). All 4 chapter cache bundles tracked and verified.
   - **Live Endpoints Verified**:
-    - `GET /health` = 200 OK
-    - `GET /api/v1/themes` = SHA match, 243.6 ms mean server time
-    - `GET /api/v1/chapters` = SHA match, 244.8 ms mean server time
-    - `GET /api/v1/chapters/noli/1?mode=buod` = SHA match, 246.8 ms mean server time
-    - `GET /api/v1/chapters/elfili/1?mode=buod` = SHA match, 236.8 ms mean server time
-    - `GET /api/v1/chapters/noli/34?mode=full` = SHA match, **236.9 ms** server time (dropped from 22,400 ms!).
-  - **Golden Query Failure Detected**: Search queries returned HTTP 500 with `psycopg2.OperationalError: connection to server at "aws-0-ap-southeast-1.pooler.supabase.com", port 5432 failed: FATAL: password authentication failed for user "postgres"`.
-  - **Root Cause**: Hugging Face Space secret `DATABASE_URL` is missing the Supabase pooler tenant prefix (`postgres.urlwbkhibjclxhrmwuaq` on port 6543). Local server using `backend/.env` succeeds with HTTP 200 and Top-3 IDs `[38300, 37644, 38386]`.
-  - **Immediate Rollback Executed**: In accordance with standing rules ("Any failure: roll back hf/main immediately and report"), `hf/main` was immediately force-rolled back to `007116d`.
+    - `GET /health` = `200 OK`
+    - `/api/v1/themes` (5 runs): **SHA match**, Mean server time: **241.7 ms**
+    - `/api/v1/chapters` (5 runs): **SHA match**, Mean server time: **238.7 ms**
+    - `/api/v1/chapters/noli/1?mode=buod` (5 runs): **SHA match**, Mean server time: **254.7 ms**
+    - `/api/v1/chapters/elfili/1?mode=buod` (5 runs): **SHA match**, Mean server time: **249.1 ms**
+    - `/api/v1/chapters/noli/34?mode=full` (single request): **SHA match**, Server time: **253.0 ms** *(down from 22,400 ms! -98.9% latency reduction)*
+  - **5 Live Golden Search Queries Verified (`novel=both`)**:
+    - `kalayaan` (noli): Top-5 IDs match = True (`[38300, 37644, 38386, 38258, 38249]`)
+    - `edukasyon` (noli): Top-5 IDs match = True (`[37539, 37544, 37541, 37538, 37540]`)
+    - `simbahan` (elfili): Top-5 IDs match = True (`[39026, 38425, 39028, 38415, 38533]`)
+    - `pag-ibig` (noli): Top-5 IDs match = True (`[37860, 37231, 37191, 37193, 38222]`)
+    - `bayan` (elfili): Top-5 IDs match = True (`[39084, 39108, 38574, 38913, 39016]`)
+
+- **Gate 3 Merge to Main (Completed 2026-10-17)**:
+  - Merged `perf/chapter-precompute` into `main` (`b151f48`).
+  - Pushed to `origin/main` on GitHub.
+  - Zero changes to search ranking or engine behavior (`backend/app/core/engine.py` diff: **strictly 0 diff**).
 
 ---
 
-## Next Action: User Update of HF Space DATABASE_URL Secret
-User needs to update the HF Space `DATABASE_URL` secret with the full pooler tenant format (`postgres.urlwbkhibjclxhrmwuaq:...@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`). Once updated and verified, re-run Gate 2 deployment.
+## Next Action: Item B (feat/keepalive)
+Create feature branch `feat/keepalive` to implement:
+1. Backend `/health/db` endpoint to explicitly probe database connection.
+2. Lightweight scheduled keep-alive pinger (e.g., cron or external ping) to prevent Hugging Face Space and Supabase connection pooler cold sleeps.
+3. Frontend "waking up" graceful UI state when backend or DB is cold.
+
 
