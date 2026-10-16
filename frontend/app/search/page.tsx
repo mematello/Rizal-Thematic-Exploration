@@ -170,10 +170,13 @@ function SearchContent() {
     const backgroundStyle = useNovelBackground(novelFilter);
 
     return (
-        <div
-            className="min-h-screen flex flex-col"
-            style={backgroundStyle}
-        >
+        <div className="min-h-screen flex flex-col relative">
+            {/* Fixed viewport backdrop: responsive framing prevents 8x zoom */}
+            <div
+                className="novel-backdrop-layer"
+                data-novel={novelFilter || 'both'}
+                aria-hidden="true"
+            />
             {/* Sticky Header */}
             <header className="bg-brand-cream/98 border-b border-brand-gold/20 sticky top-0 z-40 backdrop-blur-sm safe-top">
                 <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-4">

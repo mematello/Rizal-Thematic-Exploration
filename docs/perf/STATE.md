@@ -100,14 +100,20 @@
   - **Identified Root Causes**:
     1. Both `noli_background.webp` (736x1308) and `elfili_background.webp` (675x1200) were exported sideways (rotated 90 degrees counter-clockwise), causing Dr. José Rizal, the Manila church, characters, and the novel title banners to display on their sides.
     2. `frontend/app/globals.css` referenced non-existent JPEG files (`Textured.jpg`, `download (1).jpg`), causing 404 HTTP errors on every page load.
-    3. `useNovelBackground.ts` enforced `backgroundAttachment: 'fixed'`, which triggers severe scaling and blur bugs on mobile browsers (especially iOS Safari), stretching the background against the 8,000px page scroll height.
+    3. `style={backgroundStyle}` with `background-size: cover` was attached directly to `<main>` in `page.tsx` and search container in `search/page.tsx`. Because `<main>` spans all 64 chapters and sections (~5,924px scroll height), the 1308x736 image expanded to over **10,500px wide (8x / 800% zoom)**, causing narrow viewports to display a massive microscopic crop.
+    4. On portrait mobile (<768px), widescreen 16:9 artwork scaled with `cover` cropped off 65% of the sides and magnified the cursive title scroll across the hero text.
+    5. In `frontend/components/NovelBackground.tsx`, an internal duplicate raster layer (`scale: 1.05`, `blur(4px)`) sat inside the hero section, blurring out and double-scaling the background.
   - **Implemented Fixes**:
-    1. Re-exported `noli_background.webp` and `elfili_background.webp` rotated 90° clockwise to their natural landscape orientation (1308x736 and 1200x675) with 95 quality WebP compression.
-    2. Updated `useNovelBackground.ts` to use `backgroundPosition: 'center top'`, `backgroundRepeat: 'no-repeat'`, and `backgroundAttachment: 'scroll'` to prevent mobile viewport distortion.
-    3. Updated `globals.css` CSS variables (`--image-bg-neutral`, `--image-bg-noli`, etc.) to point to valid existing WebP assets (`background_1.webp`, `background_2.webp`).
+    1. Re-exported `noli_background.webp` and `elfili_background.webp` rotated 90° clockwise to their natural upright landscape orientation (1308x736 and 1200x675) with 95 quality WebP compression.
+    2. Updated `globals.css` CSS variables (`--image-bg-neutral`, `--image-bg-noli`, etc.) to point to valid existing WebP assets (`background_1.webp`, `background_2.webp`).
+    3. Replaced inline container background with a dedicated fixed viewport backdrop (`.novel-backdrop-layer` with `position: fixed; inset: 0; pointer-events: none; -z-10`) in `page.tsx` and `search/page.tsx`, eliminating the 8x zoom caused by document height.
+    4. Implemented responsive media-query framing in `globals.css`:
+       - **Mobile Portrait (<768px)**: Clean antique parchment texture (`background_1.webp`) with warm amber (Noli) or rich crimson (Fili) ambient radial glow, giving 100% text legibility with zero oversized text clash.
+       - **Desktop & Tablet (>=768px)**: Full panoramic upright landscape collage (`noli_background.webp` / `elfili_background.webp`) framing church on the left and characters on the right with a soft 86%-98% parchment wash.
+    5. Cleaned up `NovelBackground.tsx` by removing the redundant blurry raster layer (`scale: 1.05`, `blur(4px)`), allowing the clean viewport backdrop and vector ambient accents to render sharply.
   - **Verification**:
-    - `npm run build` compiled cleanly in 5.7s with 0 errors.
-    - Verified locally on `http://localhost:3000` via browser subagent on desktop (1440x900) and mobile (390x844): confirmed church, characters, Dr. José Rizal, and title banners are upright and beautifully rendered.
+    - `npm run build` compiled cleanly in 4.8s with 0 errors.
+    - Verified locally on `http://localhost:3000` via browser subagent across mobile (500x749) and desktop (1440x900) viewports: confirmed clean antique parchment on mobile without giant letters, and full upright panoramic artwork on desktop.
 
 ---
 

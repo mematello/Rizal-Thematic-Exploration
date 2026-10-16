@@ -747,15 +747,19 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 ---
 
 ### 10. 2026-10-17: Item E Background Image Rotation and Mobile Viewport Scaling
-- **Context**: The novel hero backgrounds (`noli_background.webp` and `elfili_background.webp`) were originally exported rotated 90 degrees counter-clockwise (height > width), displaying all artwork (Rizal, church, characters, novel scrolls) sideways. Additionally, `backgroundAttachment: 'fixed'` caused extreme mobile viewport zoom distortion on iOS Safari, and `globals.css` referenced non-existent files (`Textured.jpg`).
+- **Context**: The novel hero backgrounds (`noli_background.webp` and `elfili_background.webp`) were originally exported rotated 90 degrees counter-clockwise (height > width), displaying all artwork (Rizal, church, characters, novel scrolls) sideways. Additionally, `style={backgroundStyle}` with `background-size: cover` was attached directly to `<main>` in `page.tsx` and search container in `search/page.tsx`. Because `<main>` spans all 64 chapters and sections (~5,924px scroll height), the 1308x736 image expanded to over **10,500px wide (8x / 800% zoom)**, causing narrow viewports to display an extreme microscopic crop of the center scroll. On mobile portrait, widescreen 16:9 artwork scaled with `cover` cropped off 65% of the sides and clashed with hero text. Furthermore, an internal duplicate raster layer (`scale: 1.05`, `blur(4px)`) in `NovelBackground.tsx` sat inside the hero section, blurring out and double-scaling the background.
 - **Decision**:
   1. Re-export the source WebP images rotated 90° clockwise to their upright landscape orientation (1308x736 and 1200x675) with lossless-grade WebP encoding.
-  2. Switch `useNovelBackground.ts` from `fixed` to `scroll` attachment (`backgroundPosition: 'center top'`), eliminating mobile Safari canvas blowout while centering key illustrative elements behind the hero section.
-  3. Clean up `globals.css` to link directly to existing asset paths (`background_1.webp`, `noli_background.webp`, etc.).
+  2. Decouple background rendering from document scroll height by introducing a fixed viewport backdrop (`.novel-backdrop-layer` with `position: fixed; inset: 0; pointer-events: none; -z-10`) in `page.tsx` and `search/page.tsx`, eliminating the 8x zoom caused by document height.
+  3. Implement responsive media-query framing in `globals.css`:
+     - **Mobile Portrait (<768px)**: Clean antique parchment texture (`background_1.webp`) with warm amber (Noli) or rich crimson (Fili) ambient radial glow, giving 100% text legibility with zero oversized text clash.
+     - **Desktop & Tablet (>=768px)**: Full panoramic upright landscape collage (`noli_background.webp` / `elfili_background.webp`) framing church on the left and characters on the right with a soft 86%-98% parchment wash.
+  4. Clean up `NovelBackground.tsx` by removing the redundant blurry raster layer (`scale: 1.05`, `blur(4px)`), allowing the clean viewport backdrop and vector ambient accents to render sharply.
+  5. Clean up `globals.css` to link directly to existing asset paths (`background_1.webp`, `noli_background.webp`, etc.).
 - **Impact**:
-  - Correctness / Ranking: **0 impact**.
+  - Correctness / Ranking: **0 impact** (backend untouched).
   - Performance: Faster page loads by eliminating 404 image errors for missing textures.
-  - Visual: Upright, clear artwork across desktop and mobile devices.
+  - Visual: Upright, sharp artwork across desktop and mobile devices without oversized or zoomed-in elements.
 
 
 

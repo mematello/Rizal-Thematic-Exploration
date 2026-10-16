@@ -211,4 +211,65 @@
             color: var(--color-brand-navy);
         }
     }
+
+    /* Fixed Viewport Novel Backdrop: Eliminates 8x zoom-in on scroll containers */
+    .novel-backdrop-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -10;
+        transition: opacity 0.7s ease-in-out, background-image 0.7s ease-in-out;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    /* Mobile portrait (< 768px): Clean antique parchment texture to prevent 2.5x landscape cropping/zoom */
+    @media (max-width: 767px) {
+        .novel-backdrop-layer[data-novel="noli"] {
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(197, 160, 101, 0.16) 0%, transparent 60%),
+                linear-gradient(to bottom, rgba(247, 243, 235, 0.92), rgba(247, 243, 235, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center;
+        }
+        .novel-backdrop-layer[data-novel="fili"],
+        .novel-backdrop-layer[data-novel="elfili"] {
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(141, 45, 45, 0.16) 0%, transparent 60%),
+                linear-gradient(to bottom, rgba(234, 227, 213, 0.92), rgba(234, 227, 213, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center;
+        }
+        .novel-backdrop-layer[data-novel="both"],
+        .novel-backdrop-layer:not([data-novel]) {
+            background-image: 
+                linear-gradient(to bottom, rgba(245, 241, 233, 0.92), rgba(245, 241, 233, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center;
+        }
+    }
+
+    /* Tablet & Desktop (>= 768px): Full panoramic upright artwork framing */
+    @media (min-width: 768px) {
+        .novel-backdrop-layer[data-novel="noli"] {
+            background-image: 
+                linear-gradient(to bottom, rgba(245, 241, 233, 0.86) 0%, rgba(245, 241, 233, 0.94) 50%, rgba(245, 241, 233, 0.98) 100%),
+                url('/images/backgrounds/noli_background.webp');
+            background-position: center top;
+        }
+        .novel-backdrop-layer[data-novel="fili"],
+        .novel-backdrop-layer[data-novel="elfili"] {
+            background-image: 
+                linear-gradient(to bottom, rgba(242, 240, 237, 0.86) 0%, rgba(242, 240, 237, 0.94) 50%, rgba(242, 240, 237, 0.98) 100%),
+                url('/images/backgrounds/elfili_background.webp');
+            background-position: center top;
+        }
+        .novel-backdrop-layer[data-novel="both"],
+        .novel-backdrop-layer:not([data-novel]) {
+            background-image: 
+                linear-gradient(to bottom, rgba(245, 241, 233, 0.88), rgba(245, 241, 233, 0.98)),
+                url('/images/backgrounds/background_1.webp');
+            background-position: center top;
+        }
+    }
 }

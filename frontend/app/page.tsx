@@ -158,10 +158,15 @@ export default function Home() {
 
   return (
     <main
-      className={`w-full max-w-full min-w-0 min-h-[100dvh] flex flex-col justify-between transition-colors duration-700 ease-in-out`}
+      className={`w-full max-w-full min-w-0 min-h-[100dvh] flex flex-col justify-between transition-colors duration-700 ease-in-out relative`}
       data-novel={novel}
-      style={backgroundStyle}
     >
+      {/* Fixed viewport backdrop: responsive framing prevents 8x zoom */}
+      <div
+        className="novel-backdrop-layer"
+        data-novel={novel}
+        aria-hidden="true"
+      />
       {/* Header Section */}
       <header
         className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'

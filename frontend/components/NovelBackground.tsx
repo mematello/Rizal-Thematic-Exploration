@@ -20,20 +20,6 @@ export function NovelBackground({ novel }: NovelBackgroundProps) {
                 transition={{ duration: 1.5 }}
             />
 
-            {/* Thematic Background Image Layer */}
-            <motion.div
-                className="absolute inset-0 z-0 bg-no-repeat bg-cover bg-center transition-all duration-1000"
-                initial={false}
-                animate={{
-                    opacity: 0.7,
-                    scale: 1.05,
-                    filter: "blur(4px) brightness(0.9) contrast(1.1)",
-                }}
-                style={{
-                    backgroundImage: novel === "noli" ? "var(--image-bg-noli)" : "var(--image-bg-fili)",
-                }}
-            />
-
             {/* Gradient wash to blend image with UI */}
             <div
                 className="absolute inset-0 z-1"
