@@ -613,7 +613,8 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 - **Status**: **Approved and finalized** (2026-10-16). See specifications above.
 
 ### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ FULLY RESOLVED
-- **Status**: **Fully implemented and verified** (2026-10-16).
+- **Status**: **Fully implemented, verified, and queued for HF deploy** (2026-10-16).
+- **Hugging Face Rollback Target**: `09cdb417c1853a1f0bdd480e47ba6e4a2f7f0b0d` (`remotes/hf/main`). If any live verification check fails, rollback target is this commit.
 - **Backend**: Set-based LATERAL join, process cache, Cache-Control header, graceful dual fallback, non-blocking startup warmer in FastAPI lifespan (94.55 ms yield).
 - **Live Supabase Parity**: Byte-identical match against production Supabase DB (SHA-256: `a11ef242257780d624d3ba9924a558a31e971a4034eea64ff683ad91b6f9c5c5`).
 - **Frontend**: TanStack React Query (`useQuery` with 24h `staleTime`), homepage mount prefetch, and rich 8-card responsive skeleton state. Clean production build verified.
