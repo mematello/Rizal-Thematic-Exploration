@@ -216,11 +216,11 @@ export default function Home() {
 
             {/* Desktop Navigation - Hidden on mobile to eliminate markup duplication */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <div className="flex bg-white/80 dark:bg-brand-paper/80 rounded-full p-1 border border-brand-gold/20 shadow-sm items-center h-10">
+              <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-sm items-center h-10">
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('buod')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'buod'}
                 >
                   Buod
@@ -228,7 +228,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('full')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm' : 'text-brand-text hover:bg-brand-gold/10'}`}
+                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'full'}
                 >
                   Buong Kwento
@@ -319,8 +319,8 @@ export default function Home() {
                       }}
                       className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                         mode === 'buod'
-                          ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm font-semibold'
-                          : 'text-brand-text hover:bg-brand-gold/10'
+                          ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold'
+                          : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'
                       }`}
                     >
                       Buod
@@ -333,8 +333,8 @@ export default function Home() {
                       }}
                       className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
                         mode === 'full'
-                          ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-sm font-semibold'
-                          : 'text-brand-text hover:bg-brand-gold/10'
+                          ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold'
+                          : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'
                       }`}
                     >
                       Buong Kwento

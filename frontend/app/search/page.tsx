@@ -215,11 +215,11 @@ function SearchContent() {
                     </div>
 
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-                        <div className="flex bg-white/85 dark:bg-brand-paper/90 rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-9 shrink-0">
+                        <div className="flex bg-white/85 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-9 shrink-0">
                             <button
                                 type="button"
                                 onClick={() => useModeStore.getState().setMode('buod')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs' : 'text-brand-text dark:text-brand-text-muted hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'}`}
                                 aria-pressed={mode === 'buod'}
                             >
                                 Buod
@@ -227,7 +227,7 @@ function SearchContent() {
                             <button
                                 type="button"
                                 onClick={() => useModeStore.getState().setMode('full')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs' : 'text-brand-text dark:text-brand-text-muted hover:bg-brand-gold/10'}`}
+                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'}`}
                                 aria-pressed={mode === 'full'}
                             >
                                 Buong Kwento
@@ -241,8 +241,8 @@ function SearchContent() {
                             onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
                             className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${
                                 viewMode === 'map'
-                                    ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy border-brand-navy dark:border-brand-gold shadow-sm'
-                                    : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-brand-paper/85'
+                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-sm font-bold'
+                                    : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
                             }`}
                             title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
                             aria-label={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
@@ -259,8 +259,8 @@ function SearchContent() {
                             type="button"
                             onClick={() => setShowScores(!showScores)}
                             className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${showScores
-                                ? 'bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy border-brand-navy dark:border-brand-gold shadow-xs'
-                                : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-brand-paper/85'
+                                ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-xs font-bold'
+                                : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
                                 }`}
                             aria-label={showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
                         >
