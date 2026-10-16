@@ -3,12 +3,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { NovelToggle } from "@/components/NovelToggle";
 import { ContentTabs } from "@/components/ContentTabs";
 import { SearchBar } from "@/components/SearchBar";
 import { ChapterGrid } from "@/components/ChapterGrid";
 import { CharacterList } from "@/components/CharacterList";
-import { ThemeList } from "@/components/ThemeList";
+import { ThemeList, fetchThemes } from "@/components/ThemeList";
 import { ChapterModal } from "@/components/ChapterModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { HeroSection } from "@/components/HeroSection";
@@ -31,8 +32,18 @@ interface SelectedChapter {
 
 export default function Home() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [novel, setNovel] = useState<Novel>("noli");
   const [activeTab, setActiveTab] = useState<Tab>("chapters");
+
+  useEffect(() => {
+    // Prefetch themes data immediately on homepage mount for instantaneous tab switching
+    queryClient.prefetchQuery({
+      queryKey: ["themes"],
+      queryFn: fetchThemes,
+      staleTime: 1000 * 60 * 60 * 24,
+    });
+  }, [queryClient]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchQuery, setSearchQuery] = useState("");
   const { mode } = useModeStore();

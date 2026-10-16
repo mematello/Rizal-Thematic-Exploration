@@ -612,8 +612,11 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 ### 3. ~~Production Deployment Sizing & Host Configuration~~ ✅ RESOLVED
 - **Status**: **Approved and finalized** (2026-10-16). See specifications above.
 
-### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ STEPS 1–3 RESOLVED
-- **Status**: **Steps 1–3 implemented & verified locally** (2026-10-16). Awaiting user review before Step 4 (frontend React Query) and live deployment.
+### 4. ~~Themes Endpoint Optimization (Item A)~~ ✅ FULLY RESOLVED
+- **Status**: **Fully implemented and verified** (2026-10-16).
+- **Backend**: Set-based LATERAL join, process cache, Cache-Control header, graceful dual fallback, non-blocking startup warmer in FastAPI lifespan (94.55 ms yield).
+- **Live Supabase Parity**: Byte-identical match against production Supabase DB (SHA-256: `a11ef242257780d624d3ba9924a558a31e971a4034eea64ff683ad91b6f9c5c5`).
+- **Frontend**: TanStack React Query (`useQuery` with 24h `staleTime`), homepage mount prefetch, and rich 8-card responsive skeleton state. Clean production build verified.
 
 ### 5. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.

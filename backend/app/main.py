@@ -28,6 +28,11 @@ async def lifespan(app: FastAPI):
     elif frontend_ts_path.exists() and not backend_json_path.exists():
         logging.warning("⚠️ character_aliases.json not found! Please run scripts/character_index.py.")
         
+    # Non-blocking warm-up of themes cache in background thread
+    import threading
+    from app.api.v1.content import warm_themes_cache
+    threading.Thread(target=warm_themes_cache, name="warm-themes-cache", daemon=True).start()
+
     yield
     # Shutdown logic
 

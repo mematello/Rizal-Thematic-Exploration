@@ -201,6 +201,26 @@ def get_themes(response: Response, db: Session = Depends(get_db)):
         _themes_cache = results
         return _themes_cache
 
+
+def warm_themes_cache():
+    """
+    Warms the process-level _themes_cache in a background thread at startup.
+    Uses get_themes with SessionLocal so the first visitor hits warm cache immediately.
+    """
+    global _themes_cache
+    if _themes_cache is not None:
+        return
+    db = SessionLocal()
+    try:
+        get_themes(response=None, db=db)
+        import logging
+        logging.info("Themes cache successfully warmed at startup.")
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to warm themes cache at startup: {e}")
+    finally:
+        db.close()
+
 class CharacterChapterResponse(BaseModel):
     book: str
     chapter_number: int

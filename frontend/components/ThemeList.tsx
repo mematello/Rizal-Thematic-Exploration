@@ -1,13 +1,14 @@
 "use client";
 
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ItemModal } from "@/components/ItemModal";
 
-interface ThemeContext {
+export interface ThemeContext {
     book: string;
     chapter_number: number;
     chapter_title: string;
@@ -15,13 +16,20 @@ interface ThemeContext {
     sentence_index: number;
 }
 
-interface Theme {
-    book: string; // Deprecated in UI but still in response structure if needed, or we ignore
+export interface Theme {
+    book?: string;
     tagalog_title: string;
     meaning: string;
     best_match: ThemeContext | null;
 }
 
+export async function fetchThemes(): Promise<Theme[]> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+    const res = await fetch(`${apiUrl}/api/v1/themes`);
+    if (!res.ok) throw new Error("Failed to fetch themes");
+    return res.json();
+}
 
 interface ThemeListProps {
     onChapterSelect?: (book: string, chapter: number, title?: string, sentenceIndex?: number) => void;
@@ -29,29 +37,16 @@ interface ThemeListProps {
 }
 
 export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
-    const [themes, setThemes] = useState<Theme[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: themes = [], isLoading } = useQuery<Theme[]>({
+        queryKey: ["themes"],
+        queryFn: fetchThemes,
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+        gcTime: 1000 * 60 * 60 * 24,
+    });
 
     // Modal
     const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    useEffect(() => {
-        async function fetchThemes() {
-            try {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-                const res = await fetch(`${baseUrl}/api/v1/themes`);
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-                setThemes(data);
-            } catch (error) {
-                console.error("Error fetching themes:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchThemes();
-    }, []);
 
     const handleThemeClick = (theme: Theme) => {
         setSelectedTheme(theme);
@@ -63,8 +58,29 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
         setTimeout(() => setSelectedTheme(null), 300);
     };
 
-    if (loading) {
-        return <div className="text-center py-20 text-brand-gold font-serif animate-pulse">Loading Themes...</div>;
+    if (isLoading) {
+        return (
+            <div className="max-w-7xl mx-auto px-4 pb-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="bg-brand-paper p-8 rounded-sm relative overflow-hidden border border-brand-gold/10 animate-pulse"
+                        >
+                            <div className="w-14 h-4 bg-brand-gold/15 rounded-sm mb-4" />
+                            <div className="w-3/4 h-7 bg-brand-navy/15 rounded-sm mb-3" />
+                            <div className="w-12 h-0.5 bg-brand-gold/20 mb-4" />
+                            <div className="space-y-2 mb-6">
+                                <div className="w-full h-3 bg-brand-text-light/10 rounded-sm" />
+                                <div className="w-5/6 h-3 bg-brand-text-light/10 rounded-sm" />
+                                <div className="w-2/3 h-3 bg-brand-text-light/10 rounded-sm" />
+                            </div>
+                            <div className="w-24 h-3 bg-brand-navy/10 rounded-sm" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
     }
 
     return (
