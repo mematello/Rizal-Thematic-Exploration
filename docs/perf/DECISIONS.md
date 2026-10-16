@@ -720,6 +720,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
     1. Fingerprint mismatch -> static bundle disabled, live computation active.
     2. DB connection failure -> static bundle safely served as resilient fallback.
 - **Search Invariance**: `scripts/run_golden_comparison_40.py` verified across all 40 golden queries vs `golden_snapshot_deterministic.json`: **0 differences**.
+- **HF Space Rollback Target**: `007116d9c9cf2331639c650a2d8697b04ebf32cf` (`007116d`).
 
 ---
 
