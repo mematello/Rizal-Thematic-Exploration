@@ -96,6 +96,17 @@ html.dark,
     --map-card-arrow: rgba(27, 38, 59, 0.25);
     --map-card-accent: #C5A065;
     --map-card-title-hover: #C5A065;
+    /* Modal Tokens */
+    --modal-shell-bg: #F7F3EB;
+    --modal-header-bg: #EFE9DC;
+    --modal-canvas-bg: #FDFBF7;
+    --modal-sidebar-bg: rgba(245, 242, 235, 0.5);
+    --modal-card-bg: #FFFFFF;
+    --modal-card-border: rgba(197, 160, 101, 0.2);
+    --modal-sub-bar-bg: rgba(239, 233, 220, 0.5);
+    --modal-button-bg: #FFFFFF;
+    --modal-border: rgba(197, 160, 101, 0.15);
+    --modal-definition-bg: rgba(197, 160, 101, 0.1);
 }
 
 html.dark [data-novel="noli"],
@@ -122,6 +133,17 @@ html.dark [data-novel="noli"],
     --map-card-arrow: rgba(232, 201, 122, 0.45);
     --map-card-accent: #E8C97A;
     --map-card-title-hover: #E8C97A;
+    /* Modal Dark Tokens (Midnight Navy family) */
+    --modal-shell-bg: #121A28;
+    --modal-header-bg: #151E2E;
+    --modal-canvas-bg: #0D1424;
+    --modal-sidebar-bg: #121A28;
+    --modal-card-bg: #1B2433;
+    --modal-card-border: rgba(232, 201, 122, 0.25);
+    --modal-sub-bar-bg: rgba(18, 26, 40, 0.8);
+    --modal-button-bg: #1B2433;
+    --modal-border: rgba(232, 201, 122, 0.25);
+    --modal-definition-bg: rgba(0, 0, 0, 0.4);
 }
 
 [data-novel="fili"] {
@@ -146,6 +168,17 @@ html.dark [data-novel="noli"],
     --map-card-arrow: rgba(141, 45, 45, 0.25);
     --map-card-accent: #8D2D2D;
     --map-card-title-hover: #8D2D2D;
+    /* Modal Tokens */
+    --modal-shell-bg: #EAE3D5;
+    --modal-header-bg: #E2D7C5;
+    --modal-canvas-bg: #FDFBF7;
+    --modal-sidebar-bg: rgba(234, 227, 213, 0.5);
+    --modal-card-bg: #FFFFFF;
+    --modal-card-border: rgba(141, 45, 45, 0.2);
+    --modal-sub-bar-bg: rgba(226, 215, 197, 0.5);
+    --modal-button-bg: #FFFFFF;
+    --modal-border: rgba(141, 45, 45, 0.15);
+    --modal-definition-bg: rgba(141, 45, 45, 0.1);
 }
 
 html.dark [data-novel="fili"],
@@ -173,6 +206,17 @@ html.dark [data-novel="fili"],
     --map-card-arrow: rgba(224, 108, 117, 0.45);
     --map-card-accent: #E06C75;
     --map-card-title-hover: #E06C75;
+    /* Modal Dark Tokens (Wine/Charcoal #180D0E / #1A0C0E / #1E0F11 / #140A0C family & rose-gold borders) */
+    --modal-shell-bg: #1A0C0E;
+    --modal-header-bg: #1E0F11;
+    --modal-canvas-bg: #140A0C;
+    --modal-sidebar-bg: #1A0C0E;
+    --modal-card-bg: #261215;
+    --modal-card-border: rgba(224, 108, 117, 0.25);
+    --modal-sub-bar-bg: rgba(26, 12, 14, 0.8);
+    --modal-button-bg: #261215;
+    --modal-border: rgba(224, 108, 117, 0.25);
+    --modal-definition-bg: rgba(0, 0, 0, 0.4);
 }
 
 [data-novel="both"] {
@@ -199,6 +243,17 @@ html.dark [data-novel="fili"],
     --map-card-arrow: rgba(197, 160, 101, 0.35);
     --map-card-accent: #C5A065;
     --map-card-title-hover: #C5A065;
+    /* Modal Tokens */
+    --modal-shell-bg: #F7F3EB;
+    --modal-header-bg: #EFE9DC;
+    --modal-canvas-bg: #FDFBF7;
+    --modal-sidebar-bg: rgba(245, 242, 235, 0.5);
+    --modal-card-bg: #FFFFFF;
+    --modal-card-border: rgba(197, 160, 101, 0.2);
+    --modal-sub-bar-bg: rgba(239, 233, 220, 0.5);
+    --modal-button-bg: #FFFFFF;
+    --modal-border: rgba(197, 160, 101, 0.15);
+    --modal-definition-bg: rgba(197, 160, 101, 0.1);
 }
 
 html.dark [data-novel="both"],
@@ -228,6 +283,17 @@ html.dark [data-novel="both"],
     --map-card-arrow: rgba(232, 201, 122, 0.45);
     --map-card-accent: #E8C97A;
     --map-card-title-hover: #E8C97A;
+    /* Modal Dark Tokens */
+    --modal-shell-bg: #121A28;
+    --modal-header-bg: #151E2E;
+    --modal-canvas-bg: #0D1424;
+    --modal-sidebar-bg: #121A28;
+    --modal-card-bg: #1B2433;
+    --modal-card-border: rgba(232, 201, 122, 0.25);
+    --modal-sub-bar-bg: rgba(18, 26, 40, 0.8);
+    --modal-button-bg: #1B2433;
+    --modal-border: rgba(232, 201, 122, 0.25);
+    --modal-definition-bg: rgba(0, 0, 0, 0.4);
 }
 
 /* Card-level novel styling overrides (supports mixed cards in 'both' mode) */

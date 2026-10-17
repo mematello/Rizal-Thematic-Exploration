@@ -40,7 +40,7 @@ export function ThemeToggle({ className = "", variant = "icon" }: ThemeTogglePro
         <button
           type="button"
           onClick={() => setTheme("light")}
-          className={`px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
+          className={`min-h-[44px] flex-1 justify-center px-3 py-2 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
             theme === "light"
               ? "bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs"
               : "text-brand-text/70 hover:text-brand-text"
@@ -48,13 +48,13 @@ export function ThemeToggle({ className = "", variant = "icon" }: ThemeTogglePro
           aria-pressed={theme === "light"}
           title="Maliwanag na tema"
         >
-          <Sun size={13} />
+          <Sun size={14} />
           <span>Liwanag</span>
         </button>
         <button
           type="button"
           onClick={() => setTheme("dark")}
-          className={`px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
+          className={`min-h-[44px] flex-1 justify-center px-3 py-2 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
             theme === "dark"
               ? "bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs"
               : "text-brand-text/70 hover:text-brand-text"
@@ -62,13 +62,13 @@ export function ThemeToggle({ className = "", variant = "icon" }: ThemeTogglePro
           aria-pressed={theme === "dark"}
           title="Madilim na tema"
         >
-          <Moon size={13} />
+          <Moon size={14} />
           <span>Dilim</span>
         </button>
         <button
           type="button"
           onClick={() => setTheme("system")}
-          className={`px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
+          className={`min-h-[44px] flex-1 justify-center px-3 py-2 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all ${
             theme === "system"
               ? "bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy shadow-xs"
               : "text-brand-text/70 hover:text-brand-text"
@@ -76,7 +76,7 @@ export function ThemeToggle({ className = "", variant = "icon" }: ThemeTogglePro
           aria-pressed={theme === "system"}
           title="Awtomatikong tema ayon sa sistema"
         >
-          <Monitor size={13} />
+          <Monitor size={14} />
           <span>Sistema</span>
         </button>
       </div>

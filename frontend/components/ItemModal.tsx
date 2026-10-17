@@ -125,8 +125,8 @@ export function ItemModal({
                 key={`${chapter.book}-${chapter.chapter_number}-${idx}`}
                 onClick={() => onNavigate?.(chapter.book, chapter.chapter_number, chapter.sentence_index)}
                 className={`
-                    group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white dark:bg-[#1B2433]
-                    ${isNoli ? 'border-noli-accent/10 dark:border-brand-gold/20 hover:border-noli-accent' : 'border-fili-accent/10 dark:border-brand-gold/20 hover:border-fili-accent'}
+                    group p-6 rounded-sm border cursor-pointer transition-all hover:shadow-md bg-white dark:bg-[var(--modal-card-bg)]
+                    ${isNoli ? 'border-noli-accent/10 dark:border-[var(--modal-card-border)] hover:border-noli-accent' : 'border-fili-accent/10 dark:border-[var(--modal-card-border)] hover:border-fili-accent'}
                 `}
             >
                 <div className="flex items-center gap-2 mb-3">
@@ -161,7 +161,7 @@ export function ItemModal({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" key="modal-content">
+                <div id="item-modal" data-testid="item-modal" data-novel={selectedNovel || 'noli'} className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" key="modal-content">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -176,10 +176,10 @@ export function ItemModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper dark:bg-[#121A28] shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20`}
+                        className={`relative w-full ${type === 'character' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col bg-brand-paper dark:bg-[var(--modal-shell-bg)] shadow-2xl rounded-lg overflow-hidden border border-brand-gold/20 dark:border-[var(--modal-border)]`}
                     >
                         {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E] gap-3 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-brand-gold/10 dark:border-[var(--modal-border)] bg-brand-cream dark:bg-[var(--modal-header-bg)] gap-3 sm:gap-4">
                             <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 flex-1 min-w-0">
                                 {type === "character" && (
                                     <div className="hidden sm:block shrink-0">
@@ -259,7 +259,7 @@ export function ItemModal({
                                             min-h-[32px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-xs border active:scale-95
                                             ${sortBy === 'relevance'
                                                 ? 'bg-brand-gold text-[#0F141C] font-bold border-brand-gold'
-                                                : 'bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground border-brand-gold/20 hover:border-brand-gold'}
+                                                : 'bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground border-brand-gold/20 dark:border-[var(--modal-border)] hover:border-brand-gold'}
                                         `}
                                     >
                                         {sortBy === 'relevance' ? 'NAKA-RANK' : 'I-RANK'}
@@ -290,7 +290,7 @@ export function ItemModal({
                                     {/* Theme View */}
                                     {type === "theme" && (
                                         <div className="space-y-6">
-                                            <div className="bg-brand-gold/10 dark:bg-black/40 p-5 rounded-lg border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs">
+                                            <div className="bg-brand-gold/10 dark:bg-[var(--modal-definition-bg)] p-5 rounded-lg border border-brand-gold/20 dark:border-[var(--modal-border)] shadow-xs">
                                                 <h4 className="font-bold text-brand-gold mb-2 uppercase tracking-widest text-xs">Kahulugan</h4>
                                                 <p className="font-serif text-brand-text dark:text-foreground/90 leading-relaxed text-base">
                                                     {meaning}
@@ -307,12 +307,12 @@ export function ItemModal({
                                                         </h4>
                                                         <div
                                                             onClick={() => onNavigate?.(themeContext.book, themeContext.chapter_number, undefined)}
-                                                            className="bg-white dark:bg-[#1B2433] p-6 rounded-lg border-l-4 border-brand-gold border border-brand-gold/15 dark:border-brand-gold/25 shadow-sm cursor-pointer hover:bg-brand-gold/5 dark:hover:bg-brand-gold/10 transition-colors"
+                                                            className="bg-white dark:bg-[var(--modal-card-bg)] p-6 rounded-lg border-l-4 border-brand-gold border border-brand-gold/15 dark:border-[var(--modal-card-border)] shadow-sm cursor-pointer hover:bg-brand-gold/5 dark:hover:bg-brand-gold/10 transition-colors"
                                                         >
                                                             <p className="font-serif text-lg text-brand-navy dark:text-foreground italic mb-4 leading-relaxed">
                                                                 "{themeContext.sentence_text}"
                                                             </p>
-                                                            <div className="flex items-center justify-between text-xs text-brand-text-light dark:text-foreground/60 font-sans border-t border-brand-gold/10 dark:border-brand-gold/20 pt-3">
+                                                            <div className="flex items-center justify-between text-xs text-brand-text-light dark:text-foreground/60 font-sans border-t border-brand-gold/10 dark:border-[var(--modal-border)] pt-3">
                                                                 <span className="font-bold uppercase tracking-wider">
                                                                     {themeContext.book === 'noli' ? 'Noli Me Tangere' : 'El Filibusterismo'}
                                                                 </span>
@@ -374,8 +374,8 @@ export function ItemModal({
                                                                 <div
                                                                     key={i}
                                                                     className={`
-                                                                        p-6 rounded-sm border bg-white dark:bg-[#1B2433] transition-all shadow-sm
-                                                                        ${selectedNovel === 'noli' ? 'border-noli-accent/10 dark:border-brand-gold/20' : 'border-fili-accent/10 dark:border-brand-gold/20'}
+                                                                        p-6 rounded-sm border bg-white dark:bg-[var(--modal-card-bg)] transition-all shadow-sm
+                                                                        ${selectedNovel === 'noli' ? 'border-noli-accent/10 dark:border-[var(--modal-card-border)]' : 'border-fili-accent/10 dark:border-[var(--modal-card-border)]'}
                                                                     `}
                                                                 >
                                                                     <div className="flex items-center gap-2 mb-4">

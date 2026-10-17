@@ -434,6 +434,7 @@ export function ChapterModal({
     };
 
     const isNoli = book.toLowerCase() === "noli";
+    const modalNovel = isNoli ? 'noli' : 'fili';
     const accentColor = isNoli ? "text-noli-accent" : "text-fili-accent";
 
     const NOLI_CHAPTERS = 64;
@@ -610,12 +611,12 @@ export function ChapterModal({
         <>
             <AnimatePresence>
                 {isOpen && (
-                    <div id="chapter-modal" data-testid="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
+                    <div id="chapter-modal" data-testid="chapter-modal" data-novel={modalNovel} className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-black/75 dark:bg-black/85 backdrop-blur-sm" />
-                        <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-[#0D1424]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper dark:bg-[#121A28] rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
+                        <motion.div id="modal-shell" ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-[var(--modal-canvas-bg)]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper dark:bg-[var(--modal-shell-bg)] rounded-lg border border-brand-gold/15 dark:border-[var(--modal-border)]'} flex flex-col shadow-2xl overflow-hidden`}>
                             
                             {!isFullscreen && (
-                                <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E]">
+                                <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 dark:border-[var(--modal-border)] bg-brand-cream dark:bg-[var(--modal-header-bg)]">
                                     <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>
                                             {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
@@ -637,17 +638,17 @@ export function ChapterModal({
                             )}
 
                             {!isFullscreen && (
-                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 dark:bg-[#121A28]/80 border-b border-brand-gold/10 items-start sm:items-center justify-between">
+                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 dark:bg-[var(--modal-sub-bar-bg)] border-b border-brand-gold/10 dark:border-[var(--modal-border)] items-start sm:items-center justify-between">
                                     <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full py-0.5">
-                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[#1B2433] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
-                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[#1B2433] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
+                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
+                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><BookOpen size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span></button>
                                     </div>
                                 </div>
                             )}
 
                             <div className={`flex w-full min-h-0 flex-1 ${isFullscreen ? 'flex-row' : 'flex-col'}`}>
                                 {isFullscreen && (
-                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 dark:border-brand-gold/20 bg-[#F5F2EB]/50 dark:bg-[#121A28] p-12 relative pt-[max(3rem,env(safe-area-inset-top))]">
+                                    <div className="hidden lg:flex w-80 flex-col justify-center h-full border-r border-brand-gold/10 dark:border-[var(--modal-border)] bg-[#F5F2EB]/50 dark:bg-[var(--modal-sidebar-bg)] p-12 relative pt-[max(3rem,env(safe-area-inset-top))]">
                                         <div className="absolute top-6 left-6 flex gap-2">
                                             <button onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-brand-text/40 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold transition-colors" title="Exit fullscreen"><Minimize2 size={20} /></button>
                                             <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-brand-text/40 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold transition-colors" title="Close"><X size={20} /></button>
@@ -678,9 +679,9 @@ export function ChapterModal({
                                     </div>
                                 )}
 
-                                <div ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper dark:bg-[#0D1424] relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
+                                <div id="modal-reading-canvas" ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper dark:bg-[var(--modal-canvas-bg)] relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
                                     {isFullscreen && (
-                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 dark:bg-[#121A28]/95 backdrop-blur border-b border-brand-gold/10 dark:border-brand-gold/20 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
+                                        <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 dark:bg-[var(--modal-shell-bg)]/95 backdrop-blur border-b border-brand-gold/10 dark:border-[var(--modal-border)] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
                                             <div className="flex justify-between items-center">
                                                 <div className="min-w-0 pr-2">
                                                     <span className={`text-[9px] font-bold uppercase tracking-wider ${accentColor} block truncate`}>
@@ -700,9 +701,9 @@ export function ChapterModal({
                                                     <button type="button" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold transition-all" title="Close" aria-label="Isara ang kabanata"><X size={20} /></button>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 pt-1 border-t border-brand-gold/10 dark:border-brand-gold/20">
-                                                <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[#1B2433] text-brand-text/70 dark:text-foreground/80'}`}><Users size={14} /><span>Tauhan</span></button>
-                                                <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[#1B2433] text-brand-text/70 dark:text-foreground/80'}`}><BookOpen size={14} /><span>Sanggunian</span></button>
+                                            <div className="flex items-center gap-2 pt-1 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
+                                                <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[var(--modal-button-bg)] text-brand-text/70 dark:text-foreground/80'}`}><Users size={14} /><span>Tauhan</span></button>
+                                                <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-brand-cream/80 dark:bg-[var(--modal-button-bg)] text-brand-text/70 dark:text-foreground/80'}`}><BookOpen size={14} /><span>Sanggunian</span></button>
                                             </div>
                                         </div>
                                     )}
@@ -827,10 +828,10 @@ export function ChapterModal({
                             </div>
 
                             {!isFullscreen && (
-                                <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-brand-gold/25 text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
+                                <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)] bg-brand-cream dark:bg-[var(--modal-header-bg)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                                    <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-[var(--modal-border)] text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
                                     <div className="hidden sm:block text-[10px] text-brand-accent/60 dark:text-brand-gold/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
-                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[#1B2433] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-brand-gold/25 text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
+                                    <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-[var(--modal-border)] text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
                                 </div>
                             )}
                         </motion.div>
@@ -838,11 +839,11 @@ export function ChapterModal({
 
                         <AnimatePresence>
                             {refFullscreen && selectedSentenceForRef !== null && (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white dark:bg-brand-cream flex flex-col h-[100dvh] overscroll-contain">
-                                    <div className="border-b border-brand-gold/30 bg-brand-cream/50 dark:bg-brand-paper/50 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-6 px-4 sm:px-6">
+                                <motion.div id="sanggunian-overlay" data-novel={modalNovel} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white dark:bg-[var(--modal-canvas-bg)] flex flex-col h-[100dvh] overscroll-contain text-brand-navy dark:text-foreground">
+                                    <div className="border-b border-brand-gold/30 dark:border-[var(--modal-border)] bg-brand-cream/50 dark:bg-[var(--modal-header-bg)] pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-6 px-4 sm:px-6">
                                         <div className="max-w-7xl mx-auto text-center space-y-2 relative">
                                             <h2 className="text-xl sm:text-2xl font-serif text-brand-navy dark:text-foreground font-bold">Kaugnay na Sanggunian</h2>
-                                            <p className="text-sm sm:text-lg text-brand-text">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
+                                            <p className="text-sm sm:text-lg text-brand-text dark:text-brand-text-muted">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
                                             <div className="flex items-center justify-center gap-2 pt-1 sm:pt-2">
                                                 <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
                                                 <span className="text-brand-gold">→</span>
@@ -852,10 +853,10 @@ export function ChapterModal({
                                         </div>
                                     </div>
                                     {/* Mobile View (< lg): Single unified scroll view with prominent comparison cards */}
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30">
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30 dark:bg-[var(--modal-canvas-bg)]">
                                         {/* Source sentence card - fully visible and prominent */}
-                                        <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
-                                            <div className="flex items-center justify-between border-b border-brand-gold/10 pb-2">
+                                        <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-3">
+                                            <div className="flex items-center justify-between border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">
                                                 <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/60 dark:text-brand-gold/70 flex items-center gap-1.5">
                                                     <Quote size={13} className="text-brand-gold shrink-0" />
                                                     Pinagmulang Teksto ({mode === 'buod' ? 'Buod' : 'Buong Kwento'})
@@ -876,9 +877,9 @@ export function ChapterModal({
 
                                         {/* Matched reference content */}
                                         {isRefLoading ? (
-                                            <div className="flex flex-col items-center py-12 space-y-4 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/20 p-6">
+                                            <div className="flex flex-col items-center py-12 space-y-4 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/20 dark:border-[var(--modal-card-border)] p-6">
                                                 <div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" />
-                                                <p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p>
+                                                <p className="text-sm font-serif italic text-brand-text/60 dark:text-brand-text-muted text-center">Sinisiyasat ng AI ang kabilang bersyon...</p>
                                             </div>
                                         ) : refError ? (
                                             <div className="py-8 px-6 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-900/40 text-center space-y-2">
@@ -888,8 +889,8 @@ export function ChapterModal({
                                         ) : selectedReference && (
                                             <div className="space-y-5">
                                                 {/* Target sentence card */}
-                                                <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-3">
-                                                    <div className="flex justify-between items-center border-b border-brand-gold/10 pb-2">
+                                                <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-3">
+                                                    <div className="flex justify-between items-center border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">
                                                         <span className="text-[11px] font-bold text-brand-navy/60 dark:text-brand-gold/70 uppercase tracking-widest flex items-center gap-1.5">
                                                             <BookOpen size={13} className="text-brand-gold shrink-0" />
                                                             Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}
@@ -904,7 +905,7 @@ export function ChapterModal({
                                                         &quot;{selectedReference.sentence_text}&quot;
                                                     </p>
                                                     {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
-                                                        <div className="pt-3 border-t border-brand-gold/10">
+                                                        <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                             <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
                                                             <div className="flex flex-wrap gap-1.5">
                                                                 {selectedReference.matched_characters.map(c => (
@@ -914,7 +915,7 @@ export function ChapterModal({
                                                         </div>
                                                     )}
                                                     {selectedReference.buod_sentence_index !== undefined && (
-                                                        <div className="pt-3 border-t border-brand-gold/10">
+                                                        <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                             <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
                                                             <div className="bg-brand-navy/5 dark:bg-black/20 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 font-medium space-y-1">
                                                                 <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
@@ -925,7 +926,7 @@ export function ChapterModal({
                                                 </div>
 
                                                 {/* Similarity score card */}
-                                                <div className="p-4 sm:p-5 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/30 shadow-sm space-y-4">
+                                                <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                     <div className="flex justify-between items-end">
                                                         <span className="text-[11px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
                                                         <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
@@ -938,7 +939,7 @@ export function ChapterModal({
                                                         char={selectedReference.char_score === -1 ? -1 : Math.round(selectedReference.char_score * 100)}
                                                         ratio={Math.round(selectedReference.ratio_score * 100)}
                                                     />
-                                                    <p className="text-[10px] text-brand-text/50 leading-relaxed italic">
+                                                    <p className="text-[10px] text-brand-text/50 dark:text-brand-text-muted leading-relaxed italic">
                                                         Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                     </p>
                                                 </div>
@@ -948,12 +949,12 @@ export function ChapterModal({
 
                                     {/* Desktop View (>= lg): Split Screen side-by-side */}
                                     <div className="hidden lg:flex flex-1 overflow-hidden flex-row">
-                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 dark:text-brand-gold/60 border-b border-brand-gold/10 pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
-                                        <div className="w-[500px] border-l border-brand-gold/30 bg-white dark:bg-brand-paper overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
+                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30 dark:bg-[var(--modal-canvas-bg)]"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 dark:text-brand-gold/60 border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text dark:text-foreground/90 leading-loose text-left text-xl italic">&quot;{chapContentOnRef()?.sentence_text}&quot;</p></div></div>
+                                        <div className="w-[500px] border-l border-brand-gold/30 dark:border-[var(--modal-border)] bg-white dark:bg-[var(--modal-shell-bg)] overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
                                             <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
-                                            {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 dark:bg-red-950/40 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 dark:text-red-300 font-serif">{refError}</p></div>) : selectedReference && (
+                                            {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 dark:text-brand-text-muted text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 dark:bg-red-950/40 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 dark:text-red-300 font-serif">{refError}</p></div>) : selectedReference && (
                                                 <div className="space-y-8">
-                                                    <div className="p-6 bg-brand-cream/20 rounded-xl border border-brand-gold/10">
+                                                    <div className="p-6 bg-brand-cream/20 dark:bg-[var(--modal-sub-bar-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                         <div className="mb-4 flex justify-between items-start">
                                                             <div>
                                                                 <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter">Lokasyon sa {selectedReference.mode === 'full' ? 'Buong Kwento' : 'Buod'}</span>
@@ -964,10 +965,10 @@ export function ChapterModal({
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <p className="text-xl font-serif leading-relaxed text-brand-text">&quot;{selectedReference.sentence_text}&quot;</p>
+                                                        <p className="text-xl font-serif leading-relaxed text-brand-text dark:text-foreground/90">&quot;{selectedReference.sentence_text}&quot;</p>
                                                         
                                                         {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
-                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10">
+                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                                 <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {selectedReference.matched_characters.map(c => (
@@ -978,7 +979,7 @@ export function ChapterModal({
                                                         )}
 
                                                         {selectedReference.buod_sentence_index !== undefined && (
-                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10">
+                                                            <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                                 <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
                                                                 <div className="bg-brand-navy/5 dark:bg-black/20 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10 dark:border-white/10">
                                                                     <div className="flex flex-col text-sm text-slate-600 dark:text-slate-300 font-medium">
@@ -989,10 +990,10 @@ export function ChapterModal({
                                                         )}
                                                     </div>
 
-                                                    <div className="p-6 bg-white dark:bg-brand-paper rounded-xl border border-brand-gold/10 shadow-sm space-y-4">
+                                                    <div className="p-6 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                         <div className="flex justify-between items-end">
                                                             <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
-                                                            <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy'}`}>
+                                                            <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                                 {Math.round(selectedReference.score * 100)}%
                                                             </span>
                                                         </div>
@@ -1004,11 +1005,11 @@ export function ChapterModal({
                                                             ratio={Math.round(selectedReference.ratio_score * 100)}
                                                         />
                                                         
-                                                        <p className="text-[10px] text-brand-text/40 leading-relaxed italic mt-4">
+                                                        <p className="text-[10px] text-brand-text/40 dark:text-brand-text-muted leading-relaxed italic mt-4">
                                                             Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                         </p>
                                                     </div>
-                                                    <div className="pt-6 border-t border-brand-gold/10"><p className="text-xs text-brand-text/50 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
+                                                    <div className="pt-6 border-t border-brand-gold/10 dark:border-[var(--modal-border)]"><p className="text-xs text-brand-text/50 dark:text-brand-text-muted leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
                                                 </div>
                                             )}
                                         </div>
