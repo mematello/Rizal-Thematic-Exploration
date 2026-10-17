@@ -11,8 +11,9 @@ name: Keep-Alive & Health Probe
 #    - Hugging Face Spaces (free cpu-basic): Sleeps after 48 hours of inactivity.
 #      A ping every 30 minutes keeps the container warm and prevents cold starts.
 #    - Supabase (free tier): Pauses projects after 7 consecutive days of low user
-#      database activity. Querying /health/db executes `SELECT 1`, preventing pause.
+#      database activity. Querying /health/db executes `SELECT 1 FROM sentences LIMIT 1`, preventing pause.
 # ==============================================================================
+
 
 on:
   schedule:
