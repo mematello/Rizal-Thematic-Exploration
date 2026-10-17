@@ -352,10 +352,47 @@
     - `npx tsc --noEmit`: Clean (Exit Code 0): **[Verified]**
     - `npm run build`: Clean (Exit Code 0, 8/8 static routes generated): **[Verified]**
 
+- **UI Work Frontend Merge & Production Deployment (Completed 2026-10-18)**:
+  - **Git Lineage & Ancestry**:
+    - Rollback Target SHA: `2a524b1056720786e9da01911aa36198a3896b2f` (original `origin/main`).
+    - Ancestry check (`git merge-base --is-ancestor`):
+      - `fix/ui-polish` (`da3dae6`): Ancestor of `main` (Already in main).
+      - `feat/sanggunian-inverse` (`85e6687`), `fix/ui-polish-2` (`1baeffa`), `fix/ui-polish-3` (`de3b2d4`), `fix/ui-polish-4` (`e4de8f0`): Merged into `main` via `6f782a62888cf3e27a696ee1d9e7943d63b27b3e`.
+    - Conflicts in `ChapterModal.tsx` resolved by preserving per-novel modal CSS tokens (`dark:bg-[var(--modal-button-bg)]`, `dark:bg-[var(--modal-sub-bar-bg)]`, `dark:bg-[var(--modal-card-bg)]`) alongside `isFullInverseLoading` spinners and multi-match lists.
+    - `backend/` diff relative to rollback target strictly EMPTY (`git diff 2a524b1..6f782a6 -- backend/` returned 0 files changed).
+    - `npx tsc --noEmit` clean (0 errors), `npm run build` clean (8/8 static routes).
+  - **Included UI Feature & Fix Batches**:
+    - **Batch 2**: Fixed "Lahat ng nobela" turning body light on WebKit/iOS Safari: added `both` tokens in `globals.css` with dark/light themes and dark backdrop layers (`.novel-backdrop-layer[data-novel="both"]`). Normalized result card headers: chapter number first, title below.
+    - **Batch 3**: Normalized novel identifier tokens (`noli`, `fili`, `both`): resolved `elfili` vs `fili` token mismatch across selectors, store, and scripts. Reading Map (Gabay na Mapa) cards: eliminated hardcoded `#18202C` hex surfaces, migrated to per-novel CSS variables (`[data-novel="noli"]`, `[data-novel="fili"]`, `[data-novel="both"]`).
+    - **Batch 4**: ChapterModal & ItemModal per-novel dark theme scoping: sets `data-novel={book}` on modal root and `#sanggunian-overlay` so tokens resolve correctly even when search page filter is `both`. Mobile drawer stacking: rendered mobile navigation drawer outside blurred header (z-70 backdrop z-60) preventing blur artifacts.
+    - **Sub-Header Icon Collapse**: On mobile viewports `< 640px`, collapsed text labels in sub-header map view and score toggle buttons into clean 32px icon-only circular buttons, leaving ample room for novel context and result count without horizontal overflow.
+    - **Mobile Sticky Pill Breakout**: Broke out mobile sticky pill bar to full-bleed edge-to-edge layout (`max-w-[100vw]`, negative margins with responsive padding) aligning right edge with chapter selector.
+  - **Live Verification on https://rizalengine.vercel.app**:
+    - Backend sanity check (`https://mematello-rizal-thematic-search-api.hf.space`):
+      - `/health/db` 200 OK `{"status":"ok","db":"ok"}`, `Cache-Control: no-store`: **[Verified]**
+      - `/health` 200 OK: **[Verified]**
+      - Noli 1 buod chapter endpoint canonical JSON SHA-256 (`8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`): **[Verified]**
+      - 5 golden search queries 100% rank invariant: **[Verified]**
+    - Browser matrix (Chromium & WebKit, 390px mobile and 1440px desktop, light & dark):
+      - Actual reported clientWidth: Chromium 390px, WebKit 382px (mobile); Chromium 1440px, WebKit 1432px (desktop): **[Verified]**
+      - Novel switching (noli, fili, both) with body and header theme updating: **[Verified]**
+      - Home returns to last specific novel after visiting search with novel=both: **[Verified]**
+      - Result cards (chapter number first, title below): **[Verified]**
+      - Modal header order (novel badge first, title below, chapter number italic): **[Verified]**
+      - Anchor sentence highlight in chapter modal: **[Verified]**
+      - Sanggunian in Buod mode opens `#sanggunian-overlay` with `"Mula sa Buod → Patungo sa Buong Kwento"`: **[Verified]**
+      - Sanggunian in Full mode (Inverse Sanggunian) opens `#sanggunian-overlay` with `"Mula sa Buong Kwento → Patungo sa Buod"`: **[Verified]**
+      - Mobile drawer opens cleanly with per-novel background: **[Verified]**
+      - Console errors across all pages: strictly 0 errors: **[Verified]**
+      - Accessibility (Axe-core): Search page dark mode 0 violations across all viewports. Homepage and chapter modal violations documented by element: **[Verified]**
+  - **Workflow Dispatch**:
+    - Triggered `keepalive.yml` via GitHub REST API (Run ID: `39073781809`, Status: `completed`, Conclusion: `success`): **[Verified]**
+
 ---
 
-## Next Steps
-- Item 1 on branch `feat/sanggunian-inverse` is **100% complete, tested, and documented**.
-- Code remains on branch `feat/sanggunian-inverse`. Do NOT merge or push to `main` until explicitly reviewed.
+## Current Status
+- All UI work, Item 1 (inverse sanggunian), batches 2-4, and mobile edge-to-edge improvements are merged to `main` at `6f782a6`, deployed to production on Vercel, and fully verified live.
+- Rollback target SHA: `2a524b1056720786e9da01911aa36198a3896b2f`.
+
 
 

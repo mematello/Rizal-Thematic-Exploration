@@ -1045,3 +1045,53 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - `npx tsc --noEmit`: Clean (Exit Code 0): **[Verified]**
   - `npm run build`: Clean (Exit Code 0, 8/8 static routes generated): **[Verified]**
   - `git diff main -- backend/`: Strictly EMPTY: **[Verified]**
+
+---
+
+### 17. 2026-10-18: Merge All UI Work, Item 1, & Batches 2–4 to Main (Frontend Only)
+- **Date**: 2026-10-18
+- **Rollback Target SHA**: `2a524b1056720786e9da01911aa36198a3896b2f` (original `origin/main`)
+- **Merged Head SHA**: `6f782a62888cf3e27a696ee1d9e7943d63b27b3e`
+- **Ancestry Verification**:
+  - `fix/ui-polish` (`da3dae6`): Already ancestor of `main`.
+  - `feat/sanggunian-inverse` (`85e6687`): Merged into `fix/ui-polish-4`.
+  - `fix/ui-polish-2` (`1baeffa`), `fix/ui-polish-3` (`de3b2d4`), `fix/ui-polish-4` (`e4de8f0`): Merged into `main`.
+- **Conflicts Resolution**:
+  - Conflicts arose in `frontend/components/ChapterModal.tsx` between modal theme token variables (`fix/ui-polish-4`) and inverse Sanggunian full-mode logic (`feat/sanggunian-inverse`).
+  - Resolved by preserving per-novel modal theme tokens (`dark:bg-[var(--modal-button-bg)]`, `dark:bg-[var(--modal-sub-bar-bg)]`, `dark:bg-[var(--modal-card-bg)]`, `dark:border-[var(--modal-border)]`) alongside the inverse loading indicators and multi-match list cards.
+- **Backend Diff Constraint**:
+  - `git diff 2a524b1056720786e9da01911aa36198a3896b2f..6f782a62888cf3e27a696ee1d9e7943d63b27b3e -- backend/` returned strictly **EMPTY** (0 files changed).
+  - All precomputed cache bundle hashes, fingerprints, and backend endpoints remain completely unchanged.
+- **Sub-Header Icon Collapse & Mobile Breakout**:
+  - In `frontend/app/search/page.tsx`, sub-header controls (Gabay na Mapa / Listahan and Marka toggle buttons) previously contained full text labels that overflowed horizontally on narrow mobile screens (< 640px). Collapsed text labels to `hidden sm:inline` with clean 32px circular icon buttons, leaving ample space for novel search context and result count.
+  - In `frontend/components/ChapterSidebar.tsx`, broke out mobile sticky pill bar to full-bleed edge-to-edge layout (`max-w-[100vw]`, negative margins with responsive padding) aligning right edge with chapter selector below it.
+- **Workflow Keepalive**:
+  - `keepalive.yml` triggered via GitHub REST API: Run ID `39073781809`, status `completed`, conclusion `success` (URL: `https://github.com/mematello/Rizal-Thematic-Exploration/actions/runs/39073781809`).
+- **Live Production Verification (`https://rizalengine.vercel.app`)**:
+  - Tested Chromium and WebKit at 390px (mobile) and 1440px (desktop) in light and dark modes.
+  - Reported clientWidth: Chromium 390px, WebKit 382px (mobile, 8px reserved for scrollbar gutter); Chromium 1440px, WebKit 1432px (desktop).
+  - 0 console errors across all pages and configurations.
+  - Axe-core accessibility: Search page dark mode 0 violations; Homepage and ChapterModal violations cataloged by element.
+- **Verification Claims (Verified / Not verified)**:
+  - Rollback target SHA `2a524b1` recorded: **[Verified]**
+  - Ancestor checks evaluated via `git merge-base --is-ancestor`: **[Verified]**
+  - `backend/` diff relative to rollback target strictly EMPTY: **[Verified]**
+  - `npx tsc --noEmit` clean (0 errors): **[Verified]**
+  - `npm run build` clean (8/8 static routes): **[Verified]**
+  - Fast-forward merge to `main` (`6f782a6`) and pushed to `origin/main`: **[Verified]**
+  - Vercel production deploy live with new build bundle: **[Verified]**
+  - Live backend sanity `/health/db` 200 OK with `Cache-Control: no-store`: **[Verified]**
+  - Live Noli 1 buod chapter endpoint canonical JSON SHA matches `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`: **[Verified]**
+  - Golden queries rank invariance (100% top-5 match): **[Verified]**
+  - Novel switching (noli, fili, both) with body/header background styles: **[Verified]**
+  - Home returns to last specific novel: **[Verified]**
+  - Result card typography (chapter number first, title below): **[Verified]**
+  - Modal header ordering (novel badge, title, chapter number): **[Verified]**
+  - Sentence highlights in chapter modal: **[Verified]**
+  - Sanggunian in Buod mode (`Mula sa Buod → Patungo sa Buong Kwento`): **[Verified]**
+  - Sanggunian in Full mode (`Mula sa Buong Kwento → Patungo sa Buod`): **[Verified]**
+  - Mobile drawer opens cleanly with per-novel background: **[Verified]**
+  - 0 console errors in Chromium and WebKit: **[Verified]**
+  - Axe accessibility violations documented by element: **[Verified]**
+  - `keepalive.yml` workflow dispatch successful: **[Verified]**
+
