@@ -74,12 +74,12 @@ def get_corpus_fingerprint(db) -> dict:
     # Calculate robust_aligner.py content hash
     aligner_file = BACKEND_DIR / "app" / "core" / "robust_aligner.py"
     with open(aligner_file, "rb") as f:
-        robust_aligner_hash = hashlib.sha256(f.read()).hexdigest()
+        robust_aligner_hash = hashlib.sha256(f.read().replace(b"\r\n", b"\n")).hexdigest()
 
     # Calculate content.py content hash
     content_file = BACKEND_DIR / "app" / "api" / "v1" / "content.py"
     with open(content_file, "rb") as f:
-        content_alignment_hash = hashlib.sha256(f.read()).hexdigest()
+        content_alignment_hash = hashlib.sha256(f.read().replace(b"\r\n", b"\n")).hexdigest()
 
     fingerprint = {
         "sentence_count": int(row[0]),

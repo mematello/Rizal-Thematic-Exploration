@@ -261,7 +261,7 @@ def verify_sanggunian_fingerprint(db: Session) -> bool:
         if aligner_file.exists() and "robust_aligner_hash" in fp:
             import hashlib
             with open(aligner_file, "rb") as af:
-                current_aligner_hash = hashlib.sha256(af.read()).hexdigest()
+                current_aligner_hash = hashlib.sha256(af.read().replace(b"\r\n", b"\n")).hexdigest()
             if current_aligner_hash != fp["robust_aligner_hash"]:
                 _static_sanggunian_enabled = False
                 _sanggunian_fingerprint_checked = True
@@ -277,7 +277,7 @@ def verify_sanggunian_fingerprint(db: Session) -> bool:
         if content_file.exists() and "content_alignment_hash" in fp:
             import hashlib
             with open(content_file, "rb") as cf:
-                current_content_hash = hashlib.sha256(cf.read()).hexdigest()
+                current_content_hash = hashlib.sha256(cf.read().replace(b"\r\n", b"\n")).hexdigest()
             if current_content_hash != fp["content_alignment_hash"]:
                 _static_sanggunian_enabled = False
                 _sanggunian_fingerprint_checked = True
