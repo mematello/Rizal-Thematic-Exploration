@@ -230,6 +230,7 @@ def load_static_sanggunian_cache() -> None:
         _sentence_to_sanggunian_cache = sentence_index
         _static_sanggunian_fingerprint = bundle_fp
         _static_sanggunian_loaded = True
+        _static_sanggunian_enabled = True
         import logging
         logging.info(f"Loaded static Sanggunian cache: {len(_sentence_to_sanggunian_cache)} sentences indexed across {sum(len(v) for v in _static_sanggunian_cache.values())} chapters.")
 
@@ -255,7 +256,7 @@ def verify_sanggunian_fingerprint(db: Session) -> bool:
 
         fp = _static_sanggunian_fingerprint
 
-        # 1. Verify robust_aligner.py content hash
+        # 1a. Verify robust_aligner.py content hash
         aligner_file = Path(__file__).resolve().parent.parent.parent / "core" / "robust_aligner.py"
         if aligner_file.exists() and "robust_aligner_hash" in fp:
             import hashlib
@@ -270,6 +271,30 @@ def verify_sanggunian_fingerprint(db: Session) -> bool:
                     "Disabling static Sanggunian cache, falling back to live compute."
                 )
                 return False
+
+        # 1b. Verify content.py alignment code content hash
+        content_file = Path(__file__).resolve()
+        if content_file.exists() and "content_alignment_hash" in fp:
+            import hashlib
+            with open(content_file, "rb") as cf:
+                current_content_hash = hashlib.sha256(cf.read()).hexdigest()
+            if current_content_hash != fp["content_alignment_hash"]:
+                _static_sanggunian_enabled = False
+                _sanggunian_fingerprint_checked = True
+                import logging
+                logging.warning(
+                    f"⚠️ CONTENT.PY ALIGNMENT HASH MISMATCH! Expected {fp['content_alignment_hash']}, got {current_content_hash}. "
+                    "Disabling static Sanggunian cache, falling back to live compute."
+                )
+                return False
+
+        # 1c. Verify DAPT model name and revision
+        if "dapt_model_name" in fp and fp["dapt_model_name"] != "mematello/rizal-xlm-r-dapt":
+            _static_sanggunian_enabled = False
+            _sanggunian_fingerprint_checked = True
+            import logging
+            logging.warning(f"⚠️ DAPT MODEL MISMATCH! Expected {fp['dapt_model_name']}")
+            return False
 
         # 2. Query live database for sentence and dapt embedding fingerprint
         try:

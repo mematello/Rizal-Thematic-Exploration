@@ -161,11 +161,14 @@
     - Strictly **0 diff** on `backend/app/core/engine.py`.
 
 - **Item C Phase 2 Sanggunian Cross-Novel Reference Optimization (Completed 2026-10-17, branch `perf/sanggunian`)**:
-  - **Step 0 Baseline Profiling & Measurements**:
-    - Raw output documented in `docs/perf/evidence/sanggunian_step0_measurements.txt`.
-    - DAPT embedding time on cold chapters: Noli 1 = 81.3 ms, Noli 5 = 71.9 ms, El Fili 10 = 61.2 ms.
-    - `RobustAligner.align()` time: Noli 1 = 1,493.4 ms, Noli 5 = 1,732.3 ms, El Fili 10 = 1,887.8 ms.
-    - Corpus alignment scope: Sanggunian applies to full mode as well as buod mode. Total scope: 205 chapters across both novels and modes, comprising 16,402 sentences requiring alignment.
+  - **Step 0 Baseline Profiling & Measurements (Corrected Scope)**:
+    - Raw output documented in `docs/perf/evidence/sanggunian_step0_measurements.txt` and `docs/perf/evidence/sanggunian_endpoint_cold_breakdown.txt`.
+    - **Scope Clarification**: ML semantic alignment (`RobustAligner.align`) applies strictly to **2,186 summary sentences across 103 chapters** (Noli: 64 chapters, 1,212 sentences; El Fili: 39 chapters, 974 sentences). For full mode (14,216 sentences across 102 chapters; Noli: 63 chapters, 8,673 sentences; El Fili: 39 chapters, 5,543 sentences), `backend/app/api/v1/content.py` does NOT run `RobustAligner`; it groups sentences by `passage_id` with `score=1.0`. The full-mode static bundles (5.77 MB) exist strictly to eliminate the database roundtrip and passage grouping query.
+    - **Actual Endpoint Cold Path Breakdown (Fresh Process)**:
+      - Noli 1 (22 buod, 223 full, 114 NULL full): SQL = 3,407.7 ms (4.2%), Encode = 18,597.3 ms (22.8%), RobustAligner = 59,570.7 ms (73.0%), Total = **81,577.4 ms (~81.6 s)**.
+      - Noli 5 (9 buod, 19 full, 9 NULL buod): SQL = 330.0 ms (8.5%), Encode = 1,690.9 ms (43.5%), RobustAligner = 1,865.7 ms (48.0%), Total = **3,886.9 ms (~3.9 s)**.
+      - El Fili 10 (21 buod, 171 full, 0 NULL): SQL = 2,429.1 ms (5.8%), Encode = 0.5 ms (0.0%), RobustAligner = 39,440.9 ms (94.2%), Total = **41,871.3 ms (~41.9 s)**.
+    - **Reconciliation with 20–52s Cold Times**: Fully reconciled. NULL `embedding_dapt` rows require on-the-fly DAPT CPU encoding (14–19s), while `RobustAligner.align()` scales with matrix dimensions ($M \times N$), requiring 39.4s (21x171) to 59.6s (22x223) on CPU. Under concurrent requests in Phase 1, CPU saturation produced 20–52s+ latency.
   - **Step 1 Backend Precomputed Bundles & Endpoints**:
     - Created `scripts/build_sanggunian_cache.py` with checkpointing and resume. Precomputed all 205 chapters into 4 JSON bundles under `backend/app/data/`:
       - `sanggunian_cache_noli_buod.json`: 1,606.1 KB (64 ch, 1,212 sents)
@@ -173,13 +176,19 @@
       - `sanggunian_cache_elfili_buod.json`: 1,214.3 KB (39 ch, 974 sents)
       - `sanggunian_cache_elfili_full.json`: 2,277.9 KB (39 ch, 5,543 sents)
       - Total bundle size: **8.39 MB** across 205 chapters (16,402 sentences).
-    - Bundle cryptographic fingerprint: Embeds `sentence_count` (16,402), `sentence_text` MD5, NULL `embedding_dapt` count (4,580), `embedding_dapt` column MD5, and `robust_aligner.py` SHA-256 hash.
-    - Startup verification: Non-blocking `verify_sanggunian_fingerprint(db)` runs during lifespan. Matches: serves bundle (0ms). Mismatch or missing bundle: logs loud warning, disables static cache, falls back to live compute. DB unreachable: serves static bundle, logs warning, never crashes.
+    - Bundle cryptographic fingerprint: Embeds `sentence_count` (16,402), `sentence_text` MD5, NULL `embedding_dapt` count (4,580), `embedding_dapt` column MD5, SHA-256 of `robust_aligner.py`, SHA-256 of alignment logic in `content.py`, and DAPT model name/revision (`mematello/rizal-xlm-r-dapt:main`).
+    - Startup verification: Non-blocking `verify_sanggunian_fingerprint(db)` runs during lifespan (~16.14s runtime against Supabase). Matches: serves bundle (0ms). Mismatch: logs loud warning, disables static cache, falls back to live compute. DB unreachable: serves static bundle, logs warning, never crashes.
+    - SQL Computation: `embedding_dapt` MD5 is computed inside Supabase PostgreSQL (`md5(string_agg(...))`). Zero vector data transferred over the wire. Requests served from static bundle during verification.
     - Concurrency lock: Added `_alignment_compute_lock` to serialize concurrent live alignment compute races on cache misses.
     - Endpoints:
       - `GET /api/v1/sentences/{id}/sanggunian`: Preserved behavior and response shape unchanged; served from in-memory index when bundle enabled.
       - `GET /api/v1/chapters/{book}/{chapter_number}/sanggunian?mode={mode}`: Returns whole-chapter mapping in one request with `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
-  - **Step 2 Gate 1 Parity & Resilience Verification**:
+  - **Footprint & Startup Impact (Evidence: `docs/perf/evidence/sanggunian_footprint_startup.txt`)**:
+    - Process RSS before loading bundles: **427.79 MB**
+    - Process RSS after loading all 4 bundles: **455.61 MB** (RSS Memory Delta: **+27.81 MB**; load time: 151.81 ms).
+    - Docker Image Size Delta: **+8.39 MB** (8,797,554 bytes uncompressed across all 4 JSON bundles).
+    - Fingerprint verification runtime: **16.14 seconds** (executed asynchronously in background thread).
+  - **Step 2 Parity & Resilience Verification**:
     - **Raw Parity Test**: Compared SHA-256 hashes of raw HTTP bytes across all 205 chapters against live path logic on the same machine. Result: **205/205 chapters identical (0 mismatches)**.
     - **Score Delta on Profiled Sentences**: Queried the 5 profiled sentences against live HF Space and local bundle:
       - Sentence 37177: Local=0.781451 | HF=0.781451 | Delta=0.00000003

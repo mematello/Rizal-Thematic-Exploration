@@ -1,0 +1,35 @@
+ACTUAL ENDPOINT COLD PATH BREAKDOWN (FRESH PROCESS, LIVE LOGIC)
+================================================================================
+
+--- NOLI CH 1 ---
+  Summary Sentences: 22 (NULL dapt: 0)
+  Full Sentences:    223 (NULL dapt: 114)
+  SQL Fetch:            3407.67 ms (  4.2%)
+  Encode (buod):           0.00 ms
+  Encode (full):       18596.02 ms
+  Encode (total):      18597.27 ms ( 22.8%)
+  RobustAligner:       59570.73 ms ( 73.0%)
+  Other (Format):          1.34 ms (  0.0%)
+  TOTAL TIME:          81577.42 ms
+
+--- NOLI CH 5 ---
+  Summary Sentences: 9 (NULL dapt: 9)
+  Full Sentences:    19 (NULL dapt: 0)
+  SQL Fetch:             329.99 ms (  8.5%)
+  Encode (buod):        1690.63 ms
+  Encode (full):           0.00 ms
+  Encode (total):       1690.91 ms ( 43.5%)
+  RobustAligner:        1865.73 ms ( 48.0%)
+  Other (Format):          0.17 ms (  0.0%)
+  TOTAL TIME:           3886.86 ms
+
+--- ELFILI CH 10 ---
+  Summary Sentences: 21 (NULL dapt: 0)
+  Full Sentences:    171 (NULL dapt: 0)
+  SQL Fetch:            2429.06 ms (  5.8%)
+  Encode (buod):           0.00 ms
+  Encode (full):           0.00 ms
+  Encode (total):          0.49 ms (  0.0%)
+  RobustAligner:       39440.93 ms ( 94.2%)
+  Other (Format):          0.70 ms (  0.0%)
+  TOTAL TIME:          41871.33 ms

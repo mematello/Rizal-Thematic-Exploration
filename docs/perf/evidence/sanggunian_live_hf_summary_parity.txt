@@ -1,0 +1,126 @@
+SECTION B: LIVE HF SPACE VS LOCAL BUNDLE PARITY VERIFICATION REPORT
+================================================================================
+Date:                            2026-10-17
+Live HF URL:                     https://mematello-rizal-thematic-search-api.hf.space
+Local Host URL:                  http://127.0.0.1:8000
+Total Summary Sentences Tested:  2186 (across 103 chapters: Noli 64 ch / 1212 sents, El Fili 39 ch / 974 sents)
+Total Full-Mode Sample Tested:   500 (across 102 chapters: Noli 63 ch, El Fili 39 ch)
+Non-Score Field Mismatches:      0 (Verified: 0 mismatches across reference IDs, reference text, alignment_status)
+Max Absolute Score Delta:        0.00000030 (<= 3.0e-7, float32 precision boundary)
+Summary Sentences Invariance:    2186/2186 (100% invariant across all fields)
+Full-Mode 500 Raw Byte SHA-256:  500/500 matching (100% bit-identical SHA-256 matches)
+Full-Mode 500 Normalized JSON:   500/500 matching (100% bit-identical JSON matches)
+
+CHAPTER BREAKDOWN FOR ALL 103 SUMMARY CHAPTERS:
+--------------------------------------------------------------------------------
+Chapter              | Sents  | NULL DAPT (buod/full)  | Max Score Delta  | Status
+--------------------------------------------------------------------------------
+ELFILI ch 1          | 9      | buod=9, full=2         |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 2          | 26     | buod=26, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 3          | 26     | buod=25, full=0        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 4          | 24     | buod=0, full=0         |       0.00000018 | PASS
+ELFILI ch 5          | 14     | buod=0, full=0         |       0.00000018 | PASS
+ELFILI ch 6          | 31     | buod=6, full=0         |       0.00000024 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 7          | 49     | buod=49, full=0        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 8          | 6      | buod=6, full=0         |       0.00000006 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 9          | 12     | buod=5, full=0         |       0.00000012 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 10         | 21     | buod=0, full=0         |       0.00000012 | PASS
+ELFILI ch 11         | 32     | buod=0, full=0         |       0.00000015 | PASS
+ELFILI ch 12         | 32     | buod=29, full=0        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 13         | 22     | buod=22, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 14         | 14     | buod=13, full=0        |       0.00000012 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 15         | 6      | buod=0, full=0         |       0.00000012 | PASS
+ELFILI ch 16         | 10     | buod=0, full=0         |       0.00000012 | PASS
+ELFILI ch 17         | 9      | buod=0, full=0         |       0.00000015 | PASS
+ELFILI ch 18         | 20     | buod=0, full=0         |       0.00000018 | PASS
+ELFILI ch 19         | 35     | buod=17, full=0        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 20         | 11     | buod=11, full=0        |       0.00000012 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 21         | 25     | buod=25, full=62       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 22         | 36     | buod=11, full=136      |       0.00000015 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 23         | 22     | buod=0, full=42        |       0.00000024 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 24         | 20     | buod=4, full=65        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 25         | 22     | buod=22, full=92       |       0.00000018 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 26         | 36     | buod=36, full=72       |       0.00000027 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 27         | 36     | buod=2, full=64        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 28         | 65     | buod=36, full=99       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 29         | 23     | buod=23, full=27       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 30         | 17     | buod=4, full=71        |       0.00000027 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 31         | 12     | buod=0, full=56        |       0.00000027 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 32         | 19     | buod=0, full=32        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 33         | 22     | buod=2, full=67        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 34         | 27     | buod=27, full=29       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 35         | 41     | buod=35, full=64       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 36         | 32     | buod=0, full=0         |       0.00000024 | PASS
+ELFILI ch 37         | 27     | buod=1, full=0         |       0.00000024 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 38         | 16     | buod=16, full=0        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+ELFILI ch 39         | 67     | buod=47, full=0        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 1            | 22     | buod=0, full=114       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 2            | 24     | buod=0, full=14        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 3            | 19     | buod=2, full=64        |       0.00000027 | PASS [NULL-ROW CHAPTER]
+NOLI ch 4            | 33     | buod=33, full=62       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 5            | 9      | buod=9, full=0         |       0.00000003 | PASS [NULL-ROW CHAPTER]
+NOLI ch 6            | 46     | buod=19, full=61       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 7            | 17     | buod=0, full=66        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 8            | 16     | buod=0, full=36        |       0.00000009 | PASS [NULL-ROW CHAPTER]
+NOLI ch 9            | 16     | buod=12, full=52       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 10           | 25     | buod=25, full=29       |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 11           | 10     | buod=10, full=12       |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 12           | 10     | buod=10, full=62       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 13           | 19     | buod=7, full=54        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 14           | 21     | buod=0, full=75        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 15           | 20     | buod=0, full=66        |       0.00000012 | PASS [NULL-ROW CHAPTER]
+NOLI ch 16           | 18     | buod=7, full=43        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 17           | 21     | buod=21, full=54       |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 18           | 11     | buod=11, full=96       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 19           | 12     | buod=12, full=64       |       0.00000012 | PASS [NULL-ROW CHAPTER]
+NOLI ch 20           | 12     | buod=12, full=128      |       0.00000012 | PASS [NULL-ROW CHAPTER]
+NOLI ch 21           | 13     | buod=0, full=84        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 22           | 15     | buod=0, full=43        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 23           | 14     | buod=0, full=141       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 24           | 23     | buod=2, full=155       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 25           | 25     | buod=25, full=88       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 26           | 18     | buod=18, full=65       |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 27           | 18     | buod=18, full=68       |       0.00000009 | PASS [NULL-ROW CHAPTER]
+NOLI ch 28           | 9      | buod=0, full=58        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 29           | 9      | buod=0, full=47        |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 30           | 8      | buod=0, full=17        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 31           | 15     | buod=0, full=77        |       0.00000012 | PASS [NULL-ROW CHAPTER]
+NOLI ch 32           | 31     | buod=8, full=115       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 33           | 12     | buod=12, full=13       |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 34           | 15     | buod=15, full=118      |       0.00000030 | PASS [NULL-ROW CHAPTER]
+NOLI ch 35           | 11     | buod=11, full=100      |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 36           | 14     | buod=14, full=28       |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 37           | 22     | buod=4, full=64        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 38           | 18     | buod=0, full=0         |       0.00000018 | PASS
+NOLI ch 39           | 21     | buod=0, full=0         |       0.00000024 | PASS
+NOLI ch 40           | 31     | buod=25, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 41           | 14     | buod=14, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 42           | 31     | buod=24, full=1        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 43           | 15     | buod=0, full=2         |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 44           | 14     | buod=0, full=0         |       0.00000024 | PASS
+NOLI ch 45           | 19     | buod=0, full=0         |       0.00000021 | PASS
+NOLI ch 46           | 19     | buod=11, full=0        |       0.00000024 | PASS [NULL-ROW CHAPTER]
+NOLI ch 47           | 8      | buod=8, full=0         |       0.00000009 | PASS [NULL-ROW CHAPTER]
+NOLI ch 48           | 17     | buod=16, full=0        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 49           | 10     | buod=10, full=0        |       0.00000012 | PASS [NULL-ROW CHAPTER]
+NOLI ch 50           | 39     | buod=18, full=0        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 51           | 14     | buod=0, full=0         |       0.00000012 | PASS
+NOLI ch 52           | 19     | buod=0, full=0         |       0.00000018 | PASS
+NOLI ch 53           | 19     | buod=10, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 54           | 16     | buod=16, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 55           | 33     | buod=33, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 56           | 13     | buod=5, full=0         |       0.00000027 | PASS [NULL-ROW CHAPTER]
+NOLI ch 57           | 22     | buod=0, full=0         |       0.00000012 | PASS
+NOLI ch 58           | 24     | buod=1, full=0         |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 59           | 33     | buod=23, full=0        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 60           | 28     | buod=28, full=0        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 61           | 31     | buod=13, full=5        |       0.00000015 | PASS [NULL-ROW CHAPTER]
+NOLI ch 62           | 10     | buod=0, full=74        |       0.00000021 | PASS [NULL-ROW CHAPTER]
+NOLI ch 63           | 26     | buod=0, full=1         |       0.00000018 | PASS [NULL-ROW CHAPTER]
+NOLI ch 64           | 15     | buod=3, full=0         |       0.00000015 | PASS [NULL-ROW CHAPTER]
+
+FINAL VERIFICATION STATUS:
+--------------------------------------------------------------------------------
+=> ALL 2,186 SUMMARY SENTENCES INVARIANT: 100% MATCH ON REFERENCE IDS, REFERENCE TEXT, ALIGNMENT STATUS!
+=> MAXIMUM ABSOLUTE SCORE DELTA: 0.00000030 (<= 3.0e-7)
+=> FULL-MODE 500 RANDOM SAMPLE: 500/500 (100%) RAW BYTE SHA-256 MATCH

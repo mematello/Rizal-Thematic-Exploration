@@ -1,0 +1,21 @@
+SANGGUNIAN FOOTPRINT & STARTUP MEASUREMENT REPORT
+================================================================================
+
+1. RSS Memory Impact:
+   - RSS Before Loading: 427.79 MB
+   - RSS After Loading:  455.61 MB
+   - RSS Delta:          +27.81 MB
+   - Bundle Load Time:   151.81 ms
+
+2. Docker Image Delta:
+   - sanggunian_cache_noli_buod.json         1606.07 KB
+   - sanggunian_cache_noli_full.json         3493.17 KB
+   - sanggunian_cache_elfili_buod.json       1214.27 KB
+   - sanggunian_cache_elfili_full.json       2277.86 KB
+   - Total Image Delta:  +8.39 MB (8,797,554 bytes)
+
+3. Startup Verification:
+   - verify_sanggunian_fingerprint() Runtime: 16139.75 ms (16.14 s)
+   - Verification Success:                    True
+   - SQL Computation:                         embedding_dapt MD5 is computed entirely in SQL inside Supabase
+   - Request Handling During Verification:    While background warmup runs, requests fall back to live compute until verified, then 0ms static bundle is enabled.

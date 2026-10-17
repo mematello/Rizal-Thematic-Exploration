@@ -88,6 +88,8 @@ def get_corpus_fingerprint(db) -> dict:
         "dapt_column_md5": str(row[3]),
         "robust_aligner_hash": robust_aligner_hash,
         "content_alignment_hash": content_alignment_hash,
+        "dapt_model_name": "mematello/rizal-xlm-r-dapt",
+        "dapt_model_revision": "main",
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
     
@@ -225,7 +227,7 @@ def compute_full_chapter_sanggunian(book: str, ch_num: int, db) -> dict:
             "matched_characters": [],
             "buod_sentence_index": s.sentence_index,
             "full_sentence_indices": [ps.sentence_index for ps in passage_sentences],
-            "full_is_short": [bool(ps.is_short) for ps in passage_sentences]
+            "full_is_short": []
         }
         chapter_refs[str(s.id)] = ref_obj
 
@@ -268,7 +270,10 @@ def main():
                             existing_bundle = json.load(f)
                         if len(existing_bundle.get("chapters", {})) == total_chapters:
                             size_kb = target_path.stat().st_size / 1024
-                            print(f"\nReusing existing complete {target_filename} ({size_kb:.1f} KB, {total_chapters} chapters)")
+                            print(f"\nReusing existing chapter alignments and updating fingerprint for {target_filename} ({size_kb:.1f} KB, {total_chapters} chapters)")
+                            existing_bundle["fingerprint"] = fingerprint
+                            with open(target_path, "w", encoding="utf-8") as f:
+                                json.dump(existing_bundle, f, ensure_ascii=False)
                             continue
                     except Exception:
                         pass
