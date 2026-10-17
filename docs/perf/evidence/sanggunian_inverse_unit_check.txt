@@ -1,0 +1,4 @@
+Total full sentences to check: 14216
+
+Result: 0 mismatches found across all 14216 full sentences.
+PERFECT 100% PARITY: Chapter-by-chapter frontend inversion equals the global offline inversion!

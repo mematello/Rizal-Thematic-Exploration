@@ -1,0 +1,118 @@
+=== STEP 0 ANALYSIS REPORT ===
+
+## 1. Confirm that buod passage_ids reference full-text sentence IDs of the SAME novel
+Noli cross-novel references: 0 out of all passage_ids
+El Fili cross-novel references: 0 out of all passage_ids
+Conclusion: 100% of buod passage_ids reference full-text sentence IDs of the SAME novel. There are ZERO cross-novel references in the bundles.
+
+Regarding Gate 3 verification note:
+The Gate 3 verification report (sanggunian_gate3_vercel_verification.txt lines 32 & 52) incorrectly claimed:
+  'Kaugnay na Sanggunian: Cross-novel intertextual reference from El Filibusterismo.'
+  'Clicked superscript [1]: cross-reference drawer opened with intertextual match from Noli Me Tangere.'
+This claim in Gate 3 was FACTUALLY INCORRECT / WRONG.
+Sanggunian is strictly INTRA-novel: it aligns the Buod (summary) to the Full-text of the SAME novel.
+
+Quote 3 examples per novel:
+
+--- Noli Me Tangere Examples ---
+Example Noli (Buod Ch 1, buod_id=37177):
+  Buod Sentence (Index 1): "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa."
+  Passage IDs: [39363, 39364, 39365, 39366]
+  Target Full Book/Chapter: Noli Me Tangere, Chapter 1
+  Target Full Sentence Indices: [1, 2, 3, 4]
+  Target Full Text Excerpt: "Nag-anyaya ng pagpapakain nang isang hapunan, ng magtatapos ang Oktubre, si Ginoong Santiago de los Santos, na lalong nakikilala ng bayan sa..."
+  Score: 0.7815, Status: precise
+
+Example Noli (Buod Ch 10, buod_id=37379):
+  Buod Sentence (Index 1): "Ang bayan ng San Diego ay matatagpuan sa gitna ng palayan na siyang malapit din sa lawa."
+  Passage IDs: [40321, 40322, 40323]
+  Target Full Book/Chapter: Noli Me Tangere, Chapter 10
+  Target Full Sentence Indices: [1, 2, 3]
+  Target Full Text Excerpt: "Halos sa pampang ng dagatan ang kinalalagyan ng bayang San Diego, na sumasagitna ng mga kapatagang halamanan at mga palayan. Nagpapadala sa ..."
+  Score: 0.8193, Status: precise
+
+Example Noli (Buod Ch 25, buod_id=37623):
+  Buod Sentence (Index 1): "Nagtungo si Ibarra sa bahay ni Pilosopo Tasyo upang humingi ng suhestiyon sa ipapatayong paaralan."
+  Passage IDs: [42521, 42522, 42523]
+  Target Full Book/Chapter: Noli Me Tangere, Chapter 25
+  Target Full Sentence Indices: [1, 2, 3]
+  Target Full Text Excerpt: "Pagka umaga ng kinabukasan, pagkatapos na madalaw ni Juan Crisostomo Ibarra ang kanyang mga lupa, siya'y tumungo sa bahay ni matandang Tasio..."
+  Score: 0.7080, Status: precise
+
+--- El Filibusterismo Examples ---
+Example El Fili (Buod Ch 1, buod_id=38389):
+  Buod Sentence (Index 1): "Naglalayag sa ilog Pasig ang Bapor Tabo isang umaga ng Disyembre."
+  Passage IDs: [48036, 48037, 48038, 48039, 48040, 48041]
+  Target Full Book/Chapter: El Filibusterismo, Chapter 1
+  Target Full Sentence Indices: [2, 3, 4, 5, 6, 7]
+  Target Full Text Excerpt: "Isang umaga ng Disyembre ay hirap na sumasalunga sa palikolikong linalakaran ng ilog Pasig ang bapor Tabo, na may lulang maraming tao, na tu..."
+  Score: 0.9199, Status: precise
+
+Example El Fili (Buod Ch 10, buod_id=38586):
+  Buod Sentence (Index 1): "Nakipanuluyan si Simoun sa bahay ni Kabesang Tales na nasa pagitan ng bayan ng San Diego at ng Tiyani."
+  Passage IDs: [49019, 49020, 49021, 49022, 49023]
+  Target Full Book/Chapter: El Filibusterismo, Chapter 10
+  Target Full Sentence Indices: [1, 2, 3, 4, 5]
+  Target Full Text Excerpt: "Kinabukasan, sa gitna ng pagkakamangha ng buong nayon, ay nakituloy sa bahay ni kabesang Tales ang manghihiyas na si Simoun na may kasamang ..."
+  Score: 0.8384, Status: precise
+
+Example El Fili (Buod Ch 20, buod_id=38787):
+  Buod Sentence (Index 1): "Nasa mga kamay ni Don Custodio ang usapin sa akademya ng wikang Kastila."
+  Passage IDs: [50857, 50858, 50859, 50860, 50861, 50862]
+  Target Full Book/Chapter: El Filibusterismo, Chapter 20
+  Target Full Sentence Indices: [1, 2, 3, 4, 5, 6]
+  Target Full Text Excerpt: "Tunay ang sinabi ni Padre Irene: ang ukol sa akademia ng wikang kastila, na malaon nang iniharap, ay tumutungo na sa isang pagkalutas. Si Do..."
+  Score: 0.8305, Status: precise
+
+## 2. Confirm that passage_ids never cross chapters. List any exceptions.
+Noli cross-chapter count: 73
+  Noli Exception: Buod Chapter 64 maps to Full Chapter 63 (73 passage_id occurrences across 15 buod sentences)
+El Fili cross-chapter count: 0
+Exceptions: None for El Fili. For Noli, the only exception is Buod Chapter 64 mapping to Full Chapter 63 (due to the Epilogue numbering difference). Within Chapters 1-63 of Noli, 0 cross-chapter mappings occur.
+
+## 3. Chapter mapping: Noli buod has 64 chapters, full has 63
+Produce the buod-chapter to full-chapter mapping used by the inversion and flag every chapter where it is not 1:1:
+
+El Filibusterismo:
+  Chapters: 39 buod, 39 full.
+  Mapping: Exactly 1:1 for all chapters 1..39. (buod chapter X -> full chapter X)
+  Non 1:1 chapters: None.
+
+Noli Me Tangere:
+  Chapters: 64 buod, 63 full.
+  Buod Ch 1..63 -> Full Ch 1..63 (1:1 mapping).
+  Buod Ch 64 -> Full Ch 63 (Epilogue: 'Katapusan').
+  In backend content.py line 1079: 'if search_book_noli and search_chapter == 64: search_chapter = 63'
+  Therefore, Full Chapter 63 receives matches from BOTH:
+    - Buod Chapter 63 (matches to full ch 63)
+    - Buod Chapter 64 (matches to full ch 63)
+  Flagged non-1:1 chapters: Only Chapter 63/64 in Noli.
+
+  Noli Full Ch 63 total sentences: 86
+  Full Ch 63 sentences matched by Buod Ch 63: 58
+  Full Ch 63 sentences matched by Buod Ch 64: 37
+  Full Ch 63 sentences matched by both Buod 63 and 64: 30
+  Full Ch 63 sentences matched by either (total unique): 65
+
+## 4. Recompute the inversion from the bundles and reproduce earlier counts
+Total full sentences: 14216 (Noli: 8673, El Fili: 5543)
+0 matches: 8917 (Expected: 8917) -> EXACT MATCH
+1 match:   2540 (Expected: 2540) -> EXACT MATCH
+2 matches: 1226 (Expected: 1226) -> EXACT MATCH
+3 matches: 652 (Expected: 652)  -> EXACT MATCH
+4+ matches: 881 (Expected: 881)  -> EXACT MATCH
+
+Coverage percentage: 37.27% (Matches 37.3%)
+
+Histogram breakdown for k >= 4:
+  k=4: 373
+  k=5: 230
+  k=6: 92
+  k=7: 53
+  k=8: 47
+  k=9: 38
+  k=10: 33
+  k=11: 6
+  k=12: 6
+  k=13: 2
+  k=15: 1
