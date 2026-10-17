@@ -118,7 +118,8 @@ if os.getenv("PERF_BENCHMARK") == "1":
 def health_check():
     return {"status": "ok", "version": settings.VERSION}
 
-from app.api.v1 import search, content, alignment
+from app.api.v1 import search, content, alignment, health
+app.include_router(health.router)
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(content.router, prefix="/api/v1")
 app.include_router(alignment.router, prefix="/api/v1")

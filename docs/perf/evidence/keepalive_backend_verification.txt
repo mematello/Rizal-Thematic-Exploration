@@ -1,0 +1,41 @@
+=== Part 1: Backend /health/db Local Verification Report ===
+Date: 2026-10-17T18:01:30+08:00
+Environment: Local Backend Test Suite (FastAPI TestClient + Live Supabase DB)
+
+--- Test 1: Normal 200 OK Path ---
+Initial checked out connections: 0
+Status Code: 200
+Response Body: {"status": "ok", "db": "ok"}
+Cache-Control Header: no-store
+Latency: 750.26 ms
+Checked out connections after request: 0
+Result: [Verified] Returned 200 OK with no-store header, 0 connection leak.
+
+--- Test 2: Simulated DB Failure Path ---
+Failure Status Code: 503
+Failure Response Body: {"status": "degraded", "db": "error"}
+Failure Cache-Control Header: no-store
+Failure Latency: 4.28 ms
+No exception/secret text leaked: True
+Checked out connections after failure: 0
+Result: [Verified] Returned 503 in 4.28 ms, masked internal error, 0 connection leak.
+
+--- Test 3: Simulated Timeout Failure Path ---
+Timeout Status Code: 503
+Timeout Response Body: {"status": "degraded", "db": "error"}
+Timeout Latency: 5010.04 ms
+Result: [Verified] Statement/connect timeout triggered at ~5.01s without hanging.
+
+--- Test 4: Existing /health Endpoint Invariance ---
+Status Code: 200
+Response Body: {"status": "ok", "version": "1.0.0"}
+Result: [Verified] Baseline /health unchanged.
+
+--- Test 5: Recomputed Hashes and Bundle Fingerprint Verification ---
+Current content.py LF hash:        2d55df0941ac7f1c64c7e8e788c2a7db6c461c18ec0b74d44252a89154200982
+Bundle content_alignment_hash:     2d55df0941ac7f1c64c7e8e788c2a7db6c461c18ec0b74d44252a89154200982
+Current robust_aligner.py LF hash: ea3d5199897b146a346416308f8107d3e095c7fa4d3017e6d69e6f66277c36e4
+Bundle robust_aligner_hash:        ea3d5199897b146a346416308f8107d3e095c7fa4d3017e6d69e6f66277c36e4
+Live Supabase fingerprint verification: True
+Log verification line: INFO root: Sanggunian static cache verified against Supabase corpus (205 chapters active).
+Result: [Verified] 100% hash parity and live Supabase verification match.

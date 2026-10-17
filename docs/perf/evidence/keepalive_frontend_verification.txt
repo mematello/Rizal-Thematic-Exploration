@@ -1,0 +1,47 @@
+=== Part 3: Frontend ServerWarmupBanner Verification Report ===
+Date: 2026-10-17T18:07:00+08:00
+Environment: Local Next.js (http://127.0.0.1:3000)
+Tested via: Browser Subagent + Chromium Automation
+
+--- Test 1: Normal Warm Load ---
+Initial isFetching: 0
+Banner rendered on warm load: False (null)
+Result: [Verified] Does NOT appear on normal fast or warm loads.
+
+--- Test 2: Delayed Query (> 3s Threshold & Auto-Dismissal) ---
+Simulated Delay: 4,500 ms on API query
+Timer to Banner Appearance: ~3,000 ms
+Banner element present: True ([data-testid="server-warmup-banner"])
+Banner Text: "Ginigising ang server... Sandali lamang habang inihahanda ang datos."
+Banner Role: "status"
+Banner Aria-Live: "polite"
+Pointer Events: "pointer-events-none" (underlying elements clickable, zero interaction block)
+Layout Shift: 0 (fixed positioning at top center)
+Safe Area: Respects max(0.75rem, env(safe-area-inset-top))
+Banner dismissal: Dismissed immediately upon request completion at 4,500 ms.
+Result: [Verified] Banner appears at ~3s threshold and dismisses cleanly upon query completion.
+
+--- Test 3: Light & Dark Mode WCAG AA Contrast ---
+Light Mode:
+  Container: bg-[#FCFAF7]/95, border-[#C5A065]/40
+  Text: text-[#1B263B]
+  Contrast Ratio: 12.3:1 (Exceeds WCAG AAA requirement of 7:1)
+Dark Mode:
+  Container: dark:bg-[#131B2A]/95, dark:border-[#D4AF37]/30
+  Text: dark:text-[#F0F4F8]
+  Contrast Ratio: 14.1:1 (Exceeds WCAG AAA requirement of 7:1)
+Result: [Verified] Both light and dark modes provide WCAG AAA compliant contrast.
+
+--- Test 4: Viewport & Device Emulation (Desktop + 390px Mobile) ---
+Desktop Viewport (1280x800):
+  Layout: Centered fixed pill at top of viewport
+  Horizontal Overflow: False
+390px Mobile Viewport Emulation:
+  Device Target Width: 390 px
+  innerWidth: 390 px
+  clientWidth: 382 px (excluding scrollbar track)
+  scrollWidth: 382 px
+  hasHorizontalOverflow: False (0 px overflow)
+Console Errors: 0
+Build & Typecheck: npm run build (Clean in 13.2s) | npx tsc --noEmit (0 errors)
+Result: [Verified] Fully responsive at 390px width with 0 horizontal overflow and 0 console errors.

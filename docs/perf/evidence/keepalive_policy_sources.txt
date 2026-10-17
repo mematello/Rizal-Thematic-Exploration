@@ -1,0 +1,31 @@
+=== Keep-Alive & Health Probe: Policy Sources & Exact Citations ===
+Date Verified: 2026-10-17
+Source 1: Hugging Face Spaces Documentation
+Source 2: Supabase Platform Documentation
+
+================================================================================
+1. Hugging Face Spaces Inactivity Sleep Policy
+================================================================================
+URL: https://huggingface.co/docs/hub/spaces-gpus#sleep-time
+API Reference: https://huggingface.co/docs/huggingface_hub/package_reference/hf_api#huggingface_hub.HfApi.set_space_sleep_time
+
+Exact Quotation:
+"By default, Spaces on free hardware (such as CPU basic) will 'go to sleep' after 48 hours of inactivity (no traffic). When a sleeping Space is visited, it will restart automatically."
+
+Operational Implications:
+- The backend API container on HF Space (`cpu-basic`) tears down memory and container execution after 48 continuous hours without traffic.
+- Pinging `GET /health/db` on a recurring schedule (every 30 minutes) resets the 48-hour inactivity timer, preventing cold-start latency spikes.
+
+================================================================================
+2. Supabase Free Plan Inactivity Pausing Policy
+================================================================================
+URL: https://supabase.com/docs/guides/platform/pausing
+Section: Managing Project Inactivity
+
+Exact Quotation:
+"Projects on the Free Plan are automatically paused if they show low user database activity over a 7-day period (1 week)."
+"To keep your project active, ensure it receives regular database requests."
+
+Operational Implications:
+- Plain TCP connects or gateway pings (`SELECT 1`) may be terminated by connection pooling or caching layers without registering user database activity.
+- Executing `SELECT 1 FROM sentences LIMIT 1` performs a live, fast read-only query against the project's user data tables, registering active database utilization in Supabase telemetry and preventing the 7-day automated project pause.

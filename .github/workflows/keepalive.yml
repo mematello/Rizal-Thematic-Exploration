@@ -1,0 +1,43 @@
+name: Keep-Alive & Health Probe
+
+# ==============================================================================
+# CAVEATS & OPERATIONAL NOTES:
+# 1. GitHub Actions Disablement: GitHub automatically disables scheduled cron
+#    workflows in public/private repos after 60 days of repository inactivity
+#    (no commits/pushes). Any commit or manual workflow dispatch resets this timer.
+# 2. Cron Scheduling Jitter: GitHub Actions cron schedules are not guaranteed to run
+#    at the exact minute. During peak GitHub load, runs can lag by several minutes.
+# 3. Platform Policies:
+#    - Hugging Face Spaces (free cpu-basic): Sleeps after 48 hours of inactivity.
+#      A ping every 30 minutes keeps the container warm and prevents cold starts.
+#    - Supabase (free tier): Pauses projects after 7 consecutive days of low user
+#      database activity. Querying /health/db executes `SELECT 1 FROM sentences LIMIT 1`, preventing pause.
+# ==============================================================================
+
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Hugging Face API and Supabase DB Health
+        run: |
+          echo "Pinging Hugging Face API /health/db..."
+          curl -sS --max-time 60 --retry 3 --retry-delay 20 --fail \
+            https://mematello-rizal-thematic-search-api.hf.space/health/db
+          echo ""
+          echo "HF API & DB ping successful."
+
+      - name: Ping Vercel Frontend Root
+        run: |
+          echo "Pinging Vercel Frontend root..."
+          curl -sS --max-time 30 --retry 2 --retry-delay 10 --fail -I \
+            https://rizalengine.vercel.app/
+          echo "Vercel frontend ping successful."
