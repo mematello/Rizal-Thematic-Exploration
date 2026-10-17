@@ -979,7 +979,69 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Gabay na Mapa legend and `#18202C` dark card background: **[Verified]** across noli, fili, both in light and dark modes.
   - Accessibility / Contrast (Dark Mode): **[Verified]** (Card titles 13.8:1 WCAG AAA; no critical contrast violations).
 
+---
 
-
-
-
+### 16. 2026-10-18: Item 1 - Sanggunian in Buong Kwento Mode Shows Matching Buod (Branch `feat/sanggunian-inverse`)
+- **Date**: 2026-10-18
+- **Branch**: `feat/sanggunian-inverse` (branched from current `main` at `da3dae6`)
+- **Status**: **Implemented and Verified (Frontend Only; Zero Backend Diff)**.
+- **Context & Motivation**:
+  - In Buod mode, Sanggunian allows readers to jump from a summary sentence to the corresponding full-text passages (Buod → Buong Kwento).
+  - In Buong Kwento (Full Text) mode, readers previously lacked reciprocal reference navigation back to the concise summary text.
+  - Gate 3 notes had incorrectly claimed Sanggunian showed cross-novel intertextual matches. Verification in Step 0 proved 100% of references in both Noli and El Fili are strictly intra-novel (reference full-text sentences of the SAME novel; 0 cross-novel references).
+  - Hard constraint: `backend/` strictly **ZERO DIFF** (preserving bundle fingerprints in `content.py` and `robust_aligner.py`).
+- **Decisions**:
+  1. **Frontend-Only Inversion via Cached Buod Bundles**:
+     - Rather than generating new backend endpoints or altering precomputed cache bundles, full-mode inverse references are computed client-side in `ChapterModal.tsx`.
+     - In full mode, React Query loads the matching buod chapter content and sanggunian bundle using the existing endpoints with `staleTime: 24 * 60 * 60 * 1000` (24 hours).
+     - Full-mode chapter open triggers background prefetch of the matching buod chapter(s).
+     - A memoized `Map<number, BuodMatch[]>` (`fullInverseMap`) is constructed mapping each full-text `sentence.id` to its matching buod sentences (`buodSentenceId`, `sentence_index`, `text`, `score`, `alignment_status`).
+  2. **Chapter Mapping & The Noli 63/64 Asymmetry**:
+     - El Filibusterismo: Exactly 1:1 mapping across all 39 chapters (Buod Ch $X$ ↔ Full Ch $X$).
+     - Noli Me Tangere: Chapters 1..63 map 1:1. Buod Chapter 64 (Epilogue "Katapusan") maps to Full Chapter 63 (as defined in `backend/app/api/v1/content.py:1079`).
+     - In full mode for Noli Chapter 63, the client queries and combines matches from BOTH Buod Chapter 63 and Buod Chapter 64.
+  3. **The 37.3% Coverage Figure & Parity**:
+     - Recomputed inversion across all 14,216 full sentences in both novels (8,673 in Noli, 5,543 in El Fili):
+       - $k = 0$ matches: 8,917 sentences (62.73%)
+       - $k = 1$ match: 2,540 sentences (17.87%)
+       - $k = 2$ matches: 1,226 sentences (8.62%)
+       - $k = 3$ matches: 652 sentences (4.59%)
+       - $k \ge 4$ matches: 881 sentences (6.20%)
+       - Total sentences with $\ge 1$ match: 5,299 sentences (37.27% ~ 37.3% coverage).
+     - Offline parity script (`scratch/verify_inversion_parity.py`) verified 0 mismatches across all 14,216 sentences between the frontend chapter-by-chapter mapping logic and the global offline inversion.
+  4. **The No-Superscript-When-No-Match Rule**:
+     - In full mode, superscripts (`[1]`, `[2]`, etc.) are rendered **ONLY** on sentences that have at least one match ($k \ge 1$).
+     - The 8,917 sentences with 0 matches render clean narrative prose without superscripts.
+     - Numbering increments sequentially among matched sentences in that chapter.
+  5. **Overlay UI & Semantics**:
+     - Overlay header pill updated to `"Mula sa Buong Kwento → Patungo sa Buod"` in full mode, and `"Mula sa Buod → Patungo sa Buong Kwento"` in buod mode.
+     - Source card in full mode: "Pinagmulang Teksto (Buong Kwento)" displays the full sentence.
+     - Target card in full mode: "Lokasyon sa Buod" displays all matching buod sentences ordered by `sentence_index`, accompanied by the similarity score and alignment status badge.
+     - Dark mode and mobile vertical stacking reuse existing tokens and responsive styles.
+  6. **Graceful Degradation & Network Safety**:
+     - If buod queries are loading, a subtle spinner indicates loading status.
+     - If buod queries fail (e.g. offline or network error), full-mode superscripts are cleanly hidden with 0 alert flood, 0 uncaught errors, and the full-text reader remains fully functional.
+- **Risks & Mitigations**:
+  - *Risk*: Multiple buod sentences matching a single full sentence ($k$ up to 15).
+    *Mitigation*: Target card renders all matching buod sentences in an ordered list with individual scores, sentence indices, and character tags in a scrollable container.
+  - *Risk*: Extra network traffic in full mode.
+    *Mitigation*: Buod chapter data is lightweight (~3.5 KB per chapter, compared to ~42 KB for full chapters). React Query caches responses for 24h, resulting in 0 extra requests on re-reading or toggling.
+  - *Risk*: Backend cache bundle invalidation.
+    *Mitigation*: ZERO diff on `backend/` (`content.py`, `robust_aligner.py`, `engine.py`). Bundle SHA and fingerprints remain completely untouched.
+- **Verification Claims (Verified / Not verified)**:
+  - Step 0 Intra-novel passage reference assumption (0 cross-novel references): **[Verified]**
+  - Gate 3 note claiming cross-novel match was factually incorrect: **[Verified]**
+  - Passage IDs never cross chapters except Noli Buod 64 -> Full 63: **[Verified]**
+  - Offline inversion counts reproduced (8,917 / 2,540 / 1,226 / 652 / 881 = 37.3%): **[Verified]**
+  - Chapter-by-chapter frontend inversion equals global offline inversion across 14,216 sentences: **[Verified]**
+  - Full mode Noli Ch 1 renders exactly 72 superscripts; click opens correct buod text (score 78%): **[Verified]**
+  - Full mode Noli Ch 63 renders 65 superscripts merging Buod Ch 63 & 64: **[Verified]**
+  - Full mode El Fili Ch 10 renders 55 superscripts; click opens correct buod text (score 84%): **[Verified]**
+  - Sentences with 0 matches render no superscripts: **[Verified]**
+  - Buod mode regression test (22 superscripts, correct "Mula sa Buod → Patungo sa Buong Kwento" overlay): **[Verified]**
+  - Responsive widths 390px (clientWidth 390px, 0 overflow) and 1440px desktop: **[Verified]**
+  - Dark mode styles and contrast: **[Verified]**
+  - Browser console errors: 0 errors: **[Verified]**
+  - `npx tsc --noEmit`: Clean (Exit Code 0): **[Verified]**
+  - `npm run build`: Clean (Exit Code 0, 8/8 static routes generated): **[Verified]**
+  - `git diff main -- backend/`: Strictly EMPTY: **[Verified]**

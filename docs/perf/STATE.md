@@ -1,8 +1,8 @@
 # Performance Optimization State
 
 **Last Updated**: 2026-10-18  
-**Branch**: `main`  
-**Current Phase**: UI Polish Batch & Follow-Up Completed & Verified. Live on Vercel (`da3dae6`). Backend ZERO diff preserved.
+**Branch**: `feat/sanggunian-inverse`  
+**Current Phase**: Item 1 (Sanggunian Inverse in Buong Kwento mode) Implemented & Verified. Strict Backend ZERO Diff Preserved.
 
 ---
 
@@ -314,10 +314,48 @@
     - Gabay na Mapa dark card background `#18202C`: **[Verified]**
     - Accessibility & dark mode contrast: **[Verified]** (Card titles 13.8:1, no critical contrast violations)
 
+- **Item 1: Sanggunian in Buong Kwento Mode Shows Matching Buod (Completed 2026-10-18, branch `feat/sanggunian-inverse`)**:
+  - **Hard Constraints Honored**:
+    - `backend/` strictly **ZERO DIFF** (`content.py`, `robust_aligner.py`, `engine.py` untouched).
+    - Precomputed cache bundles and bundle fingerprints preserved.
+    - Zero changes to Buod mode behavior, API responses, or existing search rankings.
+  - **Step 0 Findings & Data Parity**:
+    - Confirmed 100% of buod `passage_ids` reference full-text sentence IDs of the SAME novel (0 cross-novel references).
+    - Corrected Gate 3 note claiming cross-novel match: it was factually incorrect; Sanggunian is strictly intra-novel.
+    - Confirmed `passage_ids` never cross chapters, with the sole exception of Noli Buod Ch 64 mapping to Full Ch 63 (Epilogue "Katapusan").
+    - Chapter Mapping: El Fili is 1:1 (39:39). Noli Ch 1..63 map 1:1, while Noli Full Ch 63 receives matches from BOTH Buod Ch 63 and Ch 64.
+    - Recomputed full-text sentence match distribution across all 14,216 full sentences (8,673 Noli, 5,543 Fili):
+      - 0 matches: 8,917 (62.73%)
+      - 1 match: 2,540 (17.87%)
+      - 2 matches: 1,226 (8.62%)
+      - 3 matches: 652 (4.59%)
+      - 4+ matches: 881 (6.20%)
+      - Total with >= 1 match: 5,299 (37.27% ~ 37.3% coverage). Exact reproduction of baseline figures.
+    - Scripted unit check (`scratch/verify_inversion_parity.py`) verified 0 mismatches across all 14,216 sentences between the frontend chapter-by-chapter mapping logic and the global offline inversion.
+  - **Frontend Implementation (`frontend/components/ChapterModal.tsx`)**:
+    - In full mode, React Query fetches matching buod content and sanggunian bundle (`staleTime: 24h`).
+    - Added background prefetch on chapter open.
+    - Memoized inverse map (`fullInverseMap`) maps full `sentence.id` to matching `BuodMatch[]` records.
+    - No-superscript-when-no-match rule: `[n]` superscripts render exclusively on full sentences with k >= 1 matches. Sentences with 0 matches render clean prose.
+    - Overlay label updated to `"Mula sa Buong Kwento → Patungo sa Buod"` in full mode and `"Mula sa Buod → Patungo sa Buong Kwento"` in buod mode.
+    - Target card in full mode renders all matching buod sentences ordered by `sentence_index` with alignment score and status.
+    - Graceful degradation: if buod query fails, full-mode superscripts are hidden cleanly with 0 alert flood.
+  - **Verification Claims (Verified / Not verified)**:
+    - `backend/` diff relative to `main` strictly EMPTY: **[Verified]**
+    - Step 0 intra-novel passage reference assumption (0 cross-novel references): **[Verified]** (Evidence: `docs/perf/evidence/sanggunian_inverse_step0.txt`)
+    - Offline inversion parity across 14,216 sentences (0 mismatches): **[Verified]** (Evidence: `docs/perf/evidence/sanggunian_inverse_unit_check.txt`)
+    - Browser verification (Noli Ch 1, Noli Ch 63/64 edge, El Fili Ch 10): **[Verified]** (Evidence: `docs/perf/evidence/sanggunian_inverse_browser.txt`)
+    - Buod mode regression test (22 superscripts, correct overlay, 100% identical to main): **[Verified]**
+    - Responsive layout (390px mobile vertical layout with 0 horizontal overflow, 1440px desktop): **[Verified]**
+    - Dark mode styling and contrast: **[Verified]**
+    - Browser console errors: 0 errors: **[Verified]**
+    - `npx tsc --noEmit`: Clean (Exit Code 0): **[Verified]**
+    - `npm run build`: Clean (Exit Code 0, 8/8 static routes generated): **[Verified]**
+
 ---
 
 ## Next Steps
-- Item 1 (Sanggunian "Buong Kwento → Buod" label alignment semantics) is deferred for subsequent dedicated review.
-- UI Polish batch and follow-up are **100% completed, committed, merged to `main`, pushed, and verified live on Vercel**.
+- Item 1 on branch `feat/sanggunian-inverse` is **100% complete, tested, and documented**.
+- Code remains on branch `feat/sanggunian-inverse`. Do NOT merge or push to `main` until explicitly reviewed.
 
 

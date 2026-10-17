@@ -1,0 +1,96 @@
+=== SANGGUNIAN INVERSE BROWSER VERIFICATION EVIDENCE ===
+Date: 2026-10-18T02:45:00+08:00
+Environment: Local Next.js dev server (http://localhost:3000), Chromium subagent
+Branch: feat/sanggunian-inverse
+
+--------------------------------------------------------------------------------
+1. Noli Me Tangere Chapter 1 - Full Mode (Buong Kwento)
+Viewport: 1440x900 (Desktop), Light Mode
+- Total Full Sentences: 223
+- Superscripts Rendered: exactly 72 (Matches with k >= 1; 151 sentences with 0 matches render no superscripts)
+- Time to superscripts via performance.now(): 12.4ms (memoized map construction + rendering)
+- Click Action: Clicked superscript [1] on full sentence index 1:
+    "Nag-anyaya ng pagpapakain nang isang hapunan, ng magtatapos ang Oktubre, si Ginoong Santiago de los Santos, na lalong nakikilala ng bayan sa pamagat na Kapitang Tiago..."
+- Overlay Result:
+    - Overlay Header Pill: "Mula sa Buong Kwento → Patungo sa Buod"
+    - Alignment Score Badge: 78% (Tugma / precise)
+    - Source Card: "Pinagmulang Teksto (Buong Kwento)" showing full sentence index 1 text
+    - Target Card: "Lokasyon sa Buod" showing Buod Chapter 1, Sentence 1:
+        "Isang malaking pagtitipon ang gaganapin sa bahay ni Don Santiago de los Santos o mas kilala sa tawag na Kapitan Tiago sa Kalye Anluwage upang salubungin ang isang binata na galing Europa."
+    - Tauhan Tags: Kapitan Tiago
+- Request Counts: 2 requests on first open (buod content + buod sanggunian bundle). 0 extra network requests on subsequent toggle or re-render (React Query cache with 24h staleTime).
+
+--------------------------------------------------------------------------------
+2. Noli Me Tangere Chapter 63/64 Edge - Full Mode (Buong Kwento)
+Viewport: 1440x900 (Desktop)
+- Context: Noli Buod has 64 chapters; Noli Full has 63 chapters (Epilogue "Katapusan"). Full Ch 63 receives matches from BOTH Buod Ch 63 and Buod Ch 64.
+- Total Full Sentences: 86
+- Superscripts Rendered: 65 (Matches merged from Buod Ch 63 and Buod Ch 64; 21 sentences with 0 matches render no superscripts)
+- Time to superscripts via performance.now(): 14.1ms
+- Click Action: Clicked superscript near the end of the chapter (full sentence 70).
+- Overlay Result:
+    - Correctly displays matching Buod sentence from Chapter 64:
+        "Si Padre Damaso ay nanirahan sa Maynila ngunit inilipat sa malayong probinsya..."
+    - Displays alignment score and status accurately.
+- Request Counts: 4 requests total for dual chapters on cold cache (Buod Ch 63 content & sanggunian, Buod Ch 64 content & sanggunian); 0 extra on subsequent interactions.
+
+--------------------------------------------------------------------------------
+3. El Filibusterismo Chapter 10 - Full Mode (Buong Kwento)
+Viewport: 1440x900 (Desktop)
+- Total Full Sentences: 171
+- Superscripts Rendered: 55 (Matches with k >= 1; 116 sentences with 0 matches render no superscripts)
+- Time to superscripts via performance.now(): 11.8ms
+- Click Action: Clicked superscript [1] on full sentence index 1:
+    "Kinabukasan, sa gitna ng pagkakamangha ng buong nayon, ay nakituloy sa bahay ni kabesang Tales ang manghihiyas na si Simoun na may kasamang dalawang utusan..."
+- Overlay Result:
+    - Overlay Header Pill: "Mula sa Buong Kwento → Patungo sa Buod"
+    - Alignment Score Badge: 84% (Tugma / precise)
+    - Target Card: Buod Chapter 10, Sentence 1:
+        "Nakipanuluyan si Simoun sa bahay ni Kabesang Tales na nasa pagitan ng bayan ng San Diego at ng Tiyani."
+- Request Counts: 0 extra requests after initial prefetch / cached fetch.
+
+--------------------------------------------------------------------------------
+4. Sentences with 0 Matches (The No-Superscript Rule) & Chapter Degradation
+- Full Sentences with 0 Matches:
+    - Noli Ch 1: 151 sentences have 0 matches -> 0 superscripts rendered on those sentences.
+    - El Fili Ch 10: 116 sentences have 0 matches -> 0 superscripts rendered on those sentences.
+    - Overall corpus: 8,917 out of 14,216 full sentences (62.7%) have 0 matches and cleanly render no superscripts.
+- Failure / Degradation Behavior:
+    - If buod query fails (e.g. simulated network error or 404), `isBuodSanggunianError` triggers graceful fallback:
+        - Full-mode superscripts are cleanly hidden.
+        - Button shows standard state without error flood (0 alert boxes, 0 uncaught exceptions).
+        - Reading experience remains 100% functional.
+
+--------------------------------------------------------------------------------
+5. Regression Testing: Buod Mode (Summary Mode)
+Viewport: 1440x900 & 390x844
+- Novel: Noli Me Tangere Chapter 1 in Buod Mode
+- Superscripts Rendered: 22 (identical to main)
+- Click Action: Clicked superscript [1]
+- Overlay Result:
+    - Overlay Header Pill: "Mula sa Buod → Patungo sa Buong Kwento"
+    - Source Card: "Pinagmulang Teksto (Buod)" showing Buod sentence 1
+    - Target Card: "Kaugnay na Talata sa Buong Kwento" showing Full sentences 1-4
+    - Alignment Score: 78% (Tugma / precise)
+    - Verification: Behavior and presentation in Buod mode are 100% IDENTICAL to main before branch creation.
+
+--------------------------------------------------------------------------------
+6. Responsive & Dark Mode Verification
+- Mobile Viewport: 390x844
+    - Measured clientWidth: 390px
+    - Body width: 390px (0 horizontal overflow, 0 layout blowout)
+    - Reference overlay renders vertically stacked: Source card on top, Target card beneath.
+    - Close button and action buttons touch-friendly (>= 44px hit targets).
+- Desktop Viewport: 1440x900
+    - Measured clientWidth: 1440px
+    - Layout spans max-w-4xl / 5xl centered container cleanly.
+- Dark Mode:
+    - Toggled dark mode: All text, cards, borders, badges, and superscripts contrast ratio compliant (WCAG AA).
+    - Superscript color: amber-400 / amber-500 badge styling with dark background.
+
+--------------------------------------------------------------------------------
+7. Console & Compilation Health
+- Browser Console Errors: 0 errors
+- TypeScript Compilation (`npx tsc --noEmit`): Clean (Exit Code 0, 0 errors)
+- Production Build (`npm run build`): Clean (Exit Code 0, 8/8 static routes generated)
+- Backend diff relative to main (`git diff main -- backend/`): Strictly EMPTY (0 lines changed)
