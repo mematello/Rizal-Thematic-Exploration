@@ -34,6 +34,18 @@ export async function fetchChapterContent(
     return res.json();
 }
 
+export async function fetchChapterSanggunian(
+    book: string,
+    chapter: number,
+    mode: string = "buod"
+) {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const apiUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const res = await fetch(`${apiUrl}/api/v1/chapters/${book}/${chapter}/sanggunian?mode=${mode}`);
+    if (!res.ok) throw new Error(`Failed to fetch sanggunian for chapter ${chapter}`);
+    return res.json();
+}
+
 interface ChapterGridProps {
     selectedNovel: Novel;
     onChapterSelect: (book: string, chapter: number, title: string) => void;

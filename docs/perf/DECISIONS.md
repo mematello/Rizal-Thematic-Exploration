@@ -808,10 +808,71 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Search Pipeline / Engine: **0 diff** on `backend/app/core/engine.py`.
   - Visuals & Ergonomics: Premium, high-contrast dark reading experience across all devices and modal dialogs.
 
+---
 
-
-
-
-
-
+### 13. 2026-10-17: Item C Phase 2 — Sanggunian Cross-Novel Reference Optimization (Fixes 1 + 2)
+- **Context**: Profiling in Phase 1 (`docs/perf/evidence/sanggunian_profile.md`) revealed that loading Sanggunian cross-references for a chapter executed an N+1 HTTP loop from the frontend (`ChapterModal.tsx`), making up to 12-25 concurrent requests to `GET /api/v1/sentences/{id}/sanggunian`. Each request executed a cold DAPT model encoding and dynamic cosine alignment across all chapters, totaling 52.4s of backend compute per chapter and saturating HF Space worker threads.
+- **Rollback Targets**:
+  - New HF Space Rollback Target: `3117ead`.
+  - Backend Rollback Target before this item: `2b15166`.
+- **Scope Clarification**:
+  - **Summary Mode (Cross-Novel ML Alignment)**: ML semantic alignment (`RobustAligner.align`) applies strictly to **2,186 summary sentences across 103 chapters** (Noli: 64 chapters, 1,212 sentences; El Fili: 39 chapters, 974 sentences). It compares each summary sentence against all sentences of the same chapter in full mode using DAPT embeddings.
+  - **Full Mode (Passage Grouping)**: For full-mode sentences (14,216 sentences across 102 chapters; Noli: 63 chapters, 8,673 sentences; El Fili: 39 chapters, 5,543 sentences), `backend/app/api/v1/content.py` does NOT invoke `RobustAligner`. Instead, it groups sentences by `passage_id` (pre-assigned contiguous sentence cluster) and returns `has_reference=True, alignment_status='precise', score=1.0, reference_text=passage`.
+  - **Purpose of Full-Mode Bundles (5.77 MB)**: The precomputed full-mode bundles (`sanggunian_cache_noli_full.json` [3.49 MB] and `sanggunian_cache_elfili_full.json` [2.28 MB]) exist strictly to eliminate the database roundtrip and passage grouping query, delivering 0ms static lookups.
+- **Cold Path Latency Breakdown & Reconciliation**:
+  - Fresh-process instrumentation of the actual endpoint cold path (`scripts/profile_cold_endpoint.py`, raw evidence in `docs/perf/evidence/sanggunian_endpoint_cold_breakdown.txt`):
+    - **Noli 1** (22 buod, 223 full, 114 NULL full): SQL = 3,407.7 ms (4.2%), Encode = 18,597.3 ms (22.8%), RobustAligner = 59,570.7 ms (73.0%), Other = 1.3 ms, Total = **81,577.4 ms (~81.6 s)**.
+    - **Noli 5** (9 buod, 19 full, 9 NULL buod): SQL = 330.0 ms (8.5%), Encode = 1,690.9 ms (43.5%), RobustAligner = 1,865.7 ms (48.0%), Other = 0.2 ms, Total = **3,886.9 ms (~3.9 s)**.
+    - **El Fili 10** (21 buod, 171 full, 0 NULL): SQL = 2,429.1 ms (5.8%), Encode = 0.5 ms (0.0%), RobustAligner = 39,440.9 ms (94.2%), Other = 0.7 ms, Total = **41,871.3 ms (~41.9 s)**.
+  - **Reconciliation Note**: Individual component timings (14–19s DAPT encoding for NULL rows, 39–60s $M \times N$ matrix alignment on CPU) are measured and verified. However, **the CPU-saturation explanation of the observed 20–52 s cold times under concurrency is an inference, not verified**.
+- **Parity with Old Live Backend**:
+  - **Summary Mode Parity**: Reference sentence IDs, reference texts, and `alignment_status` match 100% (2,186 / 2,186 sentences across all 103 chapters). Summary scores match the old backend except float32 noise $\le 3.0 \times 10^{-7}$ (1,829 / 2,186 differ by sub-micro float32 precision across CPU architectures; 357 are exact; 0 structural differences).
+  - **Full Mode Parity**: Tested a random sample of 500 full-mode sentences; all **500 / 500 were 100% bit-identical in raw HTTP bytes SHA-256**.
+- **Operational Note (Fingerprint Invalidation & Regeneration)**:
+  - The cryptographic fingerprint in each bundle hashes the entire contents of `backend/app/api/v1/content.py` and `backend/app/core/robust_aligner.py` (with LF line-ending normalization).
+  - Therefore, **any edit to `content.py` or `robust_aligner.py` will invalidate the bundle fingerprint and force the backend to fall back to live compute**.
+  - Any code change to `content.py` requires rebuilding the precomputed bundles before deployment via:
+    ```bash
+    poetry run python scripts/build_sanggunian_cache.py
+    ```
+- **Decisions**:
+  1. **Precompute Static Chapter Bundles (`scripts/build_sanggunian_cache.py`)**:
+     - Precomputed all cross-novel alignments offline using the unmodified live engine logic for all 205 chapters (16,402 sentences: 2,186 summary ML aligned + 14,216 full passage grouped).
+     - Bundles saved in `backend/app/data/`: `sanggunian_cache_noli_buod.json` (1.61 MB), `sanggunian_cache_noli_full.json` (3.49 MB), `sanggunian_cache_elfili_buod.json` (1.21 MB), and `sanggunian_cache_elfili_full.json` (2.28 MB). Total size: **8.39 MB**.
+     - Embedded cryptographic fingerprint: sentence count (16,402), `sentence_text` MD5, count of NULL `embedding_dapt` rows (4,580), `embedding_dapt` column MD5, SHA-256 of `robust_aligner.py`, SHA-256 of alignment logic in `content.py`, and DAPT model name/revision (`mematello/rizal-xlm-r-dapt:main`).
+  2. **Non-blocking Startup Verification & Fail-Safe Fallbacks**:
+     - Bundles loaded at module import (`load_static_sanggunian_cache()`), setting `_static_sanggunian_enabled = True` immediately to serve requests with 0ms bundle lookups during startup.
+     - Lifespan background task `warm_sanggunian_cache()` calls `verify_sanggunian_fingerprint(db)` (~16.14s runtime against Supabase).
+     - The `embedding_dapt` MD5 is computed directly inside PostgreSQL (`md5(string_agg(...))`), transferring zero embedding vectors over the network.
+     - Fingerprint match: Keeps static bundle enabled.
+     - Fingerprint mismatch: Logs loud warning, flips `_static_sanggunian_enabled = False`, falls back to live compute.
+     - DB unreachable: Retains static bundle as resilient fallback, logs warning, never crashes.
+     - Added `_alignment_compute_lock` to serialize concurrent live alignment compute races on cache misses.
+  3. **Chapter-Level Endpoint & HTTP Cache Headers**:
+     - Added `GET /api/v1/chapters/{book}/{chapter_number}/sanggunian?mode={mode}` returning mapping of all sentence references in one request.
+     - Added header `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+     - Maintained `GET /api/v1/sentences/{id}/sanggunian` behavior and response shape unchanged, serving from `_sentence_to_sanggunian_cache` index when enabled.
+  4. **Frontend React Query & Prefetching (`ChapterModal.tsx`)**:
+     - Replaced per-sentence fetch loop with `useQuery({ queryKey: ['sanggunian', book, currentChapterNum, mode], staleTime: 24h })`.
+     - Prefetches active chapter and adjacent chapters in buod mode on modal open.
+     - Preserves existing fallback loop to per-sentence endpoint if chapter endpoint fails.
+- **Footprint and Startup Impact (Evidence: `docs/perf/evidence/sanggunian_footprint_startup.txt`)**:
+  - Process RSS before loading bundles: **427.79 MB**
+  - Process RSS after loading all 4 bundles: **455.61 MB** (RSS Memory Delta: **+27.81 MB**; load time: 151.81 ms).
+  - Docker Image Size Delta: **+8.39 MB** (8,797,554 bytes uncompressed across all 4 JSON bundles).
+  - Fingerprint verification runtime: **16.14 seconds** (executed asynchronously in background thread; requests served from static bundle during verification).
+- **Impact & Verification**:
+  - **Latency**: Chapter endpoint latency dropped from **52,400 ms to 1.6–4.0 ms warm (2.7–20.7 ms cold)** (-99.99% latency reduction).
+  - **Parity**: **205/205 chapters identical (0 mismatches)** in raw HTTP response bytes.
+  - **Score Delta**: Max absolute score delta on the 5 profiled sentences between local and live HF Space: **0.00000030** (disclosed).
+  - **Fallbacks Tested**: All 3 resilience cases (mismatch, missing bundle, DB offline) verified via `scripts/test_sanggunian_fallbacks.py`.
+  - **Golden Query Invariance**: All 40 search queries 100% invariant vs `golden_snapshot_deterministic.json` (0 diffs).
+  - **Engine Diff**: `backend/app/core/engine.py` diff is **STRICTLY 0 DIFF**.
+  - **Gate Status**:
+    - Pre-Gate-2 checks: **All passed**.
+    - Gate 2 Backend Deployment: **Completed & Verified live on Hugging Face Spaces (`4bbc31e`)**.
+    - Rollback target confirmed: `2b15166`.
+    - Raw evidence saved in `docs/perf/evidence/sanggunian_gate2_live_verification.txt`.
+    - All 6 claims verified: `/health` 200 OK, old per-sentence endpoint invariant, 5 chapter endpoints 100% bit-identical SHA-256 match with `Cache-Control` header, warm WAN latency 230–480ms, 5 golden search queries top-5 IDs 100% invariant.
+    - Gate 3 Pre-merge checks: **Passed**. Awaiting Gate 3 merge and Vercel verification.
 

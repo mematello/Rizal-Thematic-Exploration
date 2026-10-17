@@ -1,0 +1,121 @@
+Sanggunian Latency Benchmark: LIVE HF SPACE
+Target URL Base: https://mematello-rizal-thematic-search-api.hf.space
+Timestamp: 2026-10-17 06:55:57
+Protocol: 10 runs per sentence ID (Run 1 = Cold, Runs 2-10 = Warm), persistent requests.Session()
+======================================================================
+
+--- Sentence ID: 37177 (Noli Ch 1 Sent 1) ---
+URL: https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/37177/sanggunian
+  Run  1:  1804.60 ms | Status: 200
+  Run  2:  1093.77 ms | Status: 200
+  Run  3:  1065.49 ms | Status: 200
+  Run  4:  1057.67 ms | Status: 200
+  Run  5:  1045.98 ms | Status: 200
+  Run  6:  1094.56 ms | Status: 200
+  Run  7:  1080.65 ms | Status: 200
+  Run  8:  1082.67 ms | Status: 200
+  Run  9:  1048.80 ms | Status: 200
+  Run 10:  1033.29 ms | Status: 200
+Summary for ID 37177:
+  Cold (Run 1): 1804.60 ms
+  Warm Mean (Runs 2-10): 1066.99 ms
+  Warm Median: 1065.49 ms
+  Warm Min: 1033.29 ms, Max: 1094.56 ms
+  Warm P95: 1094.56 ms
+  Response has_reference: True
+  Response score: 0.7814507676250508
+  Response alignment_status: precise
+  Reference text: Nag-anyaya ng pagpapakain nang isang hapunan, ng magtatapos ang Oktubre, si Ginoong Santiago de los ...
+
+--- Sentence ID: 37275 (Noli Ch 5 Sent 1) ---
+URL: https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/37275/sanggunian
+  Run  1:   882.20 ms | Status: 200
+  Run  2:   886.87 ms | Status: 200
+  Run  3:   868.89 ms | Status: 200
+  Run  4:   854.40 ms | Status: 200
+  Run  5:   872.54 ms | Status: 200
+  Run  6:   868.57 ms | Status: 200
+  Run  7:   884.63 ms | Status: 200
+  Run  8:   878.48 ms | Status: 200
+  Run  9:   852.97 ms | Status: 200
+  Run 10:   845.91 ms | Status: 200
+Summary for ID 37275:
+  Cold (Run 1): 882.20 ms
+  Warm Mean (Runs 2-10): 868.14 ms
+  Warm Median: 868.89 ms
+  Warm Min: 845.91 ms, Max: 886.87 ms
+  Warm P95: 886.87 ms
+  Response has_reference: True
+  Response score: 0.8229756183094448
+  Response alignment_status: precise
+  Reference text: Nanhik si Ibarra sa kanyang kwarto, na nasadakong ilog, nagpatihulog sa isang sillon, at kanyang pin...
+
+--- Sentence ID: 37768 (Noli Ch 34 Sent 1) ---
+URL: https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/37768/sanggunian
+  Run  1:  1949.18 ms | Status: 200
+  Run  2:  1920.70 ms | Status: 200
+  Run  3:   876.48 ms | Status: 200
+  Run  4:   855.83 ms | Status: 200
+  Run  5:   842.83 ms | Status: 200
+  Run  6:   884.79 ms | Status: 200
+  Run  7:   874.96 ms | Status: 200
+  Run  8:  1910.75 ms | Status: 200
+  Run  9:   841.88 ms | Status: 200
+  Run 10:   844.64 ms | Status: 200
+Summary for ID 37768:
+  Cold (Run 1): 1949.18 ms
+  Warm Mean (Runs 2-10): 1094.76 ms
+  Warm Median: 874.96 ms
+  Warm Min: 841.88 ms, Max: 1920.70 ms
+  Warm P95: 1920.70 ms
+  Response has_reference: True
+  Response score: 0.6216218742046056
+  Response alignment_status: precise
+  Reference text: Nangagasisicain sa ilalim ng pinamutihang kiosko ang mga mahal na tao sa lalawigan. Na sa isang duyo...
+
+--- Sentence ID: 38389 (El Fili Ch 1 Sent 1) ---
+URL: https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/38389/sanggunian
+  Run  1:   878.11 ms | Status: 200
+  Run  2:   874.66 ms | Status: 200
+  Run  3:   870.94 ms | Status: 200
+  Run  4:   841.81 ms | Status: 200
+  Run  5:  1124.75 ms | Status: 200
+  Run  6:   872.13 ms | Status: 200
+  Run  7:   874.65 ms | Status: 200
+  Run  8:   870.53 ms | Status: 200
+  Run  9:   853.59 ms | Status: 200
+  Run 10:   845.31 ms | Status: 200
+Summary for ID 38389:
+  Cold (Run 1): 878.11 ms
+  Warm Mean (Runs 2-10): 892.04 ms
+  Warm Median: 870.94 ms
+  Warm Min: 841.81 ms, Max: 1124.75 ms
+  Warm P95: 1124.75 ms
+  Response has_reference: True
+  Response score: 0.9199483679739279
+  Response alignment_status: precise
+  Reference text: Isang umaga ng Disyembre ay hirap na sumasalunga sa palikolikong linalakaran ng ilog Pasig ang bapor...
+
+--- Sentence ID: 38586 (El Fili Ch 10 Sent 1) ---
+URL: https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/38586/sanggunian
+  Run  1:  1088.10 ms | Status: 200
+  Run  2:  1082.60 ms | Status: 200
+  Run  3:  1064.02 ms | Status: 200
+  Run  4:  1043.73 ms | Status: 200
+  Run  5:  1052.33 ms | Status: 200
+  Run  6:  1103.85 ms | Status: 200
+  Run  7:  1079.17 ms | Status: 200
+  Run  8:  1065.98 ms | Status: 200
+  Run  9:  2204.51 ms | Status: 200
+  Run 10:  2126.56 ms | Status: 200
+Summary for ID 38586:
+  Cold (Run 1): 1088.10 ms
+  Warm Mean (Runs 2-10): 1313.64 ms
+  Warm Median: 1079.17 ms
+  Warm Min: 1043.73 ms, Max: 2204.51 ms
+  Warm P95: 2204.51 ms
+  Response has_reference: True
+  Response score: 0.8384461326331379
+  Response alignment_status: precise
+  Reference text: Kinabukasan, sa gitna ng pagkakamangha ng buong nayon, ay nakituloy sa bahay ni kabesang Tales ang m...
+

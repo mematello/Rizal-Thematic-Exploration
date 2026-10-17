@@ -1,0 +1,121 @@
+Sanggunian Latency Benchmark: LOCAL (127.0.0.1:8000)
+Target URL Base: http://127.0.0.1:8000
+Timestamp: 2026-10-17 06:53:41
+Protocol: 10 runs per sentence ID (Run 1 = Cold, Runs 2-10 = Warm), persistent requests.Session()
+======================================================================
+
+--- Sentence ID: 37177 (Noli Ch 1 Sent 1) ---
+URL: http://127.0.0.1:8000/api/v1/sentences/37177/sanggunian
+  Run  1: 52435.46 ms | Status: 200
+  Run  2:   189.95 ms | Status: 200
+  Run  3:   133.52 ms | Status: 200
+  Run  4:   128.68 ms | Status: 200
+  Run  5:   128.36 ms | Status: 200
+  Run  6:   131.31 ms | Status: 200
+  Run  7:   131.12 ms | Status: 200
+  Run  8:   129.99 ms | Status: 200
+  Run  9:   130.74 ms | Status: 200
+  Run 10:   129.02 ms | Status: 200
+Summary for ID 37177:
+  Cold (Run 1): 52435.46 ms
+  Warm Mean (Runs 2-10): 136.97 ms
+  Warm Median: 130.74 ms
+  Warm Min: 128.36 ms, Max: 189.95 ms
+  Warm P95: 189.95 ms
+  Response has_reference: True
+  Response score: 0.7814507378227284
+  Response alignment_status: precise
+  Reference text: Nag-anyaya ng pagpapakain nang isang hapunan, ng magtatapos ang Oktubre, si Ginoong Santiago de los ...
+
+--- Sentence ID: 37275 (Noli Ch 5 Sent 1) ---
+URL: http://127.0.0.1:8000/api/v1/sentences/37275/sanggunian
+  Run  1:  1930.54 ms | Status: 200
+  Run  2:   127.33 ms | Status: 200
+  Run  3:   127.20 ms | Status: 200
+  Run  4:   127.58 ms | Status: 200
+  Run  5:   127.56 ms | Status: 200
+  Run  6:   128.60 ms | Status: 200
+  Run  7:   130.67 ms | Status: 200
+  Run  8:   130.11 ms | Status: 200
+  Run  9:   127.70 ms | Status: 200
+  Run 10:   129.09 ms | Status: 200
+Summary for ID 37275:
+  Cold (Run 1): 1930.54 ms
+  Warm Mean (Runs 2-10): 128.43 ms
+  Warm Median: 127.70 ms
+  Warm Min: 127.20 ms, Max: 130.67 ms
+  Warm P95: 130.67 ms
+  Response has_reference: True
+  Response score: 0.8229756481117672
+  Response alignment_status: precise
+  Reference text: Nanhik si Ibarra sa kanyang kwarto, na nasadakong ilog, nagpatihulog sa isang sillon, at kanyang pin...
+
+--- Sentence ID: 37768 (Noli Ch 34 Sent 1) ---
+URL: http://127.0.0.1:8000/api/v1/sentences/37768/sanggunian
+  Run  1: 26742.29 ms | Status: 200
+  Run  2:   138.53 ms | Status: 200
+  Run  3:   146.40 ms | Status: 200
+  Run  4:   126.46 ms | Status: 200
+  Run  5:   143.00 ms | Status: 200
+  Run  6:   126.67 ms | Status: 200
+  Run  7:   135.25 ms | Status: 200
+  Run  8:   134.77 ms | Status: 200
+  Run  9:   128.33 ms | Status: 200
+  Run 10:   125.77 ms | Status: 200
+Summary for ID 37768:
+  Cold (Run 1): 26742.29 ms
+  Warm Mean (Runs 2-10): 133.91 ms
+  Warm Median: 134.77 ms
+  Warm Min: 125.77 ms, Max: 146.40 ms
+  Warm P95: 146.40 ms
+  Response has_reference: True
+  Response score: 0.6216221722278295
+  Response alignment_status: precise
+  Reference text: Nangagasisicain sa ilalim ng pinamutihang kiosko ang mga mahal na tao sa lalawigan. Na sa isang duyo...
+
+--- Sentence ID: 38389 (El Fili Ch 1 Sent 1) ---
+URL: http://127.0.0.1:8000/api/v1/sentences/38389/sanggunian
+  Run  1: 20937.84 ms | Status: 200
+  Run  2:   136.85 ms | Status: 200
+  Run  3:   126.79 ms | Status: 200
+  Run  4:   128.86 ms | Status: 200
+  Run  5:   126.59 ms | Status: 200
+  Run  6:   126.17 ms | Status: 200
+  Run  7:   125.35 ms | Status: 200
+  Run  8:   150.42 ms | Status: 200
+  Run  9:   135.18 ms | Status: 200
+  Run 10:   126.74 ms | Status: 200
+Summary for ID 38389:
+  Cold (Run 1): 20937.84 ms
+  Warm Mean (Runs 2-10): 131.44 ms
+  Warm Median: 126.79 ms
+  Warm Min: 125.35 ms, Max: 150.42 ms
+  Warm P95: 150.42 ms
+  Response has_reference: True
+  Response score: 0.9199483083692831
+  Response alignment_status: precise
+  Reference text: Isang umaga ng Disyembre ay hirap na sumasalunga sa palikolikong linalakaran ng ilog Pasig ang bapor...
+
+--- Sentence ID: 38586 (El Fili Ch 10 Sent 1) ---
+URL: http://127.0.0.1:8000/api/v1/sentences/38586/sanggunian
+  Run  1: 25853.77 ms | Status: 200
+  Run  2:   168.72 ms | Status: 200
+  Run  3:   135.17 ms | Status: 200
+  Run  4:   130.59 ms | Status: 200
+  Run  5:   130.01 ms | Status: 200
+  Run  6:   127.41 ms | Status: 200
+  Run  7:   135.11 ms | Status: 200
+  Run  8:   152.81 ms | Status: 200
+  Run  9:   129.52 ms | Status: 200
+  Run 10:   129.57 ms | Status: 200
+Summary for ID 38586:
+  Cold (Run 1): 25853.77 ms
+  Warm Mean (Runs 2-10): 137.66 ms
+  Warm Median: 130.59 ms
+  Warm Min: 127.41 ms, Max: 168.72 ms
+  Warm P95: 168.72 ms
+  Response has_reference: True
+  Response score: 0.8384461028308156
+  Response alignment_status: precise
+  Reference text: Kinabukasan, sa gitna ng pagkakamangha ng buong nayon, ay nakituloy sa bahay ni kabesang Tales ang m...
+

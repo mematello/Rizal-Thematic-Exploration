@@ -1,0 +1,114 @@
+================================================================================
+GATE 2 BACKEND LIVE VERIFICATION REPORT (HUGGING FACE SPACE)
+Timestamp: 2026-10-17 08:58:37 UTC
+Target: https://mematello-rizal-thematic-search-api.hf.space
+================================================================================
+
+--- 1. Health Check (/health) ---
+Status Code:    200
+Response Body:  {"status":"ok","version":"1.0.0"}
+Claim:          Verified
+
+--- 2. Old Per-Sentence Endpoint Parity (/api/v1/sentences/{id}/sanggunian) ---
+Sentence 37177 (noli 1 buod): PASS (passage_ids=[39363, 39364, 39365, 39366], score=0.781451)
+Sentence 37275 (noli 5 buod): PASS (passage_ids=[39890, 39891, 39892], score=0.822976)
+Sentence 38586 (elfili 10 buod): PASS (passage_ids=[49019, 49020, 49021, 49022, 49023], score=0.838446)
+Sentence 39363 (noli 1 full): PASS (passage_ids=[39363], score=1.000000)
+Per-Sentence Parity Claim: Verified
+
+--- 3 & 4 & 5. Chapter Endpoint: Cache-Control, Bundle SHA Match, Warm Latency ---
+Target: NOLI Chapter 1 [BUOD]
+  URL:                https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/1/sanggunian?mode=buod
+  HTTP Status:        200
+  Cache-Control:      public, max-age=86400, stale-while-revalidate=604800 (Match: True)
+  Local Bundle SHA:   8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec
+  Live Response SHA:  8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec
+  SHA Bit-Match:      PASS (100% bit-identical)
+  Total Sentences:    22 (Local: 22)
+  5 Warm Latencies:   479.8ms, 235.3ms, 248.5ms, 257.8ms, 239.8ms
+  Warm Avg Latency:   292.2 ms (Min: 235.3 ms, Max: 479.8 ms)
+  Chapter Verification: Verified
+
+Target: NOLI Chapter 5 [BUOD]
+  URL:                https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/5/sanggunian?mode=buod
+  HTTP Status:        200
+  Cache-Control:      public, max-age=86400, stale-while-revalidate=604800 (Match: True)
+  Local Bundle SHA:   a92c47ec0e9de549eb1d2b7413dd99759d035869fec71049f5a47a4348a47071
+  Live Response SHA:  a92c47ec0e9de549eb1d2b7413dd99759d035869fec71049f5a47a4348a47071
+  SHA Bit-Match:      PASS (100% bit-identical)
+  Total Sentences:    9 (Local: 9)
+  5 Warm Latencies:   246.6ms, 239.9ms, 242.4ms, 231.9ms, 240.8ms
+  Warm Avg Latency:   240.3 ms (Min: 231.9 ms, Max: 246.6 ms)
+  Chapter Verification: Verified
+
+Target: ELFILI Chapter 10 [BUOD]
+  URL:                https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/elfili/10/sanggunian?mode=buod
+  HTTP Status:        200
+  Cache-Control:      public, max-age=86400, stale-while-revalidate=604800 (Match: True)
+  Local Bundle SHA:   d7f23027c5fe9c01683b0d94b668031b1ff42d999482c5539da9405f7ec789dd
+  Live Response SHA:  d7f23027c5fe9c01683b0d94b668031b1ff42d999482c5539da9405f7ec789dd
+  SHA Bit-Match:      PASS (100% bit-identical)
+  Total Sentences:    21 (Local: 21)
+  5 Warm Latencies:   238.3ms, 234.0ms, 247.8ms, 229.7ms, 235.6ms
+  Warm Avg Latency:   237.1 ms (Min: 229.7 ms, Max: 247.8 ms)
+  Chapter Verification: Verified
+
+Target: NOLI Chapter 25 [FULL]
+  URL:                https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/25/sanggunian?mode=full
+  HTTP Status:        200
+  Cache-Control:      public, max-age=86400, stale-while-revalidate=604800 (Match: True)
+  Local Bundle SHA:   7624bb1ed020420c70bb9f5fe80ad633037eb598a4618a11a98ea95b32252f3a
+  Live Response SHA:  7624bb1ed020420c70bb9f5fe80ad633037eb598a4618a11a98ea95b32252f3a
+  SHA Bit-Match:      PASS (100% bit-identical)
+  Total Sentences:    184 (Local: 184)
+  5 Warm Latencies:   481.8ms, 264.9ms, 249.8ms, 236.1ms, 233.1ms
+  Warm Avg Latency:   293.1 ms (Min: 233.1 ms, Max: 481.8 ms)
+  Chapter Verification: Verified
+
+Target: ELFILI Chapter 39 [FULL]
+  URL:                https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/elfili/39/sanggunian?mode=full
+  HTTP Status:        200
+  Cache-Control:      public, max-age=86400, stale-while-revalidate=604800 (Match: True)
+  Local Bundle SHA:   f6858b83162c28eebb4db510e173c55ba78050c71e09861ac959e8985ffdfaae
+  Live Response SHA:  f6858b83162c28eebb4db510e173c55ba78050c71e09861ac959e8985ffdfaae
+  SHA Bit-Match:      PASS (100% bit-identical)
+  Total Sentences:    189 (Local: 189)
+  5 Warm Latencies:   239.4ms, 475.5ms, 475.3ms, 463.2ms, 456.6ms
+  Warm Avg Latency:   422.0 ms (Min: 239.4 ms, Max: 475.5 ms)
+  Chapter Verification: Verified
+
+Overall 5-Chapter Endpoint Claim: Verified
+
+--- 6. 5 Golden Search Queries (Top-5 IDs Invariance) ---
+Query 'kalayaan':
+  Noli Top-5:    Live=[38300, 37644, 38386, 38258, 38249] vs Golden=[38300, 37644, 38386, 38258, 38249] -> MATCH
+  El Fili Top-5: Live=[39345, 39324, 39338, 38535, 39110] vs Golden=[39345, 39324, 39338, 38535, 39110] -> MATCH
+  Status:        PASS
+Query 'edukasyon':
+  Noli Top-5:    Live=[37539, 37544, 37541, 37538, 37540] vs Golden=[37539, 37544, 37541, 37538, 37540] -> MATCH
+  El Fili Top-5: Live=[39012, 39345, 38400, 39353, 39305] vs Golden=[39012, 39345, 38400, 39353, 39305] -> MATCH
+  Status:        PASS
+Query 'simbahan':
+  Noli Top-5:    Live=[37304, 37385, 37408, 37468, 37636] vs Golden=[37304, 37385, 37408, 37468, 37636] -> MATCH
+  El Fili Top-5: Live=[39026, 38425, 39028, 38415, 38533] vs Golden=[39026, 38425, 39028, 38415, 38533] -> MATCH
+  Status:        PASS
+Query 'korapsyon':
+  Noli Top-5:    Live=[] vs Golden=[] -> MATCH
+  El Fili Top-5: Live=[] vs Golden=[] -> MATCH
+  Status:        PASS
+Query 'pag-ibig':
+  Noli Top-5:    Live=[37860, 37231, 37191, 37193, 38222] vs Golden=[37860, 37231, 37191, 37193, 38222] -> MATCH
+  El Fili Top-5: Live=[39324, 39288, 38743, 38918, 38574] vs Golden=[39324, 39288, 38743, 38918, 38574] -> MATCH
+  Status:        PASS
+
+Golden Queries Invariance Claim: Verified
+
+================================================================================
+GATE 2 BACKEND VERIFICATION SUMMARY:
+1. Health Check:             Verified
+2. Old Per-Sentence Parity:  Verified
+3. New Chapter Cache-Control:Verified
+4. Local Bundle SHA Match:   Verified
+5. Warm Latency (5 runs):    Verified (Measured across 5 chapters)
+6. 5 Golden Search Queries:  Verified
+================================================================================

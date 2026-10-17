@@ -1,0 +1,97 @@
+Sanggunian Database EXPLAIN ANALYZE & Query Pattern Analysis
+======================================================================
+
+QUERY 1: Single Sentence Lookup (WHERE id = 37177)
+--------------------------------------------------
+Index Scan using ix_sentences_id on public.sentences  (cost=0.29..2.51 rows=1 width=217) (actual time=0.011..0.012 rows=1 loops=1)
+  Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+  Index Cond: (sentences.id = 37177)
+  Buffers: shared hit=3
+Query Identifier: -1121085029835974067
+Planning Time: 0.085 ms
+Execution Time: 0.047 ms
+
+
+QUERY 2: Chapter Summary Sentences (book='noli', ch=1, source_type='summary')
+--------------------------------------------------
+Sort  (cost=56.86..56.88 rows=5 width=217) (actual time=0.117..0.120 rows=22 loops=1)
+  Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+  Sort Key: sentences.sentence_index
+  Sort Method: quicksort  Memory: 29kB
+  Buffers: shared hit=5
+  ->  Bitmap Heap Scan on public.sentences  (cost=17.52..56.80 rows=5 width=217) (actual time=0.101..0.108 rows=22 loops=1)
+        Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+        Recheck Cond: ((sentences.chapter_number = 1) AND ((sentences.book)::text = 'noli'::text))
+        Filter: ((sentences.source_type)::text = 'summary'::text)
+        Heap Blocks: exact=1
+        Buffers: shared hit=5
+        ->  BitmapAnd  (cost=17.52..17.52 rows=37 width=0) (actual time=0.088..0.089 rows=0 loops=1)
+              Buffers: shared hit=4
+              ->  Bitmap Index Scan on ix_sentences_chapter_number  (cost=0.00..4.81 rows=457 width=0) (actual time=0.035..0.035 rows=417 loops=1)
+                    Index Cond: (sentences.chapter_number = 1)
+                    Buffers: shared hit=2
+              ->  Bitmap Index Scan on ix_sentences_book  (cost=0.00..12.46 rows=1329 width=0) (actual time=0.049..0.050 rows=1212 loops=1)
+                    Index Cond: ((sentences.book)::text = 'noli'::text)
+                    Buffers: shared hit=2
+Query Identifier: 8986048342904485117
+Planning Time: 0.129 ms
+Execution Time: 0.170 ms
+
+
+QUERY 3: Chapter Full Sentences (book='Noli Me Tangere', ch=1, source_type='full')
+--------------------------------------------------
+Sort  (cost=317.63..318.20 rows=226 width=217) (actual time=0.444..0.458 rows=223 loops=1)
+  Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+  Sort Key: sentences.sentence_index
+  Sort Method: quicksort  Memory: 77kB
+  Buffers: shared hit=21
+  ->  Bitmap Heap Scan on public.sentences  (cost=87.78..308.80 rows=226 width=217) (actual time=0.286..0.378 rows=223 loops=1)
+        Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+        Recheck Cond: ((sentences.chapter_number = 1) AND ((sentences.book)::text = 'Noli Me Tangere'::text))
+        Filter: ((sentences.source_type)::text = 'full'::text)
+        Heap Blocks: exact=11
+        Buffers: shared hit=21
+        ->  BitmapAnd  (cost=87.78..87.78 rows=264 width=0) (actual time=0.274..0.275 rows=0 loops=1)
+              Buffers: shared hit=10
+              ->  Bitmap Index Scan on ix_sentences_chapter_number  (cost=0.00..4.81 rows=457 width=0) (actual time=0.018..0.019 rows=417 loops=1)
+                    Index Cond: (sentences.chapter_number = 1)
+                    Buffers: shared hit=2
+              ->  Bitmap Index Scan on ix_sentences_book  (cost=0.00..82.60 rows=9508 width=0) (actual time=0.253..0.253 rows=8673 loops=1)
+                    Index Cond: ((sentences.book)::text = 'Noli Me Tangere'::text)
+                    Buffers: shared hit=8
+Query Identifier: 8986048342904485117
+Planning Time: 0.126 ms
+Execution Time: 0.505 ms
+
+
+QUERY 4: Chapter Full Sentences - Large Chapter (book='Noli Me Tangere', ch=34, source_type='full')
+--------------------------------------------------
+Sort  (cost=257.38..257.77 rows=155 width=217) (actual time=0.432..0.447 rows=245 loops=1)
+  Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+  Sort Key: sentences.sentence_index
+  Sort Method: quicksort  Memory: 73kB
+  Buffers: shared hit=18
+  ->  Bitmap Heap Scan on public.sentences  (cost=86.67..251.74 rows=155 width=217) (actual time=0.289..0.380 rows=245 loops=1)
+        Output: id, book, chapter_number, chapter_title, sentence_index, sentence_text, source_type, passage_id, is_short, original_sentence_number, embedding, embedding_dapt
+        Recheck Cond: ((sentences.chapter_number = 34) AND ((sentences.book)::text = 'Noli Me Tangere'::text))
+        Filter: ((sentences.source_type)::text = 'full'::text)
+        Heap Blocks: exact=8
+        Buffers: shared hit=18
+        ->  BitmapAnd  (cost=86.67..86.67 rows=182 width=0) (actual time=0.277..0.278 rows=0 loops=1)
+              Buffers: shared hit=10
+              ->  Bitmap Index Scan on ix_sentences_chapter_number  (cost=0.00..3.75 rows=315 width=0) (actual time=0.020..0.020 rows=346 loops=1)
+                    Index Cond: (sentences.chapter_number = 34)
+                    Buffers: shared hit=2
+              ->  Bitmap Index Scan on ix_sentences_book  (cost=0.00..82.60 rows=9508 width=0) (actual time=0.254..0.254 rows=8673 loops=1)
+                    Index Cond: ((sentences.book)::text = 'Noli Me Tangere'::text)
+                    Buffers: shared hit=8
+Query Identifier: 8986048342904485117
+Planning Time: 0.126 ms
+Execution Time: 0.494 ms
+
+
+NOTE ON VECTOR SIMILARITY QUERY (<=>):
+--------------------------------------------------
+Audit Finding: No SQL pgvector similarity query (e.g. `Sentence.embedding_dapt <=> ...`) is executed by the Sanggunian endpoint.
+Instead, the endpoint fetches raw embedding vectors from PostgreSQL columns into Python, and executes cosine similarity inside `RobustAligner.compute_semantic_scores` in NumPy.
+Therefore, the database queries are exact tabular filter scans rather than pgvector HNSW/IVFFlat index scans.

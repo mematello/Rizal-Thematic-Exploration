@@ -1,0 +1,47 @@
+Sanggunian Step 0 Measurements
+======================================================================
+
+PART 1: Timing dapt_model.encode() vs RobustAligner.align() on Cold Chapters
+----------------------------------------------------------------------
+Chapter: Noli Me Tangere Chapter 1 (book=noli, ch=1)
+  Summary sentences: 22 (NULL DAPT: 0)
+  Full sentences:    223 (NULL DAPT: 114)
+  buod dapt_model.encode() (22 texts):   3091.28 ms (  6.3%)
+  full dapt_model.encode() (223 texts):  10008.33 ms ( 20.5%)
+  Total Encoding Time:                       13099.61 ms ( 26.8%)
+  RobustAligner.align():                     35801.37 ms ( 73.2%)
+  Total In-Process Compute Time:             48900.98 ms
+
+Chapter: Noli Me Tangere Chapter 5 (book=noli, ch=5)
+  Summary sentences: 9 (NULL DAPT: 9)
+  Full sentences:    19 (NULL DAPT: 0)
+  buod dapt_model.encode() (9 texts):    254.06 ms (  7.1%)
+  full dapt_model.encode() (19 texts):   2178.55 ms ( 60.8%)
+  Total Encoding Time:                        2432.61 ms ( 67.9%)
+  RobustAligner.align():                      1148.04 ms ( 32.1%)
+  Total In-Process Compute Time:              3580.66 ms
+
+Chapter: El Filibusterismo Chapter 10 (book=elfili, ch=10)
+  Summary sentences: 21 (NULL DAPT: 0)
+  Full sentences:    171 (NULL DAPT: 0)
+  buod dapt_model.encode() (21 texts):    892.45 ms (  2.6%)
+  full dapt_model.encode() (171 texts):   8633.20 ms ( 25.3%)
+  Total Encoding Time:                        9525.65 ms ( 28.0%)
+  RobustAligner.align():                     24552.94 ms ( 72.0%)
+  Total In-Process Compute Time:             34078.60 ms
+
+
+PART 2: Scope Analysis — Summary vs. Full Mode & Total Alignment Counts
+----------------------------------------------------------------------
+Total Summary Chapters: 103 (Noli: 64, El Fili: 39)
+Total Summary Sentences requiring cross-novel alignment: 2186
+Total Full Chapters: 102 (Noli: 63, El Fili: 39)
+Total Full Sentences: 14216
+
+FULL-MODE SANGGUNIAN ANALYSIS:
+In backend/app/api/v1/content.py lines 838-858, when sentence.source_type == 'full':
+- RobustAligner is NOT invoked for full sentences.
+- Instead, it groups sentences by `passage_id` (pre-assigned contiguous sentence cluster) and returns:
+  `has_reference=True, alignment_status='precise', score=1.0, reference_text=passage`.
+- Therefore, cross-novel ML alignment (`RobustAligner.align`) strictly applies to SUMMARY sentences (2,186 sentences across 103 chapters).
+- For full mode, Sanggunian serves the local passage sentences based on `passage_id` (14,216 sentences across 102 chapters).

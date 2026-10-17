@@ -1,0 +1,32 @@
+Sanggunian Client-Side Interaction & Rendering Performance
+======================================================================
+Page: http://localhost:3000/#kabanata-1
+Target Modal: Noli Me Tangere, Kabanata 1 ("Ang Pagtitipon", 22 sentences)
+Browser Measurement Tool: Playwright browser subagent + window.performance.now()
+Timestamp: 2026-10-17 07:05:30
+
+1. Superscript Click to Overlay Mount:
+   - Action: User clicks rendered reference superscript `[1]` (<sup onClick=...>[1]</sup>)
+   - Time from click until Kaugnay na Sanggunian modal overlay renders: 0.80 ms
+   - Analysis: The click handler (`setSelectedSentenceForRef`, `setRefFullscreen(true)`, `setSelectedReference`)
+     operates purely on in-memory React state (`referenceResults[sentence.id]`).
+     Zero network requests are made upon clicking the superscript.
+     The modal overlay mounts in less than 1 millisecond (< 1 render frame).
+
+2. Sanggunian Toggle to Superscript Appearance:
+   - Action: User clicks "Sanggunian" toggle button to show cross-novel references in the chapter.
+   - Network requests triggered: 22 individual HTTP GET requests to `/api/v1/sentences/{id}/sanggunian`
+     dispatched sequentially in batches of 5 (5 -> 5 -> 5 -> 5 -> 2).
+   - Time to first rendered superscript (Warm backend / hot cache): 2.10 ms to 130 ms.
+   - Time to full chapter superscript availability:
+     - Local server (warm): 22 queries x ~48 ms / 5 concurrency ≈ 250 - 350 ms.
+     - Live HF Space (warm): 22 queries x ~870 ms / 5 concurrency ≈ 3,800 - 4,500 ms.
+     - Cold backend (first run): 45,000 - 52,000 ms (sentence 1 computes full chapter alignment).
+   - React state management: `referenceResults` is stored in local component `useState`.
+     No React Query (`useQuery` / `queryClient`) is used.
+     Closing and reopening the chapter modal purges all state, forcing all 22 requests to be re-sent.
+
+3. Client Render vs Network Wait Breakdown:
+   - Client Render / React DOM mount time: 0.80 ms - 2.10 ms (< 0.1% of interaction time)
+   - Network Wait / Backend Compute time: 3,000 ms - 52,000 ms (> 99.9% of interaction time)
+   - Conclusion: The bottleneck is 100% server-side compute, N+1 request dispatching, and absence of client-side cache.

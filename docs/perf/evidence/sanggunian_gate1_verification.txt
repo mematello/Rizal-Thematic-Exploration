@@ -1,0 +1,80 @@
+======================================================================
+GATE 1 VERIFICATION REPORT: SANGGUNIAN OPTIMIZATION (FIXES 1 + 2)
+Date: 2026-10-17
+Branch: perf/sanggunian
+Local URL: http://127.0.0.1:8000
+HF Space:  https://mematello-rizal-thematic-search-api.hf.space
+======================================================================
+
+TEST 1: BUNDLE INTEGRITY & SIZES
+----------------------------------------------------------------------
+  sanggunian_cache_noli_buod.json      | 64 ch |  1212 sents |   1606.1 KB
+  sanggunian_cache_noli_full.json      | 63 ch |  8673 sents |   3493.2 KB
+  sanggunian_cache_elfili_buod.json    | 39 ch |   974 sents |   1214.3 KB
+  sanggunian_cache_elfili_full.json    | 39 ch |  5543 sents |   2277.9 KB
+
+Total Cache Size: 8.39 MB (205 chapters, 16,402 sentences)
+Status: VERIFIED
+
+TEST 2: CORPUS & EMBEDDING FINGERPRINT VALIDATION AGAINST SUPABASE
+----------------------------------------------------------------------
+  Live DB Fingerprint:
+    sentence_count:    16402
+    sentence_text_md5: e438ce3f61098624121329cd5a20f9a2
+    dapt_null_count:   4580
+    dapt_column_md5:   0e2c364fa8c8b6d9a24cdaba7e269577
+  Bundle Fingerprint:
+    sentence_count:    16402
+    sentence_text_md5: e438ce3f61098624121329cd5a20f9a2
+    dapt_null_count:   4580
+    dapt_column_md5:   0e2c364fa8c8b6d9a24cdaba7e269577
+    robust_aligner:    be036d28ed48db7668b190f93616bda7f710349cc1eb8e064010fdfa6999d4aa
+Match: 100% Corpus & Embedding Integrity Verified
+Status: VERIFIED
+
+TEST 3: RAW HTTP BYTES SHA-256 PARITY (ALL 205 CHAPTERS)
+----------------------------------------------------------------------
+  Checking NOLI (buod) - 64 chapters: 0 mismatches
+  Checking NOLI (full) - 63 chapters: 0 mismatches
+  Checking ELFILI (buod) - 39 chapters: 0 mismatches
+  Checking ELFILI (full) - 39 chapters: 0 mismatches
+
+Parity Summary: 205/205 chapters identical (Mismatches: 0)
+Status: VERIFIED
+
+TEST 4: SCORE DELTA ON 5 PROFILED SENTENCES (LOCAL VS LIVE HF SPACE)
+----------------------------------------------------------------------
+  Sentence 37177: Local=0.781451 (6.5ms)  | HF=0.781451 (3805.8ms) | Delta=0.00000003 | Passage match=True
+  Sentence 37275: Local=0.822976 (5.3ms)  | HF=0.822976 (1879.5ms) | Delta=0.00000003 | Passage match=True
+  Sentence 37768: Local=0.621622 (11.1ms) | HF=0.621622 (1913.4ms) | Delta=0.00000030 | Passage match=True
+  Sentence 38389: Local=0.919948 (4.1ms)  | HF=0.919948 (1939.1ms) | Delta=0.00000006 | Passage match=True
+  Sentence 38586: Local=0.838446 (2.9ms)  | HF=0.838446 (2143.7ms) | Delta=0.00000003 | Passage match=True
+
+Max Absolute Score Delta: 0.00000030
+Status: VERIFIED (Disclosed)
+
+TEST 5: CHAPTER ENDPOINT LATENCY & CACHE-CONTROL HEADERS
+----------------------------------------------------------------------
+  noli   ch  1 (buod): Cold= 17.0ms | WarmAvg=  3.3ms | WarmMin=  2.6ms | Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  noli   ch  5 (buod): Cold=  2.6ms | WarmAvg=  2.9ms | WarmMin=  2.6ms | Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  elfili ch 10 (buod): Cold=  3.2ms | WarmAvg=  3.3ms | WarmMin=  2.7ms | Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  noli   ch 25 (full): Cold=  7.0ms | WarmAvg=  3.6ms | WarmMin=  3.2ms | Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  elfili ch 39 (full): Cold=  3.7ms | WarmAvg=  4.0ms | WarmMin=  3.2ms | Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+Status: VERIFIED
+
+TEST 6: FALLBACK RESILIENCE TESTS (SCRIPTS/TEST_SANGGUNIAN_FALLBACKS.PY)
+----------------------------------------------------------------------
+  Fallback 1 (Fingerprint mismatch): Disables static cache, falls back to live compute: PASS
+  Fallback 2 (Missing bundle): Disables static cache, falls back to live compute: PASS
+  Fallback 3 (Database unreachable): Serves static bundle as fallback, logs warning, never crashes: PASS
+Status: VERIFIED
+
+TEST 7: GOLDEN QUERY REGRESSION (40/40 QUERIES)
+----------------------------------------------------------------------
+  All 40 golden search queries vs golden_snapshot_deterministic.json: 0 diffs (100% identical)
+Status: VERIFIED
+
+TEST 8: CORE ENGINE INTEGRITY
+----------------------------------------------------------------------
+  git diff backend/app/core/engine.py: 0 lines diff (STRICTLY UNTOUCHED)
+Status: VERIFIED
