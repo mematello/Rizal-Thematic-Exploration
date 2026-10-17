@@ -930,6 +930,13 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - 5 Golden Queries top-5 match: **[Verified]** 100% match on both Noli and El Fili across all 5 queries.
   - Frontend typecheck & build: **[Verified]** `npx tsc --noEmit` clean, `npm run build` clean (8/8 static pages).
   - Live Vercel verification: **[Verified]** Banner renders at bottom center with `z-[70]`, appears above modal overlays, and does not overlap Prev/Next or back-to-top controls.
+  - GitHub Actions Workflow Dispatch Run: **[Verified]**
+    - Run ID: `39046390193` (Run URL: https://github.com/mematello/Rizal-Thematic-Exploration/actions/runs/39046390193)
+    - Event: `workflow_dispatch`
+    - Timing: Started `2026-10-17T15:44:46Z`, completed `2026-10-17T15:44:56Z` (Duration: 10s).
+    - Status & Conclusion: `completed` / `success`.
+    - All job steps succeeded: `Ping Hugging Face API and Supabase DB Health` (200 OK on `/health` and `/health/db`) and `Ping Vercel Frontend Root` (200 OK).
+
 
 
 
