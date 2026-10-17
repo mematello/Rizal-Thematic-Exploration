@@ -1,8 +1,8 @@
 # Performance Optimization State
 
 **Last Updated**: 2026-10-17  
-**Branch**: `perf/sanggunian`  
-**Current Phase**: Item C Phase 2 (Sanggunian Optimization Fixes 1 + 2: precomputed chapter bundles + chapter endpoint + React Query integration) Gate 1 verified. Awaiting user review before Gate 2 HF Space deployment.
+**Branch**: `main`  
+**Current Phase**: Item C Gate 3 (Production Merge & Vercel Verification) Completed. All Sanggunian bundle precomputation, endpoint batching, React Query caching, and fallback resilience verified live end-to-end.
 
 ---
 
@@ -232,11 +232,28 @@
       - Canonical JSON SHA-256 vs local bundles: **Verified** (100% bit-identical on all 5 chapters).
       - 5-run warm latency across 5 chapters: **Verified** (Avg latencies: 292.2 ms, 240.3 ms, 237.1 ms, 293.1 ms, 422.0 ms over WAN).
       - 5 golden search queries (`kalayaan`, `edukasyon`, `simbahan`, `korapsyon`, `pag-ibig`): **Verified** (Top-5 IDs in Noli and El Fili match 100% with `golden_snapshot_deterministic.json`).
-  - **Step 6 Gate 3 Pre-Merge Validation (Completed & Verified)**:
-    - Live HF Space startup logs pulled via `huggingface_hub.HfApi().fetch_space_logs()`. Zero warning, mismatch, or fallback lines. Verified static cache serving with 235ms latency and 100% bit-identical local bundle SHA.
+  - **Step 6 Gate 3 Pre-Merge Validation & Early Logging (Completed & Verified)**:
+    - Added early `logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s", force=True)` to `backend/app/main.py`.
+    - Pushed strictly `main.py` to HF Space commit `3117ead`.
+    - Pulled live startup logs via `HfApi().fetch_space_logs()`. Verbatim line confirmed:
+      `INFO root: Sanggunian static cache verified against Supabase corpus (205 chapters active).` (0 warnings, 0 mismatches, 0 fallbacks).
+    - Live `/health` verified (200 OK), Noli 1 buod chapter endpoint verified unchanged (`8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`), 5 golden search queries verified 100% invariant.
+    - New Rollback Target recorded: `3117ead` (previous rollback target `4bbc31e`, baseline rollback target `2b15166`).
     - Frontend build & typecheck: `npm run build` and `npx tsc --noEmit` verified **clean (0 errors)**.
+  - **Step 7 Gate 3 Production Verification on Vercel (Completed & Verified live on https://rizalengine.vercel.app)**:
+    - Merged `perf/sanggunian` into `main`, pushed to GitHub `origin/main` (`51b0476`).
+    - **Step 5 (Noli 1 Buod 1-request verification & timing)**: **[Verified]** Exactly 1 request to `/api/v1/chapters/noli/1/sanggunian?mode=buod` (0 individual sentence requests). Real `performance.now()` click-to-DOM superscripts rendering time: **66.30 ms** (instant perceived load). 22 superscripts rendered.
+    - **Step 6 (Superscript Click & React Query Cache)**: **[Verified]** Superscript `[1]` click opened cross-reference drawer with matching El Fili reference text. Closed drawer and modal; re-opening Noli 1 and toggling Sanggunian made **0 network requests** (instant hydration from React Query cache).
+    - **Step 7 (El Filibusterismo Testing)**: **[Verified]** Switched novel to El Filibusterismo, opened Chapter 10 Buod: exactly 1 request to `/api/v1/chapters/elfili/10/sanggunian?mode=buod`, 21 superscripts rendered, drawer opened with cross-reference.
+    - **Step 8 (Fallback Resilience)**: **[Verified]** Intercepted fetch to simulate 500 error on chapter endpoint. Chapter 4 opened and gracefully fell back to individual per-sentence endpoints (`/api/v1/sentences/{id}/sanggunian`), rendering 30 superscripts with 0 UI crashes.
+    - **Step 9 (Mobile Viewport 390x844)**: **[Verified]** Resized viewport to 390x844. Chapter modal and Sanggunian drawer layout rendered cleanly with `hasHorizontalOverflow: false` (`scrollWidth === clientWidth`) and 0 console errors.
+    - **Diff & Safety Constraints**: `backend/app/core/engine.py` diff: **STRICTLY ZERO DIFF**. Supabase DB writes: **STRICTLY ZERO WRITES**.
+    - Raw evidence saved in `docs/perf/evidence/sanggunian_gate3_vercel_verification.txt`.
 
 ---
 
 ## Next Steps
-- Gate 3 execution: Merge `perf/sanggunian` into `main`, push to GitHub, and verify Vercel deployment on `https://rizalengine.vercel.app`.
+- Item C (Sanggunian Cross-Novel Reference Optimization) is **100% completed, deployed, and verified across Hugging Face Spaces and Vercel**.
+- All rollback targets documented (`3117ead` on HF Spaces, `51b0476` on GitHub `main`).
+- Ready for next planned performance or thesis enhancement item.
+

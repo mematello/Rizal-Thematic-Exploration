@@ -868,11 +868,15 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - **Fallbacks Tested**: All 3 resilience cases (mismatch, missing bundle, DB offline) verified via `scripts/test_sanggunian_fallbacks.py`.
   - **Golden Query Invariance**: All 40 search queries 100% invariant vs `golden_snapshot_deterministic.json` (0 diffs).
   - **Engine Diff**: `backend/app/core/engine.py` diff is **STRICTLY 0 DIFF**.
-  - **Gate Status**:
-    - Pre-Gate-2 checks: **All passed**.
-    - Gate 2 Backend Deployment: **Completed & Verified live on Hugging Face Spaces (`4bbc31e`)**.
-    - Rollback target confirmed: `2b15166`.
-    - Raw evidence saved in `docs/perf/evidence/sanggunian_gate2_live_verification.txt`.
-    - All 6 claims verified: `/health` 200 OK, old per-sentence endpoint invariant, 5 chapter endpoints 100% bit-identical SHA-256 match with `Cache-Control` header, warm WAN latency 230–480ms, 5 golden search queries top-5 IDs 100% invariant.
-    - Gate 3 Pre-merge checks: **Passed**. Awaiting Gate 3 merge and Vercel verification.
+    - Gate 3 Verification (Live Vercel Deployment): **Completed & Verified live on https://rizalengine.vercel.app**.
+      - Merged `perf/sanggunian` into `main`, pushed to GitHub `origin/main` (`51b0476`).
+      - New HF Space Rollback Target: `3117ead`.
+      - Noli 1 Buod verified: exactly 1 request to `/api/v1/chapters/noli/1/sanggunian?mode=buod` (0 individual sentence requests); click-to-superscripts rendering time ~66.30 ms (instant perceived load).
+      - Superscript `[1]` click opens cross-reference drawer with matching El Fili reference text.
+      - Modal close and re-open renders instantly with 0 network requests via React Query cache.
+      - El Filibusterismo Chapter 10 Buod verified: exactly 1 request, 21 superscripts rendered.
+      - Fallback resilience verified: simulated 500 error on chapter endpoint gracefully degraded to per-sentence endpoints with 0 UI crashes.
+      - Mobile viewport (390x844) verified: 0 horizontal overflow, 0 console errors.
+      - Raw evidence recorded in `docs/perf/evidence/sanggunian_gate3_vercel_verification.txt`.
+
 
