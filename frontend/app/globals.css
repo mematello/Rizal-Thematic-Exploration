@@ -84,6 +84,18 @@ html.dark,
     --theme-text: #2C2C2C;
     --theme-noli: #C5A065;
     --theme-border: rgba(197, 160, 101, 0.15);
+    /* Reading Map Tokens */
+    --map-card-bg: rgba(255, 255, 255, 0.85);
+    --map-card-border: rgba(197, 160, 101, 0.2);
+    --map-card-border-hover: rgba(197, 160, 101, 0.45);
+    --map-card-numeral: rgba(27, 38, 59, 0.05);
+    --map-card-badge-bg: rgba(27, 38, 59, 0.06);
+    --map-card-badge-text: rgba(27, 38, 59, 0.75);
+    --map-card-badge-bg-hover: rgba(197, 160, 101, 0.2);
+    --map-card-badge-text-hover: #C5A065;
+    --map-card-arrow: rgba(27, 38, 59, 0.25);
+    --map-card-accent: #C5A065;
+    --map-card-title-hover: #C5A065;
 }
 
 html.dark [data-novel="noli"],
@@ -98,6 +110,18 @@ html.dark [data-novel="noli"],
     --theme-text-muted: #9BA8BA;
     --theme-noli: #E8C97A;
     --theme-border: rgba(197, 160, 101, 0.25);
+    /* Reading Map Dark Tokens */
+    --map-card-bg: #18202C;
+    --map-card-border: rgba(232, 201, 122, 0.25);
+    --map-card-border-hover: rgba(232, 201, 122, 0.5);
+    --map-card-numeral: rgba(232, 201, 122, 0.12);
+    --map-card-badge-bg: rgba(232, 201, 122, 0.15);
+    --map-card-badge-text: #E8C97A;
+    --map-card-badge-bg-hover: rgba(232, 201, 122, 0.25);
+    --map-card-badge-text-hover: #F3DB9A;
+    --map-card-arrow: rgba(232, 201, 122, 0.45);
+    --map-card-accent: #E8C97A;
+    --map-card-title-hover: #E8C97A;
 }
 
 [data-novel="fili"] {
@@ -110,6 +134,18 @@ html.dark [data-novel="noli"],
     --theme-text: #1A1A1A;
     --theme-fili: #8D2D2D;
     --theme-border: rgba(141, 45, 45, 0.15);
+    /* Reading Map Tokens */
+    --map-card-bg: rgba(255, 255, 255, 0.85);
+    --map-card-border: rgba(141, 45, 45, 0.2);
+    --map-card-border-hover: rgba(141, 45, 45, 0.45);
+    --map-card-numeral: rgba(44, 24, 16, 0.05);
+    --map-card-badge-bg: rgba(141, 45, 45, 0.08);
+    --map-card-badge-text: rgba(141, 45, 45, 0.85);
+    --map-card-badge-bg-hover: rgba(141, 45, 45, 0.2);
+    --map-card-badge-text-hover: #8D2D2D;
+    --map-card-arrow: rgba(141, 45, 45, 0.25);
+    --map-card-accent: #8D2D2D;
+    --map-card-title-hover: #8D2D2D;
 }
 
 html.dark [data-novel="fili"],
@@ -125,6 +161,18 @@ html.dark [data-novel="fili"],
     --theme-text-muted: #BFA0A2;
     --theme-fili: #E06C75;
     --theme-border: rgba(224, 108, 117, 0.25);
+    /* Reading Map Dark Tokens (Wine/Charcoal #1A0C0E family & rose-gold borders) */
+    --map-card-bg: #1A0C0E;
+    --map-card-border: rgba(224, 108, 117, 0.25);
+    --map-card-border-hover: rgba(224, 108, 117, 0.5);
+    --map-card-numeral: rgba(224, 108, 117, 0.12);
+    --map-card-badge-bg: rgba(224, 108, 117, 0.15);
+    --map-card-badge-text: #E06C75;
+    --map-card-badge-bg-hover: rgba(224, 108, 117, 0.25);
+    --map-card-badge-text-hover: #F28B93;
+    --map-card-arrow: rgba(224, 108, 117, 0.45);
+    --map-card-accent: #E06C75;
+    --map-card-title-hover: #E06C75;
 }
 
 [data-novel="both"] {
@@ -139,6 +187,18 @@ html.dark [data-novel="fili"],
     --theme-fili: #8D2D2D;
     --theme-border: rgba(197, 160, 101, 0.2);
     --theme-overlay: rgba(25, 20, 15, 0.6);
+    /* Reading Map Tokens */
+    --map-card-bg: rgba(255, 255, 255, 0.85);
+    --map-card-border: rgba(197, 160, 101, 0.2);
+    --map-card-border-hover: rgba(197, 160, 101, 0.45);
+    --map-card-numeral: rgba(27, 38, 59, 0.05);
+    --map-card-badge-bg: rgba(27, 38, 59, 0.06);
+    --map-card-badge-text: rgba(27, 38, 59, 0.75);
+    --map-card-badge-bg-hover: rgba(197, 160, 101, 0.2);
+    --map-card-badge-text-hover: #C5A065;
+    --map-card-arrow: rgba(197, 160, 101, 0.35);
+    --map-card-accent: #C5A065;
+    --map-card-title-hover: #C5A065;
 }
 
 html.dark [data-novel="both"],
@@ -156,6 +216,51 @@ html.dark [data-novel="both"],
     --theme-fili: #E06C75;
     --theme-border: rgba(197, 160, 101, 0.25);
     --theme-overlay: rgba(5, 8, 15, 0.85);
+    /* Reading Map Dark Tokens */
+    --map-card-bg: #141B28;
+    --map-card-border: rgba(197, 160, 101, 0.25);
+    --map-card-border-hover: rgba(197, 160, 101, 0.5);
+    --map-card-numeral: rgba(232, 201, 122, 0.12);
+    --map-card-badge-bg: rgba(232, 201, 122, 0.15);
+    --map-card-badge-text: #E8C97A;
+    --map-card-badge-bg-hover: rgba(232, 201, 122, 0.25);
+    --map-card-badge-text-hover: #F3DB9A;
+    --map-card-arrow: rgba(232, 201, 122, 0.45);
+    --map-card-accent: #E8C97A;
+    --map-card-title-hover: #E8C97A;
+}
+
+/* Card-level novel styling overrides (supports mixed cards in 'both' mode) */
+.map-card-fili {
+    --card-accent: #8D2D2D;
+    --card-title-hover: #8D2D2D;
+}
+html.dark .map-card-fili,
+.dark .map-card-fili {
+    background-color: #1A0C0E !important;
+    border-color: rgba(224, 108, 117, 0.25) !important;
+    --card-accent: #E06C75;
+    --card-title-hover: #E06C75;
+}
+html.dark .map-card-fili:hover,
+.dark .map-card-fili:hover {
+    border-color: rgba(224, 108, 117, 0.5) !important;
+}
+
+.map-card-noli {
+    --card-accent: #C5A065;
+    --card-title-hover: #C5A065;
+}
+html.dark .map-card-noli,
+.dark .map-card-noli {
+    background-color: #18202C !important;
+    border-color: rgba(232, 201, 122, 0.25) !important;
+    --card-accent: #E8C97A;
+    --card-title-hover: #E8C97A;
+}
+html.dark .map-card-noli:hover,
+.dark .map-card-noli:hover {
+    border-color: rgba(232, 201, 122, 0.5) !important;
 }
 
 @layer base {
@@ -340,8 +445,7 @@ html.dark [data-novel="both"],
                 url('/images/backgrounds/background_1.webp');
             background-position: center;
         }
-        .novel-backdrop-layer[data-novel="fili"],
-        .novel-backdrop-layer[data-novel="elfili"] {
+        .novel-backdrop-layer[data-novel="fili"] {
             background-image: 
                 radial-gradient(circle at 50% 20%, rgba(141, 45, 45, 0.16) 0%, transparent 60%),
                 linear-gradient(to bottom, rgba(234, 227, 213, 0.92), rgba(234, 227, 213, 0.98)),
@@ -368,10 +472,7 @@ html.dark [data-novel="both"],
         }
         html.dark .novel-backdrop-layer[data-novel="fili"],
         :root.dark .novel-backdrop-layer[data-novel="fili"],
-        html.dark .novel-backdrop-layer[data-novel="elfili"],
-        :root.dark .novel-backdrop-layer[data-novel="elfili"],
-        .dark .novel-backdrop-layer[data-novel="fili"],
-        .dark .novel-backdrop-layer[data-novel="elfili"] {
+        .dark .novel-backdrop-layer[data-novel="fili"] {
             background-image: 
                 radial-gradient(circle at 50% 20%, rgba(224, 108, 117, 0.12) 0%, transparent 60%),
                 linear-gradient(to bottom, rgba(24, 13, 14, 0.95), rgba(24, 13, 14, 0.98)),
@@ -399,8 +500,7 @@ html.dark [data-novel="both"],
                 url('/images/backgrounds/noli_background.webp');
             background-position: center top;
         }
-        .novel-backdrop-layer[data-novel="fili"],
-        .novel-backdrop-layer[data-novel="elfili"] {
+        .novel-backdrop-layer[data-novel="fili"] {
             background-image: 
                 linear-gradient(to bottom, rgba(242, 240, 237, 0.86) 0%, rgba(242, 240, 237, 0.94) 50%, rgba(242, 240, 237, 0.98) 100%),
                 url('/images/backgrounds/elfili_background.webp');
@@ -425,10 +525,7 @@ html.dark [data-novel="both"],
         }
         html.dark .novel-backdrop-layer[data-novel="fili"],
         :root.dark .novel-backdrop-layer[data-novel="fili"],
-        html.dark .novel-backdrop-layer[data-novel="elfili"],
-        :root.dark .novel-backdrop-layer[data-novel="elfili"],
-        .dark .novel-backdrop-layer[data-novel="fili"],
-        .dark .novel-backdrop-layer[data-novel="elfili"] {
+        .dark .novel-backdrop-layer[data-novel="fili"] {
             background-image: 
                 linear-gradient(to bottom, rgba(24, 13, 14, 0.90) 0%, rgba(24, 13, 14, 0.95) 50%, rgba(24, 13, 14, 0.99) 100%),
                 url('/images/backgrounds/elfili_background.webp');

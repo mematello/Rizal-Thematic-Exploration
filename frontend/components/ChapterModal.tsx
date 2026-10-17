@@ -560,11 +560,15 @@ export function ChapterModal({
         }).join('|');
         const regex = new RegExp(`(${pattern})`, 'gi');
         const parts = text.split(regex);
+        const markClass = isNoli
+            ? "bg-amber-200 dark:bg-amber-400/30 text-brand-navy dark:text-amber-100 hover:bg-amber-300 dark:hover:bg-amber-400/45"
+            : "bg-rose-200 dark:bg-rose-500/30 text-[#2C1810] dark:text-rose-100 hover:bg-rose-300 dark:hover:bg-rose-500/45";
+
         return parts.map((part, index) => {
             const isKeyword = characterKeywords.some(k => k.toLowerCase() === part.toLowerCase());
             if (isKeyword) {
                 return (
-                    <mark key={index} onClick={(e) => { e.stopPropagation(); handleCharMarkClick(part); }} className="bg-yellow-200 font-semibold px-1 rounded cursor-pointer hover:bg-yellow-300 hover:shadow-sm transition-all underline decoration-dotted decoration-brand-navy/40">
+                    <mark key={index} onClick={(e) => { e.stopPropagation(); handleCharMarkClick(part); }} className={`${markClass} font-semibold px-1 rounded cursor-pointer hover:shadow-sm transition-all underline decoration-dotted decoration-brand-navy/40 dark:decoration-foreground/40`}>
                         {part}
                     </mark>
                 );
@@ -613,10 +617,16 @@ export function ChapterModal({
                             {!isFullscreen && (
                                 <div className="flex items-start justify-between p-3.5 sm:p-4 md:p-6 border-b border-brand-gold/10 bg-brand-cream dark:bg-[#151E2E]">
                                     <div className="flex-1 pr-2">
-                                        <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
-                                        <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy dark:text-foreground mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
+                                        <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>
+                                            {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                        </span>
+                                        <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy dark:text-foreground mt-0.5 sm:mt-1 font-bold line-clamp-2">
+                                            {cleanedTitle || `Kabanata ${chapterNumber}`}
+                                        </h2>
                                         {cleanedTitle ? (
-                                            <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{cleanedTitle}</p>
+                                            <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm">
+                                                Kabanata {chapterNumber}
+                                            </p>
                                         ) : null}
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -644,12 +654,18 @@ export function ChapterModal({
                                         </div>
                                         <div className="flex flex-col space-y-8">
                                             <div>
-                                                <span className={`text-xs font-bold tracking-[0.3em] uppercase ${accentColor} block mb-4`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
-                                                <h1 className="text-4xl font-serif text-brand-navy dark:text-foreground font-black leading-tight">Kabanata {activeChapterInView}</h1>
+                                                <span className={`text-xs font-bold tracking-[0.3em] uppercase ${accentColor} block mb-4`}>
+                                                    {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                                </span>
+                                                <h1 className="text-3xl lg:text-4xl font-serif text-brand-navy dark:text-foreground font-black leading-tight">
+                                                    {cleanedActiveTitle || `Kabanata ${activeChapterInView}`}
+                                                </h1>
                                                 {cleanedActiveTitle ? (
                                                     <>
                                                         <div className="w-12 h-1 bg-brand-gold/30 my-6" />
-                                                        <p className="text-xl font-serif italic text-brand-text/70 dark:text-brand-text-muted leading-relaxed">{cleanedActiveTitle}</p>
+                                                        <p className="text-base lg:text-lg font-serif italic text-brand-text/70 dark:text-brand-text-muted leading-relaxed">
+                                                            Kabanata {activeChapterInView}
+                                                        </p>
                                                     </>
                                                 ) : null}
                                             </div>
@@ -667,9 +683,16 @@ export function ChapterModal({
                                         <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 dark:bg-[#121A28]/95 backdrop-blur border-b border-brand-gold/10 dark:border-brand-gold/20 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
                                             <div className="flex justify-between items-center">
                                                 <div className="min-w-0 pr-2">
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50 dark:text-foreground/50 block">Kabanata {activeChapterInView}</span>
+                                                    <span className={`text-[9px] font-bold uppercase tracking-wider ${accentColor} block truncate`}>
+                                                        {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                                    </span>
+                                                    <div className="text-sm sm:text-base font-serif font-bold text-brand-navy dark:text-foreground truncate">
+                                                        {cleanedActiveTitle || `Kabanata ${activeChapterInView}`}
+                                                    </div>
                                                     {cleanedActiveTitle ? (
-                                                        <div className="text-sm font-serif font-bold text-brand-navy dark:text-foreground truncate">{cleanedActiveTitle}</div>
+                                                        <span className="text-[10px] text-brand-text/60 dark:text-foreground/60 block truncate">
+                                                            Kabanata {activeChapterInView}
+                                                        </span>
                                                     ) : null}
                                                 </div>
                                                 <div className="flex items-center gap-1 shrink-0">
@@ -693,7 +716,24 @@ export function ChapterModal({
 
                                             {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
                                                 <div key={`${chap.chapterNumber}`} id={`chapter-view-${chap.chapterNumber}`} className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}>
-                                                    {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 dark:text-foreground/40 block mb-2">Kabanata {chap.chapterNumber}</span>{cleanChapterTitle(chap.title, chap.chapterNumber) ? (<><h2 className="text-3xl font-serif font-bold text-brand-navy dark:text-foreground">{cleanChapterTitle(chap.title, chap.chapterNumber)}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></>) : null}</div>)}
+                                                    {isFullscreen && (
+                                                        <div className="mb-12 text-center opacity-80">
+                                                            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${accentColor} block mb-1`}>
+                                                                {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
+                                                            </span>
+                                                            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-navy dark:text-foreground">
+                                                                {cleanChapterTitle(chap.title, chap.chapterNumber) || `Kabanata ${chap.chapterNumber}`}
+                                                            </h2>
+                                                            {cleanChapterTitle(chap.title, chap.chapterNumber) ? (
+                                                                <>
+                                                                    <p className="text-xs sm:text-sm font-serif italic text-brand-text/60 dark:text-brand-text-muted mt-1">
+                                                                        Kabanata {chap.chapterNumber}
+                                                                    </p>
+                                                                    <div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-4" />
+                                                                </>
+                                                            ) : null}
+                                                        </div>
+                                                    )}
                                                     <div lang="tl" className="font-serif text-brand-text dark:text-foreground/90 leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] [text-wrap:pretty] space-y-6 sm:space-y-8 text-lg md:text-xl">
                                                         {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
                                                             if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) paragraphs.push([sentence]);
@@ -710,18 +750,29 @@ export function ChapterModal({
                                                                         sentence.sentence_index <= highlightContext.contextMax;
                                                                     
                                                                     // Choose highlight class:
-                                                                    // - Map View anchor: strong amber (highlightContext present + is anchor)
-                                                                    // - Grid View anchor: existing gold style (highlightContext absent)
-                                                                    // - Map View context: lighter amber
+                                                                    // - Map View anchor: strong wash (highlightContext present + is anchor)
+                                                                    // - Grid View anchor: clean novel wash (highlightContext absent)
+                                                                    // - Map View context: lighter wash
                                                                     // - Unhighlighted: no class
                                                                     const anchorClass = isHighlighted
                                                                         ? (highlightContext
-                                                                            ? 'bg-amber-200/80 font-bold border-b-2 border-amber-500 shadow-sm'
-                                                                            : 'bg-brand-gold/20 font-bold border-b-2 border-brand-gold')
+                                                                            ? (isNoli
+                                                                                ? 'bg-amber-300/70 dark:bg-amber-400/35 font-bold border-b-2 border-amber-600 dark:border-amber-300 shadow-sm text-brand-navy dark:text-amber-50'
+                                                                                : 'bg-rose-300/70 dark:bg-rose-500/35 font-bold border-b-2 border-rose-700 dark:border-rose-300 shadow-sm text-[#2C1810] dark:text-rose-50')
+                                                                            : (isNoli
+                                                                                ? 'bg-amber-200/60 dark:bg-amber-400/25 font-bold border-b-2 border-amber-500 dark:border-amber-400 text-brand-navy dark:text-amber-100'
+                                                                                : 'bg-rose-200/60 dark:bg-rose-500/25 font-bold border-b-2 border-rose-600 dark:border-rose-400 text-[#2C1810] dark:text-rose-100'))
                                                                         : '';
+                                                                    
                                                                     const contextClass = isContextSentence
-                                                                        ? 'bg-amber-100/90 border-b-2 border-amber-400'
+                                                                        ? (isNoli
+                                                                            ? 'bg-amber-100/80 dark:bg-amber-400/15 border-b-2 border-amber-400/70 dark:border-amber-400/40 text-brand-text dark:text-foreground'
+                                                                            : 'bg-rose-100/80 dark:bg-rose-500/15 border-b-2 border-rose-400/70 dark:border-rose-400/40 text-brand-text dark:text-foreground')
                                                                         : '';
+
+                                                                    const hoverClass = isNoli
+                                                                        ? 'hover:bg-amber-500/10 dark:hover:bg-amber-400/15'
+                                                                        : 'hover:bg-rose-500/10 dark:hover:bg-rose-400/15';
                                                                     
                                                                     let refRender = null;
                                                                     if (showReference && referenceResults[sentence.id]?.has_reference) {
@@ -757,7 +808,7 @@ export function ChapterModal({
                                                                     }
                                                                     
                                                                     return (
-                                                                        <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`hover:bg-brand-gold/10 transition-all duration-200 rounded px-0.5 relative inline ${anchorClass} ${contextClass}`}>
+                                                                        <span key={sentence.sentence_index} ref={isHighlighted ? highlightRef : null} className={`${hoverClass} transition-all duration-200 rounded px-0.5 relative inline ${anchorClass} ${contextClass}`}>
                                                                             {highlightText(sentence.sentence_text)}
                                                                             {refRender}
                                                                             {" "}

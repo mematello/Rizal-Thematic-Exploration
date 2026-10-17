@@ -53,6 +53,7 @@ function SearchContent() {
     const { setSelectedNovel } = useNovelStore();
 
     useEffect(() => {
+        document.documentElement.setAttribute('data-novel', novelFilter);
         if (novelFilter === 'noli' || novelFilter === 'fili') {
             setSelectedNovel(novelFilter);
         }
@@ -299,9 +300,9 @@ function SearchContent() {
                     </div>
                 </div>
 
-                {/* Desktop Sub-header: novel context + Map/Score controls */}
-                <div className="hidden md:block border-t border-brand-gold/10 bg-brand-cream/40 dark:bg-black/20">
-                    <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+                {/* Sub-header: novel context + Map/Score controls */}
+                <div className="border-t border-brand-gold/10 bg-brand-cream/40 dark:bg-black/20">
+                    <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
                         <div className="flex items-center gap-2 min-w-0">
                             <span className="text-xs text-brand-text/70 dark:text-brand-text-muted font-serif truncate">
                                 Naghahanap sa: <span className="font-bold text-brand-navy dark:text-brand-gold">{novelLabel}</span>

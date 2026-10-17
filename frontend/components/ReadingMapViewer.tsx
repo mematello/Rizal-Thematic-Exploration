@@ -9,7 +9,7 @@ interface ReadingMapViewerProps {
     filiResults: ResultCardProps[];
     showScores: boolean;
     onChapterOpen: (book: string, chapter: number, sentenceIndex: number, chapterTitle?: string) => void;
-    novel?: 'noli' | 'fili' | 'elfili' | 'both';
+    novel?: 'noli' | 'fili' | 'both';
 }
 
 export function ReadingMapViewer({
@@ -20,7 +20,7 @@ export function ReadingMapViewer({
 }: ReadingMapViewerProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const showNoli = novel === 'noli' || novel === 'both';
-    const showFili = novel === 'fili' || novel === 'elfili' || novel === 'both';
+    const showFili = novel === 'fili' || novel === 'both';
 
     // Map View sort: Noli chapters ascending (1→N), then Fili chapters ascending (1→N)
     // Filtered by selected novel(s)
@@ -90,15 +90,16 @@ export function ReadingMapViewer({
                                     onClick={() => onChapterOpen(result.novel, result.chapter, result.sentenceIndex ?? 0, result.chapterTitle)}
                                     className={cn(
                                         "group relative w-64 h-48 flex flex-col justify-between overflow-hidden cursor-pointer",
-                                        "bg-white/80 dark:bg-[#18202C] backdrop-blur-md shadow-sm transition-all duration-500",
-                                        "border border-brand-gold/15 dark:border-brand-gold/30 hover:border-brand-gold/40 dark:hover:border-brand-gold/50 rounded-sm",
-                                        "p-6 hover:-translate-y-2 hover:shadow-xl dark:hover:shadow-black/50"
+                                        "bg-white/80 backdrop-blur-md shadow-sm transition-all duration-500 rounded-sm p-6 hover:-translate-y-2 hover:shadow-xl",
+                                        isNoli 
+                                            ? "map-card-noli border border-brand-gold/15 hover:border-brand-gold/40 dark:hover:shadow-black/50" 
+                                            : "map-card-fili border border-[#8D2D2D]/20 hover:border-[#8D2D2D]/40 dark:hover:shadow-black/50"
                                     )}
                                 >
                                     {/* Decorative Background Number */}
                                     <span className={cn(
                                         "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] dark:opacity-[0.08] select-none transition-opacity group-hover:opacity-[0.07] dark:group-hover:opacity-[0.15]",
-                                        "text-brand-navy dark:text-brand-gold"
+                                        isNoli ? "text-brand-navy dark:text-brand-gold" : "text-[#2C1810] dark:text-[#E06C75]"
                                     )}>
                                         {result.chapter}
                                     </span>
@@ -116,7 +117,10 @@ export function ReadingMapViewer({
                                         )}>
                                             {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                                         </span>
-                                        <h3 className="text-2xl font-serif text-brand-navy dark:text-foreground mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight border-b border-brand-gold/20 dark:border-brand-gold/30 pb-2">
+                                        <h3 className={cn(
+                                            "text-2xl font-serif text-brand-navy dark:text-foreground mt-3 transition-colors duration-300 leading-tight pb-2",
+                                            isNoli ? "group-hover:text-brand-gold border-b border-brand-gold/20 dark:border-brand-gold/30" : "group-hover:text-[#E06C75] border-b border-[#8D2D2D]/20 dark:border-[#E06C75]/30"
+                                        )}>
                                             Kabanata {result.chapter}
                                         </h3>
                                         <p className="text-xs font-serif text-brand-text/60 dark:text-brand-text-muted mt-2 italic flex justify-between">
@@ -124,7 +128,10 @@ export function ReadingMapViewer({
                                         </p>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-brand-text-light dark:text-foreground/75 group-hover:text-brand-gold transition-colors duration-300">
+                                    <div className={cn(
+                                        "flex items-center justify-between text-[10px] font-bold tracking-widest text-brand-text-light dark:text-foreground/75 transition-colors duration-300",
+                                        isNoli ? "group-hover:text-brand-gold" : "group-hover:text-[#E06C75]"
+                                    )}>
                                         <span className="flex items-center uppercase">
                                             Basahin 
                                             <svg className="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,7 +139,12 @@ export function ReadingMapViewer({
                                             </svg>
                                         </span>
                                         {/* Ranking Ordinal Badge */}
-                                        <div className="bg-brand-navy/5 dark:bg-brand-gold/15 px-2 py-0.5 rounded-full text-brand-navy/60 dark:text-brand-gold group-hover:bg-brand-gold/20 group-hover:text-brand-gold transition-colors font-bold">
+                                        <div className={cn(
+                                            "px-2 py-0.5 rounded-full transition-colors font-bold",
+                                            isNoli 
+                                                ? "bg-brand-navy/5 dark:bg-brand-gold/15 text-brand-navy/60 dark:text-brand-gold group-hover:bg-brand-gold/20 group-hover:text-brand-gold"
+                                                : "bg-[#8D2D2D]/5 dark:bg-[#E06C75]/15 text-[#8D2D2D]/70 dark:text-[#E06C75] group-hover:bg-[#E06C75]/20 group-hover:text-[#E06C75]"
+                                        )}>
                                             #{i+1}
                                         </div>
                                     </div>
@@ -140,7 +152,10 @@ export function ReadingMapViewer({
                                 
                                 {/* Connector Arrow */}
                                 {i < allResults.length - 1 && (
-                                    <div className="text-brand-navy/20 dark:text-brand-gold/40 shrink-0 mx-2 animate-pulse">
+                                    <div className={cn(
+                                        "shrink-0 mx-2 animate-pulse",
+                                        isNoli ? "text-brand-navy/20 dark:text-brand-gold/40" : "text-[#8D2D2D]/25 dark:text-[#E06C75]/40"
+                                    )}>
                                         <ArrowRight className="w-5 h-5" />
                                     </div>
                                 )}
@@ -156,7 +171,12 @@ export function ReadingMapViewer({
                         className="flex items-center justify-center snap-center shrink-0 w-24 h-48"
                     >
                         <div className="flex flex-col items-center">
-                            <div className="w-4 h-4 rounded-full border-[3px] border-brand-cream dark:border-[#18202C] bg-brand-navy/30 dark:bg-brand-gold/50 shadow-md"></div>
+                            <div className={cn(
+                                "w-4 h-4 rounded-full border-[3px] shadow-md",
+                                novel === 'fili'
+                                    ? "border-brand-cream dark:border-[#1A0C0E] bg-[#8D2D2D]/30 dark:bg-[#E06C75]/50"
+                                    : "border-brand-cream dark:border-[#18202C] bg-brand-navy/30 dark:bg-brand-gold/50"
+                            )}></div>
                             <span className="text-[9px] font-bold uppercase tracking-widest text-brand-navy/40 dark:text-foreground/50 mt-3 font-serif">Katapusan</span>
                         </div>
                     </motion.div>
