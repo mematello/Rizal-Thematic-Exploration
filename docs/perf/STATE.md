@@ -210,12 +210,13 @@
 
   - **Step 4 Pre-Gate-2 Checks & Parity Verification (Evidence: `docs/perf/evidence/`)**:
     - **Scope Clarification**: Corrected in Gate 1 report, `STATE.md`, and `DECISIONS.md`: ML alignment (`RobustAligner`) applies strictly to 2,186 summary sentences across 103 chapters. Full mode (14,216 sentences across 102 chapters) uses passage ID grouping with `score=1.0`. Full-mode bundles (5.77 MB) exist strictly to eliminate DB roundtrips.
-    - **Cold Path Breakdown Reconciled**: Noli 1 = 81.6s (SQL 3.4s, Encode 18.6s, Aligner 59.6s); Noli 5 = 3.9s; El Fili 10 = 41.9s. Reconciled 20–52s baseline cold times: NULL `embedding_dapt` rows trigger 14–19s CPU encodings, and $M \times N$ matrix alignment scales to 39–60s on CPU under concurrent worker load.
-    - **Live HF Parity (All 2,186 Summary Sentences)**: 2,186 / 2,186 reference sentence IDs matched (100%), 2,186 / 2,186 reference texts matched (100%), 2,186 / 2,186 `alignment_status` matched (100%). Non-score field mismatches: 0. Max score delta: 0.00000030 (pure float32 precision across CPU architectures).
+    - **Cold Path Breakdown Reconciled**: Noli 1 = 81.6s (SQL 3.4s, Encode 18.6s, Aligner 59.6s); Noli 5 = 3.9s; El Fili 10 = 41.9s. Individual component timings are verified; however, the CPU-saturation explanation of the observed 20–52 s cold times under concurrency is an inference, not verified.
+    - **Live HF Parity (All 2,186 Summary Sentences)**: 2,186 / 2,186 reference sentence IDs matched (100%), 2,186 / 2,186 reference texts matched (100%), 2,186 / 2,186 `alignment_status` matched (100%). Non-score field mismatches: 0. Summary scores match the old backend except float32 noise $\le 3.0 \times 10^{-7}$ (1,829 / 2,186 differ by sub-micro float32 precision across CPU architectures; 357 are exact; 0 structural differences).
     - **500 Random Full Sentences HTTP Byte SHA-256**: 500 / 500 matched 100% bit-identical SHA-256 against live HF Space.
     - **Fingerprint Enhanced**: Added `content.py` alignment code hash and DAPT model revision (`mematello/rizal-xlm-r-dapt:main`). Re-verified 205-chapter parity (205/205 identical). Normalized CRLF/LF line endings for platform-independent fingerprint hashing.
+    - **Operational Note (Fingerprint Regeneration)**: The cryptographic fingerprint hashes all of `content.py` and `robust_aligner.py`. Any edit to `content.py` invalidates the bundle fingerprint and requires rebuilding bundles via `poetry run python scripts/build_sanggunian_cache.py`.
   - **Step 5 Gate 2 Backend Deployment to Hugging Face Spaces (Completed & Verified)**:
-    - **Rollback Target Confirmed**: `remotes/hf/main` is `2b15166d0eacd19fa4096e50544a71517982d312` (starts with `2b15166`). **Verified**.
+    - **Rollback Targets**: New HF Space Rollback Target: `4bbc31e`. Backend rollback target before this item: `2b15166`.
     - **Backend Files Deployed (0 leak)**: Exactly 6 backend files deployed to HF Space commit `4bbc31e`:
       1. `backend/app/api/v1/content.py`
       2. `backend/app/main.py`
@@ -231,13 +232,11 @@
       - Canonical JSON SHA-256 vs local bundles: **Verified** (100% bit-identical on all 5 chapters).
       - 5-run warm latency across 5 chapters: **Verified** (Avg latencies: 292.2 ms, 240.3 ms, 237.1 ms, 293.1 ms, 422.0 ms over WAN).
       - 5 golden search queries (`kalayaan`, `edukasyon`, `simbahan`, `korapsyon`, `pag-ibig`): **Verified** (Top-5 IDs in Noli and El Fili match 100% with `golden_snapshot_deterministic.json`).
-    - **STOP Enforced**: Backend live verification completed. Vercel and `main` have NOT been touched pending user review.
+  - **Step 6 Gate 3 Pre-Merge Validation (Completed & Verified)**:
+    - Live HF Space startup logs pulled via `huggingface_hub.HfApi().fetch_space_logs()`. Zero warning, mismatch, or fallback lines. Verified static cache serving with 235ms latency and 100% bit-identical local bundle SHA.
+    - Frontend build & typecheck: `npm run build` and `npx tsc --noEmit` verified **clean (0 errors)**.
 
 ---
 
 ## Next Steps
-- STOP and await user review of Gate 2 backend deployment results.
-- Upon approval, proceed to Gate 3:
-  1. Merge `perf/sanggunian` into `main`.
-  2. Push to GitHub (`origin/main`).
-  3. Verify Vercel deployment of frontend with React Query chapter sanggunian prefetching.
+- Gate 3 execution: Merge `perf/sanggunian` into `main`, push to GitHub, and verify Vercel deployment on `https://rizalengine.vercel.app`.
