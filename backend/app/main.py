@@ -1,4 +1,9 @@
 import os
+import logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s", force=True)
+for _noisy in ["httpx", "urllib3", "sentence_transformers", "sqlalchemy.engine"]:
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
+
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 
