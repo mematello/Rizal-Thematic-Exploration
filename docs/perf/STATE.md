@@ -1,8 +1,8 @@
 # Performance Optimization State
 
 **Last Updated**: 2026-10-17  
-**Branch**: `main`  
-**Current Phase**: Items D (Mobile Fullscreen / Sanggunian), E (Background Rotation & Viewport Scaling), and F (Complete Dark Mode & Contrast Polish) successfully implemented, verified, merged into `main`, and pushed to GitHub.
+**Branch**: `perf/sanggunian`  
+**Current Phase**: Item C Phase 2 (Sanggunian Optimization Fixes 1 + 2: precomputed chapter bundles + chapter endpoint + React Query integration) Gate 1 verified. Awaiting user review before Gate 2 HF Space deployment.
 
 ---
 
@@ -160,13 +160,49 @@
     - Merged branch `feat/dark-mode` into `main` and pushed to GitHub (`b18ddf0`).
     - Strictly **0 diff** on `backend/app/core/engine.py`.
 
+- **Item C Phase 2 Sanggunian Cross-Novel Reference Optimization (Completed 2026-10-17, branch `perf/sanggunian`)**:
+  - **Step 0 Baseline Profiling & Measurements**:
+    - Raw output documented in `docs/perf/evidence/sanggunian_step0_measurements.txt`.
+    - DAPT embedding time on cold chapters: Noli 1 = 81.3 ms, Noli 5 = 71.9 ms, El Fili 10 = 61.2 ms.
+    - `RobustAligner.align()` time: Noli 1 = 1,493.4 ms, Noli 5 = 1,732.3 ms, El Fili 10 = 1,887.8 ms.
+    - Corpus alignment scope: Sanggunian applies to full mode as well as buod mode. Total scope: 205 chapters across both novels and modes, comprising 16,402 sentences requiring alignment.
+  - **Step 1 Backend Precomputed Bundles & Endpoints**:
+    - Created `scripts/build_sanggunian_cache.py` with checkpointing and resume. Precomputed all 205 chapters into 4 JSON bundles under `backend/app/data/`:
+      - `sanggunian_cache_noli_buod.json`: 1,606.1 KB (64 ch, 1,212 sents)
+      - `sanggunian_cache_noli_full.json`: 3,493.2 KB (63 ch, 8,673 sents)
+      - `sanggunian_cache_elfili_buod.json`: 1,214.3 KB (39 ch, 974 sents)
+      - `sanggunian_cache_elfili_full.json`: 2,277.9 KB (39 ch, 5,543 sents)
+      - Total bundle size: **8.39 MB** across 205 chapters (16,402 sentences).
+    - Bundle cryptographic fingerprint: Embeds `sentence_count` (16,402), `sentence_text` MD5, NULL `embedding_dapt` count (4,580), `embedding_dapt` column MD5, and `robust_aligner.py` SHA-256 hash.
+    - Startup verification: Non-blocking `verify_sanggunian_fingerprint(db)` runs during lifespan. Matches: serves bundle (0ms). Mismatch or missing bundle: logs loud warning, disables static cache, falls back to live compute. DB unreachable: serves static bundle, logs warning, never crashes.
+    - Concurrency lock: Added `_alignment_compute_lock` to serialize concurrent live alignment compute races on cache misses.
+    - Endpoints:
+      - `GET /api/v1/sentences/{id}/sanggunian`: Preserved behavior and response shape unchanged; served from in-memory index when bundle enabled.
+      - `GET /api/v1/chapters/{book}/{chapter_number}/sanggunian?mode={mode}`: Returns whole-chapter mapping in one request with `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+  - **Step 2 Gate 1 Parity & Resilience Verification**:
+    - **Raw Parity Test**: Compared SHA-256 hashes of raw HTTP bytes across all 205 chapters against live path logic on the same machine. Result: **205/205 chapters identical (0 mismatches)**.
+    - **Score Delta on Profiled Sentences**: Queried the 5 profiled sentences against live HF Space and local bundle:
+      - Sentence 37177: Local=0.781451 | HF=0.781451 | Delta=0.00000003
+      - Sentence 37275: Local=0.822976 | HF=0.822976 | Delta=0.00000003
+      - Sentence 37768: Local=0.621622 | HF=0.621622 | Delta=0.00000030
+      - Sentence 38389: Local=0.919948 | HF=0.919948 | Delta=0.00000006
+      - Sentence 38586: Local=0.838446 | HF=0.838446 | Delta=0.00000003
+      - **Max absolute score delta: 0.00000030** (disclosed).
+    - **Fallback Resilience**: Verified all 3 cases via `scripts/test_sanggunian_fallbacks.py` (fingerprint mismatch, missing bundle, DB connection down). All passed.
+    - **Latency**: Chapter endpoint cold 2.7–20.7 ms, warm avg 2.4–4.0 ms, warm min 1.6–3.1 ms (down from 52,400 ms baseline per chapter).
+    - **Golden Invariance**: All 40 golden search queries vs `golden_snapshot_deterministic.json`: **0 diffs (100% invariant)**.
+    - **Engine Diff**: `backend/app/core/engine.py` diff: **STRICTLY 0 DIFF**.
+  - **Step 3 Frontend Integration & Viewport Verification**:
+    - Updated `ChapterModal.tsx` and `ChapterGrid.tsx` with `useQuery({ queryKey: ['sanggunian', book, currentChapterNum, mode], staleTime: 24h })`.
+    - Prefetches active chapter and adjacent chapters in buod mode on modal open.
+    - Maintained fallback loop to per-sentence endpoint if chapter endpoint fails.
+    - Verification: `npx tsc --noEmit` clean, `npm run build` clean.
+    - End-to-end browser subagent verified desktop (1920x1080) and mobile (390x844) viewport layouts: Sanggunian toggle enables reference superscripts `[1]`, clicking opens detail comparison modal, responsive layout stacks cleanly without horizontal overflow.
+
 ---
 
 ## Next Steps
-- Review next planned roadmap items with user.
-
-
-
-
-
-
+- STOP and await user review of Gate 1 results before any HF push or merge.
+- Upon approval, execute deployment sequence:
+  1. Gate 2: Deploy backend bundles and API updates to Hugging Face Space (rollback SHA: `2b15166`), verify live `/health`, chapter sanggunian endpoint, and search invariance.
+  2. Gate 3: Merge `perf/sanggunian` to `main`, push to GitHub, and verify Vercel deployment.

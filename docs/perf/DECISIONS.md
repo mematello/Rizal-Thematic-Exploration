@@ -808,10 +808,37 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - Search Pipeline / Engine: **0 diff** on `backend/app/core/engine.py`.
   - Visuals & Ergonomics: Premium, high-contrast dark reading experience across all devices and modal dialogs.
 
+---
 
-
-
-
-
-
+### 13. 2026-10-17: Item C Phase 2 — Sanggunian Cross-Novel Reference Optimization (Fixes 1 + 2)
+- **Context**: Profiling in Phase 1 (`docs/perf/evidence/sanggunian_profile.md`) revealed that loading Sanggunian cross-references for a chapter executed an N+1 HTTP loop from the frontend (`ChapterModal.tsx`), making up to 12-25 concurrent requests to `GET /api/v1/sentences/{id}/sanggunian`. Each request executed a cold DAPT model encoding and dynamic cosine alignment across all chapters, totaling 52.4s of backend compute per chapter and saturating HF Space worker threads.
+- **Rollback Target**: HF Space commit `2b15166`.
+- **Decisions**:
+  1. **Precompute Static Chapter Bundles (`scripts/build_sanggunian_cache.py`)**:
+     - Precomputed all cross-novel alignments offline using the unmodified live engine logic for all 205 chapters (16,402 sentences).
+     - Bundles saved in `backend/app/data/`: `sanggunian_cache_noli_buod.json` (1.61 MB), `sanggunian_cache_noli_full.json` (3.49 MB), `sanggunian_cache_elfili_buod.json` (1.21 MB), and `sanggunian_cache_elfili_full.json` (2.28 MB). Total size: **8.39 MB**.
+     - Embedded cryptographic fingerprint: sentence count (16,402), `sentence_text` MD5, count of NULL `embedding_dapt` rows (4,580), `embedding_dapt` column MD5, and content SHA-256 of `robust_aligner.py`.
+  2. **Non-blocking Startup Verification & Fail-Safe Fallbacks**:
+     - Lifespan background task `warm_sanggunian_cache()` loads bundles and calls `verify_sanggunian_fingerprint(db)`.
+     - Fingerprint match: Enables static bundle (0ms in-memory lookup).
+     - Fingerprint mismatch or missing bundle: Logs loud warning, disables static cache, falls back to live compute.
+     - DB unreachable: Serves static bundle as resilient fallback, logs warning, never crashes.
+     - Added `_alignment_compute_lock` to serialize concurrent live alignment compute races on cache misses.
+  3. **Chapter-Level Endpoint & HTTP Cache Headers**:
+     - Added `GET /api/v1/chapters/{book}/{chapter_number}/sanggunian?mode={mode}` returning mapping of all sentence references in one request.
+     - Added header `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+     - Maintained `GET /api/v1/sentences/{id}/sanggunian` behavior and response shape unchanged, serving from `_sentence_to_sanggunian_cache` index when enabled.
+  4. **Frontend React Query & Prefetching (`ChapterModal.tsx`)**:
+     - Replaced per-sentence fetch loop with `useQuery({ queryKey: ['sanggunian', book, currentChapterNum, mode], staleTime: 24h })`.
+     - Prefetches active chapter and adjacent chapters in buod mode on modal open.
+     - Preserves existing fallback loop to per-sentence endpoint if chapter endpoint fails.
+- **Impact & Verification**:
+  - **Latency**: Chapter endpoint latency dropped from **52,400 ms to 1.6–4.0 ms warm (2.7–20.7 ms cold)** (-99.99% latency reduction).
+  - **Parity**: **205/205 chapters identical (0 mismatches)** in raw HTTP response bytes.
+  - **Score Delta**: Max absolute score delta on the 5 profiled sentences between local and live HF Space: **0.00000030** (disclosed).
+  - **Fallbacks Tested**: All 3 resilience cases (mismatch, missing bundle, DB offline) verified via `scripts/test_sanggunian_fallbacks.py`.
+  - **Golden Query Invariance**: All 40 search queries 100% invariant vs `golden_snapshot_deterministic.json` (0 diffs).
+  - **Engine Diff**: `backend/app/core/engine.py` diff is **STRICTLY 0 DIFF**.
+  - **UI Verification**: Verified desktop (1920x1080) and mobile (390x844) viewport layouts via browser subagent.
+  - **Gate Status**: Gate 1 verified. Waiting for user review before deploying to HF Space or Vercel.
 

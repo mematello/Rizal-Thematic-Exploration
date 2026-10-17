@@ -35,12 +35,13 @@ async def lifespan(app: FastAPI):
     elif frontend_ts_path.exists() and not backend_json_path.exists():
         logging.warning("⚠️ character_aliases.json not found! Please run scripts/character_index.py.")
         
-    # Non-blocking warm-up of themes and chapters cache in background thread
+    # Non-blocking warm-up of themes, chapters, and sanggunian cache in background thread
     import threading
-    from app.api.v1.content import warm_themes_cache, warm_chapters_cache
+    from app.api.v1.content import warm_themes_cache, warm_chapters_cache, warm_sanggunian_cache
     def _warm_all():
         warm_chapters_cache()
         warm_themes_cache()
+        warm_sanggunian_cache()
     threading.Thread(target=_warm_all, name="warm-caches", daemon=True).start()
 
     yield

@@ -21,6 +21,16 @@ _csv_cache = {}
 
 # Cache for chapter-level buod-to-full alignments  (key: (full_book, full_chapter, buod_book, buod_chapter))
 _alignment_cache: dict = {}
+_alignment_compute_lock = threading.Lock()
+
+# Static precomputed Sanggunian cache (keyed by (book, mode) -> {chapter_number_str: chapter_data})
+_static_sanggunian_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
+_sentence_to_sanggunian_cache: Dict[int, dict] = {}
+_static_sanggunian_enabled: bool = False
+_static_sanggunian_fingerprint: Optional[Dict[str, Any]] = None
+_static_sanggunian_lock = threading.Lock()
+_static_sanggunian_loaded: bool = False
+_sanggunian_fingerprint_checked: bool = False
 
 # Process-level cache for static themes response
 _themes_cache: Optional[List[dict]] = None
@@ -173,6 +183,172 @@ try:
 except Exception as e:
     import logging
     logging.warning(f"Failed to load static chapter cache at module load: {e}")
+
+
+def load_static_sanggunian_cache() -> None:
+    """
+    Loads precomputed Sanggunian static cache bundles from backend/app/data/
+    into process memory. Populates both chapter-level lookup and sentence-level index.
+    """
+    global _static_sanggunian_cache, _sentence_to_sanggunian_cache, _static_sanggunian_fingerprint, _static_sanggunian_loaded
+    with _static_sanggunian_lock:
+        if _static_sanggunian_loaded:
+            return
+        data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        cache_files = {
+            ("noli", "buod"): data_dir / "sanggunian_cache_noli_buod.json",
+            ("noli", "full"): data_dir / "sanggunian_cache_noli_full.json",
+            ("elfili", "buod"): data_dir / "sanggunian_cache_elfili_buod.json",
+            ("elfili", "full"): data_dir / "sanggunian_cache_elfili_full.json",
+        }
+        loaded_chapters = {}
+        sentence_index = {}
+        bundle_fp = None
+
+        for key, fpath in cache_files.items():
+            if not fpath.exists():
+                import logging
+                logging.warning(f"Static Sanggunian cache bundle missing: {fpath.name}")
+                return
+            with open(fpath, "r", encoding="utf-8") as f:
+                bundle = json.load(f)
+            ch_data = bundle.get("chapters", {})
+            loaded_chapters[key] = ch_data
+            if bundle_fp is None and "fingerprint" in bundle:
+                bundle_fp = bundle["fingerprint"]
+
+            # Flatten per-sentence references into sentence_index
+            for ch_num_str, c_info in ch_data.items():
+                refs = c_info.get("references", {})
+                for sid_str, ref_obj in refs.items():
+                    try:
+                        sentence_index[int(sid_str)] = ref_obj
+                    except ValueError:
+                        pass
+
+        _static_sanggunian_cache = loaded_chapters
+        _sentence_to_sanggunian_cache = sentence_index
+        _static_sanggunian_fingerprint = bundle_fp
+        _static_sanggunian_loaded = True
+        import logging
+        logging.info(f"Loaded static Sanggunian cache: {len(_sentence_to_sanggunian_cache)} sentences indexed across {sum(len(v) for v in _static_sanggunian_cache.values())} chapters.")
+
+
+def verify_sanggunian_fingerprint(db: Session) -> bool:
+    """
+    Queries live database to verify corpus and embedding integrity against static Sanggunian cache fingerprint.
+    - If fingerprint matches: enables static Sanggunian cache (0ms lookup).
+    - If fingerprint mismatches or bundle missing: disables static cache and falls back to live computation.
+    - If DB connection fails: serves the static bundle and logs a warning.
+    DOES NOT CRASH.
+    """
+    global _static_sanggunian_enabled, _sanggunian_fingerprint_checked
+    with _static_sanggunian_lock:
+        if _sanggunian_fingerprint_checked:
+            return _static_sanggunian_enabled
+        if not _static_sanggunian_loaded or not _static_sanggunian_fingerprint:
+            load_static_sanggunian_cache()
+            if not _static_sanggunian_fingerprint:
+                _sanggunian_fingerprint_checked = True
+                _static_sanggunian_enabled = False
+                return False
+
+        fp = _static_sanggunian_fingerprint
+
+        # 1. Verify robust_aligner.py content hash
+        aligner_file = Path(__file__).resolve().parent.parent.parent / "core" / "robust_aligner.py"
+        if aligner_file.exists() and "robust_aligner_hash" in fp:
+            import hashlib
+            with open(aligner_file, "rb") as af:
+                current_aligner_hash = hashlib.sha256(af.read()).hexdigest()
+            if current_aligner_hash != fp["robust_aligner_hash"]:
+                _static_sanggunian_enabled = False
+                _sanggunian_fingerprint_checked = True
+                import logging
+                logging.warning(
+                    f"⚠️ ROBUST_ALIGNER.PY HASH MISMATCH! Expected {fp['robust_aligner_hash']}, got {current_aligner_hash}. "
+                    "Disabling static Sanggunian cache, falling back to live compute."
+                )
+                return False
+
+        # 2. Query live database for sentence and dapt embedding fingerprint
+        try:
+            sql = text("""
+                SELECT 
+                    (SELECT count(*) FROM sentences) AS sentence_count,
+                    (SELECT md5(string_agg(sentence_text, '' ORDER BY id)) FROM sentences) AS sentence_text_md5,
+                    (SELECT count(*) FROM sentences WHERE embedding_dapt IS NULL) AS dapt_null_count,
+                    (SELECT md5(string_agg(coalesce(embedding_dapt::text, 'NULL'), '' ORDER BY id)) FROM sentences) AS dapt_column_md5
+            """)
+            row = db.execute(sql).fetchone()
+            if not row:
+                _sanggunian_fingerprint_checked = True
+                _static_sanggunian_enabled = False
+                return False
+
+            live_fp = {
+                "sentence_count": int(row[0]),
+                "sentence_text_md5": str(row[1]),
+                "dapt_null_count": int(row[2]),
+                "dapt_column_md5": str(row[3]),
+            }
+
+            if (
+                live_fp["sentence_count"] == fp.get("sentence_count")
+                and live_fp["sentence_text_md5"] == fp.get("sentence_text_md5")
+                and live_fp["dapt_null_count"] == fp.get("dapt_null_count")
+                and live_fp["dapt_column_md5"] == fp.get("dapt_column_md5")
+            ):
+                _static_sanggunian_enabled = True
+                _sanggunian_fingerprint_checked = True
+                import logging
+                logging.info("Sanggunian static cache verified against Supabase corpus (205 chapters active).")
+                return True
+            else:
+                _static_sanggunian_enabled = False
+                _sanggunian_fingerprint_checked = True
+                import logging
+                logging.warning(
+                    f"⚠️ Sanggunian static cache fingerprint mismatch! Live DB: {live_fp} vs Cache: {fp}. "
+                    "Disabling static Sanggunian cache, falling back to live computation. "
+                    "Run scripts/build_sanggunian_cache.py to regenerate."
+                )
+                return False
+        except Exception as e:
+            # DB connectivity failure: serve static bundle as fallback
+            _static_sanggunian_enabled = True
+            _sanggunian_fingerprint_checked = True
+            import logging
+            logging.warning(
+                f"⚠️ Database connectivity failure during Sanggunian fingerprint check ({e}). "
+                "Serving precomputed static Sanggunian bundles as fallback."
+            )
+            return True
+
+
+def warm_sanggunian_cache():
+    """
+    Loads static Sanggunian cache bundles and validates corpus fingerprint against DB
+    in a background thread at startup. Startup is never delayed.
+    """
+    db = SessionLocal()
+    try:
+        load_static_sanggunian_cache()
+        verify_sanggunian_fingerprint(db)
+        import logging
+        logging.info("Sanggunian cache initialization complete.")
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to initialize Sanggunian cache at startup: {e}")
+    finally:
+        db.close()
+
+
+try:
+    load_static_sanggunian_cache()
+except Exception as e:
+    import logging
+    logging.warning(f"Failed to load static Sanggunian cache at module load: {e}")
 
 
 def get_csv_data(book: str) -> Optional[pd.DataFrame]:
@@ -827,9 +1003,21 @@ class SanggunianResponse(BaseModel):
     full_sentence_indices: List[int] = []
     full_is_short: List[bool] = []
 
+class ChapterSanggunianResponse(BaseModel):
+    book: str
+    chapter_number: int
+    mode: str
+    total_sentences: int
+    references: Dict[str, SanggunianResponse]
+
 
 @router.get("/sentences/{id}/sanggunian", response_model=SanggunianResponse)
 def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: RizalEngine = Depends(get_engine)):
+    # ── 0. Static precomputed bundle lookup (0ms) ────────────────────────────
+    if _static_sanggunian_enabled and id in _sentence_to_sanggunian_cache:
+        return SanggunianResponse(**_sentence_to_sanggunian_cache[id])
+
+    # ── Live computation fallback ────────────────────────────────────────────
     sentence = db.query(Sentence).filter(Sentence.id == id).first()
     if not sentence:
         raise HTTPException(status_code=404, detail="Sentence not found")
@@ -866,53 +1054,54 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
     if search_book_noli and search_chapter == 64:
         search_chapter = 63
 
-    # ── Run alignment (with per-chapter cache) ───────────────────────────────
+    # ── Run alignment (with per-chapter cache & concurrency lock) ────────────
     cache_key = (full_book, search_chapter, sentence.book, sentence.chapter_number)
-    if cache_key not in _alignment_cache:
-        # 1. Fetch ALL buod and full sentences for the chapter
-        buod_rows = db.query(Sentence).filter(
-            Sentence.book == sentence.book,
-            Sentence.chapter_number == sentence.chapter_number,
-            Sentence.source_type == 'summary'
-        ).order_by(Sentence.sentence_index).all()
-        
-        full_rows = db.query(Sentence).filter(
-            Sentence.book == full_book,
-            Sentence.chapter_number == search_chapter,
-            Sentence.source_type == 'full'
-        ).order_by(Sentence.sentence_index).all()
-        
-        if not buod_rows or not full_rows:
-            return SanggunianResponse(has_reference=False)
-
-        # 2. Extract texts and embeddings
-        buod_texts = [r.sentence_text for r in buod_rows]
-        full_texts = [r.sentence_text for r in full_rows]
-        
-        # Check for missing embeddings and encode if necessary
-        if any(r.embedding_dapt is None for r in buod_rows):
-            buod_embs = engine.dapt_model.encode(buod_texts)
-        else:
-            buod_embs = np.array([r.embedding_dapt for r in buod_rows], dtype=np.float32)
+    with _alignment_compute_lock:
+        if cache_key not in _alignment_cache:
+            # 1. Fetch ALL buod and full sentences for the chapter
+            buod_rows = db.query(Sentence).filter(
+                Sentence.book == sentence.book,
+                Sentence.chapter_number == sentence.chapter_number,
+                Sentence.source_type == 'summary'
+            ).order_by(Sentence.sentence_index).all()
             
-        if any(r.embedding_dapt is None for r in full_rows):
-            full_embs = engine.dapt_model.encode(full_texts)
-        else:
-            full_embs = np.array([r.embedding_dapt for r in full_rows], dtype=np.float32)
+            full_rows = db.query(Sentence).filter(
+                Sentence.book == full_book,
+                Sentence.chapter_number == search_chapter,
+                Sentence.source_type == 'full'
+            ).order_by(Sentence.sentence_index).all()
+            
+            if not buod_rows or not full_rows:
+                return SanggunianResponse(has_reference=False)
 
-        # 3. Use RobustAligner
-        _alignment_cache[cache_key] = {
-            "v": "2.0", # Versioning to force refresh
-            "alignments": engine.robust_aligner.align(
-                buod_sentences=buod_texts,
-                full_sentences=full_texts,
-                buod_embeddings=buod_embs,
-                full_embeddings=full_embs,
-                full_is_short=[r.is_short for r in full_rows]
-            ),
-            "full_sentences": full_rows,
-            "buod_rows": buod_rows
-        }
+            # 2. Extract texts and embeddings
+            buod_texts = [r.sentence_text for r in buod_rows]
+            full_texts = [r.sentence_text for r in full_rows]
+            
+            # Check for missing embeddings and encode if necessary
+            if any(r.embedding_dapt is None for r in buod_rows):
+                buod_embs = engine.dapt_model.encode(buod_texts)
+            else:
+                buod_embs = np.array([r.embedding_dapt for r in buod_rows], dtype=np.float32)
+                
+            if any(r.embedding_dapt is None for r in full_rows):
+                full_embs = engine.dapt_model.encode(full_texts)
+            else:
+                full_embs = np.array([r.embedding_dapt for r in full_rows], dtype=np.float32)
+
+            # 3. Use RobustAligner
+            _alignment_cache[cache_key] = {
+                "v": "2.0", # Versioning to force refresh
+                "alignments": engine.robust_aligner.align(
+                    buod_sentences=buod_texts,
+                    full_sentences=full_texts,
+                    buod_embeddings=buod_embs,
+                    full_embeddings=full_embs,
+                    full_is_short=[r.is_short for r in full_rows]
+                ),
+                "full_sentences": full_rows,
+                "buod_rows": buod_rows
+            }
 
     cached_data = _alignment_cache[cache_key]
     alignments = cached_data["alignments"]
@@ -946,6 +1135,173 @@ def get_sentence_sanggunian(id: int, db: Session = Depends(get_db), engine: Riza
         full_sentence_indices=[s.original_sentence_number or s.sentence_index for s in passage_sentences],
         full_is_short=[s.is_short for s in passage_sentences]
     )
+
+
+@router.get("/chapters/{book}/{chapter_number}/sanggunian", response_model=ChapterSanggunianResponse)
+def get_chapter_sanggunian(
+    book: str,
+    chapter_number: int,
+    response: Response = None,
+    mode: Optional[str] = "buod",
+    db: Session = Depends(get_db),
+    engine: RizalEngine = Depends(get_engine)
+):
+    """
+    Fetch all Sanggunian cross-references for an entire chapter.
+    Returns per-sentence objects keyed by sentence id.
+    Includes Cache-Control: public, max-age=86400, stale-while-revalidate=604800.
+    """
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=86400, stale-while-revalidate=604800"
+
+    book_norm = "noli" if "noli" in book.lower() else "elfili"
+    mode_norm = "buod" if (mode == "buod" or not mode) else "full"
+    ch_key = str(chapter_number)
+
+    # 1. Try static bundle cache (0ms)
+    if _static_sanggunian_enabled and (book_norm, mode_norm) in _static_sanggunian_cache:
+        chapter_data = _static_sanggunian_cache[(book_norm, mode_norm)].get(ch_key)
+        if chapter_data is not None:
+            return chapter_data
+
+    # 2. Live computation fallback
+    if mode_norm == "full":
+        full_book_name = "Noli Me Tangere" if book_norm == "noli" else "El Filibusterismo"
+        full_rows = db.query(Sentence).filter(
+            Sentence.book == full_book_name,
+            Sentence.chapter_number == chapter_number,
+            Sentence.source_type == 'full'
+        ).order_by(Sentence.sentence_index).all()
+
+        passage_groups = {}
+        for s in full_rows:
+            if s.passage_id is not None:
+                passage_groups.setdefault(s.passage_id, []).append(s)
+
+        refs = {}
+        for s in full_rows:
+            if s.passage_id is not None and s.passage_id in passage_groups:
+                passage_sentences = passage_groups[s.passage_id]
+            else:
+                passage_sentences = [s]
+
+            refs[str(s.id)] = SanggunianResponse(
+                has_reference=True,
+                passage_ids=[ps.id for ps in passage_sentences],
+                reference_text=" ".join(str(ps.sentence_text) for ps in passage_sentences),
+                alignment_status="precise",
+                score=1.0,
+                matched_characters=[],
+                buod_sentence_index=s.sentence_index,
+                full_sentence_indices=[ps.sentence_index for ps in passage_sentences],
+                full_is_short=[bool(ps.is_short) for ps in passage_sentences]
+            )
+
+        return ChapterSanggunianResponse(
+            book=book_norm,
+            chapter_number=chapter_number,
+            mode=mode_norm,
+            total_sentences=len(refs),
+            references=refs
+        )
+
+    else:  # mode_norm == "buod"
+        db_book_name = "noli" if book_norm == "noli" else "elfili"
+        full_book_name = "Noli Me Tangere" if book_norm == "noli" else "El Filibusterismo"
+        search_chapter = chapter_number
+        if book_norm == "noli" and search_chapter == 64:
+            search_chapter = 63
+
+        cache_key = (full_book_name, search_chapter, db_book_name, chapter_number)
+        with _alignment_compute_lock:
+            if cache_key not in _alignment_cache:
+                buod_rows = db.query(Sentence).filter(
+                    Sentence.book == db_book_name,
+                    Sentence.chapter_number == chapter_number,
+                    Sentence.source_type == 'summary'
+                ).order_by(Sentence.sentence_index).all()
+                
+                full_rows = db.query(Sentence).filter(
+                    Sentence.book == full_book_name,
+                    Sentence.chapter_number == search_chapter,
+                    Sentence.source_type == 'full'
+                ).order_by(Sentence.sentence_index).all()
+
+                if not buod_rows or not full_rows:
+                    return ChapterSanggunianResponse(
+                        book=book_norm,
+                        chapter_number=chapter_number,
+                        mode=mode_norm,
+                        total_sentences=0,
+                        references={}
+                    )
+
+                buod_texts = [r.sentence_text for r in buod_rows]
+                full_texts = [r.sentence_text for r in full_rows]
+
+                if any(r.embedding_dapt is None for r in buod_rows):
+                    buod_embs = engine.dapt_model.encode(buod_texts)
+                else:
+                    buod_embs = np.array([r.embedding_dapt for r in buod_rows], dtype=np.float32)
+
+                if any(r.embedding_dapt is None for r in full_rows):
+                    full_embs = engine.dapt_model.encode(full_texts)
+                else:
+                    full_embs = np.array([r.embedding_dapt for r in full_rows], dtype=np.float32)
+
+                _alignment_cache[cache_key] = {
+                    "v": "2.0",
+                    "alignments": engine.robust_aligner.align(
+                        buod_sentences=buod_texts,
+                        full_sentences=full_texts,
+                        buod_embeddings=buod_embs,
+                        full_embeddings=full_embs,
+                        full_is_short=[r.is_short for r in full_rows]
+                    ),
+                    "full_sentences": full_rows,
+                    "buod_rows": buod_rows
+                }
+
+        cached_data = _alignment_cache[cache_key]
+        alignments = cached_data["alignments"]
+        full_chapter_sentences = cached_data["full_sentences"]
+        buod_rows = cached_data["buod_rows"]
+
+        refs = {}
+        for i, s in enumerate(buod_rows):
+            if i >= len(alignments):
+                refs[str(s.id)] = SanggunianResponse(has_reference=False)
+                continue
+            match = alignments[i]
+            w_start, w_end = match.best_window_start, match.best_window_end
+            passage_sentences = full_chapter_sentences[w_start:w_end+1]
+            if not passage_sentences:
+                refs[str(s.id)] = SanggunianResponse(has_reference=False)
+                continue
+
+            refs[str(s.id)] = SanggunianResponse(
+                has_reference=True,
+                passage_ids=[ps.id for ps in passage_sentences],
+                reference_text=" ".join(str(ps.sentence_text) for ps in passage_sentences),
+                alignment_status="precise",
+                score=match.final_score,
+                semantic_score=match.semantic_score,
+                lexical_score=match.lexical_score,
+                char_score=match.tauhan_score,
+                ratio_score=match.position_score,
+                matched_characters=match.matched_characters,
+                buod_sentence_index=s.original_sentence_number or s.sentence_index,
+                full_sentence_indices=[ps.original_sentence_number or ps.sentence_index for ps in passage_sentences],
+                full_is_short=[ps.is_short for ps in passage_sentences]
+            )
+
+        return ChapterSanggunianResponse(
+            book=book_norm,
+            chapter_number=chapter_number,
+            mode=mode_norm,
+            total_sentences=len(refs),
+            references=refs
+        )
 
 
 class CharacterThemeResult(BaseModel):

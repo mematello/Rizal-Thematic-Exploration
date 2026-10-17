@@ -7,9 +7,9 @@ import { CHARACTERS, Character } from "@/lib/characterData";
 import { ItemModal } from "@/components/ItemModal";
 import { useModeStore } from "@/store/modeStore";
 import { ScoreVisualizer } from "@/components/ScoreVisualizer";
-import { ChapterContent, ThemeMatch } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
-import { fetchChapters, fetchChapterContent } from "@/components/ChapterGrid";
+import { ChapterContent, ThemeMatch, ChapterSanggunianResponse } from "@/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchChapters, fetchChapterContent, fetchChapterSanggunian } from "@/components/ChapterGrid";
 import { formatChapterTitle } from "@/lib/utils";
 
 
@@ -152,10 +152,75 @@ export function ChapterModal({
     }, [chapterNumber, isFullscreen]);
 
 
-    // Fetch References when toggled
+    // ── Sanggunian Cross-Reference Chapter Fetching & Prefetching ───────────
+    const currentChapterForSanggunian = isFullscreen ? activeChapterInView : chapterNumber;
+
+    // 1. React Query for active chapter sanggunian
+    const { data: chapterSanggunianData, isError: isSanggunianError } = useQuery<ChapterSanggunianResponse>({
+        queryKey: ['sanggunian', book, currentChapterForSanggunian, mode],
+        queryFn: () => fetchChapterSanggunian(book, currentChapterForSanggunian, mode),
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+        enabled: isOpen && showReference,
+    });
+
+    // 2. Prefetch on modal open and for adjacent chapters in buod mode
     useEffect(() => {
-        if (showReference && !isLoadingRefs) {
-            const fetchRefs = async () => {
+        if (!isOpen) return;
+
+        // Prefetch active chapter
+        queryClient.prefetchQuery({
+            queryKey: ['sanggunian', book, currentChapterForSanggunian, mode],
+            queryFn: () => fetchChapterSanggunian(book, currentChapterForSanggunian, mode),
+            staleTime: 1000 * 60 * 60 * 24,
+        });
+
+        // Prefetch adjacent chapters in buod mode
+        if (mode === 'buod') {
+            const isNoli = book.toLowerCase().includes('noli');
+            const totalChapters = isNoli ? 64 : 39;
+            const prevCh = currentChapterForSanggunian > 1 ? currentChapterForSanggunian - 1 : null;
+            const nextCh = currentChapterForSanggunian < totalChapters ? currentChapterForSanggunian + 1 : null;
+
+            if (prevCh) {
+                queryClient.prefetchQuery({
+                    queryKey: ['sanggunian', book, prevCh, mode],
+                    queryFn: () => fetchChapterSanggunian(book, prevCh, mode),
+                    staleTime: 1000 * 60 * 60 * 24,
+                });
+            }
+            if (nextCh) {
+                queryClient.prefetchQuery({
+                    queryKey: ['sanggunian', book, nextCh, mode],
+                    queryFn: () => fetchChapterSanggunian(book, nextCh, mode),
+                    staleTime: 1000 * 60 * 60 * 24,
+                });
+            }
+        }
+    }, [isOpen, book, currentChapterForSanggunian, mode, queryClient]);
+
+    // 3. Populate referenceResults from chapter query data
+    useEffect(() => {
+        if (!chapterSanggunianData?.references) return;
+
+        setReferenceResults(prev => {
+            const next = { ...prev };
+            Object.entries(chapterSanggunianData.references).forEach(([sidStr, ref]) => {
+                const sid = Number(sidStr);
+                next[sid] = ref;
+                if (ref.has_reference && ref.passage_ids) {
+                    ref.passage_ids.forEach((pid: number) => {
+                        next[pid] = ref;
+                    });
+                }
+            });
+            return next;
+        });
+    }, [chapterSanggunianData]);
+
+    // 4. Fallback: If chapter endpoint fails when references are requested, fall back to per-sentence endpoint
+    useEffect(() => {
+        if (showReference && isSanggunianError && !isLoadingRefs) {
+            const fetchRefsFallback = async () => {
                 setIsLoadingRefs(true);
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
                 const sentences = isFullscreen ? loadedChapters.flatMap(c => c.content) : content;
@@ -179,17 +244,17 @@ export function ChapterModal({
                             } else {
                                 results[s.id] = { has_reference: false };
                             }
-                        } catch (e) {
+                        } catch {
                             results[s.id] = { has_reference: false };
                         }
                     }));
-                    setReferenceResults({...results});
+                    setReferenceResults({ ...results });
                 }
                 setIsLoadingRefs(false);
             };
-            fetchRefs();
+            fetchRefsFallback();
         }
-    }, [showReference, isFullscreen, loadedChapters, content]);
+    }, [showReference, isSanggunianError, isFullscreen, loadedChapters, content]);
 
     // Precise Scroll Spy Logic for Fullscreen
     useEffect(() => {

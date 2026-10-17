@@ -58,3 +58,27 @@ export interface ChapterContent {
     themes?: ThemeMatch[];
 }
 
+export interface SanggunianReference {
+    has_reference: boolean;
+    passage_ids?: number[];
+    reference_text?: string;
+    alignment_status?: string;
+    score?: number;
+    semantic_score?: number;
+    lexical_score?: number;
+    char_score?: number;
+    ratio_score?: number;
+    matched_characters?: string[];
+    buod_sentence_index?: number;
+    full_sentence_indices?: number[];
+    full_is_short?: boolean[];
+}
+
+export interface ChapterSanggunianResponse {
+    book: string;
+    chapter_number: number;
+    mode: string;
+    total_sentences: number;
+    references: Record<string, SanggunianReference>;
+}
+
