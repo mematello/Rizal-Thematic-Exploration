@@ -547,7 +547,11 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
       {!isDesktop && (
         <div
           ref={mobileNavRef}
-          className="sticky top-[var(--header-height,110px)] z-30 w-full max-w-full min-w-0 py-2.5 bg-brand-cream/95 backdrop-blur-md border-b border-brand-gold/20 shadow-xs transition-shadow duration-300"
+          className={`sticky top-[var(--header-height,110px)] z-30 -mx-4 px-4 w-[calc(100%+2rem)] max-w-[100vw] py-2.5 backdrop-blur-md border-b shadow-xs transition-all duration-300 ${
+            novel === "fili"
+              ? "bg-[#EAE3D5]/95 dark:bg-[#180D0E]/95 border-[#8D2D2D]/20 dark:border-[#E06C75]/25"
+              : "bg-brand-cream/95 dark:bg-[#0C1424]/95 border-brand-gold/20 dark:border-brand-gold/25"
+          }`}
         >
           <MobilePillNav
             sections={sections}
