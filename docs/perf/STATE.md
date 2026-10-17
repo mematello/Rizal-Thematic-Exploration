@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-10-17  
 **Branch**: `main`  
-**Current Phase**: Item C Gate 3 (Production Merge & Vercel Verification) Completed. All Sanggunian bundle precomputation, endpoint batching, React Query caching, and fallback resilience verified live end-to-end.
+**Current Phase**: Item B (Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner) Completed & Verified. Production deployed to Hugging Face Spaces (`7fb5667`) and Vercel (`411780a`).
 
 ---
 
@@ -250,10 +250,49 @@
     - **Diff & Safety Constraints**: `backend/app/core/engine.py` diff: **STRICTLY ZERO DIFF**. Supabase DB writes: **STRICTLY ZERO WRITES**.
     - Raw evidence saved in `docs/perf/evidence/sanggunian_gate3_vercel_verification.txt`.
 
+- **Item B Keep-Alive Workflow, Health DB Probe & Server Warmup Banner (Completed 2026-10-17, branch `feat/keepalive`)**:
+  - **Policy Research & Quoted Standards (`docs/perf/evidence/keepalive_policy_sources.txt`)**:
+    - **HF Spaces Sleep Policy**: *"Spaces will automatically 'sleep' or shut down after 48 hours of inactivity."* (Source: https://huggingface.co/docs/hub/spaces-gpus#sleep-time)
+    - **Supabase Pausing Policy**: *"Free tier projects enter a paused state after 7 days of inactivity... Inactivity is determined by querying activity, not auth or storage traffic."* (Source: https://supabase.com/docs/guides/platform/pausing)
+  - **Backend Health Probe Router (`backend/app/api/v1/health.py`)**:
+    - Strictly **0 diff** on `backend/app/core/engine.py`, `backend/app/api/v1/content.py`, and `backend/app/core/robust_aligner.py`.
+    - Dedicated engine using `NullPool` to guarantee immediate socket closure with 0 connection pool retention.
+    - Driver-level connect timeout (5s) and statement timeout (`options="-c statement_timeout=5000"`).
+    - Query: `SELECT 1 FROM sentences LIMIT 1` (read-only index scan on the user's `sentences` table to guarantee Supabase activity telemetry registers real database activity).
+    - Returns `HTTP 200` with `{"status":"ok","db":"ok"}` and `Cache-Control: no-store` on success; returns `HTTP 503` with `{"status":"degraded","db":"error"}` on failure (sanitized, zero internal exception text leakage).
+    - Verified under 20 consecutive forced timeouts: thread count remained strictly capped (3 threads) and checked-out connections remained strictly at 0.
+  - **GitHub Actions Scheduled Keepalive (`.github/workflows/keepalive.yml`)**:
+    - Triggers on cron `*/30 * * * *` (every 30 minutes) and `workflow_dispatch`.
+    - Step 1: Pings `https://mematello-rizal-thematic-search-api.hf.space/health` (keeps HF container awake).
+    - Step 2: Pings `https://mematello-rizal-thematic-search-api.hf.space/health/db` (runs `SELECT 1 FROM sentences LIMIT 1` against Supabase, keeping DB project active).
+    - Both curl steps tested and verified returning HTTP 200.
+  - **Server Warmup Banner UI & Observer Filtering (`frontend/components/ServerWarmupBanner.tsx`)**:
+    - Repositioned from top center to bottom center:
+      `bottom-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:bottom-6 left-1/2 -translate-x-1/2`
+    - High-contrast midnight navy container (`bg-brand-navy/95 dark:bg-[#1B2433]/95 text-white`) with gold border, yielding WCAG AAA compliance (11.5:1 light, 15.1:1 dark).
+    - Fixed `z-[70]` to render cleanly above modal overlays (`z-50`), with `pointer-events-none`, `role="status"`, and `aria-live="polite"`.
+    - Observer Filtering: Strict predicate `query.getObserversCount() > 0 && query.state.data === undefined && query.state.fetchStatus === 'fetching'`. Only initial user-facing queries with no cached data trigger the banner. Background prefetches and background cache refreshes are completely ignored.
+    - Verified with throttled requests: appears after ~3s, disappears on success, absent on warm loads.
+    - Non-overlap verified: clears the floating "Sa Itaas" button and ChapterModal bottom navigation buttons ("Nakaraan" / "Susunod").
+  - **Live Deployments & Rollback Targets**:
+    - Hugging Face Space current commit: `7fb5667` (contains strictly `health.py` and `main.py`).
+    - HF Space rollback target: `3117ead` (previous Item C Gate 3).
+    - HF Space baseline: `2b15166`.
+    - GitHub `main` commit: `411780a` (merged `feat/keepalive`).
+  - **Verification Claims (Verified / Not verified)**:
+    - Live container startup log quotes verbatim `Sanggunian static cache verified against Supabase corpus (205 chapters active).`: **[Verified]**
+    - Live `GET /health/db` returns 200 OK with `{"status":"ok","db":"ok"}` and `Cache-Control: no-store`: **[Verified]**
+    - Live `GET /health` returns 200 OK with `{"status":"ok","version":"1.0.0"}`: **[Verified]**
+    - Live Noli 1 buod chapter endpoint canonical JSON SHA-256 is `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`: **[Verified (100% bit-identical)]**
+    - 5 Golden Queries top-5 IDs match 100% vs `golden_snapshot_deterministic.json`: **[Verified]**
+    - Zero diff on `engine.py`, `content.py`, `robust_aligner.py`: **[Verified]**
+    - Supabase database writes: **[STRICTLY ZERO WRITES - Verified]**
+    - Live Vercel banner position, z-index (70), and non-overlap: **[Verified]**
+    - Keepalive workflow dispatch / execution: Keepalive workflow registered and active on GitHub; curl steps tested and verified passing with HTTP 200; scheduled runs are accumulating on 30-minute cron intervals (timestamps will be logged as runs occur).
+
 ---
 
 ## Next Steps
-- Item C (Sanggunian Cross-Novel Reference Optimization) is **100% completed, deployed, and verified across Hugging Face Spaces and Vercel**.
-- All rollback targets documented (`3117ead` on HF Spaces, `51b0476` on GitHub `main`).
-- Ready for next planned performance or thesis enhancement item.
+- Item B (Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner) is **100% completed, deployed, and verified across Hugging Face Spaces and Vercel**.
+- Scheduled keepalive cron runs continue every 30 minutes in the background.
 
