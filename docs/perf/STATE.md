@@ -216,7 +216,7 @@
     - **Fingerprint Enhanced**: Added `content.py` alignment code hash and DAPT model revision (`mematello/rizal-xlm-r-dapt:main`). Re-verified 205-chapter parity (205/205 identical). Normalized CRLF/LF line endings for platform-independent fingerprint hashing.
     - **Operational Note (Fingerprint Regeneration)**: The cryptographic fingerprint hashes all of `content.py` and `robust_aligner.py`. Any edit to `content.py` invalidates the bundle fingerprint and requires rebuilding bundles via `poetry run python scripts/build_sanggunian_cache.py`.
   - **Step 5 Gate 2 Backend Deployment to Hugging Face Spaces (Completed & Verified)**:
-    - **Rollback Targets**: New HF Space Rollback Target: `4bbc31e`. Backend rollback target before this item: `2b15166`.
+    - **Rollback Targets**: New HF Space Rollback Target: `3117ead`. Backend rollback target before this item: `2b15166`.
     - **Backend Files Deployed (0 leak)**: Exactly 6 backend files deployed to HF Space commit `4bbc31e`:
       1. `backend/app/api/v1/content.py`
       2. `backend/app/main.py`

@@ -813,7 +813,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 ### 13. 2026-10-17: Item C Phase 2 — Sanggunian Cross-Novel Reference Optimization (Fixes 1 + 2)
 - **Context**: Profiling in Phase 1 (`docs/perf/evidence/sanggunian_profile.md`) revealed that loading Sanggunian cross-references for a chapter executed an N+1 HTTP loop from the frontend (`ChapterModal.tsx`), making up to 12-25 concurrent requests to `GET /api/v1/sentences/{id}/sanggunian`. Each request executed a cold DAPT model encoding and dynamic cosine alignment across all chapters, totaling 52.4s of backend compute per chapter and saturating HF Space worker threads.
 - **Rollback Targets**:
-  - New HF Space Rollback Target: `4bbc31e`.
+  - New HF Space Rollback Target: `3117ead`.
   - Backend Rollback Target before this item: `2b15166`.
 - **Scope Clarification**:
   - **Summary Mode (Cross-Novel ML Alignment)**: ML semantic alignment (`RobustAligner.align`) applies strictly to **2,186 summary sentences across 103 chapters** (Noli: 64 chapters, 1,212 sentences; El Fili: 39 chapters, 974 sentences). It compares each summary sentence against all sentences of the same chapter in full mode using DAPT embeddings.
