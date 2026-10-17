@@ -10,7 +10,7 @@ import { ScoreVisualizer } from "@/components/ScoreVisualizer";
 import { ChapterContent, ThemeMatch, ChapterSanggunianResponse } from "@/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchChapters, fetchChapterContent, fetchChapterSanggunian } from "@/components/ChapterGrid";
-import { formatChapterTitle } from "@/lib/utils";
+import { formatChapterTitle, cleanChapterTitle } from "@/lib/utils";
 
 
 interface ChapterModalProps {
@@ -573,13 +573,40 @@ export function ChapterModal({
         });
     };
 
-    const activeChapterTitle = formatChapterTitle(chapterMetadata[activeChapterInView] || title);
+    const { data: allChapters } = useQuery<any[]>({
+        queryKey: ["chapters", mode],
+        queryFn: () => fetchChapters(mode),
+        staleTime: 1000 * 60 * 60 * 24,
+    });
+
+    const normalizedBook = (book === 'elfili' ? 'fili' : book).toLowerCase();
+    const chapterTitleFromDb = allChapters?.find((c: any) => {
+        const b = (c.book === 'elfili' ? 'fili' : c.book || '').toLowerCase();
+        return b === normalizedBook && c.chapter_number === chapterNumber;
+    })?.chapter_title || allChapters?.find((c: any) => {
+        const b = (c.book === 'elfili' ? 'fili' : c.book || '').toLowerCase();
+        return b === normalizedBook && c.chapter_number === chapterNumber;
+    })?.title;
+
+    const rawTitle = title && !title.toLowerCase().startsWith("kabanata") ? title : (chapterTitleFromDb || title);
+    const cleanedTitle = cleanChapterTitle(rawTitle, chapterNumber);
+
+    const activeTitleFromDb = allChapters?.find((c: any) => {
+        const b = (c.book === 'elfili' ? 'fili' : c.book || '').toLowerCase();
+        return b === normalizedBook && c.chapter_number === activeChapterInView;
+    })?.chapter_title || allChapters?.find((c: any) => {
+        const b = (c.book === 'elfili' ? 'fili' : c.book || '').toLowerCase();
+        return b === normalizedBook && c.chapter_number === activeChapterInView;
+    })?.title;
+
+    const rawActiveTitle = chapterMetadata[activeChapterInView] || (activeChapterInView === chapterNumber ? rawTitle : activeTitleFromDb);
+    const cleanedActiveTitle = cleanChapterTitle(rawActiveTitle, activeChapterInView);
 
     return (
         <>
             <AnimatePresence>
                 {isOpen && (
-                    <div key="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
+                    <div id="chapter-modal" data-testid="chapter-modal" className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0 h-[100dvh]' : 'p-2 sm:p-4 md:p-6'} overscroll-contain`}>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleBackdropClick} className="absolute inset-0 bg-black/75 dark:bg-black/85 backdrop-blur-sm" />
                         <motion.div ref={modalRef} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className={`relative ${isFullscreen ? 'w-full h-[100dvh] bg-[#FAFAFA] dark:bg-[#0D1424]' : 'w-full max-w-4xl max-h-[92dvh] bg-brand-paper dark:bg-[#121A28] rounded-lg'} flex flex-col shadow-2xl overflow-hidden`}>
                             
@@ -588,7 +615,9 @@ export function ChapterModal({
                                     <div className="flex-1 pr-2">
                                         <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentColor}`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
                                         <h2 className="text-lg sm:text-xl md:text-2xl font-serif text-brand-navy dark:text-foreground mt-0.5 sm:mt-1 font-bold">Kabanata {chapterNumber}</h2>
-                                        <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{formatChapterTitle(title)}</p>
+                                        {cleanedTitle ? (
+                                            <p className="text-brand-text/70 dark:text-brand-text-muted font-serif italic mt-0.5 sm:mt-1 text-xs sm:text-sm line-clamp-1">{cleanedTitle}</p>
+                                        ) : null}
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full transition-all text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold" title="Enter fullscreen" aria-label="I-fullscreen ang kabanata"><Maximize2 size={18} /></button>
@@ -617,8 +646,12 @@ export function ChapterModal({
                                             <div>
                                                 <span className={`text-xs font-bold tracking-[0.3em] uppercase ${accentColor} block mb-4`}>{isNoli ? "Noli Me Tangere" : "El Filibusterismo"}</span>
                                                 <h1 className="text-4xl font-serif text-brand-navy dark:text-foreground font-black leading-tight">Kabanata {activeChapterInView}</h1>
-                                                <div className="w-12 h-1 bg-brand-gold/30 my-6" />
-                                                <p className="text-xl font-serif italic text-brand-text/70 dark:text-brand-text-muted leading-relaxed">{activeChapterTitle}</p>
+                                                {cleanedActiveTitle ? (
+                                                    <>
+                                                        <div className="w-12 h-1 bg-brand-gold/30 my-6" />
+                                                        <p className="text-xl font-serif italic text-brand-text/70 dark:text-brand-text-muted leading-relaxed">{cleanedActiveTitle}</p>
+                                                    </>
+                                                ) : null}
                                             </div>
                                             <div className="space-y-4 pt-4 border-t border-brand-gold/10 dark:border-brand-gold/20">
                                                 <button onClick={() => setShowCharacters(!showCharacters)} className={`w-full text-left text-sm font-bold uppercase tracking-widest transition-colors ${showCharacters ? 'text-brand-gold font-black' : 'text-brand-text/50 dark:text-foreground/60 hover:text-brand-navy dark:hover:text-brand-gold'}`}>Tauhan</button>
@@ -635,7 +668,9 @@ export function ChapterModal({
                                             <div className="flex justify-between items-center">
                                                 <div className="min-w-0 pr-2">
                                                     <span className="text-[10px] font-bold uppercase tracking-wider text-brand-text/50 dark:text-foreground/50 block">Kabanata {activeChapterInView}</span>
-                                                    <div className="text-sm font-serif font-bold text-brand-navy dark:text-foreground truncate">{activeChapterTitle}</div>
+                                                    {cleanedActiveTitle ? (
+                                                        <div className="text-sm font-serif font-bold text-brand-navy dark:text-foreground truncate">{cleanedActiveTitle}</div>
+                                                    ) : null}
                                                 </div>
                                                 <div className="flex items-center gap-1 shrink-0">
                                                     <button type="button" onClick={() => setIsFullscreen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 rounded-full text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold transition-all" title="Exit fullscreen" aria-label="I-exit ang fullscreen"><Minimize2 size={18} /></button>
@@ -658,7 +693,7 @@ export function ChapterModal({
 
                                             {(isFullscreen ? loadedChapters : [{ chapterNumber, title, content, isLoading }]).map((chap) => (
                                                 <div key={`${chap.chapterNumber}`} id={`chapter-view-${chap.chapterNumber}`} className={isFullscreen ? "mb-40 min-h-[80vh]" : ""}>
-                                                    {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 dark:text-foreground/40 block mb-2">Kabanata {chap.chapterNumber}</span><h2 className="text-3xl font-serif font-bold text-brand-navy dark:text-foreground">{chap.title}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></div>)}
+                                                    {isFullscreen && (<div className="mb-12 text-center opacity-80"><span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-text/30 dark:text-foreground/40 block mb-2">Kabanata {chap.chapterNumber}</span>{cleanChapterTitle(chap.title, chap.chapterNumber) ? (<><h2 className="text-3xl font-serif font-bold text-brand-navy dark:text-foreground">{cleanChapterTitle(chap.title, chap.chapterNumber)}</h2><div className="w-8 h-0.5 bg-brand-gold/20 mx-auto mt-6" /></>) : null}</div>)}
                                                     <div lang="tl" className="font-serif text-brand-text dark:text-foreground/90 leading-[2.1] sm:leading-[2.2] text-left [hyphens:auto] [-webkit-hyphens:auto] [text-wrap:pretty] space-y-6 sm:space-y-8 text-lg md:text-xl">
                                                         {chap.content.reduce((paragraphs: ChapterContent[][], sentence) => {
                                                             if (paragraphs.length === 0 || paragraphs[paragraphs.length - 1].length >= 6) paragraphs.push([sentence]);

@@ -21,6 +21,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ChapterContent } from "@/types";
 import { Footer } from "@/components/Footer";
 import { formatChapterTitle } from "@/lib/utils";
+import { useNovelStore } from "@/store/novelStore";
 
 type Novel = "noli" | "fili";
 type Tab = "chapters" | "characters" | "themes";
@@ -35,7 +36,20 @@ interface SelectedChapter {
 export default function Home() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [novel, setNovel] = useState<Novel>("noli");
+  const { selectedNovel, setSelectedNovel } = useNovelStore();
+  const [novel, setNovelState] = useState<Novel>(selectedNovel);
+
+  useEffect(() => {
+    setNovelState(selectedNovel);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-novel', selectedNovel);
+    }
+  }, [selectedNovel]);
+
+  const setNovel = (newNovel: Novel) => {
+    setNovelState(newNovel);
+    setSelectedNovel(newNovel);
+  };
   const [activeTab, setActiveTab] = useState<Tab>("chapters");
 
   useEffect(() => {
@@ -171,8 +185,8 @@ export default function Home() {
       {/* Header Section */}
       <header
         className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-all duration-500 safe-top ${novel === 'fili'
-          ? 'bg-[#EAE3D5]/90 dark:bg-[#180D0E]/90 border-brand-navy/10 dark:border-white/10'
-          : 'bg-[#F5F1E9]/90 dark:bg-[#0C1424]/90 border-brand-gold/20 dark:border-brand-gold/20'
+          ? 'bg-[#EAE3D5]/92 dark:bg-[#180D0E]/92 border-[#8D2D2D]/20 dark:border-[#E06C75]/25'
+          : 'bg-[#F7F3EB]/92 dark:bg-[#0C1424]/92 border-brand-gold/20 dark:border-brand-gold/25'
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3 relative">
@@ -183,7 +197,11 @@ export default function Home() {
                 onClick={() => router.push('/')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-left text-lg font-serif font-black text-brand-gold tracking-tighter cursor-pointer select-none py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-sm"
+                className={`text-left text-lg font-serif font-black tracking-tighter cursor-pointer select-none py-1 focus:outline-none focus-visible:ring-2 rounded-sm transition-colors ${
+                  novel === 'fili'
+                    ? 'text-[#8D2D2D] dark:text-[#E06C75] focus-visible:ring-[#8D2D2D]'
+                    : 'text-brand-gold focus-visible:ring-brand-gold'
+                }`}
                 aria-label="Pumunta sa panimulang pahina ng RizalEngine"
               >
                 RIZAL<span className="text-brand-navy dark:text-foreground font-bold ml-1">ENGINE</span>
@@ -195,7 +213,11 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                  className={`min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 ${
+                    novel === 'fili'
+                      ? 'text-[#8D2D2D] dark:text-[#E06C75] focus-visible:ring-[#8D2D2D]'
+                      : 'text-brand-navy dark:text-brand-gold focus-visible:ring-brand-gold'
+                  }`}
                   aria-expanded={isMobileMenuOpen}
                   aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
                   aria-controls="mobile-navigation-drawer"
@@ -217,11 +239,19 @@ export default function Home() {
             {/* Desktop Navigation: Right group = novel dropdown, Buod | Buong Kwento, theme icon toggle (consistent h-10, spacing, focus rings) */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <NovelToggle selected={novel} onSelect={setNovel} />
-              <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-10">
+              <div className={`flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border shadow-xs items-center h-10 transition-colors ${
+                novel === 'fili'
+                  ? 'border-[#8D2D2D]/20 dark:border-[#E06C75]/30'
+                  : 'border-brand-gold/20 dark:border-brand-gold/30'
+              }`}>
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('buod')}
-                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 ${
+                    mode === 'buod'
+                      ? (novel === 'fili' ? 'bg-[#8D2D2D] text-white dark:bg-[#E06C75] dark:text-[#180D0E] shadow-xs font-bold' : 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold')
+                      : (novel === 'fili' ? 'text-brand-text/70 dark:text-foreground/75 hover:text-[#8D2D2D] dark:hover:text-[#E06C75] hover:bg-[#8D2D2D]/10' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10')
+                  }`}
                   aria-pressed={mode === 'buod'}
                 >
                   Buod
@@ -229,7 +259,11 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('full')}
-                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 ${
+                    mode === 'full'
+                      ? (novel === 'fili' ? 'bg-[#8D2D2D] text-white dark:bg-[#E06C75] dark:text-[#180D0E] shadow-xs font-bold' : 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold')
+                      : (novel === 'fili' ? 'text-brand-text/70 dark:text-foreground/75 hover:text-[#8D2D2D] dark:hover:text-[#E06C75] hover:bg-[#8D2D2D]/10' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10')
+                  }`}
                   aria-pressed={mode === 'full'}
                 >
                   Buong Kwento
@@ -237,6 +271,7 @@ export default function Home() {
               </div>
               <ThemeToggle className="w-10 h-10 min-w-[40px] min-h-[40px]" />
             </div>
+
           </div>
         </div>
 

@@ -8,7 +8,7 @@ interface ReadingMapViewerProps {
     noliResults: ResultCardProps[];
     filiResults: ResultCardProps[];
     showScores: boolean;
-    onChapterOpen: (book: string, chapter: number, sentenceIndex: number) => void;
+    onChapterOpen: (book: string, chapter: number, sentenceIndex: number, chapterTitle?: string) => void;
     novel?: 'noli' | 'fili' | 'elfili' | 'both';
 }
 
@@ -87,7 +87,7 @@ export function ReadingMapViewer({
                             >
                                 {/* Node Box */}
                                 <div 
-                                    onClick={() => onChapterOpen(result.novel, result.chapter, result.sentenceIndex ?? 0)}
+                                    onClick={() => onChapterOpen(result.novel, result.chapter, result.sentenceIndex ?? 0, result.chapterTitle)}
                                     className={cn(
                                         "group relative w-64 h-48 flex flex-col justify-between overflow-hidden cursor-pointer",
                                         "bg-white/80 dark:bg-[#18202C] backdrop-blur-md shadow-sm transition-all duration-500",

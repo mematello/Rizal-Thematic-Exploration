@@ -69,3 +69,30 @@ export function formatChapterTitle(title?: string | null): string {
   return words.join('');
 }
 
+/**
+ * Shared chapter title formatter:
+ * - If title is null or empty, returns ''
+ * - Strips duplicate chapter prefixes (e.g. "Kabanata 19:", "Kabanata 19 -", "Kabanata 19.")
+ * - If title is identical to "Kabanata N", returns '' so line 1 is never duplicated
+ * - Applies formatChapterTitle for Title Casing
+ */
+export function cleanChapterTitle(title?: string | null, chapterNumber?: number): string {
+  if (!title) return '';
+  let cleaned = title.trim();
+
+  // Strip prefix like "Kabanata 19:" or "Kabanata 19 - " or "Kabanata 19."
+  cleaned = cleaned.replace(/^kabanata\s+\d+\s*[:\-\.\–—]\s*/i, '').trim();
+
+  // If title equals "Kabanata N" (case-insensitive)
+  if (/^kabanata\s+\d+$/i.test(cleaned)) {
+    return '';
+  }
+
+  // If chapterNumber is provided, check if it matches "Kabanata {chapterNumber}"
+  if (chapterNumber !== undefined && cleaned.toLowerCase() === `kabanata ${chapterNumber}`.toLowerCase()) {
+    return '';
+  }
+
+  return formatChapterTitle(cleaned);
+}
+

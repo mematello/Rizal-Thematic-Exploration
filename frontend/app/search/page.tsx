@@ -16,9 +16,10 @@ import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NovelToggle } from "@/components/NovelToggle";
-import { ChapterContent } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchChapterContent } from "@/components/ChapterGrid";
+import { ChapterContent } from "@/types";
+import { useNovelStore } from "@/store/novelStore";
 
 
 function SearchContent() {
@@ -49,6 +50,14 @@ function SearchContent() {
         ? ['noli', 'fili'] 
         : [novelFilter];
 
+    const { setSelectedNovel } = useNovelStore();
+
+    useEffect(() => {
+        if (novelFilter === 'noli' || novelFilter === 'fili') {
+            setSelectedNovel(novelFilter);
+        }
+    }, [novelFilter, setSelectedNovel]);
+
     const { data, isLoading, error } = useRizalSearch(initialQuery, requiredNovels);
 
     const handleSearch = (newQuery: string) => {
@@ -56,9 +65,9 @@ function SearchContent() {
     };
 
     // Grid View handler — no context highlighting, Grid View is unmodified
-    const handleChapterOpen = async (book: string, chapter: number, sentenceIndex: number) => {
+    const handleChapterOpen = async (book: string, chapter: number, sentenceIndex: number, chapterTitle?: string) => {
         setHighlightContext(null); // Grid View never sets context highlighting
-        setSelectedChapter({ book, chapter, title: `Kabanata ${chapter}` });
+        setSelectedChapter({ book, chapter, title: chapterTitle || '' });
         setIsModalOpen(true);
         setLoadingContent(true);
         setChapterContent([]);
@@ -81,13 +90,13 @@ function SearchContent() {
     // Map View handler — sets context window from the clicked result's sentenceIndex
     // Context definition comes from the Grid View convention (sentenceIndex ± 2),
     // Map View does NOT compute or generate context independently.
-    const handleMapChapterOpen = async (book: string, chapter: number, sentenceIndex: number) => {
+    const handleMapChapterOpen = async (book: string, chapter: number, sentenceIndex: number, chapterTitle?: string) => {
         setHighlightContext({
             anchor: sentenceIndex,
             contextMin: sentenceIndex - 2,
             contextMax: sentenceIndex + 2,
         });
-        setSelectedChapter({ book, chapter, title: `Kabanata ${chapter}` });
+        setSelectedChapter({ book, chapter, title: chapterTitle || '' });
         setIsModalOpen(true);
         setLoadingContent(true);
         setChapterContent([]);
@@ -173,6 +182,36 @@ function SearchContent() {
 
     const backgroundStyle = useNovelBackground(novelFilter);
 
+    const headerTheme = {
+        noli: {
+            bg: "bg-brand-cream/98 dark:bg-[#0C1424]/95",
+            border: "border-b border-brand-gold/20 dark:border-brand-gold/25",
+            accent: "text-brand-gold",
+            pillBorder: "border border-brand-gold/20 dark:border-brand-gold/30",
+            activePill: "bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C]",
+            ring: "focus-visible:ring-brand-gold",
+            hoverText: "hover:text-brand-navy dark:hover:text-brand-gold",
+        },
+        fili: {
+            bg: "bg-[#EAE3D5]/98 dark:bg-[#180D0E]/95",
+            border: "border-b border-[#8D2D2D]/25 dark:border-[#8D2D2D]/35",
+            accent: "text-[#8D2D2D] dark:text-[#E06C75]",
+            pillBorder: "border border-[#8D2D2D]/25 dark:border-[#8D2D2D]/35",
+            activePill: "bg-[#8D2D2D] text-white dark:bg-[#8D2D2D] dark:text-white",
+            ring: "focus-visible:ring-[#8D2D2D]",
+            hoverText: "hover:text-[#8D2D2D] dark:hover:text-[#E06C75]",
+        },
+        both: {
+            bg: "bg-[#F5F1E9]/98 dark:bg-[#0D131F]/95",
+            border: "border-b border-brand-gold/20 dark:border-brand-gold/25",
+            accent: "text-brand-gold",
+            pillBorder: "border border-brand-gold/20 dark:border-brand-gold/30",
+            activePill: "bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C]",
+            ring: "focus-visible:ring-brand-gold",
+            hoverText: "hover:text-brand-navy dark:hover:text-brand-gold",
+        },
+    }[novelFilter];
+
     return (
         <div className="min-h-screen flex flex-col relative" data-novel={novelFilter || 'both'}>
             {/* Fixed viewport backdrop: responsive framing prevents 8x zoom */}
@@ -182,7 +221,7 @@ function SearchContent() {
                 aria-hidden="true"
             />
             {/* Sticky Header */}
-            <header className="bg-brand-cream/98 dark:bg-[#0C1424]/95 border-b border-brand-gold/20 dark:border-brand-gold/25 sticky top-0 z-40 backdrop-blur-sm safe-top transition-colors">
+            <header className={`${headerTheme.bg} ${headerTheme.border} sticky top-0 z-40 backdrop-blur-sm safe-top transition-colors`}>
                 <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 relative">
                     <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-4">
                         {/* Top row on mobile: Logo/Back + Theme + Menu / Desktop: Logo on left */}
@@ -190,11 +229,11 @@ function SearchContent() {
                             <button
                                 type="button"
                                 onClick={() => router.push('/')}
-                                className="flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-full px-2 py-1 select-none"
+                                className={`flex items-center gap-2 group focus:outline-none focus-visible:ring-2 ${headerTheme.ring} rounded-full px-2 py-1 select-none`}
                                 aria-label="Bumalik sa panimulang pahina ng RizalEngine"
                             >
-                                <ArrowLeft size={18} className="text-brand-gold group-hover:-translate-x-0.5 transition-transform" />
-                                <span className="text-lg font-serif font-black text-brand-gold tracking-tighter">
+                                <ArrowLeft size={18} className={`${headerTheme.accent} group-hover:-translate-x-0.5 transition-transform`} />
+                                <span className={`text-lg font-serif font-black ${headerTheme.accent} tracking-tighter`}>
                                     RIZAL<span className="text-brand-navy dark:text-foreground font-bold ml-0.5">ENGINE</span>
                                 </span>
                             </button>
@@ -205,7 +244,7 @@ function SearchContent() {
                                 <button
                                     type="button"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                    className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                                    className={`min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 ${headerTheme.ring}`}
                                     aria-expanded={isMobileMenuOpen}
                                     aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
                                     aria-controls="mobile-search-navigation-drawer"
@@ -230,13 +269,18 @@ function SearchContent() {
                             <NovelToggle
                                 selected={novelFilter}
                                 includeBoth={true}
-                                onSelect={(newNovel) => router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=${newNovel}`)}
+                                onSelect={(newNovel) => {
+                                    if (newNovel === 'noli' || newNovel === 'fili') {
+                                        setSelectedNovel(newNovel);
+                                    }
+                                    router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=${newNovel}`);
+                                }}
                             />
-                            <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-10">
+                            <div className={`flex bg-white/80 dark:bg-[#182232] rounded-full p-1 ${headerTheme.pillBorder} shadow-xs items-center h-10`}>
                                 <button
                                     type="button"
                                     onClick={() => useModeStore.getState().setMode('buod')}
-                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 ${headerTheme.ring} ${mode === 'buod' ? `${headerTheme.activePill} shadow-xs font-bold` : `text-brand-text/70 dark:text-foreground/75 ${headerTheme.hoverText} hover:bg-black/5`}`}
                                     aria-pressed={mode === 'buod'}
                                 >
                                     Buod
@@ -244,7 +288,7 @@ function SearchContent() {
                                 <button
                                     type="button"
                                     onClick={() => useModeStore.getState().setMode('full')}
-                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 ${headerTheme.ring} ${mode === 'full' ? `${headerTheme.activePill} shadow-xs font-bold` : `text-brand-text/70 dark:text-foreground/75 ${headerTheme.hoverText} hover:bg-black/5`}`}
                                     aria-pressed={mode === 'full'}
                                 >
                                     Buong Kwento
@@ -348,6 +392,7 @@ function SearchContent() {
                                         <button
                                             type="button"
                                             onClick={() => {
+                                                setSelectedNovel('noli');
                                                 router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=noli`);
                                                 setIsMobileMenuOpen(false);
                                             }}
@@ -362,6 +407,7 @@ function SearchContent() {
                                         <button
                                             type="button"
                                             onClick={() => {
+                                                setSelectedNovel('fili');
                                                 router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=fili`);
                                                 setIsMobileMenuOpen(false);
                                             }}
@@ -524,7 +570,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {filteredNoli.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel="noli" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -535,7 +581,7 @@ function SearchContent() {
                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
                                                         {strongNoli.map((result, i) => (
                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                <ResultCard {...result} novel="noli" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                             </motion.div>
                                                         ))}
                                                     </div>
@@ -552,7 +598,7 @@ function SearchContent() {
                                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                         {partialNoli.map((result, i) => (
                                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                <ResultCard {...result} novel="noli" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                                             </motion.div>
                                                                         ))}
                                                                     </motion.div>
@@ -576,7 +622,7 @@ function SearchContent() {
                                                                             <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                             {partialNoli.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel="noli" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel="noli" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </motion.div>
@@ -600,7 +646,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {filteredFili.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel="fili" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -611,7 +657,7 @@ function SearchContent() {
                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-green-700/80 mb-2 border-b border-green-700/20 pb-1">Tugmang Konsepto</h3>
                                                         {strongFili.map((result, i) => (
                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                <ResultCard {...result} novel="fili" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                             </motion.div>
                                                         ))}
                                                     </div>
@@ -628,7 +674,7 @@ function SearchContent() {
                                                                         <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                         {partialFili.map((result, i) => (
                                                                             <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                <ResultCard {...result} novel="fili" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                                             </motion.div>
                                                                         ))}
                                                                     </motion.div>
@@ -652,7 +698,7 @@ function SearchContent() {
                                                                             <h3 className="text-xs font-bold uppercase tracking-wider text-orange-600/80 mb-2 border-b border-orange-600/20 pb-1">Bahagyang Tugma</h3>
                                                                             {partialFili.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel="fili" showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel="fili" showScores={showScores} showNovelBadge={true} onChapterOpen={handleChapterOpen} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </motion.div>
@@ -681,7 +727,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {col1.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -689,7 +735,7 @@ function SearchContent() {
                                             <div className="space-y-4">
                                                 {col2.map((result, i) => (
                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + col1.length) * 0.04 }}>
-                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -704,14 +750,14 @@ function SearchContent() {
                                                         <div className="space-y-4">
                                                             {strongCol1.map((result, i) => (
                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                 </motion.div>
                                                             ))}
                                                         </div>
                                                         <div className="space-y-4">
                                                             {strongCol2.map((result, i) => (
                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                 </motion.div>
                                                             ))}
                                                         </div>
@@ -737,14 +783,14 @@ function SearchContent() {
                                                                         <div className="space-y-4">
                                                                             {partialCol1.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </div>
                                                                         <div className="space-y-4">
                                                                             {partialCol2.map((result, i) => (
                                                                                 <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                    <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                                 </motion.div>
                                                                             ))}
                                                                         </div>
@@ -775,14 +821,14 @@ function SearchContent() {
                                                                             <div className="space-y-4">
                                                                                 {partialCol1.map((result, i) => (
                                                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                                     </motion.div>
                                                                                 ))}
                                                                             </div>
                                                                             <div className="space-y-4">
                                                                                 {partialCol2.map((result, i) => (
                                                                                     <motion.div key={result.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} onChapterOpen={handleChapterOpen} />
+                                                                                        <ResultCard {...result} novel={novelFilter as 'noli' | 'fili'} showScores={showScores} showNovelBadge={false} onChapterOpen={handleChapterOpen} />
                                                                                     </motion.div>
                                                                                 ))}
                                                                             </div>

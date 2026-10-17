@@ -44,6 +44,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tl" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var stored = localStorage.getItem('rizal-novel-store');
+                if (stored) {
+                  var parsed = JSON.parse(stored);
+                  var n = parsed && parsed.state && parsed.state.selectedNovel;
+                  if (n === 'fili' || n === 'noli') {
+                    document.documentElement.setAttribute('data-novel', n);
+                  }
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${playfair.variable} ${cormorant.variable} antialiased bg-brand-cream text-brand-text min-h-[100dvh] flex flex-col justify-between w-full max-w-full overflow-x-clip`}
         suppressHydrationWarning

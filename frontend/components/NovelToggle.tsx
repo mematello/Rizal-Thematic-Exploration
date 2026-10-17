@@ -46,18 +46,19 @@ export function NovelToggle({ selected, onSelect, includeBoth = false, className
                 type="button"
                 onClick={toggleOpen}
                 className={cn(
-                    "h-10 min-h-[40px] flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all duration-200 shadow-xs backdrop-blur-md active:scale-95",
-                    "bg-white/80 dark:bg-[#182232] hover:bg-white/95 dark:hover:bg-[#202C3F] text-brand-navy dark:text-brand-gold font-serif font-bold text-xs uppercase tracking-wider",
-                    "border-brand-gold/20 dark:border-brand-gold/30 hover:border-brand-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                    "h-10 min-h-[40px] flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all duration-200 shadow-xs backdrop-blur-md active:scale-95 font-serif font-bold text-xs uppercase tracking-wider focus:outline-none focus-visible:ring-2",
+                    selected === "fili"
+                        ? "bg-white/80 dark:bg-[#201214] hover:bg-white/95 dark:hover:bg-[#2C181B] text-[#8D2D2D] dark:text-[#E06C75] border-[#8D2D2D]/20 dark:border-[#E06C75]/30 hover:border-[#8D2D2D]/40 focus-visible:ring-[#8D2D2D]"
+                        : "bg-white/80 dark:bg-[#182232] hover:bg-white/95 dark:hover:bg-[#202C3F] text-brand-navy dark:text-brand-gold border-brand-gold/20 dark:border-brand-gold/30 hover:border-brand-gold/40 focus-visible:ring-brand-gold"
                 )}
                 aria-expanded={isOpen}
                 aria-label="Piliin ang nobela"
             >
-                <BookOpen size={15} className="text-brand-gold shrink-0" />
+                <BookOpen size={15} className={cn("shrink-0", selected === "fili" ? "text-[#8D2D2D] dark:text-[#E06C75]" : "text-brand-gold")} />
                 <span className="truncate max-w-[140px] sm:max-w-none">{getLabel(selected)}</span>
                 <ChevronDown
                     size={15}
-                    className={cn("text-brand-navy/50 dark:text-brand-gold/60 transition-transform duration-200 shrink-0", isOpen && "rotate-180")}
+                    className={cn("transition-transform duration-200 shrink-0", selected === "fili" ? "text-[#8D2D2D]/60 dark:text-[#E06C75]/70" : "text-brand-navy/50 dark:text-brand-gold/60", isOpen && "rotate-180")}
                 />
             </button>
 
