@@ -826,7 +826,14 @@ export function ChapterModal({
                                     </div>
                                 )}
 
-                                <div id="modal-reading-canvas" ref={scrollAreaRef} className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper dark:bg-[var(--modal-canvas-bg)] relative overscroll-contain ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}>
+                                <div
+                                    id="modal-reading-canvas"
+                                    ref={scrollAreaRef}
+                                    tabIndex={0}
+                                    role="region"
+                                    aria-label="Teksto ng kabanata"
+                                    className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/30 scrollbar-track-transparent bg-brand-paper dark:bg-[var(--modal-canvas-bg)] relative overscroll-contain focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-inset ${isFullscreen ? '' : 'p-4 sm:p-6 md:p-14'}`}
+                                >
                                     {isFullscreen && (
                                         <div className="lg:hidden sticky top-0 z-30 bg-brand-paper/95 dark:bg-[var(--modal-shell-bg)]/95 backdrop-blur border-b border-brand-gold/10 dark:border-[var(--modal-border)] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 flex flex-col gap-2">
                                             <div className="flex justify-between items-center">
@@ -934,33 +941,46 @@ export function ChapterModal({
                                                                             const refData = referenceResults[sentence.id];
                                                                             const isLowScore = refData.score < 0.70;
                                                                             const superscriptColor = isLowScore 
-                                                                                ? "text-red-500/90 cursor-pointer hover:text-red-700 ml-0.5 font-bold text-xs bg-red-500/10 px-1 rounded transition-colors"
-                                                                                : "text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors";
+                                                                                ? "text-red-700 dark:text-red-300 cursor-pointer hover:text-red-900 ml-0.5 font-bold text-xs bg-red-500/15 px-1 rounded transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
+                                                                                : "text-amber-800 dark:text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/15 dark:bg-brand-gold/20 px-1 rounded transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-gold";
                                                                             refRender = (
-                                                                                <sup onClick={(e) => { 
-                                                                                    e.stopPropagation(); 
-                                                                                    setSelectedSentenceForRef(sentence.sentence_index); 
-                                                                                    setSelectedSourceSentence(sentence);
-                                                                                    setSelectedFullMatches(null);
-                                                                                    setRefFullscreen(true); 
-                                                                                    setSelectedReference({
-                                                                                        sentence_text: refData.reference_text,
-                                                                                        chapter_number: chap.chapterNumber,
-                                                                                        chapter_title: chap.title,
-                                                                                        book: book,
-                                                                                        mode: 'full',
-                                                                                        alignment_status: refData.alignment_status,
-                                                                                        matched_characters: refData.matched_characters,
-                                                                                        score: refData.score,
-                                                                                        semantic_score: refData.semantic_score,
-                                                                                        lexical_score: refData.lexical_score,
-                                                                                        char_score: refData.char_score,
-                                                                                        ratio_score: refData.ratio_score,
-                                                                                        buod_sentence_index: refData.buod_sentence_index,
-                                                                                        full_sentence_indices: refData.full_sentence_indices,
-                                                                                        full_is_short: refData.full_is_short
-                                                                                    });
-                                                                                }} className={superscriptColor}>[{sentence.sentence_index}]</sup>
+                                                                                <sup
+                                                                                    role="button"
+                                                                                    tabIndex={0}
+                                                                                    aria-label={`Sanggunian para sa pangungusap ${sentence.sentence_index}`}
+                                                                                    onClick={(e) => { 
+                                                                                        e.stopPropagation(); 
+                                                                                        setSelectedSentenceForRef(sentence.sentence_index); 
+                                                                                        setSelectedSourceSentence(sentence);
+                                                                                        setSelectedFullMatches(null);
+                                                                                        setRefFullscreen(true); 
+                                                                                        setSelectedReference({
+                                                                                            sentence_text: refData.reference_text,
+                                                                                            chapter_number: chap.chapterNumber,
+                                                                                            chapter_title: chap.title,
+                                                                                            book: book,
+                                                                                            mode: 'full',
+                                                                                            alignment_status: refData.alignment_status,
+                                                                                            matched_characters: refData.matched_characters,
+                                                                                            score: refData.score,
+                                                                                            semantic_score: refData.semantic_score,
+                                                                                            lexical_score: refData.lexical_score,
+                                                                                            char_score: refData.char_score,
+                                                                                            ratio_score: refData.ratio_score,
+                                                                                            buod_sentence_index: refData.buod_sentence_index,
+                                                                                            full_sentence_indices: refData.full_sentence_indices,
+                                                                                            full_is_short: refData.full_is_short
+                                                                                        });
+                                                                                    }}
+                                                                                    onKeyDown={(e) => {
+                                                                                        if (e.key === "Enter" || e.key === " ") {
+                                                                                            e.preventDefault();
+                                                                                            e.stopPropagation();
+                                                                                            (e.currentTarget as HTMLElement).click();
+                                                                                        }
+                                                                                    }}
+                                                                                    className={superscriptColor}
+                                                                                >[{sentence.sentence_index}]</sup>
                                                                             );
                                                                         } else if (mode === 'full') {
                                                                             const matches = fullInverseMap.get(sentence.id);
@@ -968,17 +988,30 @@ export function ChapterModal({
                                                                                 const bestScore = Math.max(...matches.map(m => m.score));
                                                                                 const isLowScore = bestScore < 0.70;
                                                                                 const superscriptColor = isLowScore 
-                                                                                    ? "text-red-500/90 cursor-pointer hover:text-red-700 ml-0.5 font-bold text-xs bg-red-500/10 px-1 rounded transition-colors"
-                                                                                    : "text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/10 px-1 rounded transition-colors";
+                                                                                    ? "text-red-700 dark:text-red-300 cursor-pointer hover:text-red-900 ml-0.5 font-bold text-xs bg-red-500/15 px-1 rounded transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
+                                                                                    : "text-amber-800 dark:text-brand-gold cursor-pointer hover:text-brand-navy ml-0.5 font-bold text-xs bg-brand-gold/15 dark:bg-brand-gold/20 px-1 rounded transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-gold";
                                                                                 refRender = (
-                                                                                    <sup onClick={(e) => { 
-                                                                                        e.stopPropagation(); 
-                                                                                        setSelectedSentenceForRef(sentence.sentence_index); 
-                                                                                        setSelectedSourceSentence(sentence);
-                                                                                        setSelectedFullMatches(matches);
-                                                                                        setSelectedReference(null);
-                                                                                        setRefFullscreen(true); 
-                                                                                    }} className={superscriptColor}>[{sentence.sentence_index}]</sup>
+                                                                                    <sup
+                                                                                        role="button"
+                                                                                        tabIndex={0}
+                                                                                        aria-label={`Sanggunian para sa pangungusap ${sentence.sentence_index}`}
+                                                                                        onClick={(e) => { 
+                                                                                            e.stopPropagation(); 
+                                                                                            setSelectedSentenceForRef(sentence.sentence_index); 
+                                                                                            setSelectedSourceSentence(sentence);
+                                                                                            setSelectedFullMatches(matches);
+                                                                                            setSelectedReference(null);
+                                                                                            setRefFullscreen(true); 
+                                                                                        }}
+                                                                                        onKeyDown={(e) => {
+                                                                                            if (e.key === "Enter" || e.key === " ") {
+                                                                                            e.preventDefault();
+                                                                                            e.stopPropagation();
+                                                                                            (e.currentTarget as HTMLElement).click();
+                                                                                            }
+                                                                                        }}
+                                                                                        className={superscriptColor}
+                                                                                    >[{sentence.sentence_index}]</sup>
                                                                                 );
                                                                             }
                                                                         }
@@ -1006,7 +1039,7 @@ export function ChapterModal({
                             {!isFullscreen && (
                                 <div className="flex items-center justify-between p-3 sm:p-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)] bg-brand-cream dark:bg-[var(--modal-header-bg)] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                                     <button onClick={handlePrevChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-[var(--modal-border)] text-xs font-bold uppercase tracking-widest"><ChevronLeft size={16} /><span>Nakaraan</span></button>
-                                    <div className="hidden sm:block text-[10px] text-brand-accent/60 dark:text-brand-gold/60 font-serif uppercase tracking-[0.3em] font-bold">Leksikal at Semantikong Pag-aaral</div>
+                                    <div className={`hidden sm:block text-[10px] ${isNoli ? 'text-[#5C4033] dark:text-brand-gold' : 'text-[#8D2D2D] dark:text-[#E5A823]'} font-serif uppercase tracking-[0.3em] font-bold`}>Leksikal at Semantikong Pag-aaral</div>
                                     <button onClick={handleNextChapter} className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground hover:bg-brand-gold/10 dark:hover:bg-brand-gold/20 transition-all border border-brand-gold/10 dark:border-[var(--modal-border)] text-xs font-bold uppercase tracking-widest"><span>Susunod</span><ChevronRight size={16} /></button>
                                 </div>
                             )}
@@ -1029,11 +1062,16 @@ export function ChapterModal({
                                         </div>
                                     </div>
                                     {/* Mobile View (< lg): Single unified scroll view with prominent comparison cards */}
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30 dark:bg-[var(--modal-canvas-bg)]">
+                                    <div
+                                        tabIndex={0}
+                                        role="region"
+                                        aria-label="Paghahambing ng sanggunian"
+                                        className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain lg:hidden pb-[max(3rem,env(safe-area-inset-bottom))] bg-brand-cream/30 dark:bg-[var(--modal-canvas-bg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-inset"
+                                    >
                                         {/* Source sentence card - fully visible and prominent */}
                                         <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-3">
                                             <div className="flex items-center justify-between border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">
-                                                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/60 dark:text-brand-gold/70 flex items-center gap-1.5">
+                                                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-navy/80 dark:text-brand-gold/90 flex items-center gap-1.5">
                                                     <Quote size={13} className="text-brand-gold shrink-0" />
                                                     Pinagmulang Teksto ({mode === 'buod' ? 'Buod' : 'Buong Kwento'})
                                                 </span>
@@ -1070,7 +1108,7 @@ export function ChapterModal({
                                                             {/* Target sentence card */}
                                                             <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-3">
                                                                 <div className="flex justify-between items-center border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">
-                                                                    <span className="text-[11px] font-bold text-brand-navy/60 dark:text-brand-gold/70 uppercase tracking-widest flex items-center gap-1.5">
+                                                                    <span className="text-[11px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-widest flex items-center gap-1.5">
                                                                         <BookOpen size={13} className="text-brand-gold shrink-0" />
                                                                         Lokasyon sa Buod {match.buod_chapter && match.buod_chapter !== chapterNumber ? `(Kabanata ${match.buod_chapter})` : ''}
                                                                     </span>
@@ -1085,7 +1123,7 @@ export function ChapterModal({
                                                                 </p>
                                                                 {match.matched_characters && match.matched_characters.length > 0 && (
                                                                     <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                        <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
+                                                                        <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
                                                                         <div className="flex flex-wrap gap-1.5">
                                                                             {match.matched_characters.map(c => (
                                                                                 <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{c}</span>
@@ -1094,7 +1132,7 @@ export function ChapterModal({
                                                                     </div>
                                                                 )}
                                                                 <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                    <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
+                                                                    <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
                                                                     <div className="bg-brand-navy/5 dark:bg-black/20 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 font-medium space-y-1">
                                                                         <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedSourceSentence?.sentence_index || selectedSentenceForRef}</div>
                                                                         <div><strong className="text-brand-navy dark:text-brand-gold">Sanggunian:</strong> Pangungusap {match.sentence_index}{match.buod_chapter && match.buod_chapter !== chapterNumber ? ` (Buod Kabanata ${match.buod_chapter})` : ''}</div>
@@ -1105,7 +1143,7 @@ export function ChapterModal({
                                                             {/* Similarity score card */}
                                                             <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                                 <div className="flex justify-between items-end">
-                                                                    <span className="text-[11px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad (Alignment Score)</span>
+                                                                    <span className="text-[11px] font-bold text-brand-navy dark:text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad (Alignment Score)</span>
                                                                     <span className={`text-2xl font-serif font-black ${match.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                                         {Math.round(match.score * 100)}%
                                                                     </span>
@@ -1129,7 +1167,7 @@ export function ChapterModal({
                                                 {/* Target sentence card */}
                                                 <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-3">
                                                     <div className="flex justify-between items-center border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">
-                                                        <span className="text-[11px] font-bold text-brand-navy/60 dark:text-brand-gold/70 uppercase tracking-widest flex items-center gap-1.5">
+                                                        <span className="text-[11px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-widest flex items-center gap-1.5">
                                                             <BookOpen size={13} className="text-brand-gold shrink-0" />
                                                             Lokasyon sa Buong Kwento
                                                         </span>
@@ -1144,7 +1182,7 @@ export function ChapterModal({
                                                     </p>
                                                     {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
                                                         <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                            <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
+                                                            <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-wider block mb-2">Tauhan sa Sanggunian</span>
                                                             <div className="flex flex-wrap gap-1.5">
                                                                 {selectedReference.matched_characters.map(c => (
                                                                     <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{c}</span>
@@ -1154,7 +1192,7 @@ export function ChapterModal({
                                                     )}
                                                     {selectedReference.buod_sentence_index !== undefined && (
                                                         <div className="pt-3 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                            <span className="text-[10px] font-bold text-brand-navy/50 dark:text-brand-gold/60 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
+                                                            <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-wider block mb-1">Posisyon sa CSV</span>
                                                             <div className="bg-brand-navy/5 dark:bg-black/20 p-3 rounded-lg text-xs text-slate-600 dark:text-slate-300 font-medium space-y-1">
                                                                 <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
                                                                 <div><strong className="text-brand-navy dark:text-brand-gold">Sanggunian:</strong> Pangungusap {selectedReference.full_sentence_indices?.map((idx, i) => `${idx}${selectedReference.full_is_short?.[i] ? '*' : ''}`).join(', ')}</div>
@@ -1166,7 +1204,7 @@ export function ChapterModal({
                                                 {/* Similarity score card */}
                                                 <div className="p-4 sm:p-5 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/30 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                     <div className="flex justify-between items-end">
-                                                        <span className="text-[11px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
+                                                        <span className="text-[11px] font-bold text-brand-navy dark:text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
                                                         <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                             {Math.round(selectedReference.score * 100)}%
                                                         </span>
@@ -1187,9 +1225,24 @@ export function ChapterModal({
 
                                     {/* Desktop View (>= lg): Split Screen side-by-side */}
                                     <div className="hidden lg:flex flex-1 overflow-hidden flex-row">
-                                        <div className="flex-1 overflow-y-auto p-8 bg-brand-paper/30 dark:bg-[var(--modal-canvas-bg)]"><div className="max-w-xl mx-auto space-y-6"><h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/40 dark:text-brand-gold/60 border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">Pinagmulang Teksto</h3><p className="font-serif text-brand-text dark:text-foreground/90 leading-loose text-left text-xl italic">&quot;{selectedSourceSentence?.sentence_text || chapContentOnRef()?.sentence_text}&quot;</p></div></div>
-                                        <div className="w-[500px] border-l border-brand-gold/30 dark:border-[var(--modal-border)] bg-white dark:bg-[var(--modal-shell-bg)] overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))]">
-                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
+                                        <div
+                                            tabIndex={0}
+                                            role="region"
+                                            aria-label="Pinagmulang teksto ng sanggunian"
+                                            className="flex-1 overflow-y-auto p-8 bg-brand-paper/30 dark:bg-[var(--modal-canvas-bg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-inset"
+                                        >
+                                            <div className="max-w-xl mx-auto space-y-6">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy/80 dark:text-brand-gold/90 border-b border-brand-gold/10 dark:border-[var(--modal-border)] pb-2">Pinagmulang Teksto</h3>
+                                                <p className="font-serif text-brand-text dark:text-foreground/90 leading-loose text-left text-xl italic">&quot;{selectedSourceSentence?.sentence_text || chapContentOnRef()?.sentence_text}&quot;</p>
+                                            </div>
+                                        </div>
+                                        <div
+                                            tabIndex={0}
+                                            role="region"
+                                            aria-label="Mga kaugnay na sanggunian"
+                                            className="w-[500px] border-l border-brand-gold/30 dark:border-[var(--modal-border)] bg-white dark:bg-[var(--modal-shell-bg)] overflow-y-auto p-10 pb-[max(2rem,env(safe-area-inset-bottom))] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-inset"
+                                        >
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-brand-navy dark:text-brand-gold mb-8">Nahanap na Kaugnayan</h3>
                                             {isRefLoading ? (<div className="flex flex-col items-center py-20 space-y-4"><div className="w-10 h-10 border-2 border-brand-gold border-t-transparent rounded-full animate-spin" /><p className="text-sm font-serif italic text-brand-text/60 dark:text-brand-text-muted text-center">Sinisiyasat ng AI ang kabilang bersyon...</p></div>) : refError ? (<div className="py-10 text-center space-y-4"><div className="w-12 h-12 bg-red-50 dark:bg-red-950/40 text-red-400 rounded-full flex items-center justify-center mx-auto"><X size={24} /></div><p className="text-red-600 dark:text-red-300 font-serif">{refError}</p></div>) : mode === 'full' ? (
                                                 selectedFullMatches && selectedFullMatches.length > 0 && (
                                                     <div className="space-y-8">
@@ -1198,7 +1251,7 @@ export function ChapterModal({
                                                                 <div className="p-6 bg-brand-cream/20 dark:bg-[var(--modal-sub-bar-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                                     <div className="mb-4 flex justify-between items-start">
                                                                         <div>
-                                                                            <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter">
+                                                                            <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter">
                                                                                 Lokasyon sa Buod {match.buod_chapter && match.buod_chapter !== chapterNumber ? `(Kabanata ${match.buod_chapter})` : ''}
                                                                             </span>
                                                                         </div>
@@ -1212,7 +1265,7 @@ export function ChapterModal({
                                                                     
                                                                     {match.matched_characters && match.matched_characters.length > 0 && (
                                                                         <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                            <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
+                                                                            <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
                                                                             <div className="flex flex-wrap gap-2">
                                                                                 {match.matched_characters.map(c => (
                                                                                     <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-1 rounded text-xs font-bold">{c}</span>
@@ -1222,7 +1275,7 @@ export function ChapterModal({
                                                                     )}
 
                                                                     <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                        <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
+                                                                        <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
                                                                         <div className="bg-brand-navy/5 dark:bg-black/20 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10 dark:border-white/10">
                                                                             <div className="flex flex-col text-sm text-slate-600 dark:text-slate-300 font-medium">
                                                                                 <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedSourceSentence?.sentence_index || selectedSentenceForRef}</div>
@@ -1234,7 +1287,7 @@ export function ChapterModal({
 
                                                                 <div className="p-6 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                                     <div className="flex justify-between items-end">
-                                                                        <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad (Alignment Score)</span>
+                                                                        <span className="text-[10px] font-bold text-brand-navy dark:text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad (Alignment Score)</span>
                                                                         <span className={`text-2xl font-serif font-black ${match.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                                             {Math.round(match.score * 100)}%
                                                                         </span>
@@ -1260,7 +1313,7 @@ export function ChapterModal({
                                                     <div className="p-6 bg-brand-cream/20 dark:bg-[var(--modal-sub-bar-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-border)]">
                                                         <div className="mb-4 flex justify-between items-start">
                                                             <div>
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter">Lokasyon sa Buong Kwento</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter">Lokasyon sa Buong Kwento</span>
                                                             </div>
                                                             {selectedReference.alignment_status && (
                                                                 <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${selectedReference.alignment_status === 'precise' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
@@ -1272,7 +1325,7 @@ export function ChapterModal({
                                                         
                                                         {selectedReference.matched_characters && selectedReference.matched_characters.length > 0 && (
                                                             <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter block mb-2">Tauhan sa Sanggunian</span>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {selectedReference.matched_characters.map(c => (
                                                                         <span key={c} className="bg-brand-gold/10 text-brand-navy dark:text-brand-gold px-2 py-1 rounded text-xs font-bold">{c}</span>
@@ -1283,7 +1336,7 @@ export function ChapterModal({
 
                                                         {selectedReference.buod_sentence_index !== undefined && (
                                                             <div className="mt-6 pt-4 border-t border-brand-gold/10 dark:border-[var(--modal-border)]">
-                                                                <span className="text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
+                                                                <span className="text-[10px] font-bold text-brand-navy/80 dark:text-brand-gold/90 uppercase tracking-tighter block mb-2">Posisyon sa CSV</span>
                                                                 <div className="bg-brand-navy/5 dark:bg-black/20 p-4 rounded-lg flex items-center justify-between shadow-sm border border-brand-navy/10 dark:border-white/10">
                                                                     <div className="flex flex-col text-sm text-slate-600 dark:text-slate-300 font-medium">
                                                                         <div><strong className="text-brand-navy dark:text-brand-gold">Pinagmulang Teksto:</strong> Pangungusap {selectedReference.buod_sentence_index}</div>
@@ -1295,7 +1348,7 @@ export function ChapterModal({
 
                                                     <div className="p-6 bg-white dark:bg-[var(--modal-card-bg)] rounded-xl border border-brand-gold/10 dark:border-[var(--modal-card-border)] shadow-sm space-y-4">
                                                         <div className="flex justify-between items-end">
-                                                            <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
+                                                            <span className="text-[10px] font-bold text-brand-navy dark:text-brand-gold uppercase tracking-widest">Antas ng Pagkakatulad</span>
                                                             <span className={`text-2xl font-serif font-black ${selectedReference.score < 0.70 ? 'text-red-500/90' : 'text-brand-navy dark:text-brand-gold'}`}>
                                                                 {Math.round(selectedReference.score * 100)}%
                                                             </span>

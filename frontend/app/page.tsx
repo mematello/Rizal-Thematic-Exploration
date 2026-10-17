@@ -423,11 +423,15 @@ export default function Home() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
+            id={`tabpanel-${activeTab}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${activeTab}`}
+            tabIndex={0}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="min-h-[50vh] w-full max-w-full min-w-0"
+            className="min-h-[50vh] w-full max-w-full min-w-0 focus:outline-none"
           >
             {activeTab === "chapters" && (
               <ChapterSidebar novel={novel}>

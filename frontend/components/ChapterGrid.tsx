@@ -183,10 +183,13 @@ function ChapterCard({
             aria-label={`Basahin ang Kabanata ${chapter.chapter_number}: ${chapter.chapter_title}`}
         >
             {/* Decorative Background Number */}
-            <span className={cn(
-                "absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
-                "text-brand-navy dark:text-brand-gold pointer-events-none"
-            )}>
+            <span
+                aria-hidden="true"
+                className={cn(
+                    "absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
+                    "text-brand-navy dark:text-brand-gold pointer-events-none"
+                )}
+            >
                 {chapter.chapter_number}
             </span>
 

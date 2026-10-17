@@ -105,6 +105,9 @@ function ScoreRow({ label, value, weight, colorClass, textClass, isNA = false }:
                     style={{ width: `${isNA ? 0 : value}%` }}
                     role="progressbar"
                     aria-valuenow={isNA ? 0 : value}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`Marka sa ${label}: ${isNA ? 'Hindi angkop' : `${value}%`}`}
                 />
             </div>
             <div className="flex items-center gap-1 w-16 justify-end whitespace-nowrap">

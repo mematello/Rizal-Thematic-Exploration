@@ -216,7 +216,7 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             className="bg-brand-paper dark:bg-[#18202C] p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
         >
             {/* Background Icon */}
-            <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
+            <div aria-hidden="true" className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
                 <BookOpen size={140} className="text-brand-navy dark:text-brand-gold" />
             </div>
 

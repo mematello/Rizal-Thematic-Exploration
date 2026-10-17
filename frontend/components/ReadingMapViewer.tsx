@@ -97,7 +97,9 @@ export function ReadingMapViewer({
                                     )}
                                 >
                                     {/* Decorative Background Number */}
-                                    <span className={cn(
+                                    <span
+                                        aria-hidden="true"
+                                        className={cn(
                                         "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] dark:opacity-[0.08] select-none transition-opacity group-hover:opacity-[0.07] dark:group-hover:opacity-[0.15]",
                                         isNoli ? "text-brand-navy dark:text-brand-gold" : "text-[#2C1810] dark:text-[#E06C75]"
                                     )}>

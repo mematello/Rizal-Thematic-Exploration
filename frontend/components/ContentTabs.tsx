@@ -17,6 +17,30 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
     { id: "themes", label: "Themes" },
   ];
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    let targetIndex = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      targetIndex = (currentIndex + 1) % tabs.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      targetIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      targetIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      targetIndex = tabs.length - 1;
+    }
+
+    if (targetIndex >= 0) {
+      const nextTab = tabs[targetIndex];
+      onTabChange(nextTab.id);
+      const nextBtn = document.getElementById(`tab-${nextTab.id}`);
+      nextBtn?.focus();
+    }
+  };
+
   return (
     <div
       role="tablist"
@@ -26,7 +50,7 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
       {/* Mobile: Full-width segmented control with 3 equal columns (min-h-[44px]) */}
       {/* Desktop (sm+): Elegant underline tab bar */}
       <div className="grid grid-cols-3 p-1 rounded-xl bg-brand-gold/10 dark:bg-black/40 border border-brand-gold/20 dark:border-brand-gold/30 sm:bg-transparent sm:dark:bg-transparent sm:border-0 sm:border-b sm:border-brand-gold/20 sm:p-0 sm:flex sm:items-center sm:justify-center sm:gap-8 md:gap-12 sm:pb-3 w-full max-w-full min-w-0">
-        {tabs.map((tab) => {
+        {tabs.map((tab, index) => {
           const isActive = activeTab === tab.id;
           return (
             <button
@@ -34,8 +58,10 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
               type="button"
               role="tab"
               id={`tab-${tab.id}`}
-              aria-controls={`tabpanel-${tab.id}`}
+              aria-controls={isActive ? `tabpanel-${tab.id}` : undefined}
               aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onKeyDown={(e) => handleKeyDown(e, index)}
               onClick={() => onTabChange(tab.id)}
               className={cn(
                 "relative min-h-[44px] px-2 sm:px-4 py-2 flex items-center justify-center font-serif tracking-[0.08em] transition-all duration-300 uppercase text-xs sm:text-sm font-bold active:scale-95 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-lg sm:rounded-none",

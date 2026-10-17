@@ -604,7 +604,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
                         className={`group relative flex items-center px-3 py-2 rounded-lg text-sm font-serif transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold select-none ${
                           isActive
                             ? "text-brand-navy dark:text-brand-gold font-bold bg-brand-gold/15 dark:bg-brand-gold/20 translate-x-1"
-                            : "text-brand-text/50 dark:text-foreground/60 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:dark:hover:text-brand-gold [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:dark:hover:bg-brand-gold/10 [@media(hover:hover)]:hover:translate-x-1"
+                            : "text-brand-text/80 dark:text-foreground/80 [@media(hover:hover)]:hover:text-brand-navy [@media(hover:hover)]:dark:hover:text-brand-gold [@media(hover:hover)]:hover:bg-brand-gold/5 [@media(hover:hover)]:dark:hover:bg-brand-gold/10 [@media(hover:hover)]:hover:translate-x-1"
                         }`}
                       >
                         {/* Left Accent Bar */}
