@@ -5,19 +5,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChevronDown, BookOpen } from "lucide-react";
 
-type Novel = "noli" | "fili";
+type Novel = "noli" | "fili" | "both";
 
 interface NovelToggleProps {
     selected: Novel;
-    onSelect: (novel: Novel) => void;
+    onSelect: (novel: any) => void;
+    includeBoth?: boolean;
+    className?: string;
 }
 
-export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
+export function NovelToggle({ selected, onSelect, includeBoth = false, className }: NovelToggleProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const getLabel = (novel: Novel) => {
         switch (novel) {
+            case "both": return "Lahat ng Nobela";
             case "noli": return "Noli Me Tangere";
             case "fili": return "El Filibusterismo";
         }
@@ -35,26 +38,26 @@ export function NovelToggle({ selected, onSelect }: NovelToggleProps) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const options: Novel[] = ["noli", "fili"];
+    const options: Novel[] = includeBoth ? ["both", "noli", "fili"] : ["noli", "fili"];
 
     return (
-        <div className="relative z-40" ref={containerRef}>
+        <div className={cn("relative z-40", className)} ref={containerRef}>
             <button
                 type="button"
                 onClick={toggleOpen}
                 className={cn(
-                    "min-h-[44px] flex items-center gap-2 px-4 py-2 rounded-full md:rounded-sm border transition-all duration-300 shadow-sm backdrop-blur-md active:scale-95",
-                    "bg-white/80 dark:bg-brand-paper/90 hover:bg-white/95 dark:hover:bg-brand-paper text-brand-navy dark:text-brand-gold font-serif font-bold text-xs uppercase tracking-widest",
-                    "border-brand-gold/20 hover:border-brand-gold/40"
+                    "h-10 min-h-[40px] flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all duration-200 shadow-xs backdrop-blur-md active:scale-95",
+                    "bg-white/80 dark:bg-[#182232] hover:bg-white/95 dark:hover:bg-[#202C3F] text-brand-navy dark:text-brand-gold font-serif font-bold text-xs uppercase tracking-wider",
+                    "border-brand-gold/20 dark:border-brand-gold/30 hover:border-brand-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
                 )}
                 aria-expanded={isOpen}
                 aria-label="Piliin ang nobela"
             >
-                <BookOpen size={16} className="text-brand-gold" />
-                <span>{getLabel(selected)}</span>
+                <BookOpen size={15} className="text-brand-gold shrink-0" />
+                <span className="truncate max-w-[140px] sm:max-w-none">{getLabel(selected)}</span>
                 <ChevronDown
-                    size={16}
-                    className={cn("text-brand-navy/50 dark:text-brand-gold/60 transition-transform duration-300", isOpen && "rotate-180")}
+                    size={15}
+                    className={cn("text-brand-navy/50 dark:text-brand-gold/60 transition-transform duration-200 shrink-0", isOpen && "rotate-180")}
                 />
             </button>
 

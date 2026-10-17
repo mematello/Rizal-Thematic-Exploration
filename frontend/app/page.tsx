@@ -177,25 +177,25 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3 relative">
           <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-4">
-            {/* Top row on mobile: Logo + Hamburger / Desktop: Logo on left */}
+            {/* Top row on mobile: Logo + Theme + Menu / Desktop: Logo on left */}
             <div className="flex items-center justify-between md:flex-initial">
               <motion.button
                 onClick={() => router.push('/')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-left text-lg font-serif font-black text-brand-gold tracking-tighter cursor-pointer select-none py-1"
+                className="text-left text-lg font-serif font-black text-brand-gold tracking-tighter cursor-pointer select-none py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-sm"
                 aria-label="Pumunta sa panimulang pahina ng RizalEngine"
               >
                 RIZAL<span className="text-brand-navy dark:text-foreground font-bold ml-1">ENGINE</span>
               </motion.button>
 
-              {/* Mobile Actions: Quick ThemeToggle + Hamburger */}
-              <div className="flex items-center gap-2 md:hidden">
-                <ThemeToggle className="w-9 h-9 min-w-[36px] min-h-[36px]" />
+              {/* Mobile Actions: Theme icon toggle + Menu button only (44px tap targets) */}
+              <div className="flex items-center gap-1.5 md:hidden">
+                <ThemeToggle className="w-11 h-11 min-w-[44px] min-h-[44px]" />
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="min-w-[44px] min-h-[44px] -mr-2 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all"
+                  className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
                   aria-expanded={isMobileMenuOpen}
                   aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
                   aria-controls="mobile-navigation-drawer"
@@ -206,7 +206,7 @@ export default function Home() {
             </div>
 
             {/* Search Bar - Center on Desktop, Full Width below logo on Mobile */}
-            <div className="flex-1 max-w-2xl mx-auto w-full">
+            <div className="flex-1 max-w-xl mx-auto w-full md:mx-4">
               <SearchBar
                 onSearch={handleSearch}
                 variant="hero"
@@ -214,13 +214,14 @@ export default function Home() {
               />
             </div>
 
-            {/* Desktop Navigation - Hidden on mobile to eliminate markup duplication */}
+            {/* Desktop Navigation: Right group = novel dropdown, Buod | Buong Kwento, theme icon toggle (consistent h-10, spacing, focus rings) */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-sm items-center h-10">
+              <NovelToggle selected={novel} onSelect={setNovel} />
+              <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-10">
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('buod')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'buod'}
                 >
                   Buod
@@ -228,14 +229,13 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => useModeStore.getState().setMode('full')}
-                  className={`min-h-[36px] px-4 py-1.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                  className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
                   aria-pressed={mode === 'full'}
                 >
                   Buong Kwento
                 </button>
               </div>
-              <NovelToggle selected={novel} onSelect={setNovel} />
-              <ThemeToggle />
+              <ThemeToggle className="w-10 h-10 min-w-[40px] min-h-[40px]" />
             </div>
           </div>
         </div>
@@ -281,10 +281,10 @@ export default function Home() {
                       className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
                         novel === "noli"
                           ? "bg-brand-gold/15 border-brand-gold text-brand-navy dark:text-brand-gold shadow-sm"
-                          : "bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70"
+                          : "bg-brand-cream/50 dark:bg-black/40 border-brand-gold/20 text-brand-text/70 dark:text-foreground/80"
                       }`}
                     >
-                      <BookOpen size={14} className={novel === "noli" ? "text-brand-gold" : "text-brand-text/40"} />
+                      <BookOpen size={14} className={novel === "noli" ? "text-brand-gold" : "text-brand-text/40 dark:text-foreground/40"} />
                       <span>Noli Me Tangere</span>
                     </button>
                     <button
@@ -296,10 +296,10 @@ export default function Home() {
                       className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
                         novel === "fili"
                           ? "bg-fili-accent/15 border-fili-accent text-fili-accent shadow-sm"
-                          : "bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70"
+                          : "bg-brand-cream/50 dark:bg-black/40 border-brand-gold/20 text-brand-text/70 dark:text-foreground/80"
                       }`}
                     >
-                      <BookOpen size={14} className={novel === "fili" ? "text-fili-accent" : "text-brand-text/40"} />
+                      <BookOpen size={14} className={novel === "fili" ? "text-fili-accent" : "text-brand-text/40 dark:text-foreground/40"} />
                       <span>El Filibusterismo</span>
                     </button>
                   </div>

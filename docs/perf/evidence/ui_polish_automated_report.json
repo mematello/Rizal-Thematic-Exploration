@@ -1,0 +1,929 @@
+{
+  "clientWidths": {
+    "mobile_320": 980,
+    "mobile_360": 980,
+    "mobile_390": 980,
+    "desktop_1440": 1440
+  },
+  "pill_results": {
+    "320": {
+      "start": {
+        "scrollLeft": 0,
+        "scrollWidth": 2349,
+        "clientWidth": 288,
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "scrollPaddingLeft": "16px",
+        "scrollPaddingRight": "16px",
+        "scrollerLeft": 16,
+        "scrollerRight": 304,
+        "firstPillLeft": 32,
+        "firstPillRight": 156.890625,
+        "firstPillOffsetFromScrollerLeft": 16,
+        "firstPillFullyVisible": true
+      },
+      "end": {
+        "scrollLeft": 2061,
+        "scrollWidth": 2349,
+        "clientWidth": 288,
+        "maxScroll": 2061,
+        "scrollerLeft": 16,
+        "scrollerRight": 304,
+        "lastPillLeft": 147.8125,
+        "lastPillRight": 287.578125,
+        "lastPillMarginFromScrollerRight": 16.421875,
+        "lastPillFullyVisible": true
+      }
+    },
+    "360": {
+      "start": {
+        "scrollLeft": 0,
+        "scrollWidth": 2349,
+        "clientWidth": 328,
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "scrollPaddingLeft": "16px",
+        "scrollPaddingRight": "16px",
+        "scrollerLeft": 16,
+        "scrollerRight": 344,
+        "firstPillLeft": 32,
+        "firstPillRight": 156.890625,
+        "firstPillOffsetFromScrollerLeft": 16,
+        "firstPillFullyVisible": true
+      },
+      "end": {
+        "scrollLeft": 2021,
+        "scrollWidth": 2349,
+        "clientWidth": 328,
+        "maxScroll": 2021,
+        "scrollerLeft": 16,
+        "scrollerRight": 344,
+        "lastPillLeft": 187.8125,
+        "lastPillRight": 327.578125,
+        "lastPillMarginFromScrollerRight": 16.421875,
+        "lastPillFullyVisible": true
+      }
+    },
+    "390": {
+      "start": {
+        "scrollLeft": 0,
+        "scrollWidth": 2349,
+        "clientWidth": 358,
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "scrollPaddingLeft": "16px",
+        "scrollPaddingRight": "16px",
+        "scrollerLeft": 16,
+        "scrollerRight": 374,
+        "firstPillLeft": 32,
+        "firstPillRight": 156.890625,
+        "firstPillOffsetFromScrollerLeft": 16,
+        "firstPillFullyVisible": true
+      },
+      "end": {
+        "scrollLeft": 1991,
+        "scrollWidth": 2349,
+        "clientWidth": 358,
+        "maxScroll": 1991,
+        "scrollerLeft": 16,
+        "scrollerRight": 374,
+        "lastPillLeft": 217.8125,
+        "lastPillRight": 357.578125,
+        "lastPillMarginFromScrollerRight": 16.421875,
+        "lastPillFullyVisible": true
+      }
+    }
+  },
+  "theme_measurements": {
+    "320": [
+      {
+        "title": "Pagkamapagpatuloy",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Relihiyon",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kapangyarihan at Kawalang-Katarungan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 226,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": false,
+        "overflowPixels": 4
+      },
+      {
+        "title": "Edukasyon",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangál",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-aalay at Pagsasakripisyo",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pribilehiyo",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-iisa",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Paghihiganti",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kalayaan at Pagmamahal sa Bayan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Katiwalian",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pang-aapi sa Kababaihan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-asa at Reporma",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangal",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kasakiman",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pagpapasakop at Pag-aaklas",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kolonyalismo at Pagkakakilanlan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Karahasan laban sa Kapayapaan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon at Kalayaan",
+        "titleClientWidth": 222,
+        "titleScrollWidth": 222,
+        "cardWidth": 254,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      }
+    ],
+    "360": [
+      {
+        "title": "Pagkamapagpatuloy",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Relihiyon",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kapangyarihan at Kawalang-Katarungan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangál",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-aalay at Pagsasakripisyo",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pribilehiyo",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-iisa",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Paghihiganti",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kalayaan at Pagmamahal sa Bayan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Katiwalian",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pang-aapi sa Kababaihan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-asa at Reporma",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangal",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kasakiman",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pagpapasakop at Pag-aaklas",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kolonyalismo at Pagkakakilanlan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Karahasan laban sa Kapayapaan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon at Kalayaan",
+        "titleClientWidth": 262,
+        "titleScrollWidth": 262,
+        "cardWidth": 294,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      }
+    ],
+    "390": [
+      {
+        "title": "Pagkamapagpatuloy",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Relihiyon",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kapangyarihan at Kawalang-Katarungan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangál",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-aalay at Pagsasakripisyo",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pribilehiyo",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-iisa",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Paghihiganti",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kalayaan at Pagmamahal sa Bayan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Katiwalian",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pang-aapi sa Kababaihan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-asa at Reporma",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangal",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kasakiman",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pagpapasakop at Pag-aaklas",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kolonyalismo at Pagkakakilanlan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Karahasan laban sa Kapayapaan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon at Kalayaan",
+        "titleClientWidth": 292,
+        "titleScrollWidth": 292,
+        "cardWidth": 324,
+        "fontSize": "12.264px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      }
+    ],
+    "1440": [
+      {
+        "title": "Pagkamapagpatuloy",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Relihiyon",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kapangyarihan at Kawalang-Katarungan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 226,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": false,
+        "overflowPixels": 6
+      },
+      {
+        "title": "Edukasyon",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangál",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-aalay at Pagsasakripisyo",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pribilehiyo",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-iisa",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Paghihiganti",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kalayaan at Pagmamahal sa Bayan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-ibig, Kadalisayan, at Katapatan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Katiwalian",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pang-aapi sa Kababaihan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pag-asa at Reporma",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pamilya at Dangal",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kasakiman",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Pagpapasakop at Pag-aaklas",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Kolonyalismo at Pagkakakilanlan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Karahasan laban sa Kapayapaan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      },
+      {
+        "title": "Edukasyon at Kalayaan",
+        "titleClientWidth": 220,
+        "titleScrollWidth": 220,
+        "cardWidth": 284,
+        "fontSize": "12px",
+        "whiteSpace": "nowrap",
+        "fitsWithoutWrap": true,
+        "overflowPixels": 0
+      }
+    ]
+  },
+  "theme_badges_found": [],
+  "map_results": {
+    "noli": {
+      "hasNoli": false,
+      "hasFili": false,
+      "legendSnippet": []
+    },
+    "fili": {
+      "hasNoli": false,
+      "hasFili": false,
+      "legendSnippet": []
+    },
+    "both": {
+      "hasNoli": false,
+      "hasFili": false,
+      "legendSnippet": []
+    },
+    "elfili_alias": {
+      "hasNoli": false,
+      "hasFili": false
+    }
+  }
+}

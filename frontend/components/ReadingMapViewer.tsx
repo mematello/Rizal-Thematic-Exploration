@@ -9,19 +9,24 @@ interface ReadingMapViewerProps {
     filiResults: ResultCardProps[];
     showScores: boolean;
     onChapterOpen: (book: string, chapter: number, sentenceIndex: number) => void;
+    novel?: 'noli' | 'fili' | 'elfili' | 'both';
 }
 
 export function ReadingMapViewer({
     noliResults,
     filiResults,
-    onChapterOpen
+    onChapterOpen,
+    novel = 'both'
 }: ReadingMapViewerProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const showNoli = novel === 'noli' || novel === 'both';
+    const showFili = novel === 'fili' || novel === 'elfili' || novel === 'both';
+
     // Map View sort: Noli chapters ascending (1→N), then Fili chapters ascending (1→N)
-    // No relevance-based sorting — chapter order is the authoritative sort for the map.
+    // Filtered by selected novel(s)
     const allResults = [
-        ...noliResults.slice().sort((a, b) => a.chapter - b.chapter),
-        ...filiResults.slice().sort((a, b) => a.chapter - b.chapter),
+        ...(showNoli ? noliResults.slice().sort((a, b) => a.chapter - b.chapter) : []),
+        ...(showFili ? filiResults.slice().sort((a, b) => a.chapter - b.chapter) : []),
     ];
 
     if (allResults.length === 0) {
@@ -49,12 +54,16 @@ export function ReadingMapViewer({
                     Batay sa iyong hinanap, ipinapakita ng mapang ito ang pinakamainam na babasahin para mas madaling maunawaan ang iyong inisyal na paghahanap.
                 </p>
                 <div className="flex gap-4 mt-6 text-xs font-bold uppercase tracking-wider font-serif">
-                    <div className="flex items-center gap-1.5 text-noli-accent">
-                        <span className="w-2 h-2 rounded-full bg-noli-accent"></span> Noli Me Tangere
-                    </div>
-                    <div className="flex items-center gap-1.5 text-fili-accent">
-                        <span className="w-2 h-2 rounded-full bg-fili-accent"></span> El Filibusterismo
-                    </div>
+                    {showNoli && (
+                        <div className="flex items-center gap-1.5 text-noli-accent">
+                            <span className="w-2 h-2 rounded-full bg-noli-accent"></span> Noli Me Tangere
+                        </div>
+                    )}
+                    {showFili && (
+                        <div className="flex items-center gap-1.5 text-fili-accent">
+                            <span className="w-2 h-2 rounded-full bg-fili-accent"></span> El Filibusterismo
+                        </div>
+                    )}
                 </div>
             </motion.div>
 

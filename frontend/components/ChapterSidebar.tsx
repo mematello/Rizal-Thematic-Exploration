@@ -49,16 +49,16 @@ const MobilePillNav = memo(function MobilePillNav({
       </div>
 
       <div className="relative w-full max-w-full min-w-0">
-        {/* Horizontal scroll container: relative positioned with proximity scroll snap */}
+        {/* Horizontal scroll container with symmetric edge padding, matching scroll-padding, and CSS fade mask */}
         <div
           ref={containerRef}
           role="tablist"
           aria-label="Mga saklaw ng Kabanata"
-          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity]"
-          style={{ scrollPaddingInline: "1.25rem" }}
+          className="relative w-full max-w-full min-w-0 overflow-x-auto overflow-y-hidden pb-1.5 pt-0.5 no-scrollbar scroll-smooth [scroll-snap-type:x_proximity] [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)]"
+          style={{ paddingInline: "1rem", scrollPaddingInline: "1rem" }}
         >
-          {/* Inner list: display flex, width max-content, with generous end-padding so Kabanata 61-64 is fully reachable */}
-          <div className="flex flex-nowrap w-max gap-2 px-1 pr-16 min-w-0">
+          {/* Inner list: gap between pills, zero asymmetrical edge padding */}
+          <div className="flex flex-nowrap w-max gap-2 min-w-0">
             {sections.map(({ start, end }) => {
               const id = `kabanata-${start}`;
               const isActive = start === activeSectionStart;
@@ -91,10 +91,6 @@ const MobilePillNav = memo(function MobilePillNav({
             })}
           </div>
         </div>
-
-        {/* Edge fade masks indicating horizontal scrollability */}
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-brand-cream to-transparent" />
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-brand-cream to-transparent" />
       </div>
     </div>
   );

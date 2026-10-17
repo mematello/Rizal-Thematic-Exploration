@@ -131,9 +131,6 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
 }
 
 function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
-    // Determine novel based on best_match if available, otherwise default or mixed
-    const isNoli = theme.best_match?.book === "noli";
-
     return (
         <motion.div
             variants={{
@@ -142,15 +139,15 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             }}
             whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             onClick={onClick}
-            className="bg-brand-paper p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
+            className="@container bg-brand-paper dark:bg-[#18202C] p-4 sm:p-6 lg:p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
         >
             {/* Background Icon */}
             <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
-                <BookOpen size={140} className="text-brand-navy" />
+                <BookOpen size={140} className="text-brand-navy dark:text-brand-gold" />
             </div>
 
             <div className="relative z-10">
-                <div className="flex items-center space-x-2 mb-4">
+                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
                     <span className={cn(
                         "text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-sm",
                         "bg-brand-gold/10 text-brand-gold"
@@ -159,17 +156,17 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
                     </span>
                 </div>
 
-                <h3 className="text-2xl font-serif text-brand-navy font-bold leading-tight mb-3 group-hover:text-brand-gold transition-colors duration-300">
+                <h3 className="font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3 group-hover:text-brand-gold transition-colors duration-300 whitespace-nowrap text-[clamp(0.75rem,4.2cqi,1.5rem)] truncate">
                     {theme.tagalog_title}
                 </h3>
 
                 <div className="w-12 h-0.5 bg-brand-gold/30 mb-4 group-hover:w-full transition-all duration-500 ease-out" />
 
-                <p className="text-brand-text-light font-body leading-relaxed text-sm line-clamp-3">
+                <p className="text-brand-text-light dark:text-brand-text-muted font-body leading-relaxed text-sm line-clamp-3">
                     {theme.meaning}
                 </p>
 
-                <div className="mt-4 text-[10px] font-bold text-brand-navy/40 uppercase tracking-[0.2em] group-hover:text-brand-navy transition-colors">
+                <div className="mt-4 text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-[0.2em] group-hover:text-brand-navy dark:group-hover:text-brand-gold transition-colors">
                     Tingnan ang Konteksto
                 </div>
             </div>

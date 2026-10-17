@@ -10,11 +10,12 @@ import { SuggestionsCard } from "@/components/SuggestionsCard";
 import { ReadingMapViewer } from "@/components/ReadingMapViewer";
 import { useRizalSearch } from "@/hooks/useRizalSearch";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, BarChart2, LayoutGrid, MapPinned } from "lucide-react";
+import { ArrowLeft, BarChart2, LayoutGrid, MapPinned, Menu, X } from "lucide-react";
 import { Suspense } from "react";
 import { useModeStore } from "@/store/modeStore";
 import { useNovelBackground } from "@/hooks/useNovelBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NovelToggle } from "@/components/NovelToggle";
 import { ChapterContent } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { fetchChapterContent } from "@/components/ChapterGrid";
@@ -25,11 +26,13 @@ function SearchContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const initialQuery = searchParams.get("q") || "";
-    const novelParam = searchParams.get("novel") as 'noli' | 'fili' | 'both' | null;
-    const novelFilter = novelParam || 'both';
+    const rawNovel = searchParams.get("novel");
+    const normalizedNovel = rawNovel === 'elfili' ? 'fili' : rawNovel;
+    const novelFilter: 'noli' | 'fili' | 'both' = (normalizedNovel as 'noli' | 'fili' | 'both') || 'both';
 
     const [showScores, setShowScores] = useState(false);
     const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { mode } = useModeStore();
 
     // Chapter modal state
@@ -41,10 +44,10 @@ function SearchContent() {
     // Map View only: stores the anchor + context window from the clicked result
     const [highlightContext, setHighlightContext] = useState<{ anchor: number; contextMin: number; contextMax: number } | null>(null);
 
-    // Determine which novels to fetch based on grid vs map mode
-    const requiredNovels: ('noli' | 'fili')[] = viewMode === 'map' || novelFilter === 'both' 
+    // Determine which novels to fetch based on novelFilter
+    const requiredNovels: ('noli' | 'fili')[] = novelFilter === 'both' 
         ? ['noli', 'fili'] 
-        : [novelFilter as 'noli' | 'fili'];
+        : [novelFilter];
 
     const { data, isLoading, error } = useRizalSearch(initialQuery, requiredNovels);
 
@@ -180,95 +183,286 @@ function SearchContent() {
             />
             {/* Sticky Header */}
             <header className="bg-brand-cream/98 dark:bg-[#0C1424]/95 border-b border-brand-gold/20 dark:border-brand-gold/25 sticky top-0 z-40 backdrop-blur-sm safe-top transition-colors">
-                <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-4">
-                    <button
-                        type="button"
-                        onClick={() => router.push('/')}
-                        className="min-w-[44px] min-h-[44px] -ml-2 rounded-full flex items-center justify-center text-brand-navy/70 dark:text-foreground/80 hover:text-brand-navy dark:hover:text-brand-gold active:scale-95 transition-all shrink-0"
-                        aria-label="Bumalik sa panimulang pahina"
-                    >
-                        <ArrowLeft size={20} />
-                        <span className="hidden md:inline font-serif font-bold text-base ml-1.5">Bumalik</span>
-                    </button>
-                    <div className="flex-1 min-w-0">
-                        <SearchBar
-                            variant="persistent"
-                            defaultValue={initialQuery}
-                            onSearch={handleSearch}
-                            isLoading={isLoading}
-                        />
-                    </div>
-                    <ThemeToggle className="w-9 h-9 min-w-[36px] min-h-[36px] shrink-0" />
-                </div>
-
-                {/* Sub-header: novel context + score toggle */}
-                <div className="max-w-6xl mx-auto px-4 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
-                    <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs text-brand-text/70 dark:text-brand-text-muted font-serif truncate">
-                            Naghahanap sa: <span className="font-bold text-brand-navy dark:text-brand-gold">{novelLabel}</span>
-                        </span>
-                        {!isLoading && initialQuery && (
-                            <span className="text-xs text-brand-text/40 dark:text-brand-text-muted/60 font-serif shrink-0">
-                                · {totalResults} {totalResults === 1 ? 'resulta' : 'mga resulta'}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-                        <div className="flex bg-white/85 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-9 shrink-0">
+                <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 relative">
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-4">
+                        {/* Top row on mobile: Logo/Back + Theme + Menu / Desktop: Logo on left */}
+                        <div className="flex items-center justify-between md:flex-initial">
                             <button
                                 type="button"
-                                onClick={() => useModeStore.getState().setMode('buod')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'}`}
-                                aria-pressed={mode === 'buod'}
+                                onClick={() => router.push('/')}
+                                className="flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-full px-2 py-1 select-none"
+                                aria-label="Bumalik sa panimulang pahina ng RizalEngine"
                             >
-                                Buod
+                                <ArrowLeft size={18} className="text-brand-gold group-hover:-translate-x-0.5 transition-transform" />
+                                <span className="text-lg font-serif font-black text-brand-gold tracking-tighter">
+                                    RIZAL<span className="text-brand-navy dark:text-foreground font-bold ml-0.5">ENGINE</span>
+                                </span>
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => useModeStore.getState().setMode('full')}
-                                className={`min-h-[28px] px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-full transition-all active:scale-95 ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'}`}
-                                aria-pressed={mode === 'full'}
-                            >
-                                Buong Kwento
-                            </button>
+
+                            {/* Mobile Actions: Theme icon toggle + Menu button only (44px tap targets) */}
+                            <div className="flex items-center gap-1.5 md:hidden">
+                                <ThemeToggle className="w-11 h-11 min-w-[44px] min-h-[44px]" />
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center text-brand-navy dark:text-brand-gold hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+                                    aria-expanded={isMobileMenuOpen}
+                                    aria-label={isMobileMenuOpen ? "Isara ang menu" : "Buksan ang menu ng pagpipilian"}
+                                    aria-controls="mobile-search-navigation-drawer"
+                                >
+                                    {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Dedicated Map View Button */}
-                        <button
-                            id="map-view-toggle"
-                            type="button"
-                            onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
-                            className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${
-                                viewMode === 'map'
-                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-sm font-bold'
-                                    : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
-                            }`}
-                            title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
-                            aria-label={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
-                        >
-                            {viewMode === 'map'
-                                ? <LayoutGrid size={13} />
-                                : <MapPinned size={13} />}
-                            <span className="hidden sm:inline">
-                                {viewMode === 'map' ? 'Listahan' : 'Gabay na Mapa'}
-                            </span>
-                        </button>
+                        {/* Search Bar - Center on Desktop, Full Width below logo on Mobile */}
+                        <div className="flex-1 max-w-xl mx-auto w-full md:mx-4">
+                            <SearchBar
+                                variant="persistent"
+                                defaultValue={initialQuery}
+                                onSearch={handleSearch}
+                                isLoading={isLoading}
+                            />
+                        </div>
 
-                        <button
-                            type="button"
-                            onClick={() => setShowScores(!showScores)}
-                            className={`min-h-[36px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1.5 border transition-all shrink-0 active:scale-95 ${showScores
-                                ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-xs font-bold'
-                                : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
-                                }`}
-                            aria-label={showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
-                        >
-                            <BarChart2 size={13} />
-                            <span className="hidden sm:inline">{showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}</span>
-                        </button>
+                        {/* Desktop Navigation: Right group = novel dropdown, Buod | Buong Kwento, theme icon toggle (consistent h-10, spacing, focus rings) */}
+                        <div className="hidden md:flex items-center gap-3 shrink-0">
+                            <NovelToggle
+                                selected={novelFilter}
+                                includeBoth={true}
+                                onSelect={(newNovel) => router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=${newNovel}`)}
+                            />
+                            <div className="flex bg-white/80 dark:bg-[#182232] rounded-full p-1 border border-brand-gold/20 dark:border-brand-gold/30 shadow-xs items-center h-10">
+                                <button
+                                    type="button"
+                                    onClick={() => useModeStore.getState().setMode('buod')}
+                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'buod' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                                    aria-pressed={mode === 'buod'}
+                                >
+                                    Buod
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => useModeStore.getState().setMode('full')}
+                                    className={`h-8 px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${mode === 'full' ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-xs font-bold' : 'text-brand-text/70 dark:text-foreground/75 hover:text-brand-navy dark:hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                                    aria-pressed={mode === 'full'}
+                                >
+                                    Buong Kwento
+                                </button>
+                            </div>
+                            <ThemeToggle className="w-10 h-10 min-w-[40px] min-h-[40px]" />
+                        </div>
                     </div>
                 </div>
+
+                {/* Desktop Sub-header: novel context + Map/Score controls */}
+                <div className="hidden md:block border-t border-brand-gold/10 bg-brand-cream/40 dark:bg-black/20">
+                    <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-xs text-brand-text/70 dark:text-brand-text-muted font-serif truncate">
+                                Naghahanap sa: <span className="font-bold text-brand-navy dark:text-brand-gold">{novelLabel}</span>
+                            </span>
+                            {!isLoading && initialQuery && (
+                                <span className="text-xs text-brand-text/40 dark:text-brand-text-muted/60 font-serif shrink-0">
+                                    · {totalResults} {totalResults === 1 ? 'resulta' : 'mga resulta'}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button
+                                id="map-view-toggle"
+                                type="button"
+                                onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
+                                className={`h-8 min-h-[32px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border transition-all shrink-0 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${
+                                    viewMode === 'map'
+                                        ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-sm font-bold'
+                                        : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
+                                }`}
+                                title={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
+                                aria-label={viewMode === 'map' ? 'Bumalik sa Listahan' : 'Tingnan ang Gabay na Mapa'}
+                            >
+                                {viewMode === 'map' ? <LayoutGrid size={13} /> : <MapPinned size={13} />}
+                                <span>{viewMode === 'map' ? 'Listahan' : 'Gabay na Mapa'}</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowScores(!showScores)}
+                                className={`h-8 min-h-[32px] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border transition-all shrink-0 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${showScores
+                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-xs font-bold'
+                                    : 'border-brand-navy/20 dark:border-brand-gold/30 text-brand-navy/70 dark:text-foreground/80 hover:border-brand-navy/40 dark:hover:border-brand-gold hover:text-brand-navy dark:hover:text-brand-gold bg-white/80 dark:bg-[#182232]/85'
+                                    }`}
+                                aria-label={showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}
+                            >
+                                <BarChart2 size={13} />
+                                <span>{showScores ? 'Itago ang Marka' : 'Ipakita ang Marka'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile Slide-down Navigation Panel for Search */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="fixed inset-0 top-[110px] z-50 bg-black/40 backdrop-blur-xs md:hidden"
+                                aria-hidden="true"
+                            />
+                            <motion.div
+                                id="mobile-search-navigation-drawer"
+                                role="region"
+                                aria-label="Mobile Search Navigation"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                                className="relative z-50 bg-white/98 dark:bg-brand-paper/98 border-b border-brand-gold/30 shadow-xl overflow-hidden md:hidden px-4 py-5 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+                            >
+                                {/* Novel Selector for Mobile */}
+                                <div>
+                                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light dark:text-brand-gold/80 block mb-2">
+                                        Pumili ng Nobela
+                                    </span>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=both`);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                                                novelFilter === 'both'
+                                                    ? 'bg-brand-gold/15 border-brand-gold text-brand-navy dark:text-brand-gold shadow-sm'
+                                                    : 'bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70 dark:text-foreground/70'
+                                            }`}
+                                        >
+                                            <span>Lahat</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=noli`);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                                                novelFilter === 'noli'
+                                                    ? 'bg-brand-gold/15 border-brand-gold text-brand-navy dark:text-brand-gold shadow-sm'
+                                                    : 'bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70 dark:text-foreground/70'
+                                            }`}
+                                        >
+                                            <span>Noli</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                router.push(`/search?q=${encodeURIComponent(initialQuery)}&novel=fili`);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                                                novelFilter === 'fili'
+                                                    ? 'bg-fili-accent/15 border-fili-accent text-fili-accent shadow-sm'
+                                                    : 'bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70 dark:text-foreground/70'
+                                            }`}
+                                        >
+                                            <span>El Fili</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Mode Selector for Mobile */}
+                                <div>
+                                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light dark:text-brand-gold/80 block mb-2">
+                                        Modo ng Pagbasa
+                                    </span>
+                                    <div className="grid grid-cols-2 gap-2 bg-brand-cream/60 dark:bg-black/30 p-1 rounded-xl border border-brand-gold/20">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                useModeStore.getState().setMode('buod');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
+                                                mode === 'buod'
+                                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold'
+                                                    : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'
+                                            }`}
+                                        >
+                                            Buod
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                useModeStore.getState().setMode('full');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
+                                                mode === 'full'
+                                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] shadow-sm font-bold'
+                                                    : 'text-brand-text/70 dark:text-foreground/75 hover:bg-brand-gold/10 hover:text-brand-navy dark:hover:text-brand-gold'
+                                            }`}
+                                        >
+                                            Buong Kwento
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Extra View Toggles for Mobile */}
+                                <div>
+                                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light dark:text-brand-gold/80 block mb-2">
+                                        Mga Tanawin
+                                    </span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setViewMode(viewMode === 'map' ? 'grid' : 'map');
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                                                viewMode === 'map'
+                                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-sm'
+                                                    : 'bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70 dark:text-foreground/70'
+                                            }`}
+                                        >
+                                            {viewMode === 'map' ? <LayoutGrid size={15} /> : <MapPinned size={15} />}
+                                            <span>{viewMode === 'map' ? 'Listahan' : 'Gabay na Mapa'}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowScores(!showScores);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`min-h-[44px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-serif font-bold uppercase tracking-wider transition-all ${
+                                                showScores
+                                                    ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] border-brand-navy dark:border-brand-gold shadow-xs'
+                                                    : 'bg-brand-cream/50 dark:bg-black/20 border-brand-gold/20 text-brand-text/70 dark:text-foreground/70'
+                                            }`}
+                                        >
+                                            <BarChart2 size={15} />
+                                            <span>{showScores ? 'Itago Marka' : 'Marka'}</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Theme Selector for Mobile */}
+                                <div>
+                                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text-light dark:text-brand-gold/80 block mb-2">
+                                        Tema ng Paningin
+                                    </span>
+                                    <ThemeToggle variant="segmented" className="w-full justify-between" />
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </header>
 
             {/* Main Content */}
@@ -312,6 +506,7 @@ function SearchContent() {
                                     filiResults={filiResults}
                                     showScores={showScores}
                                     onChapterOpen={handleMapChapterOpen}
+                                    novel={novelFilter}
                                 />
                             ) : (
                                 <>
