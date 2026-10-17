@@ -858,7 +858,6 @@ export function ChapterModal({
                                                     )}
                                                 </button>
                                             </div>
-                                            </div>
                                         </div>
                                     )}
 
