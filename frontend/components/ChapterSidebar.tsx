@@ -39,7 +39,7 @@ const MobilePillNav = memo(function MobilePillNav({
 }: MobilePillNavProps) {
   return (
     <div className="flex flex-col w-full max-w-full min-w-0">
-      <div className="flex items-center justify-between mb-2 px-1">
+      <div className="flex items-center justify-between mb-2 w-full">
         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60 font-serif">
           {label}
         </span>
