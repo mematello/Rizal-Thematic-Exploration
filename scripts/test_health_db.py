@@ -46,16 +46,14 @@ def test_health_db_endpoints():
     print("Test 1 Passed!")
 
     print("\n=== Test 2: Simulated DB Failure Path ===")
-    class BrokenSession:
-        def execute(self, *args, **kwargs):
-            raise Exception("Secret internal database password or stack trace that should never leak!")
-        def close(self):
-            pass
+    def broken_check():
+        raise Exception("Secret internal database password or stack trace that should never leak!")
 
     t0 = time.perf_counter()
-    with patch("app.api.v1.health.SessionLocal", return_value=BrokenSession()):
+    with patch("app.api.v1.health._check_db", side_effect=broken_check):
         resp_fail = client.get("/health/db")
     elapsed_fail_ms = (time.perf_counter() - t0) * 1000
+
     
     print(f"Failure Status Code: {resp_fail.status_code}")
     print(f"Failure Response Body: {resp_fail.json()}")
@@ -74,19 +72,15 @@ def test_health_db_endpoints():
     print("Test 2 Passed!")
 
     print("\n=== Test 3: Simulated Timeout Failure Path ===")
-    def slow_exec(*args, **kwargs):
-        time.sleep(6) # Exceeds 5.0s timeout
-        
-    class HangingSession:
-        def execute(self, *args, **kwargs):
-            slow_exec()
-        def close(self):
-            pass
+    def slow_check():
+        time.sleep(5.5) # Exceeds 5.0s timeout
+        return True
 
     t0 = time.perf_counter()
-    with patch("app.api.v1.health.SessionLocal", return_value=HangingSession()):
+    with patch("app.api.v1.health._check_db", side_effect=slow_check):
         resp_timeout = client.get("/health/db")
     elapsed_timeout_ms = (time.perf_counter() - t0) * 1000
+
     
     print(f"Timeout Status Code: {resp_timeout.status_code}")
     print(f"Timeout Response Body: {resp_timeout.json()}")

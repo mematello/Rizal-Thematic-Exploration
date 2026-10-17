@@ -6,21 +6,34 @@ import { useIsFetching } from "@tanstack/react-query";
 /**
  * ServerWarmupBanner
  *
- * Displays a non-intrusive status notification when a React Query request
- * is taking longer than 3 seconds (indicating a cold start / backend wake-up).
+ * Displays a non-intrusive status notification when an initial user-facing
+ * React Query request is taking longer than 3 seconds (indicating a cold start / backend wake-up).
  * Automatically dismisses when queries finish (success or error).
  *
- * Requirements:
- * - Driven strictly by React Query layer (useIsFetching)
- * - Timer >= 3s before display; immediate dismissal on isFetching === 0
+ * Constraints & Rules:
+ * - Counts ONLY user-facing initial loads (queries observed by active UI with data === undefined)
+ * - IGNORES background prefetches (query.getObserversCount() === 0)
+ * - IGNORES background refetches (query.state.data !== undefined)
+ * - Timer >= 3s before display; immediate dismissal on completion
  * - Does NOT block interaction (pointer-events-none)
  * - Zero layout shift (fixed position)
  * - Accessible: role="status" and aria-live="polite"
- * - WCAG AA compliant contrast in light and dark modes
+ * - WCAG AA/AAA compliant contrast in light and dark modes
  * - Respects mobile safe-area-inset-top
  */
 export function ServerWarmupBanner() {
-    const isFetching = useIsFetching();
+    const isFetching = useIsFetching({
+        predicate: (query) => {
+            // Must have active component observing this query (excludes unobserved prefetches)
+            const isObserved = query.getObserversCount() > 0;
+            // Must be an initial load with no data yet (excludes background refetches)
+            const hasNoData = query.state.data === undefined;
+            // Must be actively fetching
+            const inFlight = query.state.fetchStatus === "fetching";
+            return isObserved && hasNoData && inFlight;
+        },
+    });
+
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
