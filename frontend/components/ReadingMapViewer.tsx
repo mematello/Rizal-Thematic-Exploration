@@ -47,10 +47,10 @@ export function ReadingMapViewer({
                 <div className="bg-brand-gold/10 p-3 rounded-full mb-4 border border-brand-gold/20 shadow-sm">
                     <MapPinned className="text-brand-gold h-6 w-6" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-serif font-black text-brand-navy tracking-tight mb-3">
+                <h2 className="text-xl md:text-2xl font-serif font-black text-brand-navy dark:text-foreground tracking-tight mb-3">
                     Gabay na Pagbasa
                 </h2>
-                <p className="text-sm font-serif text-brand-text/70 max-w-xl leading-relaxed">
+                <p className="text-sm font-serif text-brand-text/70 dark:text-brand-text-muted max-w-xl leading-relaxed">
                     Batay sa iyong hinanap, ipinapakita ng mapang ito ang pinakamainam na babasahin para mas madaling maunawaan ang iyong inisyal na paghahanap.
                 </p>
                 <div className="flex gap-4 mt-6 text-xs font-bold uppercase tracking-wider font-serif">
@@ -90,15 +90,15 @@ export function ReadingMapViewer({
                                     onClick={() => onChapterOpen(result.novel, result.chapter, result.sentenceIndex ?? 0)}
                                     className={cn(
                                         "group relative w-64 h-48 flex flex-col justify-between overflow-hidden cursor-pointer",
-                                        "bg-white/70 backdrop-blur-md shadow-sm transition-all duration-500",
-                                        "border border-brand-gold/10 hover:border-brand-gold/40 rounded-sm",
-                                        "p-6 hover:-translate-y-2 hover:shadow-xl"
+                                        "bg-white/80 dark:bg-[#18202C] backdrop-blur-md shadow-sm transition-all duration-500",
+                                        "border border-brand-gold/15 dark:border-brand-gold/30 hover:border-brand-gold/40 dark:hover:border-brand-gold/50 rounded-sm",
+                                        "p-6 hover:-translate-y-2 hover:shadow-xl dark:hover:shadow-black/50"
                                     )}
                                 >
                                     {/* Decorative Background Number */}
                                     <span className={cn(
-                                        "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
-                                        "text-brand-navy"
+                                        "absolute -right-4 -top-6 text-9xl font-serif font-black opacity-[0.03] dark:opacity-[0.08] select-none transition-opacity group-hover:opacity-[0.07] dark:group-hover:opacity-[0.15]",
+                                        "text-brand-navy dark:text-brand-gold"
                                     )}>
                                         {result.chapter}
                                     </span>
@@ -116,15 +116,15 @@ export function ReadingMapViewer({
                                         )}>
                                             {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                                         </span>
-                                        <h3 className="text-2xl font-serif text-brand-navy mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight border-b border-brand-gold/20 pb-2">
+                                        <h3 className="text-2xl font-serif text-brand-navy dark:text-foreground mt-3 group-hover:text-brand-gold transition-colors duration-300 leading-tight border-b border-brand-gold/20 dark:border-brand-gold/30 pb-2">
                                             Kabanata {result.chapter}
                                         </h3>
-                                        <p className="text-xs font-serif text-brand-text/60 mt-2 italic flex justify-between">
+                                        <p className="text-xs font-serif text-brand-text/60 dark:text-brand-text-muted mt-2 italic flex justify-between">
                                             <span>Pangungusap {result.sentenceIndex}</span>
                                         </p>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-brand-text-light group-hover:text-brand-gold transition-colors duration-300">
+                                    <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-brand-text-light dark:text-foreground/75 group-hover:text-brand-gold transition-colors duration-300">
                                         <span className="flex items-center uppercase">
                                             Basahin 
                                             <svg className="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,7 +132,7 @@ export function ReadingMapViewer({
                                             </svg>
                                         </span>
                                         {/* Ranking Ordinal Badge */}
-                                        <div className="bg-brand-navy/5 px-2 py-0.5 rounded-full text-brand-navy/60 group-hover:bg-brand-gold/10 group-hover:text-brand-gold transition-colors">
+                                        <div className="bg-brand-navy/5 dark:bg-brand-gold/15 px-2 py-0.5 rounded-full text-brand-navy/60 dark:text-brand-gold group-hover:bg-brand-gold/20 group-hover:text-brand-gold transition-colors font-bold">
                                             #{i+1}
                                         </div>
                                     </div>
@@ -140,7 +140,7 @@ export function ReadingMapViewer({
                                 
                                 {/* Connector Arrow */}
                                 {i < allResults.length - 1 && (
-                                    <div className="text-brand-navy/20 shrink-0 mx-2 animate-pulse">
+                                    <div className="text-brand-navy/20 dark:text-brand-gold/40 shrink-0 mx-2 animate-pulse">
                                         <ArrowRight className="w-5 h-5" />
                                     </div>
                                 )}
@@ -156,8 +156,8 @@ export function ReadingMapViewer({
                         className="flex items-center justify-center snap-center shrink-0 w-24 h-48"
                     >
                         <div className="flex flex-col items-center">
-                            <div className="w-4 h-4 rounded-full border-[3px] border-brand-cream bg-brand-navy/30 shadow-md"></div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-brand-navy/40 mt-3 font-serif">Katapusan</span>
+                            <div className="w-4 h-4 rounded-full border-[3px] border-brand-cream dark:border-[#18202C] bg-brand-navy/30 dark:bg-brand-gold/50 shadow-md"></div>
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-brand-navy/40 dark:text-foreground/50 mt-3 font-serif">Katapusan</span>
                         </div>
                     </motion.div>
                 </div>

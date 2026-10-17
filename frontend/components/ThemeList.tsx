@@ -1,12 +1,84 @@
 "use client";
 
-
-import { useState } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ItemModal } from "@/components/ItemModal";
+
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/**
+ * Fit helper used only by theme titles:
+ * After layout, if the title's longest unbreakable word is wider than the container's
+ * content width, scale font-size down by the minimum needed to fit, with a floor of 85%
+ * of the original 24px (text-2xl). Recomputes on resize via ResizeObserver and avoids
+ * a visible flash on first paint by measuring in useLayoutEffect before paint.
+ */
+function useThemeTitleFit(title: string) {
+    const headingRef = useRef<HTMLHeadingElement>(null);
+    const [fontSizeStyle, setFontSizeStyle] = useState<string | undefined>(undefined);
+
+    useIsomorphicLayoutEffect(() => {
+        const el = headingRef.current;
+        if (!el) return;
+
+        const measureAndFit = () => {
+            const availableWidth = el.clientWidth;
+            if (availableWidth <= 0) return;
+
+            // Extract unbreakable segments (words with hyphens wrap naturally at '-')
+            const words = title.split(/\s+/);
+            const segments: string[] = [];
+            for (const w of words) {
+                if (w.includes("-")) {
+                    segments.push(...w.split("-"));
+                } else {
+                    segments.push(w);
+                }
+            }
+
+            // Create offscreen measurement span with base text-2xl font-serif font-bold
+            const testSpan = document.createElement("span");
+            testSpan.className = "text-2xl font-serif font-bold";
+            testSpan.style.position = "absolute";
+            testSpan.style.visibility = "hidden";
+            testSpan.style.whiteSpace = "nowrap";
+            testSpan.style.pointerEvents = "none";
+            document.body.appendChild(testSpan);
+
+            let maxSegmentWidth = 0;
+            for (const seg of segments) {
+                testSpan.textContent = seg;
+                const w = testSpan.getBoundingClientRect().width;
+                if (w > maxSegmentWidth) maxSegmentWidth = w;
+            }
+            testSpan.remove();
+
+            // If longest unbreakable segment exceeds available width, scale down (floor: 85%)
+            if (maxSegmentWidth > availableWidth) {
+                const neededRatio = availableWidth / maxSegmentWidth;
+                const scale = Math.max(0.85, Math.min(1, neededRatio * 0.99));
+                setFontSizeStyle(`${(24 * scale).toFixed(2)}px`);
+            } else {
+                setFontSizeStyle(undefined);
+            }
+        };
+
+        measureAndFit();
+
+        if (typeof document !== "undefined" && document.fonts) {
+            document.fonts.ready.then(measureAndFit);
+        }
+
+        const ro = new ResizeObserver(measureAndFit);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [title]);
+
+    return { headingRef, fontSizeStyle };
+}
 
 export interface ThemeContext {
     book: string;
@@ -131,6 +203,8 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
 }
 
 function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
+    const { headingRef, fontSizeStyle } = useThemeTitleFit(theme.tagalog_title);
+
     return (
         <motion.div
             variants={{
@@ -139,7 +213,7 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             }}
             whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             onClick={onClick}
-            className="@container bg-brand-paper dark:bg-[#18202C] p-4 sm:p-6 lg:p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
+            className="bg-brand-paper dark:bg-[#18202C] p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
         >
             {/* Background Icon */}
             <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
@@ -147,7 +221,7 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             </div>
 
             <div className="relative z-10">
-                <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                <div className="flex items-center space-x-2 mb-4">
                     <span className={cn(
                         "text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-sm",
                         "bg-brand-gold/10 text-brand-gold"
@@ -156,7 +230,11 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
                     </span>
                 </div>
 
-                <h3 className="font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3 group-hover:text-brand-gold transition-colors duration-300 whitespace-nowrap text-[clamp(0.75rem,4.2cqi,1.5rem)] truncate">
+                <h3
+                    ref={headingRef}
+                    style={fontSizeStyle ? { fontSize: fontSizeStyle } : undefined}
+                    className="text-2xl font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3 group-hover:text-brand-gold transition-colors duration-300"
+                >
                     {theme.tagalog_title}
                 </h3>
 
