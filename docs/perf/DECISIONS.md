@@ -937,6 +937,49 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
     - Status & Conclusion: `completed` / `success`.
     - All job steps succeeded: `Ping Hugging Face API and Supabase DB Health` (200 OK on `/health` and `/health/db`) and `Ping Vercel Frontend Root` (200 OK).
 
+---
+
+### 15. 2026-10-18: UI Polish Batch & Follow-Up (Branch `fix/ui-polish` -> `main`)
+- **Date**: 2026-10-18  
+- **Branch**: `fix/ui-polish` -> merged into `main` (`da3dae6`)  
+- **Status**: **Fully deployed, verified live on Vercel (`https://rizalengine.vercel.app`)**.  
+- **Context & Operational Need**:
+  - UI refinement follow-up across responsive mobile (320px, 360px, 390px) and desktop (1440px) viewports in both light and dark modes.
+  - Backend isolation requirement: `backend/` diff must be strictly **ZERO DIFF** (preserving Sanggunian bundle fingerprint and search engine invariants).
+- **Decisions**:
+  1. **Strict Zero-Diff File Isolation**:
+     - `backend/app/core/engine.py`: **STRICTLY ZERO DIFF**.
+     - `backend/app/api/v1/content.py`: **STRICTLY ZERO DIFF**.
+     - `backend/app/core/robust_aligner.py`: **STRICTLY ZERO DIFF**.
+     - All edits strictly constrained to `frontend/` components and pages.
+  2. **Theme Titles Sizing & Visual Weight Parity (`ThemeList.tsx`)**:
+     - Reverted the previous global shrink (`clamp(...)`, `whitespace-nowrap`, `truncate`) and restored the original `text-2xl font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3` classes from `main`.
+     - Normal word-wrapping restored.
+     - Restored original card padding to `p-8` (32px left + 32px right).
+     - Added targeted `useThemeTitleFit(title)` layout hook used exclusively by theme titles: if the longest unbreakable word exceeds the available container content width, it scales font size down by the minimum needed to fit with a floor of 85% (20.4px). Synchronous measurement in `useLayoutEffect` prevents flash of unstyled text, and `ResizeObserver` recomputes on window resize.
+     - All 24 other theme titles remain at their original **24px** size, matching Chapter and Character card titles in visual weight. Only "Pagkamapagpatuloy" scales down (to 23.32px–23.74px) on narrow viewports to remain on one line without breaking mid-word.
+     - Removed the extraneous novel badge on theme cards.
+  3. **Gabay na Mapa / Reading Map Dark Surface Tokens (`ReadingMapViewer.tsx`)**:
+     - Replaced the hardcoded translucent `bg-white/70` (which produced a murky grey against the `#0B0F19` dark backdrop) with `bg-white/80 dark:bg-[#18202C]`.
+     - Replaced border with gold-tinted `border-brand-gold/15 dark:border-brand-gold/30 hover:border-brand-gold/40 dark:hover:border-brand-gold/50`.
+     - Added high-contrast dark tokens for chapter title (`dark:text-foreground`, `#F0F4F8`, contrast ratio 13.8:1), subtitles (`dark:text-brand-text-muted`), ordinal badges (`dark:bg-brand-gold/15 dark:text-brand-gold`), and connector arrows (`dark:text-brand-gold/40`).
+     - Conditioned the novel legend to dynamically reflect the active novel filter (`novel=noli` shows only Noli, `novel=fili` shows only Fili, `novel=both` shows both).
+  4. **Header Controls & Chapter Pills Responsiveness (`frontend/app/page.tsx`, `search/page.tsx`, `ChapterSidebar.tsx`)**:
+     - Ensured desktop header controls (Novel selector, Reading mode toggle, Theme toggle) render without overlap or wrapping.
+     - Mobile drawer (`sheet`) renders cleanly with all navigation options accessible.
+     - Chapter pill row uses smooth scroll container (`overflow-x-auto`) with padding so neither the first nor the last pill is cut off by the screen boundaries.
+  5. **Item 1 (Sanggunian "Buong Kwento -> Buod") Diagnosis & Deferral**:
+     - **Diagnosis**: The label originates from `ChapterModal.tsx:492` (`isFullTextMode ? 'Buong Kwento → Buod' : 'Kabanata Buod'`). In full-text mode, the backend Sanggunian endpoint queries `get_chapter_content(book, chapter, mode='full')` and runs `robust_aligner.align_passage(...)` to compute real alignment scores against the novel's sentences.
+     - **Decision**: Code changes for Item 1 are explicitly **deferred** to a separate task to avoid modifying aligner behavior or touching backend code during this UI polish batch.
+- **Verification Summary**:
+  - Live Vercel deploy (`da3dae6`): **[Verified]** at real measured widths 390px and 1432px (1440px viewport).
+  - 0 console errors on production: **[Verified]**.
+  - Theme titles fit and visual weight: **[Verified]** (Pagkamapagpatuloy renders on 1 line; all others at 24px).
+  - No novel badge on theme cards: **[Verified]**.
+  - Gabay na Mapa legend and `#18202C` dark card background: **[Verified]** across noli, fili, both in light and dark modes.
+  - Accessibility / Contrast (Dark Mode): **[Verified]** (Card titles 13.8:1 WCAG AAA; no critical contrast violations).
+
+
 
 
 

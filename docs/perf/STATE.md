@@ -1,8 +1,8 @@
 # Performance Optimization State
 
-**Last Updated**: 2026-10-17  
+**Last Updated**: 2026-10-18  
 **Branch**: `main`  
-**Current Phase**: Item B (Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner) Completed & Verified. Production deployed to Hugging Face Spaces (`7fb5667`) and Vercel (`411780a`).
+**Current Phase**: UI Polish Batch & Follow-Up Completed & Verified. Live on Vercel (`da3dae6`). Backend ZERO diff preserved.
 
 ---
 
@@ -295,10 +295,29 @@
       - Conclusion: `success` (All steps succeeded: setup, ping HF/Supabase `/health` & `/health/db`, ping Vercel, complete).
       - Scheduled runs continue every 30 minutes (`*/30 * * * *`).
 
+- **UI Polish Batch & Follow-Up (Completed 2026-10-18, branch `fix/ui-polish` -> `main`, commit `da3dae6`)**:
+  - **Backend Isolation**: Strictly **ZERO DIFF** on `backend/` (`engine.py`, `content.py`, `robust_aligner.py`).
+  - **Header Controls & Drawer**: Clean responsiveness across 320px, 360px, 390px, and 1440px desktop. Desktop novel selector, reading mode pill, and theme toggle render without wrapping. Mobile drawer dialog opens smoothly with complete navigation hierarchy.
+  - **Chapter Pills**: Rendered in smooth horizontal scroll container with left/right padding so neither first nor last pill is clipped by the screen edges.
+  - **Theme Titles**: Reverted global shrink (`clamp(...)`, `whitespace-nowrap`, `truncate`) and restored original `text-2xl font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3` classes from `main`. Implemented `useThemeTitleFit(title)` hook with 85% floor (20.4px). All 24 other theme titles remain at their original **24px** size, matching Chapter and Character card titles in visual weight. Only "Pagkamapagpatuloy" scales down slightly to remain unbroken on 1 line. Removed extraneous novel badges from theme cards.
+  - **Gabay na Mapa / Reading Map Cards**: Replaced translucent `bg-white/70` with `bg-white/80 dark:bg-[#18202C]`. Borders use gold-tinted tokens (`border-brand-gold/15 dark:border-brand-gold/30`), titles use `dark:text-foreground` (`#F0F4F8`, contrast ratio 13.8:1 WCAG AAA), and novel legend dynamically adapts to active novel filter.
+  - **Item 1 Diagnosis & Deferral**: Diagnosed "Buong Kwento → Buod" label origin in `ChapterModal.tsx:492`. Backend Sanggunian aligner queries full text sentences and scores them as intended. Code modifications for Item 1 are **deferred** to a dedicated task to preserve backend zero diff.
+  - **Live Verification Claims (Verified / Not verified)**:
+    - Merged `fix/ui-polish` into `main` (`da3dae6`) and pushed to `origin/main`: **[Verified]**
+    - Vercel live production deploy: **[Verified]** (served from `https://rizalengine.vercel.app`)
+    - 0 console errors on production: **[Verified]**
+    - Header controls on desktop and mobile drawer: **[Verified]**
+    - Chapter pills not cut off at screen edges: **[Verified]**
+    - Theme titles (Pagkamapagpatuloy on 1 line, all 24 others at 24px): **[Verified]**
+    - No novel badge on theme cards: **[Verified]**
+    - Gabay na Mapa legend for novel=noli/fili/both: **[Verified]**
+    - Gabay na Mapa dark card background `#18202C`: **[Verified]**
+    - Accessibility & dark mode contrast: **[Verified]** (Card titles 13.8:1, no critical contrast violations)
 
 ---
 
 ## Next Steps
-- Item B (Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner) is **100% completed, deployed, and verified across Hugging Face Spaces and Vercel**.
-- Scheduled keepalive cron runs continue every 30 minutes in the background.
+- Item 1 (Sanggunian "Buong Kwento → Buod" label alignment semantics) is deferred for subsequent dedicated review.
+- UI Polish batch and follow-up are **100% completed, committed, merged to `main`, pushed, and verified live on Vercel**.
+
 

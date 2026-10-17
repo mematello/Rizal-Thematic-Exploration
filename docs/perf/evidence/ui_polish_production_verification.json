@@ -1,0 +1,368 @@
+{
+  "production_url": "https://rizalengine.vercel.app",
+  "viewports": {
+    "homepage_desktop_1440": 1432,
+    "homepage_mobile_390": 390
+  },
+  "header_controls": {
+    "desktop_1440_light": {
+      "isDesktop": true,
+      "novelDropdownVisible": false,
+      "readingModeVisible": false,
+      "themeToggleVisible": false
+    },
+    "desktop_1440_dark": {
+      "isDesktop": true,
+      "novelDropdownVisible": false,
+      "readingModeVisible": false,
+      "themeToggleVisible": false
+    },
+    "mobile_390_light": {
+      "isDesktop": false,
+      "drawerToggleVisible": false,
+      "novelToggleVisible": true
+    },
+    "mobile_390_light_drawer_opened": false,
+    "mobile_390_dark": {
+      "isDesktop": false,
+      "drawerToggleVisible": false,
+      "novelToggleVisible": true
+    },
+    "mobile_390_dark_drawer_opened": false
+  },
+  "pills_cut_off": {
+    "desktop_1440_light": {
+      "containerScrollWidth": 224,
+      "containerClientWidth": 224,
+      "isScrollable": false,
+      "firstPillVisible": false,
+      "lastPillVisible": false
+    },
+    "desktop_1440_dark": {
+      "containerScrollWidth": 224,
+      "containerClientWidth": 224,
+      "isScrollable": false,
+      "firstPillVisible": false,
+      "lastPillVisible": false
+    },
+    "mobile_390_light": {
+      "containerScrollWidth": 2349,
+      "containerClientWidth": 358,
+      "isScrollable": true,
+      "firstPillVisible": false,
+      "lastPillVisible": false
+    },
+    "mobile_390_dark": {
+      "containerScrollWidth": 2349,
+      "containerClientWidth": 358,
+      "isScrollable": true,
+      "firstPillVisible": false,
+      "lastPillVisible": false
+    }
+  },
+  "theme_titles": {
+    "desktop_1440_light": {
+      "totalThemesRendered": 20,
+      "foundNovelBadge": false,
+      "pagkamapagpatuloy": {
+        "title": "Pagkamapagpatuloy",
+        "fontSize": "23.32px",
+        "numLines": 1,
+        "clientWidth": 220,
+        "scrollWidth": 220
+      },
+      "sampleTitles": [
+        {
+          "title": "Pagkamapagpatuloy",
+          "fontSize": "23.32px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Relihiyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Kapangyarihan at Kawalang-Katarungan",
+          "fontSize": "24px",
+          "numLines": 3,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Edukasyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Pamilya at Dangál",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        }
+      ]
+    },
+    "desktop_1440_dark": {
+      "totalThemesRendered": 20,
+      "foundNovelBadge": false,
+      "pagkamapagpatuloy": {
+        "title": "Pagkamapagpatuloy",
+        "fontSize": "23.32px",
+        "numLines": 1,
+        "clientWidth": 220,
+        "scrollWidth": 220
+      },
+      "sampleTitles": [
+        {
+          "title": "Pagkamapagpatuloy",
+          "fontSize": "23.32px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Relihiyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Kapangyarihan at Kawalang-Katarungan",
+          "fontSize": "24px",
+          "numLines": 3,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Edukasyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        },
+        {
+          "title": "Pamilya at Dangál",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 220,
+          "scrollWidth": 220
+        }
+      ]
+    },
+    "mobile_390_light": {
+      "totalThemesRendered": 20,
+      "foundNovelBadge": false,
+      "pagkamapagpatuloy": {
+        "title": "Pagkamapagpatuloy",
+        "fontSize": "24px",
+        "numLines": 1,
+        "clientWidth": 260,
+        "scrollWidth": 260
+      },
+      "sampleTitles": [
+        {
+          "title": "Pagkamapagpatuloy",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Relihiyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Kapangyarihan at Kawalang-Katarungan",
+          "fontSize": "24px",
+          "numLines": 2,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Edukasyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Pamilya at Dangál",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        }
+      ]
+    },
+    "mobile_390_dark": {
+      "totalThemesRendered": 20,
+      "foundNovelBadge": false,
+      "pagkamapagpatuloy": {
+        "title": "Pagkamapagpatuloy",
+        "fontSize": "24px",
+        "numLines": 1,
+        "clientWidth": 260,
+        "scrollWidth": 260
+      },
+      "sampleTitles": [
+        {
+          "title": "Pagkamapagpatuloy",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Relihiyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Kapangyarihan at Kawalang-Katarungan",
+          "fontSize": "24px",
+          "numLines": 2,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Edukasyon",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        },
+        {
+          "title": "Pamilya at Dangál",
+          "fontSize": "24px",
+          "numLines": 1,
+          "clientWidth": 260,
+          "scrollWidth": 260
+        }
+      ]
+    }
+  },
+  "theme_novel_badge": {
+    "desktop_1440_light": false,
+    "desktop_1440_dark": false,
+    "mobile_390_light": false,
+    "mobile_390_dark": false
+  },
+  "map_legend_and_dark_card": {
+    "noli_desktop_1440_light": {
+      "legendText": "NOLI ME TANGERE",
+      "cardBg": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.15)",
+      "titleColor": "rgb(27, 38, 59)"
+    },
+    "noli_desktop_1440_dark": {
+      "legendText": "NOLI ME TANGERE",
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.3)",
+      "titleColor": "rgb(240, 244, 248)"
+    },
+    "noli_mobile_390_light": {
+      "legendText": "NOLI ME TANGERE",
+      "cardBg": "oklab(0.990227 -0.0000223748 -0.000306834 / 0.802066)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.151549)",
+      "titleColor": "rgb(27, 38, 59)"
+    },
+    "noli_mobile_390_dark": {
+      "legendText": "NOLI ME TANGERE",
+      "cardBg": "oklab(0.247293 -0.00519082 -0.0251759 / 0.9981)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.297663)",
+      "titleColor": "rgb(240, 244, 248)"
+    },
+    "fili_desktop_1440_light": {
+      "legendText": "EL FILIBUSTERISMO",
+      "cardBg": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+      "cardBorder": "oklab(0.441629 0.118972 0.0534092 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)"
+    },
+    "fili_desktop_1440_dark": {
+      "legendText": "EL FILIBUSTERISMO",
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "oklab(0.670861 0.138482 0.0423432 / 0.3)",
+      "titleColor": "rgb(240, 244, 248)"
+    },
+    "fili_mobile_390_light": {
+      "legendText": "EL FILIBUSTERISMO",
+      "cardBg": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+      "cardBorder": "oklab(0.441629 0.118972 0.0534092 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)"
+    },
+    "fili_mobile_390_dark": {
+      "legendText": "EL FILIBUSTERISMO",
+      "cardBg": "oklab(0.24494 -0.00520718 -0.0252547 / 0.998874)",
+      "cardBorder": "oklab(0.670214 0.138427 0.0423744 / 0.299155)",
+      "titleColor": "rgb(240, 244, 248)"
+    },
+    "both_desktop_1440_light": {
+      "legendText": "NOLI ME TANGERE\nEL FILIBUSTERISMO",
+      "cardBg": "oklab(0.999994 0.0000455677 0.0000200868 / 0.8)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.15)",
+      "titleColor": "rgb(27, 38, 59)"
+    },
+    "both_desktop_1440_dark": {
+      "legendText": "NOLI ME TANGERE\nEL FILIBUSTERISMO",
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.3)",
+      "titleColor": "rgb(240, 244, 248)"
+    },
+    "both_mobile_390_light": {
+      "legendText": "NOLI ME TANGERE\nEL FILIBUSTERISMO",
+      "cardBg": "oklab(0.994646 0.00000836655 -0.000158915 / 0.80113)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.150847)",
+      "titleColor": "rgb(27, 38, 59)"
+    },
+    "both_mobile_390_dark": {
+      "legendText": "NOLI ME TANGERE\nEL FILIBUSTERISMO",
+      "cardBg": "oklab(0.242965 -0.00522092 -0.0253208 / 0.999524)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.298467)",
+      "titleColor": "rgb(240, 244, 248)"
+    }
+  },
+  "console_errors": [],
+  "accessibility_contrast": {
+    "homepage_dark": {
+      "violations_count": 1,
+      "violations": [
+        {
+          "tag": "SPAN",
+          "text": "LIVE DATA",
+          "fontSize": "9px",
+          "color": "rgb(197, 160, 101)",
+          "bg": "rgb(197,160,101)",
+          "ratio": 1,
+          "required": 4.5
+        }
+      ]
+    },
+    "search_map_dark": {
+      "violations_count": 1,
+      "violations": [
+        {
+          "tag": "SPAN",
+          "text": "LISTAHAN",
+          "fontSize": "11px",
+          "color": "rgb(15, 20, 28)",
+          "bg": "rgb(0,0,0)",
+          "ratio": 1.1,
+          "required": 4.5
+        }
+      ]
+    }
+  }
+}
