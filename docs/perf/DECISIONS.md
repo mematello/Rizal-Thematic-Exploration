@@ -856,6 +856,11 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - **Fallbacks Tested**: All 3 resilience cases (mismatch, missing bundle, DB offline) verified via `scripts/test_sanggunian_fallbacks.py`.
   - **Golden Query Invariance**: All 40 search queries 100% invariant vs `golden_snapshot_deterministic.json` (0 diffs).
   - **Engine Diff**: `backend/app/core/engine.py` diff is **STRICTLY 0 DIFF**.
-  - **UI Verification**: Verified desktop (1920x1080) and mobile (390x844) viewport layouts via browser subagent.
-  - **Gate Status**: Pre-Gate-2 checks passing. Ready for Gate 2 backend deployment to Hugging Face Space.
+  - **Gate Status**:
+    - Pre-Gate-2 checks: **All passed**.
+    - Gate 2 Backend Deployment: **Completed & Verified live on Hugging Face Spaces (`4bbc31e`)**.
+    - Rollback target confirmed: `2b15166`.
+    - Raw evidence saved in `docs/perf/evidence/sanggunian_gate2_live_verification.txt`.
+    - All 6 claims verified: `/health` 200 OK, old per-sentence endpoint invariant, 5 chapter endpoints 100% bit-identical SHA-256 match with `Cache-Control` header, warm WAN latency 230–480ms, 5 golden search queries top-5 IDs 100% invariant.
+    - Vercel and `main` have NOT been touched. STOPPED pending user review.
 
