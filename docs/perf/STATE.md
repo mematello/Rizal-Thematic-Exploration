@@ -424,13 +424,42 @@
     - `backend/` diff strictly EMPTY: **[Verified]**
     - `npm run build` and `npx tsc --noEmit` clean: **[Verified]**
 
+- **Accessibility Fix Batch Merge to Main & Production Verification (Completed 2026-10-18)**:
+  - **Git Lineage & Ancestry**:
+    - Rollback Target SHA: `7ee11ddf4152eb6804ef92e2d5dbb5e27cd6b407` (prior `origin/main`).
+    - Merged Head SHA: `cffec85293672b15cf4bfe00c0f9947514fa6443` (fast-forward merge from `fix/a11y-axe`).
+    - `backend/` diff relative to rollback target strictly EMPTY (`git diff 7ee11dd..cffec85 -- backend/` returned 0 files changed).
+    - `npm run build` (8/8 static routes) and `npx tsc --noEmit` clean (0 errors): **[Verified]**
+  - **Vercel Production Deployment**:
+    - Deployment ID: `7152687289` on `https://rizalengine.vercel.app` (Deployment state: `success`).
+  - **Backend Live Sanity**:
+    - `GET https://mematello-rizal-thematic-search-api.hf.space/health/db`: Status `200 OK`, body `{"status":"ok","db":"ok"}`: **[Verified]**
+    - `GET https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/1/sanggunian?mode=buod`: Canonical JSON SHA-256 is strictly `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec` (100% bit-identical match): **[Verified]**
+  - **Live Production Axe Matrix Verification (`https://rizalengine.vercel.app`)**:
+    - Scanned all 92 contexts (Chromium & WebKit, 390px mobile & 1440px desktop, light & dark themes across Homepage, Search Page, Mobile Drawer, Chapter Modal, and Sanggunian Overlay).
+    - Violation counts per rule on live production from raw JSON:
+      - `color-contrast`: **0** (was 993)
+      - `scrollable-region-focusable`: **0** (was 64)
+      - `aria-progressbar-name`: **0** (was 64)
+      - `aria-valid-attr-value`: **0** (was 16)
+    - Total violations across entire live production matrix: **0** (0 critical, 0 serious, 0 moderate, 0 minor): **[Verified]**
+    - Raw evidence saved to `docs/perf/evidence/a11y_production_raw.json` and `docs/perf/evidence/a11y_production_summary.json`.
+  - **Verification Claims (Verified / Not verified)**:
+    - Rollback target SHA recorded (`7ee11dd`): **[Verified]**
+    - `backend/` diff strictly EMPTY: **[Verified]**
+    - `npm run build` and `npx tsc --noEmit` clean: **[Verified]**
+    - Fast-forward merge into `main` (`cffec85`): **[Verified]**
+    - Vercel production deployment live: **[Verified]**
+    - Live `/health/db` returns 200: **[Verified]**
+    - Live Noli 1 buod chapter endpoint canonical JSON SHA matches `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`: **[Verified]**
+    - Live production axe matrix 0 serious or critical violations (0 total): **[Verified]**
+
 ---
 
 ## Current Status
-- Branch: `fix/a11y-axe`.
-- Zero axe violations across full 92-context matrix.
-- `backend/` diff is 0 files changed.
-- Ready for preview deployment verification. Branch is kept unmerged per instructions.
+- All accessibility fixes merged into `main` at `cffec85`, deployed live to production on Vercel (`https://rizalengine.vercel.app`), and 100% verified across 92 browser contexts with zero violations.
+- Rollback target SHA: `7ee11ddf4152eb6804ef92e2d5dbb5e27cd6b407`.
+- Backend diff strictly EMPTY.
 
 
 

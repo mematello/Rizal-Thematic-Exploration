@@ -1148,4 +1148,42 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 - `npm run build` clean (8/8 static routes): **[Verified]**
 - `npx tsc --noEmit` clean (0 errors): **[Verified]**
 
+---
+
+### 19. 2026-10-18: Merge `fix/a11y-axe` to Main & Production Axe Verification
+- **Date**: 2026-10-18
+- **Rollback Target SHA**: `7ee11ddf4152eb6804ef92e2d5dbb5e27cd6b407` (previous `origin/main`)
+- **Merged Head SHA**: `cffec85293672b15cf4bfe00c0f9947514fa6443`
+- **Merge Method**: Fast-forward merge (`git merge --ff-only fix/a11y-axe`)
+- **Backend Diff Constraint**:
+  - `git diff 7ee11dd..cffec85 -- backend/` returned strictly **EMPTY** (0 files changed).
+- **Compilation & Verification**:
+  - `npx tsc --noEmit`: 0 errors (Exit code 0).
+  - `npm run build`: 8/8 static routes generated cleanly in 13.9s.
+- **Production Deployment**:
+  - Deployed to Vercel production on `https://rizalengine.vercel.app` (Deployment ID: `7152687289`, State: `success`).
+- **Live Backend Sanity Verification**:
+  - `GET https://mematello-rizal-thematic-search-api.hf.space/health/db`: 200 OK, `{"status":"ok","db":"ok"}`.
+  - `GET https://mematello-rizal-thematic-search-api.hf.space/api/v1/chapters/noli/1/sanggunian?mode=buod`: Canonical JSON SHA-256 strictly `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec` (100% bit-identical match).
+- **Live Production Axe Matrix Verification (`https://rizalengine.vercel.app`)**:
+  - Tested 92 contexts in Chromium and WebKit at 390px (mobile) and 1440px (desktop) in light and dark modes across Homepage, Search Page, Mobile Drawer, Chapter Modal (Buod & Full), and Sanggunian Overlay.
+  - Violation counts per rule on live production:
+    - `color-contrast`: **0**
+    - `scrollable-region-focusable`: **0**
+    - `aria-progressbar-name`: **0**
+    - `aria-valid-attr-value`: **0**
+  - Serious or Critical Violations: **0** (0 total).
+  - Raw evidence files: `docs/perf/evidence/a11y_production_raw.json` and `docs/perf/evidence/a11y_production_summary.json`.
+
+**Verification Claims (Verified / Not verified)**:
+- Rollback target SHA `7ee11dd` recorded: **[Verified]**
+- `backend/` diff strictly EMPTY: **[Verified]**
+- `npx tsc --noEmit` and `npm run build` clean on merged main: **[Verified]**
+- Fast-forward merge into `main` (`cffec85`): **[Verified]**
+- Vercel production deployment succeeded: **[Verified]**
+- Live `/health/db` returns 200 OK: **[Verified]**
+- Live Noli 1 buod chapter endpoint canonical JSON SHA matches `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec`: **[Verified]**
+- Live production axe matrix 0 serious or critical violations (0 total): **[Verified]**
+
+
 
