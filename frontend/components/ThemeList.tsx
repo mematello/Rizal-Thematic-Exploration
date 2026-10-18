@@ -137,7 +137,13 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
                     {Array.from({ length: 8 }).map((_, i) => (
                         <div
                             key={i}
-                            className="bg-brand-paper p-8 rounded-sm relative overflow-hidden border border-brand-gold/10 animate-pulse"
+                            className={cn(
+                                "p-8 rounded-sm relative overflow-hidden animate-pulse",
+                                "bg-brand-paper dark:bg-[var(--theme-card-bg,#18202C)]",
+                                selectedNovel === 'fili'
+                                    ? "border border-[#8D2D2D]/15 dark:border-[#E06C75]/25"
+                                    : "border border-brand-gold/10 dark:border-brand-gold/20"
+                            )}
                         >
                             <div className="w-14 h-4 bg-brand-gold/15 rounded-sm mb-4" />
                             <div className="w-3/4 h-7 bg-brand-navy/15 rounded-sm mb-3" />
@@ -177,7 +183,7 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
                         return themeBook === selectedNovel;
                     })
                     .map((theme, idx) => (
-                        <ThemeCard key={idx} theme={theme} onClick={() => handleThemeClick(theme)} />
+                        <ThemeCard key={idx} theme={theme} selectedNovel={selectedNovel} onClick={() => handleThemeClick(theme)} />
                     ))}
             </motion.div>
 
@@ -202,8 +208,9 @@ export function ThemeList({ onChapterSelect, selectedNovel }: ThemeListProps) {
     );
 }
 
-function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
+function ThemeCard({ theme, selectedNovel, onClick }: { theme: Theme; selectedNovel?: "noli" | "fili"; onClick: () => void }) {
     const { headingRef, fontSizeStyle } = useThemeTitleFit(theme.tagalog_title);
+    const isNoli = (selectedNovel ?? (theme.best_match?.book === 'noli' ? 'noli' : 'fili')) === 'noli';
 
     return (
         <motion.div
@@ -213,18 +220,27 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
             }}
             whileHover={{ y: -5, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
             onClick={onClick}
-            className="bg-brand-paper dark:bg-[#18202C] p-8 rounded-sm relative overflow-hidden group border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300 cursor-pointer"
+            className={cn(
+                "p-8 rounded-sm relative overflow-hidden group transition-all duration-300 cursor-pointer",
+                "bg-brand-paper dark:bg-[var(--theme-card-bg,#18202C)]",
+                isNoli ? "theme-card-noli" : "theme-card-fili",
+                isNoli
+                    ? "border border-brand-gold/10 dark:border-brand-gold/20 hover:border-brand-gold/40"
+                    : "border border-[#8D2D2D]/15 dark:border-[#E06C75]/25 hover:border-[#8D2D2D]/40 dark:hover:border-[#E06C75]/50"
+            )}
         >
             {/* Background Icon */}
-            <div aria-hidden="true" className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110">
-                <BookOpen size={140} className="text-brand-navy dark:text-brand-gold" />
+            <div aria-hidden="true" className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
+                <BookOpen size={140} className={isNoli ? "text-brand-navy dark:text-brand-gold" : "text-[#2C1810] dark:text-[#E06C75]"} />
             </div>
 
             <div className="relative z-10">
                 <div className="flex items-center space-x-2 mb-4">
                     <span className={cn(
                         "text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-1 rounded-sm",
-                        "bg-brand-gold/10 text-brand-gold"
+                        isNoli
+                            ? "bg-brand-gold/10 text-[#7D5A1E] dark:text-brand-gold"
+                            : "bg-[#8D2D2D]/10 dark:bg-[#E06C75]/15 text-[#8D2D2D] dark:text-[#E06C75]"
                     )}>
                         Paksa
                     </span>
@@ -233,18 +249,29 @@ function ThemeCard({ theme, onClick }: { theme: Theme; onClick: () => void }) {
                 <h3
                     ref={headingRef}
                     style={fontSizeStyle ? { fontSize: fontSizeStyle } : undefined}
-                    className="text-2xl font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3 group-hover:text-brand-gold transition-colors duration-300"
+                    className={cn(
+                        "text-2xl font-serif text-brand-navy dark:text-foreground font-bold leading-tight mb-3 transition-colors duration-300",
+                        isNoli ? "group-hover:text-brand-gold" : "group-hover:text-[#E06C75]"
+                    )}
                 >
                     {theme.tagalog_title}
                 </h3>
 
-                <div className="w-12 h-0.5 bg-brand-gold/30 mb-4 group-hover:w-full transition-all duration-500 ease-out" />
+                <div className={cn(
+                    "w-12 h-0.5 mb-4 group-hover:w-full transition-all duration-500 ease-out",
+                    isNoli ? "bg-brand-gold/30" : "bg-[#8D2D2D]/30 dark:bg-[#E06C75]/35"
+                )} />
 
                 <p className="text-brand-text-light dark:text-brand-text-muted font-body leading-relaxed text-sm line-clamp-3">
                     {theme.meaning}
                 </p>
 
-                <div className="mt-4 text-[10px] font-bold text-brand-navy/40 dark:text-brand-gold/60 uppercase tracking-[0.2em] group-hover:text-brand-navy dark:group-hover:text-brand-gold transition-colors">
+                <div className={cn(
+                    "mt-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors",
+                    isNoli
+                        ? "text-brand-navy/80 dark:text-brand-gold group-hover:text-brand-navy dark:group-hover:text-brand-gold"
+                        : "text-[#8D2D2D] dark:text-[#E06C75] group-hover:text-[#6D1D1D] dark:group-hover:text-[#F28B93]"
+                )}>
                     Tingnan ang Konteksto
                 </div>
             </div>

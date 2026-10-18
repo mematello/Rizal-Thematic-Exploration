@@ -107,6 +107,17 @@ html.dark,
     --modal-button-bg: #FFFFFF;
     --modal-border: rgba(197, 160, 101, 0.15);
     --modal-definition-bg: rgba(197, 160, 101, 0.1);
+    /* Theme Card Tokens */
+    --theme-card-bg: var(--theme-card);
+    --theme-card-border: rgba(197, 160, 101, 0.15);
+    --theme-card-border-hover: rgba(197, 160, 101, 0.45);
+    --theme-card-watermark: rgba(27, 38, 59, 0.05);
+    --theme-card-badge-bg: rgba(197, 160, 101, 0.1);
+    --theme-card-badge-text: #7D5A1E;
+    --theme-card-accent-line: rgba(197, 160, 101, 0.35);
+    --theme-card-title-hover: #C5A065;
+    --theme-card-link: rgba(27, 38, 59, 0.6);
+    --theme-card-link-hover: #1B263B;
 }
 
 html.dark [data-novel="noli"],
@@ -144,6 +155,17 @@ html.dark [data-novel="noli"],
     --modal-button-bg: #1B2433;
     --modal-border: rgba(232, 201, 122, 0.25);
     --modal-definition-bg: rgba(0, 0, 0, 0.4);
+    /* Theme Card Dark Tokens (Midnight Navy #18202C family & gold accents) */
+    --theme-card-bg: #18202C;
+    --theme-card-border: rgba(232, 201, 122, 0.25);
+    --theme-card-border-hover: rgba(232, 201, 122, 0.5);
+    --theme-card-watermark: rgba(232, 201, 122, 0.15);
+    --theme-card-badge-bg: rgba(232, 201, 122, 0.15);
+    --theme-card-badge-text: #E8C97A;
+    --theme-card-accent-line: rgba(232, 201, 122, 0.35);
+    --theme-card-title-hover: #E8C97A;
+    --theme-card-link: rgba(232, 201, 122, 0.6);
+    --theme-card-link-hover: #E8C97A;
 }
 
 [data-novel="fili"] {
@@ -179,6 +201,17 @@ html.dark [data-novel="noli"],
     --modal-button-bg: #FFFFFF;
     --modal-border: rgba(141, 45, 45, 0.15);
     --modal-definition-bg: rgba(141, 45, 45, 0.1);
+    /* Theme Card Tokens (Light mode: light paper surface & deep carmine accents) */
+    --theme-card-bg: var(--theme-card);
+    --theme-card-border: rgba(141, 45, 45, 0.15);
+    --theme-card-border-hover: rgba(141, 45, 45, 0.45);
+    --theme-card-watermark: rgba(44, 24, 16, 0.05);
+    --theme-card-badge-bg: rgba(141, 45, 45, 0.08);
+    --theme-card-badge-text: #8D2D2D;
+    --theme-card-accent-line: rgba(141, 45, 45, 0.35);
+    --theme-card-title-hover: #8D2D2D;
+    --theme-card-link: rgba(44, 24, 16, 0.6);
+    --theme-card-link-hover: #2C1810;
 }
 
 html.dark [data-novel="fili"],
@@ -217,6 +250,17 @@ html.dark [data-novel="fili"],
     --modal-button-bg: #261215;
     --modal-border: rgba(224, 108, 117, 0.25);
     --modal-definition-bg: rgba(0, 0, 0, 0.4);
+    /* Theme Card Dark Tokens (Wine/Charcoal #1A0C0E family & rose-gold borders and accents) */
+    --theme-card-bg: #1A0C0E;
+    --theme-card-border: rgba(224, 108, 117, 0.25);
+    --theme-card-border-hover: rgba(224, 108, 117, 0.5);
+    --theme-card-watermark: rgba(224, 108, 117, 0.15);
+    --theme-card-badge-bg: rgba(224, 108, 117, 0.15);
+    --theme-card-badge-text: #E06C75;
+    --theme-card-accent-line: rgba(224, 108, 117, 0.35);
+    --theme-card-title-hover: #E06C75;
+    --theme-card-link: rgba(224, 108, 117, 0.65);
+    --theme-card-link-hover: #F28B93;
 }
 
 [data-novel="both"] {
@@ -254,6 +298,17 @@ html.dark [data-novel="fili"],
     --modal-button-bg: #FFFFFF;
     --modal-border: rgba(197, 160, 101, 0.15);
     --modal-definition-bg: rgba(197, 160, 101, 0.1);
+    /* Theme Card Tokens */
+    --theme-card-bg: var(--theme-card);
+    --theme-card-border: rgba(197, 160, 101, 0.15);
+    --theme-card-border-hover: rgba(197, 160, 101, 0.45);
+    --theme-card-watermark: rgba(27, 38, 59, 0.05);
+    --theme-card-badge-bg: rgba(197, 160, 101, 0.1);
+    --theme-card-badge-text: #7D5A1E;
+    --theme-card-accent-line: rgba(197, 160, 101, 0.35);
+    --theme-card-title-hover: #C5A065;
+    --theme-card-link: rgba(27, 38, 59, 0.6);
+    --theme-card-link-hover: #1B263B;
 }
 
 html.dark [data-novel="both"],
@@ -294,6 +349,17 @@ html.dark [data-novel="both"],
     --modal-button-bg: #1B2433;
     --modal-border: rgba(232, 201, 122, 0.25);
     --modal-definition-bg: rgba(0, 0, 0, 0.4);
+    /* Theme Card Dark Tokens */
+    --theme-card-bg: #141B28;
+    --theme-card-border: rgba(197, 160, 101, 0.25);
+    --theme-card-border-hover: rgba(197, 160, 101, 0.5);
+    --theme-card-watermark: rgba(232, 201, 122, 0.15);
+    --theme-card-badge-bg: rgba(232, 201, 122, 0.15);
+    --theme-card-badge-text: #E8C97A;
+    --theme-card-accent-line: rgba(197, 160, 101, 0.35);
+    --theme-card-title-hover: #E8C97A;
+    --theme-card-link: rgba(232, 201, 122, 0.6);
+    --theme-card-link-hover: #E8C97A;
 }
 
 /* Card-level novel styling overrides (supports mixed cards in 'both' mode) */
@@ -326,6 +392,38 @@ html.dark .map-card-noli,
 }
 html.dark .map-card-noli:hover,
 .dark .map-card-noli:hover {
+    border-color: rgba(232, 201, 122, 0.5) !important;
+}
+
+.theme-card-fili {
+    --card-accent: #8D2D2D;
+    --card-title-hover: #8D2D2D;
+}
+html.dark .theme-card-fili,
+.dark .theme-card-fili {
+    background-color: #1A0C0E !important;
+    border-color: rgba(224, 108, 117, 0.25) !important;
+    --card-accent: #E06C75;
+    --card-title-hover: #E06C75;
+}
+html.dark .theme-card-fili:hover,
+.dark .theme-card-fili:hover {
+    border-color: rgba(224, 108, 117, 0.5) !important;
+}
+
+.theme-card-noli {
+    --card-accent: #C5A065;
+    --card-title-hover: #C5A065;
+}
+html.dark .theme-card-noli,
+.dark .theme-card-noli {
+    background-color: #18202C !important;
+    border-color: rgba(232, 201, 122, 0.25) !important;
+    --card-accent: #E8C97A;
+    --card-title-hover: #E8C97A;
+}
+html.dark .theme-card-noli:hover,
+.dark .theme-card-noli:hover {
     border-color: rgba(232, 201, 122, 0.5) !important;
 }
 
