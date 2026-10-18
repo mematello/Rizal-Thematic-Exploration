@@ -1148,4 +1148,43 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 - `npm run build` clean (8/8 static routes): **[Verified]**
 - `npx tsc --noEmit` clean (0 errors): **[Verified]**
 
+---
+
+### 2026-10-18: Fili Dark Theme Cards Per-Novel Tokens & Merge
+
+- **Branch**: `fix/theme-cards-fili` merged into `main` (`6a5bf2e3ed31d030104e747040ce467309ac5233`)
+- **Rollback Target SHA**: `cffec8516aefb71b32fa215128a47e6b0daa6747`
+- **Objective**: Fix El Filibusterismo dark mode theme cards on homepage using per-novel design tokens (`--theme-card-*`: wine/charcoal surface `#1A0C0E` with rose-gold accents), audit other tabs, verify WCAG AA contrast via axe-core across 16 configurations, and deploy to production.
+
+**Decisions & Findings**:
+1. **Per-Novel Token Family in `globals.css`**:
+   - *Problem*: `ThemeList.tsx` had hardcoded `dark:bg-[#18202C]` (Noli navy) and gold borders/watermarks, ignoring Fili's burgundy/wine identity.
+   - *Decision*: Extended the `--theme-card-*` token family defined under `[data-novel="noli"]`, `[data-novel="fili"]`, and `[data-novel="both"]` in `globals.css`, alongside `.theme-card-fili` and `.theme-card-noli` utility overrides.
+   - *Outcome*: Fili dark theme cards render on `#1A0C0E` (`rgb(26, 12, 14)`) surface with `rgba(224, 108, 117, 0.25)` rose-gold borders. Light mode colors remain unchanged.
+
+2. **Contrast Enhancement for Footer Link**:
+   - *Problem*: Footer link "Tingnan ang Konteksto" at 80% opacity on `#1A0C0E` yielded 4.2:1 in axe-core (failing AA 4.5:1).
+   - *Decision*: Set text color to `#8D2D2D` (light) and `#E06C75` (dark) for Fili, and `text-brand-navy/80` (light) and `dark:text-brand-gold` (dark) for Noli.
+   - *Outcome*: Measured contrast ratios: Fili dark **5.95:1**, Fili light **7.97:1**, Noli dark **6.70:1**, Noli light **7.91:1** — all exceeding 4.5:1.
+
+3. **Homepage Tab Audit**:
+   - `ChapterGrid.tsx`: Cards use `var(--theme-card)` which already resolves to `rgba(36, 18, 22, 0.78)` with rose-gold subtitles in Fili dark.
+   - `CharacterList.tsx`: Cards use `var(--theme-card)` which resolves to `rgba(36, 18, 22, 0.92)` with rose/pink titles in Fili dark.
+   - Only `ThemeList.tsx` required fixing.
+
+4. **Production Verification on https://rizalengine.vercel.app**:
+   - 16-configuration matrix tested (Chromium & WebKit, 390px & 1440px, light & dark, Noli & Fili).
+   - Console errors: **0** across all 16 configurations.
+   - Axe violations on `#tabpanel-themes`: **0** across all 16 configurations.
+   - Actual clientWidth reported: 390px (Chromium 390), 382px (WebKit 390), 1440px (Chromium 1440), 1432px (WebKit 1440).
+
+**Verification Claims (Verified / Not verified)**:
+- `backend/` diff strictly EMPTY: **[Verified]**
+- `npm run build` and `npx tsc --noEmit` clean: **[Verified]**
+- Fast-forward merge into `main` (`6a5bf2e`): **[Verified]**
+- Vercel production deployment ready: **[Verified]**
+- 0 axe violations on production Themes tab: **[Verified]**
+- 0 console errors on production: **[Verified]**
+
+
 

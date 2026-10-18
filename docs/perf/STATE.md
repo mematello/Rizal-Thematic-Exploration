@@ -422,15 +422,48 @@
     - Focus ring visible only on keyboard navigation: **[Verified]**
     - 92-context matrix 0 serious/critical violations: **[Verified]**
     - `backend/` diff strictly EMPTY: **[Verified]**
-    - `npm run build` and `npx tsc --noEmit` clean: **[Verified]**
+- **Fili Dark Theme Cards Fix & Merge (Completed 2026-10-18, branch `fix/theme-cards-fili` merged to `main`)**:
+  - **Git Lineage & Integrity**:
+    - Rollback Target SHA: `cffec8516aefb71b32fa215128a47e6b0daa6747` (main prior to merge).
+    - Merge Commit SHA: `6a5bf2e3ed31d030104e747040ce467309ac5233` (fast-forward merge).
+    - `backend/` diff relative to rollback target strictly EMPTY (`git diff cffec85..6a5bf2e -- backend/` returned 0 files changed): **[Verified]**
+    - `npx tsc --noEmit` clean (0 errors), `npm run build` clean (8/8 static routes): **[Verified]**
+  - **Fixes Applied**:
+    - Eliminated hardcoded Noli midnight navy `#18202C` and gold borders in `ThemeList.tsx`.
+    - Introduced per-novel CSS tokens under `--theme-card-*` in `globals.css` (`noli`, `fili`, `both`).
+    - Fili Dark theme cards now render on wine/charcoal surface `#1A0C0E` (`rgb(26, 12, 14)`) with rose-gold borders (`rgba(224, 108, 117, 0.25)`), badges (`rgba(224, 108, 117, 0.15)`), watermark, and title hover.
+    - Updated "Tingnan ang Konteksto" footer link text contrast to `#8D2D2D` (light) / `#E06C75` (dark) to meet WCAG AA >= 4.5:1 (5.95:1 on `#1A0C0E` in dark, 7.97:1 in light): **[Verified]**
+    - Title fitting helper `useThemeTitleFit` untouched: **[Verified]**
+  - **Other Homepage Tab Content Audit**:
+    - Chapter cards (`ChapterGrid.tsx`): Already using `--theme-card` wine/charcoal surface `rgba(36, 18, 22, 0.78)` and rose-gold subtitles.
+    - Character cards (`CharacterList.tsx`): Already using `--theme-card` surface `rgba(36, 18, 22, 0.92)` and rose/pink title/role colors.
+  - **Live Production Verification (https://rizalengine.vercel.app)**:
+    - 16-configuration matrix tested: Fili & Noli x Dark & Light x WebKit & Chromium x 390px & 1440px.
+    - Actual reported clientWidth: Chromium 390px, WebKit 382px (mobile); Chromium 1440px, WebKit 1432px (desktop): **[Verified]**
+    - Console errors across all 16 configurations: **0 errors**: **[Verified]**
+    - Axe-core violations on `#tabpanel-themes` across all 16 configurations: **0 violations**: **[Verified]**
+    - Contrast ratios measured via axe-core:
+      - Fili Dark Title (`#f0f4f8` on `#1a0c0e`): **17.22:1** (AA Large >= 3.0:1): **[Verified]**
+      - Fili Dark Description (`#bfa0a2` on `#1a0c0e`): **7.94:1** (AA Normal >= 4.5:1): **[Verified]**
+      - Fili Dark Link (`#e06c75` on `#1a0c0e`): **5.95:1** (AA Normal >= 4.5:1): **[Verified]**
+      - Fili Dark Badge (`#e06c75` on `#381a1d`): **4.92:1** (AA Normal >= 4.5:1): **[Verified]**
+  - **Verification Claims (Verified / Not verified)**:
+    - `backend/` diff strictly EMPTY: **[Verified]**
+    - `npx tsc --noEmit` and `npm run build` clean: **[Verified]**
+    - Fast-forward merge to `main`: **[Verified]**
+    - Vercel production deployment successful: **[Verified]**
+    - 0 axe violations on production Themes tab: **[Verified]**
+    - 0 console errors on production: **[Verified]**
 
 ---
 
 ## Current Status
-- Branch: `fix/a11y-axe`.
-- Zero axe violations across full 92-context matrix.
+- Production SHA: `6a5bf2e3ed31d030104e747040ce467309ac5233`.
+- Rollback SHA: `cffec8516aefb71b32fa215128a47e6b0daa6747`.
+- All homepage theme cards use per-novel tokens.
+- Zero axe violations on production Themes tab across all 16 matrix configurations.
 - `backend/` diff is 0 files changed.
-- Ready for preview deployment verification. Branch is kept unmerged per instructions.
+
 
 
 
