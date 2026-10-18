@@ -11,7 +11,7 @@ This guide details the verified deployment architecture and operational procedur
 | **Frontend Web UI** | **Vercel** | Hobby Plan (Edge CDN, SSL, Next.js 16.1.6 runtime) | Next.js 16 App (~15 MB static bundle) | Free Tier ($0.00) |
 | **Backend API Engine** | **Hugging Face Spaces** | `zero-a10g` (Gradio SDK 5.16.0, `app_file: space.py`) | FastAPI + SentenceTransformers (~1.5 GB RAM) | Free Tier (Community ZeroGPU quota limits; `isPro: false`) |
 | **Database + Vectors** | **Supabase** | Free Tier (Singapore AWS Pooler, PostgreSQL 15+ with `pgvector`) | 130 MB DB (16,402 sentences, 545 themes) | Free Tier ($0.00) |
-| **Precomputed Cache** | Git-tracked static bundles | Baked in repository: `word_vec_cache_v1.pkl` (73.39 MB), 205 chapter bundles (3.12 MB), 205 Sanggunian bundles (6.06 MB) | 24,770 words vocabulary; all 205 chapters & Sanggunian cross-references | Included in repo |
+| **Precomputed Cache** | Git-tracked static bundles | Baked in repository: `word_vec_cache_v1.pkl` (73.39 MB), 205 chapter bundles (3.12 MB), 205 Sanggunian bundles (8.39 MB uncompressed) | 24,770 words vocabulary; all 205 chapters & Sanggunian cross-references | Included in repo |
 
 > [!NOTE]
 > **Plan, ZeroGPU Quota & Cost Policy Verification**:
@@ -20,6 +20,7 @@ This guide details the verified deployment architecture and operational procedur
 > - **Hugging Face ZeroGPU Documentation**: Official documentation at [https://huggingface.co/docs/hub/spaces-zerogpu](https://huggingface.co/docs/hub/spaces-zerogpu) states:
 >   > *"ZeroGPU Spaces are available to use for free to all users... Free personal accounts: accounts in good standing (verified email, account older than 30 days) can host up to 2 ZeroGPU Spaces for free. PRO users get x8 more daily usage quota, highest priority in GPU queues, and can go beyond their daily quota using pre-paid credits when using any ZeroGPU Spaces."*
 > - **Sustainability Terms**: Zero-cost operation is not guaranteed "forever"; it depends entirely on the current terms of third-party free tiers (Vercel Hobby, Supabase Free, Hugging Face Community ZeroGPU, GitHub Actions public repositories) as verified in October 2026. Because core search routes run on CPU PyTorch with precomputed caches, the engine does not consume dynamic GPU seconds during normal search operation.
+> - **Keepalive Automation**: The GitHub Actions workflow (`.github/workflows/keepalive.yml`) is configured to run every 30 minutes (`cron: "*/30 * * * *"`). Two manual `workflow_dispatch` runs have been verified (`2026-10-17T15:44:46Z`, `2026-10-17T22:07:43Z`). The Actions tab confirms 9 scheduled runs have executed successfully between `2026-10-17T17:53:30Z` and `2026-10-18T18:44:42Z` (subject to standard GitHub Actions cron queuing intervals).
 
 ---
 
@@ -52,19 +53,19 @@ Configured in Space Settings → **Variables and secrets**:
 - `ENVIRONMENT`: `production`
 
 ### C. Rollback Target SHAs on `remotes/hf/main`
-Raw output from `git log --oneline remotes/hf/main -10` with descriptions from `DECISIONS.md`:
+Raw output from `git log --oneline remotes/hf/main -10` with descriptions traced directly from `DECISIONS.md` and evidence files:
 
-| Commit SHA | Raw Git Subject Line | What Commit Did (per `DECISIONS.md`) |
+| Commit SHA | Raw Git Subject Line | Traced Action (per `DECISIONS.md` & code diff) |
 | :---: | :--- | :--- |
-| `7fb5667` | `feat(keepalive): add /health/db endpoint and register health router` | Implemented `GET /health/db` endpoint executing `SELECT 1` on Supabase to enable hourly GitHub Actions keepalive probe (`DECISIONS.md` Item 13 / old 14). |
-| `3117ead` | `feat(perf): configure early logging in main.py to surface cache verification` | Configured early logging (`basicConfig(level=INFO)`) in `main.py` so cache verification diagnostics and miss warnings appear in container stdout (`DECISIONS.md` Item 6 / old 7). |
-| `4bbc31e` | `fix(sanggunian): deploy line-ending normalized fingerprint verification` | Normalized CRLF vs LF line endings in corpus fingerprint hash calculation so bundles built on Windows match Linux container runtime hashes (`DECISIONS.md` Item 12 / old 13). |
-| `0d123bc` | `feat(sanggunian): deploy precomputed Sanggunian bundles and chapter endpoint with corpus fingerprint verification` | Deployed 205 precomputed Sanggunian cross-reference bundles and novel-filtering validation to eliminate ~17s dynamic alignment latency (`DECISIONS.md` Item 12 / old 13). |
-| `2b15166` | `feat(chapters): deploy precomputed chapter bundles with corpus fingerprint verification and URL sanitization` | Deployed 205 precomputed chapter content bundles (`chapter_cache_*.json`) with corpus fingerprint verification and URL sanitization (`DECISIONS.md` Item 6 / old 7). |
-| `007116d` | `feat(chapters): optimize chapters endpoint with LRU cache, context batching, and startup warming` | Added 64-entry LRU cache, batched context fetching (`Sentence.id.in_(...)`), and startup background warming to `/chapters` endpoint (`DECISIONS.md` Item 5). |
+| `7fb5667` | `feat(keepalive): add /health/db endpoint and register health router` | Implemented `GET /health/db` endpoint executing `SELECT 1 FROM sentences LIMIT 1` using a dedicated `NullPool` engine with 5 s connect and statement timeouts (`connect_timeout=5`, `statement_timeout=5000`) and bounded concurrency (`ThreadPoolExecutor(max_workers=2)`) to enable keepalive pings without connection pool leaks (`DECISIONS.md` Item 14). |
+| `3117ead` | `feat(perf): configure early logging in main.py to surface cache verification` | Configured early Python logging (`basicConfig(level=INFO)`) in `backend/app/main.py` so cache verification diagnostics and miss warnings appear in container stdout (Item C / Gate 3, `DECISIONS.md` Item 13). |
+| `4bbc31e` | `fix(sanggunian): deploy line-ending normalized fingerprint verification` | Normalized CRLF vs LF line endings in `backend/app/api/v1/content.py` and Sanggunian JSON caches so SHA-256 fingerprint validation matches in Linux container runtime (`DECISIONS.md` Item 13). |
+| `0d123bc` | `feat(sanggunian): deploy precomputed Sanggunian bundles and chapter endpoint with corpus fingerprint verification` | Deployed 205 precomputed Sanggunian cross-reference bundles (8.39 MB uncompressed) and chapter endpoint with corpus fingerprint verification and fallback logic, eliminating local cold times measured at 20–52 s (and up to 81.6 s on Noli 1) (`DECISIONS.md` Item 13). |
+| `2b15166` | `feat(chapters): deploy precomputed chapter bundles with corpus fingerprint verification and URL sanitization` | Deployed 205 precomputed chapter content bundles (`chapter_cache_*.json`, 3.12 MB) with corpus fingerprint verification and URL sanitization (`DECISIONS.md` Item 7). |
+| `007116d` | `feat(chapters): optimize chapters endpoint with LRU cache, context batching, and startup warming` | Added 64-entry LRU cache, batched context fetching (`where(Sentence.id.in_(...))`), and startup background warming to `/chapters` endpoint (`DECISIONS.md` Item 5). |
 | `0b74a1d` | `feat(themes): optimize themes endpoint with LATERAL query, process cache, startup warming, and static fallback` | Replaced N+1 themes query with single SQL LATERAL join and in-memory process cache (`_themes_cache`), cutting latency from 10.5s to 269ms (`DECISIONS.md` Item 4). |
-| `09cdb41` | `docs: update README with live Vercel link and companion dataset repo` | Synchronized root documentation with live Vercel web application URL and dataset normalization repository. |
-| `0cb0286` | `fix(alignment): defer heavy vector columns and encode with DAPT model` | Deferred heavy vector column loading during text alignment queries and ensured query embeddings encode with fine-tuned DAPT model. |
+| `09cdb41` | `docs: update README with live Vercel link and companion dataset repo` | Synchronized root documentation with live Vercel web application link and companion dataset normalization repo link. |
+| `0cb0286` | `fix(alignment): defer heavy vector columns and encode with DAPT model` | Deferred heavy vector column loading during text alignment queries (`load_only(...)`) and ensured query embeddings encode with fine-tuned DAPT model. |
 | `5bf1969` | `feat(deploy): load fine-tuned DAPT model from mematello/rizal-xlm-r-dapt` | Initial Space deployment loading fine-tuned domain-adapted XLM-RoBERTa model from Hugging Face Hub (`mematello/rizal-xlm-r-dapt`). |
 
 ---

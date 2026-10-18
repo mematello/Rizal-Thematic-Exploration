@@ -67,7 +67,7 @@ The system uses three sets of static precomputed caches to ensure sub-10ms respo
    - 4 bundles covering all 205 chapters across Noli and El Fili (`buod` and `full` modes). Total size: 3.12 MB.
    - Regeneration script: `scripts/build_chapter_cache.py`.
 3. **Sanggunian Alignment Bundles (`backend/app/data/sanggunian_cache_*.json`)**:
-   - 4 bundles precomputing cross-novel sentence alignments between Buod and Buong Kwento. Total size: 6.06 MB.
+   - 4 bundles precomputing cross-novel sentence alignments between Buod and Buong Kwento. Total size: 8.39 MB uncompressed.
    - Regeneration script: `scripts/build_sanggunian_cache.py`.
 
 ### ⚠️ Critical Invalidation Rules

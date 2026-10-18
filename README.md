@@ -82,7 +82,7 @@ graph TD
     Vercel -->|HTTPS REST| HF[Backend: FastAPI on Hugging Face Spaces<br/>Gradio SDK / zero-a10g Tier]
     HF -->|Auto-Load Weights| Hub[Hugging Face Model Hub<br/>mematello/rizal-xlm-r-dapt]
     HF -->|Vector Search & Filter| Supabase[(Supabase PostgreSQL + pgvector<br/>Singapore AWS Pooler)]
-    GH[GitHub Actions keepalive.yml] -->|Hourly Health Ping /health/db| HF
+    GH[GitHub Actions keepalive.yml] -->|30-min Health Ping /health/db| HF
     HF -->|DB Ping| Supabase
     DatasetRepo[Dataset Normalization Pipeline<br/>rizal-thesis-dataset-normalization] -.->|Generates Clean Corpus & Themes| Supabase
 ```
@@ -93,10 +93,10 @@ graph TD
 3. **Database (Supabase)**: Managed PostgreSQL 15+ with `pgvector` hosted in Singapore AWS Pooler (`130 MB` live binary database containing 16,402 sentences and 545 themes).
 4. **Precomputed Static Bundles**:
    - 205 chapter bundles (`backend/app/data/chapter_cache_*.json`, 3.12 MB).
-   - 205 Sanggunian cross-reference bundles (`backend/app/data/sanggunian_cache_*.json`, 6.06 MB).
+   - 205 Sanggunian cross-reference bundles (`backend/app/data/sanggunian_cache_*.json`, 8.39 MB uncompressed).
    - Vocabulary embedding cache (`backend/app/data/word_vec_cache_v1.pkl`, 73.39 MB, 24,770 words).
    - **Corpus Fingerprint Verification**: Bundles embed a cryptographic corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, MD5 hash). Verified non-blockingly at startup against Supabase, with automatic fallback to live database calculation on miss or mismatch.
-5. **Keep-Alive Automation**: GitHub Actions workflow (`keepalive.yml`) runs hourly, pinging `GET /health/db` to maintain active database pool connections and prevent free-tier project dormancy.
+5. **Keep-Alive Automation**: GitHub Actions workflow (`keepalive.yml`) runs every 30 minutes (`*/30 * * * *`), pinging `GET /health/db` to maintain active database pool connections and prevent free-tier project dormancy.
 
 For detailed deployment architecture and configuration, see [ZERO_COST_DEPLOYMENT.md](./docs/perf/ZERO_COST_DEPLOYMENT.md).
 
