@@ -4,6 +4,42 @@
 
 ---
 
+## Decision Index
+
+| Item | Date | Category | Title | Status |
+|:---:|:---:|:---|:---|:---:|
+| - | 2026-10-12 | Planning | Initial Planning & Measurement-First Strategy | Historical |
+| - | 2026-10-12 | Diagnostics | Phase 1 Instrumentation & Baseline Corrections | Historical |
+| - | 2026-10-13 | Diagnostics | Phase 2 Step 1: Word Embedding Cache & Hash Randomization | Historical |
+| - | 2026-10-14 | Diagnostics | Benchmark Protocols, PerfTimer, TranslatorCache & Context Batching | Historical |
+| - | 2026-10-14 | Optimization | Step A: Startup Vocabulary Precomputation (`word_vec_cache_v1.pkl`) | Adopted |
+| - | 2026-10-16 | Core Search | Step B: Search Pipeline Determinism (Approved) | Deployed |
+| - | 2026-10-16 | Policy | First-Seen Out-of-Domain Translation Latency Policy | Adopted |
+| - | 2026-10-16 | Architecture | Production Deployment Sizing & Host Configuration | Finalized |
+| - | 2026-10-16 | Backend | Item A: Themes Endpoint Optimization (LATERAL Join & Memory Cache) | Deployed |
+| **1** | 2026-10-16 | Core Search | Determinism Enforcement via `sorted()` and `ORDER BY` (Step B) | Deployed |
+| **2** | 2026-10-16 | Policy | First-Seen Out-of-Domain Translation Latency Policy | Adopted |
+| **3** | 2026-10-16 | Architecture | Production Deployment Sizing & Host Configuration | Finalized |
+| **4** | 2026-10-16 | Backend | Themes Endpoint Optimization (Item A) | Deployed |
+| **5** | 2026-10-16 | Backend | Chapters Endpoint Optimization (Item A2) | Deployed |
+| **6** | 2026-10-16 | Backend | Precomputed Chapter Content & Corpus Fingerprint (Step 1) *(was Item 7)* | Deployed |
+| **7** | 2026-10-16 | Architecture | Deliberately Unexecuted Optimizations *(was Item 8)* | Archived |
+| **8** | 2026-10-17 | UI / Mobile | Item D: Mobile Fullscreen Architecture Refinements *(was Item 9)* | Deployed |
+| **9** | 2026-10-17 | UI / Mobile | Item E: Background Image Rotation and Mobile Viewport Scaling *(was Item 10)* | Deployed |
+| **10** | 2026-10-17 | UI / Styling | Item F: Dark Mode Architecture and WCAG AA Contrast Compliance *(was Item 11)* | Deployed |
+| **11** | 2026-10-17 | UI / Styling | Dark Mode Contrast, Modal Backdrop, and Aesthetic Refinements *(was Item 12)* | Deployed |
+| **12** | 2026-10-17 | Backend | Item C Phase 2: Sanggunian Cross-Novel Reference Optimization *(was Item 13)* | Deployed |
+| **13** | 2026-10-17 | Devops | Item B: Keep-Alive Workflow, Health DB Probe, and Warmup Banner *(was Item 14)* | Deployed |
+| **14** | 2026-10-18 | UI Polish | UI Polish Batch & Follow-Up (`fix/ui-polish`) *(was Item 15)* | Deployed |
+| **15** | 2026-10-18 | Feature | Item 1: Sanggunian in Buong Kwento Mode Shows Matching Buod *(was Item 16)* | Deployed |
+| **16** | 2026-10-18 | Release | Merge All UI Work, Item 1, & Batches 2–4 to Main *(was Item 17)* | Deployed |
+| **17** | 2026-10-18 | A11y | Accessibility Follow-up Batch (Axe-Core WCAG AA Compliance) *(was Item 18)* | Deployed |
+| **18** | 2026-10-18 | UI / Novel | Fili Dark Theme Cards Per-Novel Tokens & Merge | Deployed |
+
+> **Numbering Gap Note**: Historical gap between Item 5 and Item 7 in the numbered optimization section has been normalized. The mapping above maps each item to its historical and new sequential index.
+
+---
+
 ## Decision Log
 
 ### 2026-10-12: Initial Planning
@@ -532,21 +568,6 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 
 ---
 
-## Pending Decisions
-
-### 1. ~~Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)~~ ✅ RESOLVED
-- **Status**: **Approved and committed** (2026-10-16). See decision entry above.
-- **Resolution**: All 5 commits (B1, D, E1, E2, E3) applied. 100% bit-identical determinism verified across 6 processes and 206 held-out queries. `PYTHONHASHSEED=0` no longer required. New permanent reference: `golden_snapshot_deterministic.json`.
-
-### 2. ~~First-Seen Out-of-Domain Translation Latency Policy~~ ✅ RESOLVED
-- **Status**: **Approved and adopted** (2026-10-16).
-- **Decision**: Accept cold external translation network latency (~1.3s) as an acceptable one-time cold cost, amortized by `TranslatorCache` (24h positive TTL, 60s negative TTL, 5.0s request timeout with `max_workers=2`). Reject aggressive pre-translator OOV / dictionary heuristics.
-- **Rationale**:
-  1. **Academic Cross-Lingual Recall**: The search engine serves research on Jose Rizal's novels. Legitimate historical/academic English terms not present in the small static `EN_TL_DICTIONARY` (e.g., "tyranny", "martyrdom", "friar abuses", "rebellion", "indio") must be translated dynamically into Tagalog to discover novel passages. Pre-translator heuristics risk false-positive rejections.
-  2. **Amortization in Steady-State**: `TranslatorCache` slashes warm latency by 90.0% (from ~1,298 ms down to ~129.7 ms). Unmapped terms are negative-cached for 60s to prevent spam/DoS.
-  3. **Preservation of Determinism**: Zero changes to search results, metadata reasons, or `golden_snapshot_deterministic.json`. 100% of Phase B6 evidence items remain bit-identical.
-
----
 
 ### 2026-10-16: Production Deployment Sizing & Host Configuration
 
@@ -601,7 +622,7 @@ Initial golden snapshot comparisons between fresh server processes showed 10-12 
 
 ---
 
-## Pending Decisions
+## Optimization & Modernization Decisions (Items 1–18)
 
 ### 1. ~~Determinism Enforcement via `sorted()` and `ORDER BY` (Step B)~~ ✅ RESOLVED
 - **Status**: **Approved and committed** (2026-10-16).
@@ -660,7 +681,7 @@ Chapter retrieval (`/api/v1/chapters/{book}/{chapter_number}`) had high cold lat
 
 ---
 
-### 7. Precomputed Chapter Content & Corpus Fingerprint Verification (Step 1)
+### 6. Precomputed Chapter Content & Corpus Fingerprint Verification (Step 1)
 **Date**: 2026-10-16  
 **Branch**: `perf/chapter-precompute`  
 **Status**: **Implemented, verified locally against production Supabase DB; awaiting deployment approval**.
@@ -724,7 +745,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 8. Deliberately Unexecuted Optimizations
+### 7. Deliberately Unexecuted Optimizations
 - **Status**: Held / excluded from scope.
 - **Items**:
   - **HNSW / ANN Vector Indexing**: Exact vector similarity search is preserved to prevent recall degradation on academic query sets.
@@ -733,7 +754,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 9. 2026-10-17: Item D Mobile Fullscreen Architecture Refinements
+### 8. 2026-10-17: Item D Mobile Fullscreen Architecture Refinements
 - **Context**: Mobile fullscreen reader in `ChapterModal.tsx` suffered from clipping under mobile browser URL bars, missing "Tauhan" and "Sanggunian" controls due to desktop-only sidebar layout (`hidden lg:flex`), cramped text padding (`px-8`), and horizontal blowout in the cross-reference split-screen overlay.
 - **Decision**:
   1. Use fixed overlay `h-[100dvh]` with `overscroll-contain` instead of relying on the native HTML5 Fullscreen API (which is unsupported on iOS Safari for generic `div` elements and causes browser address-bar jumpiness).
@@ -746,7 +767,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 10. 2026-10-17: Item E Background Image Rotation and Mobile Viewport Scaling
+### 9. 2026-10-17: Item E Background Image Rotation and Mobile Viewport Scaling
 - **Context**: The novel hero backgrounds (`noli_background.webp` and `elfili_background.webp`) were originally exported rotated 90 degrees counter-clockwise (height > width), displaying all artwork (Rizal, church, characters, novel scrolls) sideways. Additionally, `style={backgroundStyle}` with `background-size: cover` was attached directly to `<main>` in `page.tsx` and search container in `search/page.tsx`. Because `<main>` spans all 64 chapters and sections (~5,924px scroll height), the 1308x736 image expanded to over **10,500px wide (8x / 800% zoom)**, causing narrow viewports to display an extreme microscopic crop of the center scroll. On mobile portrait, widescreen 16:9 artwork scaled with `cover` cropped off 65% of the sides and clashed with hero text. Furthermore, an internal duplicate raster layer (`scale: 1.05`, `blur(4px)`) in `NovelBackground.tsx` sat inside the hero section, blurring out and double-scaling the background.
 - **Decision**:
   1. Re-export the source WebP images rotated 90° clockwise to their upright landscape orientation (1308x736 and 1200x675) with lossless-grade WebP encoding.
@@ -763,7 +784,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 11. 2026-10-17: Item F Dark Mode Architecture and WCAG AA Contrast Compliance
+### 10. 2026-10-17: Item F Dark Mode Architecture and WCAG AA Contrast Compliance
 - **Context**: The web application lacked dark mode support, defaulting to high-brightness parchment and white surfaces that caused glare in dim environments. Next.js 16 with Tailwind CSS v4 required an explicit variant definition (`@custom-variant dark (&:is(.dark, .dark *));`) to enable standard `dark:` utility class selection on both `html.dark` and all nested child components. Multiple legacy components contained hardcoded inline `style={{ backgroundColor: 'rgba(255,255,255,...)' }}` (such as `HeroSection` floating icons and stats card), preventing CSS dark mode class overrides. Text elements across result cards, chapter grid, and modals required auditing to ensure WCAG AA contrast ratio (>= 4.5:1 for body, >= 3:1 for large headings) against midnight dark backgrounds.
 - **Decision**:
   1. Integrate `next-themes` with `ThemeProvider` (`attribute="class"`, `defaultTheme="system"`, `enableSystem`) in `frontend/app/providers.tsx` and add `suppressHydrationWarning` to `<html>` in `frontend/app/layout.tsx`.
@@ -787,7 +808,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 12. 2026-10-17: Dark Mode Contrast, Modal Backdrop, and Aesthetic Refinements
+### 11. 2026-10-17: Dark Mode Contrast, Modal Backdrop, and Aesthetic Refinements
 - **Context**: Initial dark mode deployment left several contrast and color mismatch issues:
   1. Opening any chapter or theme card displayed a bright yellow/gold overlay backdrop because `bg-brand-navy/70` mapped to gold (`#E8C97A` at 70% opacity) in dark mode.
   2. Inside `ChapterModal.tsx`, active "Tauhan" and "Sanggunian" buttons had `dark:text-brand-navy` on `bg-brand-gold`, creating invisible yellow-on-yellow text.
@@ -810,7 +831,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 13. 2026-10-17: Item C Phase 2 — Sanggunian Cross-Novel Reference Optimization (Fixes 1 + 2)
+### 12. 2026-10-17: Item C Phase 2 — Sanggunian Cross-Novel Reference Optimization (Fixes 1 + 2)
 - **Context**: Profiling in Phase 1 (`docs/perf/evidence/sanggunian_profile.md`) revealed that loading Sanggunian cross-references for a chapter executed an N+1 HTTP loop from the frontend (`ChapterModal.tsx`), making up to 12-25 concurrent requests to `GET /api/v1/sentences/{id}/sanggunian`. Each request executed a cold DAPT model encoding and dynamic cosine alignment across all chapters, totaling 52.4s of backend compute per chapter and saturating HF Space worker threads.
 - **Rollback Targets**:
   - New HF Space Rollback Target: `3117ead`.
@@ -881,7 +902,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 14. 2026-10-17: Item B — Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner
+### 13. 2026-10-17: Item B — Keep-Alive Workflow, Health DB Probe, and Server Warmup Banner
 - **Date**: 2026-10-17  
 - **Branch**: `feat/keepalive` -> merged into `main` (`411780a`)  
 - **Status**: **Fully deployed, verified live on Hugging Face Spaces and Vercel**.  
@@ -939,7 +960,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 15. 2026-10-18: UI Polish Batch & Follow-Up (Branch `fix/ui-polish` -> `main`)
+### 14. 2026-10-18: UI Polish Batch & Follow-Up (Branch `fix/ui-polish` -> `main`)
 - **Date**: 2026-10-18  
 - **Branch**: `fix/ui-polish` -> merged into `main` (`da3dae6`)  
 - **Status**: **Fully deployed, verified live on Vercel (`https://rizalengine.vercel.app`)**.  
@@ -981,7 +1002,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 16. 2026-10-18: Item 1 - Sanggunian in Buong Kwento Mode Shows Matching Buod (Branch `feat/sanggunian-inverse`)
+### 15. 2026-10-18: Item 1 - Sanggunian in Buong Kwento Mode Shows Matching Buod (Branch `feat/sanggunian-inverse`)
 - **Date**: 2026-10-18
 - **Branch**: `feat/sanggunian-inverse` (branched from current `main` at `da3dae6`)
 - **Status**: **Implemented and Verified (Frontend Only; Zero Backend Diff)**.
@@ -1048,7 +1069,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 17. 2026-10-18: Merge All UI Work, Item 1, & Batches 2–4 to Main (Frontend Only)
+### 16. 2026-10-18: Merge All UI Work, Item 1, & Batches 2–4 to Main (Frontend Only)
 - **Date**: 2026-10-18
 - **Rollback Target SHA**: `2a524b1056720786e9da01911aa36198a3896b2f` (original `origin/main`)
 - **Merged Head SHA**: `6f782a62888cf3e27a696ee1d9e7943d63b27b3e`
@@ -1096,7 +1117,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ---
 
-### 18. 2026-10-18: Accessibility Follow-up Batch (Axe-Core WCAG AA Compliance)
+### 17. 2026-10-18: Accessibility Follow-up Batch (Axe-Core WCAG AA Compliance)
 - **Date**: 2026-10-18
 - **Branch**: `fix/a11y-axe` (kept strictly unmerged)
 - **Objective**: Eliminate decorative watermark numeral violations without visual compromise, resolve all 31 text contrast failures to >= 4.5:1, verify keyboard-only focus ring on modal canvas, and achieve 0 serious/critical axe violations across full 92-context matrix.
@@ -1148,4 +1169,40 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 - `npm run build` clean (8/8 static routes): **[Verified]**
 - `npx tsc --noEmit` clean (0 errors): **[Verified]**
 
+---
 
+### 18. 2026-10-18: Fili Dark Theme Cards Per-Novel Tokens & Merge
+
+- **Branch**: `fix/theme-cards-fili` merged into `main` (`6a5bf2e3ed31d030104e747040ce467309ac5233`)
+- **Rollback Target SHA**: `cffec8516aefb71b32fa215128a47e6b0daa6747`
+- **Objective**: Fix El Filibusterismo dark mode theme cards on homepage using per-novel design tokens (`--theme-card-*`: wine/charcoal surface `#1A0C0E` with rose-gold accents), audit other tabs, verify WCAG AA contrast via axe-core across 16 configurations, and deploy to production.
+
+**Decisions & Findings**:
+1. **Per-Novel Token Family in `globals.css`**:
+   - *Problem*: `ThemeList.tsx` had hardcoded `dark:bg-[#18202C]` (Noli navy) and gold borders/watermarks, ignoring Fili's burgundy/wine identity.
+   - *Decision*: Extended the `--theme-card-*` token family defined under `[data-novel="noli"]`, `[data-novel="fili"]`, and `[data-novel="both"]` in `globals.css`, alongside `.theme-card-fili` and `.theme-card-noli` utility overrides.
+   - *Outcome*: Fili dark theme cards render on `#1A0C0E` (`rgb(26, 12, 14)`) surface with `rgba(224, 108, 117, 0.25)` rose-gold borders. Light mode colors remain unchanged.
+
+2. **Contrast Enhancement for Footer Link**:
+   - *Problem*: Footer link "Tingnan ang Konteksto" at 80% opacity on `#1A0C0E` yielded 4.2:1 in axe-core (failing AA 4.5:1).
+   - *Decision*: Set text color to `#8D2D2D` (light) and `#E06C75` (dark) for Fili, and `text-brand-navy/80` (light) and `dark:text-brand-gold` (dark) for Noli.
+   - *Outcome*: Measured contrast ratios: Fili dark **5.95:1**, Fili light **7.97:1**, Noli dark **6.70:1**, Noli light **7.91:1** — all exceeding 4.5:1.
+
+3. **Homepage Tab Audit**:
+   - `ChapterGrid.tsx`: Cards use `var(--theme-card)` which already resolves to `rgba(36, 18, 22, 0.78)` with rose-gold subtitles in Fili dark.
+   - `CharacterList.tsx`: Cards use `var(--theme-card)` which resolves to `rgba(36, 18, 22, 0.92)` with rose/pink titles in Fili dark.
+   - Only `ThemeList.tsx` required fixing.
+
+4. **Production Verification on https://rizalengine.vercel.app**:
+   - 16-configuration matrix tested (Chromium & WebKit, 390px & 1440px, light & dark, Noli & Fili).
+   - Console errors: **0** across all 16 configurations.
+   - Axe violations on `#tabpanel-themes`: **0** across all 16 configurations.
+   - Actual clientWidth reported: 390px (Chromium 390), 382px (WebKit 390), 1440px (Chromium 1440), 1432px (WebKit 1440).
+
+**Verification Claims (Verified / Not verified)**:
+- `backend/` diff strictly EMPTY: **[Verified]**
+- `npm run build` and `npx tsc --noEmit` clean: **[Verified]**
+- Fast-forward merge into `main` (`6a5bf2e`): **[Verified]**
+- Vercel production deployment ready: **[Verified]**
+- 0 axe violations on production Themes tab: **[Verified]**
+- 0 console errors on production: **[Verified]**

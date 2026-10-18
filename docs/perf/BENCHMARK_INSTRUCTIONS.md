@@ -1,6 +1,9 @@
 # Phase 1 Baseline Measurement Instructions
 
-**Status**: Phase 1 instrumentation complete. Benchmark NOT yet run.
+> [!NOTE]
+> **Historical Archive Notice**: This document details early Phase 1 baseline measurement procedures. Following Phase 2 Step B (Search Pipeline Determinism), `PYTHONHASHSEED=0` is no longer required for cross-process determinism. For current procedures, see [HANDOFF.md](./HANDOFF.md).
+
+**Status**: Archived historical instructions.
 
 ---
 

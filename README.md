@@ -17,10 +17,10 @@ license: mit
 [![HF Model Hub](https://img.shields.io/badge/%F0%9F%A4%97%20Model-rizal--xlm--r--dapt-yellow?style=for-the-badge)](https://huggingface.co/mematello/rizal-xlm-r-dapt)
 [![Dataset Normalization Repo](https://img.shields.io/badge/GitHub-Dataset%20Normalization-24292e?style=for-the-badge&logo=github)](https://github.com/mematello/rizal-thesis-dataset-normalization)
 
-[![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)](https://nextjs.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Supabase pgvector](https://img.shields.io/badge/Supabase-pgvector-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
-[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
 
 An intelligent, full-stack search and exploration engine for the thematic analysis of José Rizal's master novels: *Noli Me Tangere* and *El Filibusterismo*.
 
@@ -28,25 +28,12 @@ An intelligent, full-stack search and exploration engine for the thematic analys
 
 ### 🌐 Live Deployments & Key Links
 
-| Resource | Description | URL |
-| :--- | :--- | :--- |
-| **Production Web App** | Live interactive Next.js application hosted on Vercel | [https://rizalengine.vercel.app](https://rizalengine.vercel.app) |
-| **Backend REST API** | FastAPI backend with ZeroGPU acceleration on Hugging Face Spaces | [https://mematello-rizal-thematic-search-api.hf.space](https://mematello-rizal-thematic-search-api.hf.space) |
-| **Interactive API Docs** | Swagger UI OpenAPI documentation & endpoint tester | [https://mematello-rizal-thematic-search-api.hf.space/docs](https://mematello-rizal-thematic-search-api.hf.space/docs) |
-| **Fine-Tuned DAPT Model** | Domain-Adapted `rizal-xlm-r-dapt` model weights on Hugging Face Model Hub | [huggingface.co/mematello/rizal-xlm-r-dapt](https://huggingface.co/mematello/rizal-xlm-r-dapt) |
-| **Dataset Normalization Pipeline** | Vital companion repository for corpus normalization & preprocessing | [github.com/mematello/rizal-thesis-dataset-normalization](https://github.com/mematello/rizal-thesis-dataset-normalization) |
-
----
-
-## 📚 Vital Companion Repository: Dataset Normalization
-
-A fundamental cornerstone of this research is the automated text normalization and preprocessing pipeline hosted in its dedicated repository:
-👉 **[mematello/rizal-thesis-dataset-normalization](https://github.com/mematello/rizal-thesis-dataset-normalization)**
-
-### Why this repository is vital to Rizal Engine:
-- **Orthographic Modernization & Cleansing**: Preprocesses historical Tagalog translations, cleaning archaic spelling inconsistencies, OCR scanning artifacts, and irregular punctuation across both *Noli Me Tangere* and *El Filibusterismo*.
-- **Sentence-Level Granularity**: Produces the 16,400+ cleanly segmented sentences indexed by Rizal Engine's vector database, ensuring accurate passage boundaries.
-- **Thematic Ground Truth**: Constructs the 540+ thematic keyword associations used for lexical filtering, thematic density heatmaps, and retrieval evaluation benchmarks.
+- **Production Web Application**: [https://rizalengine.vercel.app](https://rizalengine.vercel.app)
+- **Production API & OpenAPI Documentation**: [https://mematello-rizal-thematic-search-api.hf.space/docs](https://mematello-rizal-thematic-search-api.hf.space/docs)
+- **API Health & DB Connectivity Probes**:
+  - `GET /health` $\rightarrow$ `{"status":"ok"}`
+  - `GET /health/db` $\rightarrow$ `{"status":"ok","db":"ok"}` (Used by keepalive automation)
+- **Companion Dataset Normalization Repository**: [mematello/rizal-thesis-dataset-normalization](https://github.com/mematello/rizal-thesis-dataset-normalization)
 
 ---
 
@@ -64,13 +51,14 @@ A fundamental cornerstone of this research is the automated text normalization a
 - **Dynamic Thematic Mapping**: Translates abstract concepts (e.g., *korapsyon*, *pag-ibig*, *katarungan*) to specific novel chapters and character arcs.
 - **Cross-Lingual Support**: Automatically bridges English queries to their Tagalog literary counterparts via custom bilingual semantic mapping and fallback expansion.
 - **Contextual Reading Map**: Enables users to explore preceding and following sentences dynamically to evaluate passage continuity within the chapter.
+- **Sanggunian & Inverse Sanggunian View**: Deep dynamic sequence alignment connecting summary passages (`buod`) directly to full-novel chapters (`buong kwento`), and conversely mapping full-text sentences back to chapter summaries.
 - **Anti-Hallucination Domain Gate**: Active validation barrier that flags out-of-domain queries, ensuring strictly faithful thematic extractions.
 
 ### Architectural Differentiators
 
 **RobustAligner Pipeline**  
 ![RobustAligner Architecture](./docs/snapshots/13-robustaligner-pipeline.png)  
-*The RobustAligner utilizes dynamic-programming sequence alignment to accurately map queries directly to deep contextual passages.*
+*The RobustAligner utilizes dynamic-programming sequence alignment to accurately map queries and summaries directly to deep contextual passages.*
 
 **Reading Map View**  
 ![Reading Map Expanded Context](./docs/snapshots/06-reading-map-view.png)  
@@ -86,27 +74,40 @@ A fundamental cornerstone of this research is the automated text normalization a
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ System Architecture & Production Deployment
 
 ```mermaid
 graph TD
-    User([User / Researcher]) -->|Web UI| Vercel[Frontend: Next.js on Vercel<br/>rizalengine.vercel.app]
-    Vercel -->|HTTPS REST| HF[Backend: FastAPI on Hugging Face Spaces<br/>ZeroGPU Accelerated]
+    User([User / Researcher]) -->|Web UI| Vercel[Frontend: Next.js 16.1.6 on Vercel<br/>rizalengine.vercel.app]
+    Vercel -->|HTTPS REST| HF[Backend: FastAPI on Hugging Face Spaces<br/>Gradio SDK / zero-a10g Tier]
     HF -->|Auto-Load Weights| Hub[Hugging Face Model Hub<br/>mematello/rizal-xlm-r-dapt]
     HF -->|Vector Search & Filter| Supabase[(Supabase PostgreSQL + pgvector<br/>Singapore AWS Pooler)]
+    GH[GitHub Actions keepalive.yml] -->|Hourly Health Ping /health/db| HF
+    HF -->|DB Ping| Supabase
     DatasetRepo[Dataset Normalization Pipeline<br/>rizal-thesis-dataset-normalization] -.->|Generates Clean Corpus & Themes| Supabase
 ```
 
-For detailed cloud deployment architecture and zero-cost hosting specifications, see [ZERO_COST_DEPLOYMENT.md](./docs/perf/ZERO_COST_DEPLOYMENT.md).
+### Production Components
+1. **Frontend (Vercel)**: Next.js 16.1.6 with Edge CDN, React Query caching, and responsive per-novel design systems (`data-novel="noli"`, `data-novel="fili"`, `data-novel="both"`).
+2. **Backend Engine (Hugging Face Spaces)**: Provisioned via Gradio SDK (`app_file: space.py`, hardware tier `zero-a10g`). Server supervisor executes Gunicorn with Uvicorn workers to serve the FastAPI application mounted inside `space.py`. Core search routes run on CPU with sub-10ms response times supported by precomputed caches.
+3. **Database (Supabase)**: Managed PostgreSQL 15+ with `pgvector` hosted in Singapore AWS Pooler (`130 MB` live binary database containing 16,402 sentences and 545 themes).
+4. **Precomputed Static Bundles**:
+   - 205 chapter bundles (`backend/app/data/chapter_cache_*.json`, 3.12 MB).
+   - 205 Sanggunian cross-reference bundles (`backend/app/data/sanggunian_cache_*.json`, 6.06 MB).
+   - Vocabulary embedding cache (`backend/app/data/word_vec_cache_v1.pkl`, 73.39 MB, 24,770 words).
+   - **Corpus Fingerprint Verification**: Bundles embed a cryptographic corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, MD5 hash). Verified non-blockingly at startup against Supabase, with automatic fallback to live database calculation on miss or mismatch.
+5. **Keep-Alive Automation**: GitHub Actions workflow (`keepalive.yml`) runs hourly, pinging `GET /health/db` to maintain active database pool connections and prevent free-tier project dormancy.
+
+For detailed deployment architecture and configuration, see [ZERO_COST_DEPLOYMENT.md](./docs/perf/ZERO_COST_DEPLOYMENT.md).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 15 (App Router, Turbopack), Tailwind CSS, Framer Motion, Zustand, React Query, Vercel Web Analytics & Speed Insights
-- **Backend:** FastAPI, Uvicorn, SQLAlchemy, PostgreSQL + `pgvector`, Redis
-- **Machine Learning & NLP:** `sentence-transformers`, fine-tuned domain-adapted `rizal-xlm-r-dapt`, NLTK, spaCy
-- **Cloud Infrastructure:** Vercel (Edge Frontend), Hugging Face Spaces (ZeroGPU Backend), Hugging Face Model Hub (Model Storage), Supabase (Vector Database)
+- **Frontend:** Next.js 16.1.6 (App Router), React 19.2.3, TailwindCSS v4, Framer Motion, Zustand 5, TanStack React Query 5.90.20, Vercel Web Analytics & Speed Insights
+- **Backend:** Python 3.11+, FastAPI 0.109+, Uvicorn 0.27+, SQLAlchemy 2.0+, PostgreSQL + `pgvector`, Redis
+- **Machine Learning & NLP:** `sentence-transformers` 3.3.0, fine-tuned domain-adapted `rizal-xlm-r-dapt`, NLTK, spaCy
+- **Cloud Infrastructure:** Vercel (Edge Frontend), Hugging Face Spaces (zero-a10g Tier Backend), Hugging Face Model Hub (Model Storage), Supabase (Vector Database)
 
 ---
 
@@ -131,7 +132,7 @@ Follow these steps to set up the project on your local machine. This project is 
 ### Prerequisites
 - **Git**
 - **Docker & Docker Compose** (for local PostgreSQL & Redis)
-- **Python 3.12+**
+- **Python 3.11+**
 - **Node.js 18+** & **npm**
 
 ### Option 1: First-Time Setup (Bagong Startup)
@@ -177,12 +178,12 @@ poetry run python scripts/seed_dapt_db.py
 # Precompute word vector cache for fast startup (eliminates slow first request)
 poetry run python scripts/build_word_vec_cache.py
 
-# Start the API server (PYTHONHASHSEED=0 ensures deterministic set ordering across runs)
-export PYTHONHASHSEED=0
-poetry run uvicorn app.main:app --reload
+# Start the API server
+# Note: Determinism across processes is enforced in-memory via deterministic SQL ORDER BY
+# and sorted() tie-breakers (Phase 2 Step B), eliminating the requirement for PYTHONHASHSEED=0.
+poetry run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
-*(On Windows PowerShell, use `$env:PYTHONHASHSEED="0"` before running uvicorn)*  
-*The API will be available at `http://localhost:8000`. Explore the interactive API docs at `http://localhost:8000/docs`.*
+*(The API will be available at `http://127.0.0.1:8000`. Explore the interactive API docs at `http://127.0.0.1:8000/docs`.)*
 
 ![Swagger UI API Documentation](./docs/snapshots/swagger_ui_api.png)
 
@@ -208,8 +209,7 @@ docker-compose up -d
 Open a terminal:
 ```bash
 cd backend
-export PYTHONHASHSEED=0   # PowerShell: $env:PYTHONHASHSEED="0"
-poetry run uvicorn app.main:app --reload
+poetry run uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 #### 3. Start the Frontend

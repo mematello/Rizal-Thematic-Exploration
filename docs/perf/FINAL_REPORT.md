@@ -1,10 +1,18 @@
 # Comprehensive Performance Optimization Report
 
+> [!NOTE]
+> **Historical Archive Notice (2026-10-18)**:
+> This report documents the initial Phase 2 optimization milestone (completed 2026-10-14 on `perf/speed-optimization`). It **predates** Phase 2 Step B (Search Pipeline Determinism), Items A–F, Item B (Keep-Alive), Item C (Sanggunian Optimization), and the subsequent UI modernization and accessibility batches.
+> 
+> Statements in this document regarding `PYTHONHASHSEED=0` and *"No `sorted()` or `ORDER BY` changes applied"* have been **fully superseded** by the approved Phase 2 Step B decisions. The search pipeline now enforces deterministic ordering via explicit SQL `ORDER BY` tie-breakers and in-memory `sorted()` calls, eliminating the requirement for `PYTHONHASHSEED=0` across independent worker processes.
+> 
+> For active architectural decisions, deployment history, and verified production benchmarks, refer to [DECISIONS.md](./DECISIONS.md) and [STATE.md](./STATE.md).
+
 **Project**: Rizal Thematic Explorer  
 **Branch**: `perf/speed-optimization`  
 **Date**: 2026-10-14  
 **Author**: Claude Code (Pair Programming with Marcus Oliver)  
-**Status**: All approved Phase 2 optimizations completed, verified, and benchmarked.
+**Status**: Completed and archived historical report.
 
 ---
 
