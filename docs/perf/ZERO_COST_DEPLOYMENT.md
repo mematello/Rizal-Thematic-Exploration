@@ -14,8 +14,12 @@ This guide details the verified deployment architecture and operational procedur
 | **Precomputed Cache** | Git-tracked static bundles | Baked in repository: `word_vec_cache_v1.pkl` (73.39 MB), 205 chapter bundles (3.12 MB), 205 Sanggunian bundles (6.06 MB) | 24,770 words vocabulary; all 205 chapters & Sanggunian cross-references | Included in repo |
 
 > [!NOTE]
-> **Plan & Quota Verification**:
-> The Hugging Face account (`mematello`) operates on the standard free tier (`isPro: false`, verified via HF API `/api/whoami-v2`). Hardware allocation is set to `zero-a10g` (NVIDIA A10G dynamic ZeroGPU assignment under free community quota). While operating under free allowances, community ZeroGPU usage is subject to dynamic daily quota thresholds and queueing during peak hours. Unqualified "$0.00 / month forever" claims are not guaranteed under third-party terms.
+> **Plan, ZeroGPU Quota & Cost Policy Verification**:
+> - **Account Tier**: The Hugging Face account (`mematello`) operates on the standard free tier (`isPro: false`, **[Verified]** via HF API `/api/users/mematello/overview`, checked 2026-10-18).
+> - **Space Runtime**: The Space API endpoint (`/api/spaces/mematello/rizal-thematic-search-api`) reports `stage: RUNNING`, `hardware: {"current": "zero-a10g", "requested": "zero-a10g"}`, `gcTimeout: 172800`, `replicas: 1` (**[Verified]**). Remaining daily GPU quota seconds are **Not verified via API** as Hugging Face does not expose dynamic user quota balances through public REST endpoints.
+> - **Hugging Face ZeroGPU Documentation**: Official documentation at [https://huggingface.co/docs/hub/spaces-zerogpu](https://huggingface.co/docs/hub/spaces-zerogpu) states:
+>   > *"ZeroGPU Spaces are available to use for free to all users... Free personal accounts: accounts in good standing (verified email, account older than 30 days) can host up to 2 ZeroGPU Spaces for free. PRO users get x8 more daily usage quota, highest priority in GPU queues, and can go beyond their daily quota using pre-paid credits when using any ZeroGPU Spaces."*
+> - **Sustainability Terms**: Zero-cost operation is not guaranteed "forever"; it depends entirely on the current terms of third-party free tiers (Vercel Hobby, Supabase Free, Hugging Face Community ZeroGPU, GitHub Actions public repositories) as verified in October 2026. Because core search routes run on CPU PyTorch with precomputed caches, the engine does not consume dynamic GPU seconds during normal search operation.
 
 ---
 
@@ -26,7 +30,7 @@ Database storage involves three distinct figures measured across development and
 1. **Supabase Production Database**: **130 MB** (135,919,283 bytes, **[Verified]** via `SELECT pg_size_pretty(pg_database_size(current_database()))` on live Supabase pooler).
    - `sentences` table: 117 MB (16,402 rows with 768-dimensional float32 vector embeddings).
    - `themes` table: 2.48 MB (545 themes).
-2. **Local PostgreSQL Database**: **147 MB** (earlier local measurement before database VACUUM / table optimization).
+2. **Local PostgreSQL Database**: **147 MB** (earlier local development measurement).
 3. **Plaintext SQL Dump (`rizal_db_backup.sql`)**: **241.8 MB** (253,554,017 bytes on disk, **[Verified]**).
    - **Cause**: Likely text vs binary vectors. In PostgreSQL binary storage, vector embeddings use compact packed 4-byte IEEE 754 floats. In `pg_dump` plaintext SQL, each 768-dimensional vector is expanded into human-readable ASCII text strings (e.g. `[-0.01234567, 0.04567891, ...]`), inflating data footprint from 4 bytes per float to 12–16 bytes per float.
 
@@ -37,7 +41,7 @@ Database storage involves three distinct figures measured across development and
 ### A. Space Configuration & Runtime
 - **Space Repository**: `https://huggingface.co/spaces/mematello/rizal-thematic-search-api` (Remote: `hf`).
 - **Space SDK**: **Gradio SDK** (`sdk: gradio`, `sdk_version: 5.16.0`, `app_file: space.py` defined in root `README.md` YAML front matter).
-- **Container Entrypoint**: Live server logs show Hugging Face runs **Gunicorn with Uvicorn workers**. Note: The specific launch command is not defined in this repository; it is injected by Hugging Face's official Gradio container supervisor.
+- **Container Entrypoint**: Live server logs show Hugging Face runs **Gunicorn with Uvicorn workers**. Note: The launch command is not found in the repository; it is injected by Hugging Face's official Gradio container supervisor.
 - **Docker Usage**: `backend/Dockerfile` exists in the repository for local containerized development, but **is NOT used by the current Hugging Face Space** (the Space is provisioned via the Gradio SDK).
 - **ZeroGPU Status**: The Space is assigned the `zero-a10g` hardware tier. In `space.py`, only the dummy Gradio interface function `predict()` is decorated with `@spaces.GPU`. The core FastAPI search engine (`engine.py`) operates via **CPU inference** using precomputed embedding caches.
 
@@ -48,14 +52,20 @@ Configured in Space Settings → **Variables and secrets**:
 - `ENVIRONMENT`: `production`
 
 ### C. Rollback Target SHAs on `remotes/hf/main`
-If a backend deployment fails verification, roll back to a known-healthy commit from `remotes/hf/main`:
-- `7fb5667` (Current Active): `feat(keepalive): add /health/db endpoint and register health router`
-- `3117ead`: `feat(perf): configure early logging in main.py to surface cache verification`
-- `4bbc31e`: `fix(sanggunian): deploy line-ending normalized fingerprint verification`
-- `0d123bc`: `feat(sanggunian): deploy precomputed Sanggunian bundles and chapter endpoint with corpus fingerprint verification`
-- `2b15166`: `feat(chapters): deploy precomputed chapter bundles with corpus fingerprint verification and URL sanitization`
-- `007116d`: `feat(chapters): optimize chapters endpoint with LRU cache, context batching, and startup warming`
-- `0b74a1d`: `feat(themes): optimize themes endpoint with LATERAL query, process cache, startup warming, and static fallback`
+Raw output from `git log --oneline remotes/hf/main -10` with descriptions from `DECISIONS.md`:
+
+| Commit SHA | Raw Git Subject Line | What Commit Did (per `DECISIONS.md`) |
+| :---: | :--- | :--- |
+| `7fb5667` | `feat(keepalive): add /health/db endpoint and register health router` | Implemented `GET /health/db` endpoint executing `SELECT 1` on Supabase to enable hourly GitHub Actions keepalive probe (`DECISIONS.md` Item 13 / old 14). |
+| `3117ead` | `feat(perf): configure early logging in main.py to surface cache verification` | Configured early logging (`basicConfig(level=INFO)`) in `main.py` so cache verification diagnostics and miss warnings appear in container stdout (`DECISIONS.md` Item 6 / old 7). |
+| `4bbc31e` | `fix(sanggunian): deploy line-ending normalized fingerprint verification` | Normalized CRLF vs LF line endings in corpus fingerprint hash calculation so bundles built on Windows match Linux container runtime hashes (`DECISIONS.md` Item 12 / old 13). |
+| `0d123bc` | `feat(sanggunian): deploy precomputed Sanggunian bundles and chapter endpoint with corpus fingerprint verification` | Deployed 205 precomputed Sanggunian cross-reference bundles and novel-filtering validation to eliminate ~17s dynamic alignment latency (`DECISIONS.md` Item 12 / old 13). |
+| `2b15166` | `feat(chapters): deploy precomputed chapter bundles with corpus fingerprint verification and URL sanitization` | Deployed 205 precomputed chapter content bundles (`chapter_cache_*.json`) with corpus fingerprint verification and URL sanitization (`DECISIONS.md` Item 6 / old 7). |
+| `007116d` | `feat(chapters): optimize chapters endpoint with LRU cache, context batching, and startup warming` | Added 64-entry LRU cache, batched context fetching (`Sentence.id.in_(...)`), and startup background warming to `/chapters` endpoint (`DECISIONS.md` Item 5). |
+| `0b74a1d` | `feat(themes): optimize themes endpoint with LATERAL query, process cache, startup warming, and static fallback` | Replaced N+1 themes query with single SQL LATERAL join and in-memory process cache (`_themes_cache`), cutting latency from 10.5s to 269ms (`DECISIONS.md` Item 4). |
+| `09cdb41` | `docs: update README with live Vercel link and companion dataset repo` | Synchronized root documentation with live Vercel web application URL and dataset normalization repository. |
+| `0cb0286` | `fix(alignment): defer heavy vector columns and encode with DAPT model` | Deferred heavy vector column loading during text alignment queries and ensured query embeddings encode with fine-tuned DAPT model. |
+| `5bf1969` | `feat(deploy): load fine-tuned DAPT model from mematello/rizal-xlm-r-dapt` | Initial Space deployment loading fine-tuned domain-adapted XLM-RoBERTa model from Hugging Face Hub (`mematello/rizal-xlm-r-dapt`). |
 
 ---
 

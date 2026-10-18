@@ -62,28 +62,31 @@ The system uses three sets of static precomputed caches to ensure sub-10ms respo
 
 1. **Vocabulary Embedding Cache (`backend/app/data/word_vec_cache_v1.pkl`)**:
    - Size: 73.39 MB (24,770 words).
-   - Regeneration script: `backend/scripts/build_word_vec_cache.py`.
+   - Regeneration script: `scripts/build_word_vec_cache.py`.
 2. **Chapter Content Bundles (`backend/app/data/chapter_cache_*.json`)**:
    - 4 bundles covering all 205 chapters across Noli and El Fili (`buod` and `full` modes). Total size: 3.12 MB.
-   - Regeneration script: `backend/scripts/build_chapter_cache.py`.
+   - Regeneration script: `scripts/build_chapter_cache.py`.
 3. **Sanggunian Alignment Bundles (`backend/app/data/sanggunian_cache_*.json`)**:
    - 4 bundles precomputing cross-novel sentence alignments between Buod and Buong Kwento. Total size: 6.06 MB.
-   - Regeneration script: `backend/scripts/build_sanggunian_cache.py`.
+   - Regeneration script: `scripts/build_sanggunian_cache.py`.
 
 ### ⚠️ Critical Invalidation Rules
-- **Rule 1 (Sanggunian Bundles)**: Any change to `backend/app/api/v1/content.py` or `backend/app/core/robust_aligner.py` invalidates the Sanggunian fingerprint and **strictly requires rebuilding the Sanggunian bundles** via `build_sanggunian_cache.py`.
-- **Rule 2 (Chapter Bundles)**: Any change to `backend/app/core/engine.py` (theme classification or context expansion) **strictly requires rebuilding the chapter bundles** via `build_chapter_cache.py`.
+- **Rule 1 (Sanggunian Bundles)**: Any change to `backend/app/api/v1/content.py` or `backend/app/core/robust_aligner.py` invalidates the Sanggunian fingerprint and **strictly requires rebuilding the Sanggunian bundles** via `scripts/build_sanggunian_cache.py`.
+- **Rule 2 (Chapter Bundles)**: Any change to `backend/app/core/engine.py` (theme classification or context expansion) **strictly requires rebuilding the chapter bundles** via `scripts/build_chapter_cache.py`.
 - **Rule 3 (Corpus Fingerprint)**: All bundles embed a cryptographic corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, MD5 hash). At startup, the server verifies this fingerprint against the database. If there is a mismatch, the server logs a warning and falls back safely to live database computation without crashing.
 
 ### How to Regenerate Bundles
 ```bash
+# Run from repository root:
+poetry -C backend run python scripts/build_chapter_cache.py
+poetry -C backend run python scripts/build_sanggunian_cache.py
+poetry -C backend run python scripts/build_word_vec_cache.py
+
+# Or run from backend directory:
 cd backend
-
-# 1. Regenerate Chapter Bundles
-poetry run python scripts/build_chapter_cache.py
-
-# 2. Regenerate Sanggunian Bundles
-poetry run python scripts/build_sanggunian_cache.py
+poetry run python ../scripts/build_chapter_cache.py
+poetry run python ../scripts/build_sanggunian_cache.py
+poetry run python ../scripts/build_word_vec_cache.py
 ```
 
 ---
@@ -104,11 +107,11 @@ To support multi-novel styling, backdrop rotation, and dark mode theming, the ap
 
 ## 5. Scripts Inventory & Tooling
 
-All utility and verification scripts reside in `backend/scripts/` or `scratch/`:
+All utility and verification scripts reside in `scripts/`, `backend/scripts/`, or `scratch/`:
 
-- **`backend/scripts/build_chapter_cache.py`**: Precomputes all 205 chapter JSON files with embedded corpus fingerprint.
-- **`backend/scripts/build_sanggunian_cache.py`**: Precomputes all 205 Sanggunian cross-reference alignment JSON files.
-- **`backend/scripts/build_word_vec_cache.py`**: Precomputes float32 embeddings for 24,770 Tagalog candidate words.
+- **`scripts/build_chapter_cache.py`**: Precomputes all 205 chapter JSON files with embedded corpus fingerprint.
+- **`scripts/build_sanggunian_cache.py`**: Precomputes all 205 Sanggunian cross-reference alignment JSON files.
+- **`scripts/build_word_vec_cache.py`**: Precomputes float32 embeddings for 24,770 Tagalog candidate words.
 - **`scripts/benchmark.py`**: Automated benchmark runner executing 10 runs across all 40 golden queries (`python scripts/benchmark.py --help`).
 - **`scripts/compare_golden.py`**: Deep comparator checking snapshot output against reference snapshot (`python scripts/compare_golden.py <new_snapshot.json> <golden_snapshot_deterministic.json>`).
 - **`scripts/fetch_snapshot.py`**: Fetches fresh search results for all 40 golden queries from running server (`python scripts/fetch_snapshot.py <output_file.json> [port]`).
