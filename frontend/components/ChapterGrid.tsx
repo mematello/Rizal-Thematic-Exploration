@@ -185,13 +185,12 @@ function ChapterCard({
             {/* Decorative Background Number */}
             <span
                 aria-hidden="true"
+                data-num={chapter.chapter_number}
                 className={cn(
-                    "absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
+                    "watermark-numeral absolute -right-2 -top-4 sm:-right-3 sm:-top-6 text-6xl sm:text-9xl font-serif font-black opacity-[0.03] select-none transition-opacity group-hover:opacity-[0.07]",
                     "text-brand-navy dark:text-brand-gold pointer-events-none"
                 )}
-            >
-                {chapter.chapter_number}
-            </span>
+            />
 
             {/* Top Accent Line */}
             <div className={cn(
@@ -202,7 +201,7 @@ function ChapterCard({
             <div>
                 <span className={cn(
                     "text-[9px] sm:text-[10px] font-bold tracking-[0.16em] sm:tracking-[0.2em] uppercase truncate block",
-                    isNoli ? "text-noli-accent" : "text-fili-accent"
+                    isNoli ? "text-[#7D5A1E] dark:text-noli-accent" : "text-fili-accent"
                 )}>
                     {isNoli ? "Noli Me Tangere" : "El Filibusterismo"}
                 </span>

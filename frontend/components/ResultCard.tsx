@@ -68,7 +68,7 @@ export function ResultCard({
                 {/* Line 1: Kabanata N + Optional Novel Badge (if novel=both) + Confidence Badge */}
                 <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
-                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-brand-navy/70 dark:text-brand-gold">
+                        <span className="font-serif font-bold text-xs uppercase tracking-wider text-brand-navy/85 dark:text-brand-gold">
                             Kabanata {chapter}
                         </span>
                         {showNovelBadge && (
@@ -78,7 +78,7 @@ export function ResultCard({
                         )}
                     </div>
                     {confidenceBadge && (
-                        <span className="shrink-0 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide bg-brand-gold/10 text-brand-gold border border-brand-gold/20">
+                        <span className="shrink-0 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide bg-brand-gold/10 text-[#7D5A1E] dark:text-brand-gold border border-brand-gold/20">
                             Mataas
                         </span>
                     )}

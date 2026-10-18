@@ -40,10 +40,10 @@ const MobilePillNav = memo(function MobilePillNav({
   return (
     <div className="flex flex-col w-full max-w-full min-w-0">
       <div className="flex items-center justify-between mb-2 w-full">
-        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/60 font-serif">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-text/80 dark:text-foreground/80 font-serif">
           {label}
         </span>
-        <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold font-serif">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-[#7D5A1E] dark:text-brand-gold font-serif">
           Piliin ang Saklaw
         </span>
       </div>
@@ -573,7 +573,7 @@ export function ChapterSidebar({ novel, children }: ChapterSidebarProps) {
               aria-label="Mga grupo ng kabanata"
               className="sticky top-[calc(var(--header-height,72px)+1.5rem)] max-h-[calc(100dvh-var(--header-height,72px)-3rem)] flex flex-col space-y-3"
             >
-              <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-brand-text/40 px-2 font-serif">
+              <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-brand-text/80 dark:text-foreground/80 px-2 font-serif">
                 {label}
               </p>
 

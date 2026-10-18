@@ -67,7 +67,7 @@ export function ContentTabs({ activeTab, onTabChange }: ContentTabsProps) {
                 "relative min-h-[44px] px-2 sm:px-4 py-2 flex items-center justify-center font-serif tracking-[0.08em] transition-all duration-300 uppercase text-xs sm:text-sm font-bold active:scale-95 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-lg sm:rounded-none",
                 isActive
                   ? "bg-brand-navy text-white shadow-sm dark:bg-brand-gold dark:text-[#0F141C] sm:bg-transparent sm:dark:bg-transparent sm:text-brand-navy sm:dark:text-brand-gold sm:font-black sm:shadow-none"
-                  : "text-brand-text/60 dark:text-foreground/70 hover:text-brand-navy dark:hover:text-brand-gold"
+                  : "text-brand-text/80 dark:text-foreground/80 hover:text-brand-navy dark:hover:text-brand-gold"
               )}
             >
               <span className="truncate">{tab.label}</span>

@@ -394,7 +394,7 @@ function SearchContent() {
                             {/* Header row in mobile drawer */}
                             <div className="flex items-center justify-between pb-3 border-b border-brand-gold/20">
                                 <span className="font-serif font-bold text-base tracking-wider text-brand-navy dark:text-foreground">
-                                    RIZAL<span className="text-brand-gold ml-1">ENGINE</span>
+                                    RIZAL<span className="text-[#7D5A1E] dark:text-brand-gold ml-1">ENGINE</span>
                                 </span>
                                 <button
                                     type="button"

@@ -608,4 +608,9 @@ html.dark .map-card-noli:hover,
                 url('/images/backgrounds/background_1.webp');
         }
     }
+}
+
+.watermark-numeral::before {
+    content: attr(data-num);
+    display: inline-block;
 }

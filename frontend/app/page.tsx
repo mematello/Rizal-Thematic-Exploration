@@ -306,7 +306,7 @@ export default function Home() {
               {/* Header row in mobile drawer */}
               <div className="flex items-center justify-between pb-3 border-b border-brand-gold/20">
                 <span className="font-serif font-bold text-base tracking-wider text-brand-navy dark:text-foreground">
-                  RIZAL<span className="text-brand-gold ml-1">ENGINE</span>
+                  RIZAL<span className="text-[#7D5A1E] dark:text-brand-gold ml-1">ENGINE</span>
                 </span>
                 <button
                   type="button"
@@ -412,7 +412,7 @@ export default function Home() {
       <div className="w-full max-w-7xl mx-auto px-4 mt-6 sm:mt-8 min-w-0">
         {/* Mobile Novel Switcher: Top to bottom on mobile: Header -> Novel Toggle -> ContentTabs -> Sticky Kabanata pill row */}
         <div className="flex md:hidden items-center justify-between gap-3 mb-4 max-w-xl mx-auto px-2 relative z-40">
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text/60 font-serif">
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-text/80 dark:text-foreground/80 font-serif">
             Piling Nobela
           </span>
           <NovelToggle selected={novel} onSelect={setNovel} />

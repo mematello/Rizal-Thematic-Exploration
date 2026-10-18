@@ -571,7 +571,7 @@ export function ChapterModal({
 
     const isNoli = book.toLowerCase() === "noli";
     const modalNovel = isNoli ? 'noli' : 'fili';
-    const accentColor = isNoli ? "text-noli-accent" : "text-fili-accent";
+    const accentColor = isNoli ? "text-[#7D5A1E] dark:text-noli-accent" : "text-fili-accent";
 
     const NOLI_CHAPTERS = 64;
     const FILI_CHAPTERS = 39;
@@ -776,8 +776,8 @@ export function ChapterModal({
                             {!isFullscreen && (
                                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:p-4 bg-brand-cream/50 dark:bg-[var(--modal-sub-bar-bg)] border-b border-brand-gold/10 dark:border-[var(--modal-border)] items-start sm:items-center justify-between">
                                     <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full py-0.5">
-                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
-                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-gold text-[#1B263B] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}>
+                                        <button type="button" onClick={() => setShowCharacters(!showCharacters)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showCharacters ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}><Users size={16} /><span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Tauhan</span></button>
+                                        <button type="button" onClick={() => setShowReference(!showReference)} className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg sm:rounded-md transition-all whitespace-nowrap active:scale-95 ${showReference ? 'bg-brand-navy text-white dark:bg-brand-gold dark:text-[#0F141C] font-bold shadow-sm' : 'bg-white/70 dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground/80 hover:bg-brand-gold/20 dark:hover:bg-brand-gold/20'}`}>
                                             <BookOpen size={16} />
                                             <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Sanggunian</span>
                                             {showReference && isFullInverseLoading && (
@@ -1054,9 +1054,9 @@ export function ChapterModal({
                                             <h2 className="text-xl sm:text-2xl font-serif text-brand-navy dark:text-foreground font-bold">Kaugnay na Sanggunian</h2>
                                             <p className="text-sm sm:text-lg text-brand-text dark:text-brand-text-muted">{isNoli ? "Noli Me Tangere" : "El Filibusterismo"} · Kabanata {chapterNumber}</p>
                                             <div className="flex items-center justify-center gap-2 pt-1 sm:pt-2">
-                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy dark:bg-brand-gold text-white dark:text-brand-navy text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
-                                                <span className="text-brand-gold">→</span>
-                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-gold text-white dark:text-brand-navy text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy dark:bg-brand-gold text-white dark:text-[#0F141C] text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Mula sa {mode === 'buod' ? 'Buod' : 'Buong Kwento'}</span>
+                                                <span className="text-brand-navy dark:text-brand-gold">→</span>
+                                                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-brand-navy dark:bg-brand-gold text-white dark:text-[#0F141C] text-[9px] sm:text-[10px] font-bold uppercase rounded-full">Patungo sa {mode === 'buod' ? 'Buong Kwento' : 'Buod'}</span>
                                             </div>
                                             <button type="button" onClick={() => { setRefFullscreen(false); setSelectedSentenceForRef(null); setSelectedReference(null); setSelectedSourceSentence(null); setSelectedFullMatches(null); }} className="absolute top-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 rounded-full text-brand-navy dark:text-brand-gold transition-all" aria-label="Isara ang sanggunian"><X size={22} /></button>
                                         </div>
@@ -1083,7 +1083,7 @@ export function ChapterModal({
                                         </div>
 
                                         {/* Directional Connector */}
-                                        <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-gold/80 px-2">
+                                        <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#7D5A1E] dark:text-brand-gold px-2">
                                             <div className="h-px bg-brand-gold/20 flex-1" />
                                             <span>Nahanap na Katugma</span>
                                             <div className="h-px bg-brand-gold/20 flex-1" />
@@ -1154,7 +1154,7 @@ export function ChapterModal({
                                                                     char={match.char_score === undefined || match.char_score === -1 ? -1 : Math.round(match.char_score * 100)}
                                                                     ratio={match.ratio_score !== undefined ? Math.round(match.ratio_score * 100) : 0}
                                                                 />
-                                                                <p className="text-[10px] text-brand-text/50 leading-relaxed italic">
+                                                                <p className="text-[10px] text-brand-text/80 dark:text-foreground/80 leading-relaxed italic">
                                                                     Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                                 </p>
                                                             </div>
@@ -1215,7 +1215,7 @@ export function ChapterModal({
                                                         char={selectedReference.char_score === -1 ? -1 : Math.round(selectedReference.char_score * 100)}
                                                         ratio={Math.round(selectedReference.ratio_score * 100)}
                                                     />
-                                                    <p className="text-[10px] text-brand-text/50 dark:text-brand-text-muted leading-relaxed italic">
+                                                    <p className="text-[10px] text-brand-text/80 dark:text-foreground/80 leading-relaxed italic">
                                                         Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                     </p>
                                                 </div>
@@ -1300,7 +1300,7 @@ export function ChapterModal({
                                                                         ratio={match.ratio_score !== undefined ? Math.round(match.ratio_score * 100) : 0}
                                                                     />
                                                                     
-                                                                    <p className="text-[10px] text-brand-text/40 dark:text-brand-text-muted leading-relaxed italic mt-4">
+                                                                    <p className="text-[10px] text-brand-text/80 dark:text-foreground/80 leading-relaxed italic mt-4">
                                                                         Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                                     </p>
                                                                 </div>
@@ -1361,11 +1361,11 @@ export function ChapterModal({
                                                             ratio={Math.round(selectedReference.ratio_score * 100)}
                                                         />
                                                         
-                                                        <p className="text-[10px] text-brand-text/40 dark:text-brand-text-muted leading-relaxed italic mt-4">
+                                                        <p className="text-[10px] text-brand-text/80 dark:text-foreground/80 leading-relaxed italic mt-4">
                                                             Ang porsyento ay kalkulado gamit ang Hybrid Scoring: 40% Kahulugan, 40% Salita, 10% Tauhan, at 10% Posisyon.
                                                         </p>
                                                     </div>
-                                                    <div className="pt-6 border-t border-brand-gold/10 dark:border-[var(--modal-border)]"><p className="text-xs text-brand-text/50 dark:text-brand-text-muted leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
+                                                    <div className="pt-6 border-t border-brand-gold/10 dark:border-[var(--modal-border)]"><p className="text-xs text-brand-text/80 dark:text-foreground/80 leading-relaxed italic">Ang resultang ito ay nabuo sa pamamagitan ng Triple-Signal Segmentation at Hybrid Scoring na may Dynamic Position Window.</p></div>
                                                 </div>
                                             )}
                                         </div>
