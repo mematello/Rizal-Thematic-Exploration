@@ -1197,7 +1197,7 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 4. **Production Verification on https://rizalengine.vercel.app**:
    - 16-configuration matrix tested (Chromium & WebKit, 390px & 1440px, light & dark, Noli & Fili).
    - Console errors: **0** across all 16 configurations.
-   - Axe violations on `#tabpanel-themes`: **0** across all 16 configurations.
+   - Axe violations on `#tabpanel-themes`: **0** across all 16 configurations (Raw evidence: `docs/perf/evidence/production_theme_verification.json`).
    - Actual clientWidth reported: 390px (Chromium 390), 382px (WebKit 390), 1440px (Chromium 1440), 1432px (WebKit 1440).
 
 **Verification Claims (Verified / Not verified)**:

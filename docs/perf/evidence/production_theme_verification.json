@@ -1,0 +1,338 @@
+[
+  {
+    "browser": "chromium",
+    "viewport_width": 390,
+    "client_width": 390,
+    "theme": "dark",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgb(26, 12, 14)",
+      "cardBorder": "rgba(224, 108, 117, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.670858 0.138456 0.0423276 / 0.15)",
+      "badgeColor": "rgb(224, 108, 117)",
+      "descColor": "rgb(191, 160, 162)",
+      "linkColor": "rgb(224, 108, 117)",
+      "watermarkColor": "rgb(224, 108, 117)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 390,
+    "client_width": 390,
+    "theme": "light",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.85)",
+      "cardBorder": "oklab(0.441624 0.118957 0.0533991 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)",
+      "badgeBg": "oklab(0.441624 0.118957 0.0533991 / 0.1)",
+      "badgeColor": "rgb(141, 45, 45)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "rgb(141, 45, 45)",
+      "watermarkColor": "rgb(44, 24, 16)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 390,
+    "client_width": 390,
+    "theme": "dark",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "rgba(232, 201, 122, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "badgeColor": "rgb(197, 160, 101)",
+      "descColor": "rgb(155, 168, 186)",
+      "linkColor": "rgb(197, 160, 101)",
+      "watermarkColor": "rgb(197, 160, 101)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 390,
+    "client_width": 390,
+    "theme": "light",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.9)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "titleColor": "rgb(27, 38, 59)",
+      "badgeBg": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "badgeColor": "rgb(125, 90, 30)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "oklab(0.269147 -0.00537246 -0.0420122 / 0.8)",
+      "watermarkColor": "rgb(27, 38, 59)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 1440,
+    "client_width": 1440,
+    "theme": "dark",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgb(26, 12, 14)",
+      "cardBorder": "rgba(224, 108, 117, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.670858 0.138456 0.0423276 / 0.15)",
+      "badgeColor": "rgb(224, 108, 117)",
+      "descColor": "rgb(191, 160, 162)",
+      "linkColor": "rgb(224, 108, 117)",
+      "watermarkColor": "rgb(224, 108, 117)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 1440,
+    "client_width": 1440,
+    "theme": "light",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.85)",
+      "cardBorder": "oklab(0.441624 0.118957 0.0533991 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)",
+      "badgeBg": "oklab(0.441624 0.118957 0.0533991 / 0.1)",
+      "badgeColor": "rgb(141, 45, 45)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "rgb(141, 45, 45)",
+      "watermarkColor": "rgb(44, 24, 16)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 1440,
+    "client_width": 1440,
+    "theme": "dark",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "rgba(232, 201, 122, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "badgeColor": "rgb(197, 160, 101)",
+      "descColor": "rgb(155, 168, 186)",
+      "linkColor": "rgb(197, 160, 101)",
+      "watermarkColor": "rgb(197, 160, 101)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "chromium",
+    "viewport_width": 1440,
+    "client_width": 1440,
+    "theme": "light",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.9)",
+      "cardBorder": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "titleColor": "rgb(27, 38, 59)",
+      "badgeBg": "oklab(0.726334 0.0178724 0.0865487 / 0.1)",
+      "badgeColor": "rgb(125, 90, 30)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "oklab(0.269147 -0.00537246 -0.0420122 / 0.8)",
+      "watermarkColor": "rgb(27, 38, 59)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 390,
+    "client_width": 382,
+    "theme": "dark",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgb(26, 12, 14)",
+      "cardBorder": "rgba(224, 108, 117, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.670858 0.138456 0.042328 / 0.15)",
+      "badgeColor": "rgb(224, 108, 117)",
+      "descColor": "rgb(191, 160, 162)",
+      "linkColor": "rgb(224, 108, 117)",
+      "watermarkColor": "rgb(224, 108, 117)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 390,
+    "client_width": 382,
+    "theme": "light",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.85)",
+      "cardBorder": "oklab(0.441624 0.118957 0.053399 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)",
+      "badgeBg": "oklab(0.441624 0.118957 0.053399 / 0.1)",
+      "badgeColor": "rgb(141, 45, 45)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "rgb(141, 45, 45)",
+      "watermarkColor": "rgb(44, 24, 16)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 390,
+    "client_width": 382,
+    "theme": "dark",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "rgba(232, 201, 122, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "badgeColor": "rgb(197, 160, 101)",
+      "descColor": "rgb(155, 168, 186)",
+      "linkColor": "rgb(197, 160, 101)",
+      "watermarkColor": "rgb(197, 160, 101)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 390,
+    "client_width": 382,
+    "theme": "light",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.9)",
+      "cardBorder": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "titleColor": "rgb(27, 38, 59)",
+      "badgeBg": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "badgeColor": "rgb(125, 90, 30)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "oklab(0.269151 -0.005384 -0.042018 / 0.8)",
+      "watermarkColor": "rgb(27, 38, 59)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 1440,
+    "client_width": 1432,
+    "theme": "dark",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgb(26, 12, 14)",
+      "cardBorder": "rgba(224, 108, 117, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.670858 0.138456 0.042328 / 0.15)",
+      "badgeColor": "rgb(224, 108, 117)",
+      "descColor": "rgb(191, 160, 162)",
+      "linkColor": "rgb(224, 108, 117)",
+      "watermarkColor": "rgb(224, 108, 117)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 1440,
+    "client_width": 1432,
+    "theme": "light",
+    "novel": "fili",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.85)",
+      "cardBorder": "oklab(0.441624 0.118957 0.053399 / 0.15)",
+      "titleColor": "rgb(44, 24, 16)",
+      "badgeBg": "oklab(0.441624 0.118957 0.053399 / 0.1)",
+      "badgeColor": "rgb(141, 45, 45)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "rgb(141, 45, 45)",
+      "watermarkColor": "rgb(44, 24, 16)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 1440,
+    "client_width": 1432,
+    "theme": "dark",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgb(24, 32, 44)",
+      "cardBorder": "rgba(232, 201, 122, 0.25)",
+      "titleColor": "rgb(240, 244, 248)",
+      "badgeBg": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "badgeColor": "rgb(197, 160, 101)",
+      "descColor": "rgb(155, 168, 186)",
+      "linkColor": "rgb(197, 160, 101)",
+      "watermarkColor": "rgb(197, 160, 101)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  },
+  {
+    "browser": "webkit",
+    "viewport_width": 1440,
+    "client_width": 1432,
+    "theme": "light",
+    "novel": "noli",
+    "computed": {
+      "cardBg": "rgba(255, 255, 255, 0.9)",
+      "cardBorder": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "titleColor": "rgb(27, 38, 59)",
+      "badgeBg": "oklab(0.726334 0.017839 0.086537 / 0.1)",
+      "badgeColor": "rgb(125, 90, 30)",
+      "descColor": "rgb(90, 90, 90)",
+      "linkColor": "oklab(0.269151 -0.005384 -0.042018 / 0.8)",
+      "watermarkColor": "rgb(27, 38, 59)"
+    },
+    "console_errors_count": 0,
+    "console_errors": [],
+    "axe_violations_count": 0,
+    "axe_violations": []
+  }
+]

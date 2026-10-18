@@ -20,7 +20,11 @@ This guide details the verified deployment architecture and operational procedur
 > - **Hugging Face ZeroGPU Documentation**: Official documentation at [https://huggingface.co/docs/hub/spaces-zerogpu](https://huggingface.co/docs/hub/spaces-zerogpu) states:
 >   > *"ZeroGPU Spaces are available to use for free to all users... Free personal accounts: accounts in good standing (verified email, account older than 30 days) can host up to 2 ZeroGPU Spaces for free. PRO users get x8 more daily usage quota, highest priority in GPU queues, and can go beyond their daily quota using pre-paid credits when using any ZeroGPU Spaces."*
 > - **Sustainability Terms**: Zero-cost operation is not guaranteed "forever"; it depends entirely on the current terms of third-party free tiers (Vercel Hobby, Supabase Free, Hugging Face Community ZeroGPU, GitHub Actions public repositories) as verified in October 2026. Because core search routes run on CPU PyTorch with precomputed caches, the engine does not consume dynamic GPU seconds during normal search operation.
-> - **Keepalive Automation**: The GitHub Actions workflow (`.github/workflows/keepalive.yml`) is configured to run every 30 minutes (`cron: "*/30 * * * *"`). Two manual `workflow_dispatch` runs have been verified (`2026-10-17T15:44:46Z`, `2026-10-17T22:07:43Z`). The Actions tab confirms 9 scheduled runs have executed successfully between `2026-10-17T17:53:30Z` and `2026-10-18T18:44:42Z` (subject to standard GitHub Actions cron queuing intervals).
+> - **Keepalive Automation**: The GitHub Actions workflow (`.github/workflows/keepalive.yml`) is configured with `cron: "*/30 * * * *"`. GitHub throttled `*/30` scheduling; measured gaps between the 9 successful scheduled runs (`2026-10-17T17:53:30Z` to `2026-10-18T18:44:42Z`) are:
+>   - **Min gap**: 105.8 min (1.76 h)
+>   - **Median gap**: 160.5 min (2.68 h)
+>   - **Max gap**: 302.4 min (5.04 h)
+>   Do not claim 30-minute intervals. The throttled ~1.8h to ~5.0h interval is nonetheless sufficient to prevent Hugging Face 48h sleep and Supabase 7-day pause. Two manual `workflow_dispatch` runs have also been verified (`2026-10-17T15:44:46Z`, `2026-10-17T22:07:43Z`, **[Verified]**).
 
 ---
 
@@ -53,6 +57,14 @@ Configured in Space Settings → **Variables and secrets**:
 - `ENVIRONMENT`: `production`
 
 ### C. Rollback Target SHAs on `remotes/hf/main`
+
+- **Raw `git log -1 --oneline remotes/hf/main`**:
+  ```text
+  7fb5667 feat(keepalive): add /health/db endpoint and register health router
+  ```
+- **Current Production SHA (`remotes/hf/main`)**: `7fb5667d4b622f98dc9095eb0370c2d488f5af27`
+- **Rollback Target SHA**: `3117ead` (Item C / Gate 3)
+
 Raw output from `git log --oneline remotes/hf/main -10` with descriptions traced directly from `DECISIONS.md` and evidence files:
 
 | Commit SHA | Raw Git Subject Line | Traced Action (per `DECISIONS.md` & code diff) |
@@ -72,6 +84,16 @@ Raw output from `git log --oneline remotes/hf/main -10` with descriptions traced
 
 ## 4. Frontend Deployment (Vercel)
 
+- **Production Coordinates**:
+  - `git rev-parse origin/main`: `6a5bf2e3ed31d030104e747040ce467309ac5233`
+  - `git log -3 --oneline origin/main`:
+    ```text
+    6a5bf2e fix(theme-cards): apply novel-specific tokens for Fili dark theme cards
+    cffec85 fix(a11y): eliminate decorative watermark text nodes and resolve remaining text contrast to reach 0 violations across 92 contexts
+    eed5d8e docs(perf): add post-fix a11y preview evidence JSON
+    ```
+  - **`main` before theme-cards merge**: `cffec8516aefb71b32fa215128a47e6b0daa6747` (Rollback Target SHA)
+  - **`main` after theme-cards merge**: `6a5bf2e3ed31d030104e747040ce467309ac5233` (Current Production SHA)
 - **Framework**: Next.js 16.1.6 (React 19.2.3, TailwindCSS v4, React Query v5.90.20)
 - **Root Directory**: `frontend`
 - **Build Command**: `npm run build` (`next build --webpack`)

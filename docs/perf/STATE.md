@@ -9,12 +9,23 @@
 ## 1. Production Deployment Coordinates
 
 - **Frontend UI**: [https://rizalengine.vercel.app](https://rizalengine.vercel.app)
-  - Production Commit (`origin/main`): `6a5bf2e3ed31d030104e747040ce467309ac5233`
-  - Rollback Target SHA: `cffec8516aefb71b32fa215128a47e6b0daa6747`
+  - `git rev-parse origin/main`: `6a5bf2e3ed31d030104e747040ce467309ac5233`
+  - `git log -3 --oneline origin/main`:
+    ```text
+    6a5bf2e fix(theme-cards): apply novel-specific tokens for Fili dark theme cards
+    cffec85 fix(a11y): eliminate decorative watermark text nodes and resolve remaining text contrast to reach 0 violations across 92 contexts
+    eed5d8e docs(perf): add post-fix a11y preview evidence JSON
+    ```
+  - **`main` before theme-cards merge**: `cffec8516aefb71b32fa215128a47e6b0daa6747` (Rollback Target SHA)
+  - **`main` after theme-cards merge**: `6a5bf2e3ed31d030104e747040ce467309ac5233` (Current Production SHA)
   - Stack: Next.js 16.1.6, React 19.2.3, TailwindCSS v4, React Query v5.90.20
 - **Backend API**: [https://mematello-rizal-thematic-search-api.hf.space](https://mematello-rizal-thematic-search-api.hf.space)
+  - `git log -1 --oneline remotes/hf/main`:
+    ```text
+    7fb5667 feat(keepalive): add /health/db endpoint and register health router
+    ```
   - Production Commit (`remotes/hf/main`): `7fb5667d4b622f98dc9095eb0370c2d488f5af27`
-  - Rollback Target SHA: `3117ead`
+  - Rollback Target SHA: `3117ead` (Item C / Gate 3)
   - Runtime: Hugging Face Spaces (`sdk: gradio`, `app_file: space.py`, hardware tier `zero-a10g`, 1 worker)
   - Stack: FastAPI 0.109+, PyTorch, sentence-transformers 3.3.0, Uvicorn 0.27+
 - **Database**: Supabase Singapore AWS Pooler (PostgreSQL 15+ with `pgvector`)
@@ -43,13 +54,17 @@
     ```
 - **DevOps & Availability (Item B)**:
   - Added dedicated `/health/db` connectivity probe endpoint using `NullPool` and 5 s timeouts (`DECISIONS.md` Item 14).
-  - Automated GitHub Actions `keepalive.yml` workflow configured to run every 30 minutes (`cron: "*/30 * * * *"`). Two manual `workflow_dispatch` runs verified (`2026-10-17T15:44:46Z`, `2026-10-17T22:07:43Z`). Actions tab confirms 9 scheduled runs executed successfully between `2026-10-17T17:53:30Z` and `2026-10-18T18:44:42Z` (**[Verified]**, `DECISIONS.md` Item 14).
+  - Automated GitHub Actions `keepalive.yml` workflow configured with `cron: "*/30 * * * *"`. GitHub throttled `*/30` scheduling; measured gaps between the 9 successful scheduled runs (`2026-10-17T17:53:30Z` to `2026-10-18T18:44:42Z`) are:
+    - **Min gap**: 105.8 min (1.76 h)
+    - **Median gap**: 160.5 min (2.68 h)
+    - **Max gap**: 302.4 min (5.04 h)
+    (Sufficient to prevent 48h HF sleep and 7-day Supabase pause; 2 manual runs also verified at `2026-10-17T15:44:46Z` and `2026-10-17T22:07:43Z`, **[Verified]**, `DECISIONS.md` Item 14).
 - **UI Modernization & Responsive Viewports**:
   - Fullscreen reading canvas, mobile drawer outside header blur, edge-to-edge sticky pill breakout, sub-header icon collapse, and Sanggunian Inverse view (`feat/sanggunian-inverse`) (**[Verified]**, `DECISIONS.md` Items 9, 10, 15, 16, 17).
 - **Design System, Dark Mode & Accessibility (Item F, A11y Batch, Fili Dark)**:
   - Decorative watermark numerals converted to CSS pseudo-elements (`.watermark-numeral::before`), dropping axe violations from 692 to 0. Color contrast tightened to $\ge 4.5:1$ across all theme elements (`DECISIONS.md` Item 11 & Item 18).
   - **92-Context Accessibility Matrix**: Scanned across Home, Search, Drawer, Modal, and Sanggunian on `fix/a11y-axe` preview: **0 axe violations** (Evidence: `docs/perf/evidence/a11y_preview_raw.json`).
-  - **16-Configuration Themes Tab Matrix**: Scanned live production across Chromium/WebKit, 390px/1440px, light/dark, Noli/Fili: **0 console errors**, **0 axe violations** (Evidence: `scratch/production_theme_verification.json`, `DECISIONS.md` Item 19).
+  - **16-Configuration Themes Tab Matrix**: Scanned live production across Chromium/WebKit, 390px/1440px, light/dark, Noli/Fili: **0 console errors**, **0 axe violations** (Evidence: `docs/perf/evidence/production_theme_verification.json`, `DECISIONS.md` Item 19).
   - Per-novel token family (`--theme-card-*`, `--map-card-*`, `--modal-*`) implemented in `globals.css` for Noli, Fili (`#1A0C0E` wine/charcoal surface + rose-gold accents), and Both.
 
 ---
