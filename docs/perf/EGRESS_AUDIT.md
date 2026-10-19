@@ -238,7 +238,27 @@ To verify that Option C successfully keeps Supabase egress safely under the 5.00
 
 ---
 
-## 10. Conclusion & Operational Decision
+## 10. Non-Script Production Traffic (Unguarded Surface)
+
+The safeguards deployed in `scripts/prod_guard.py` protect developer scripts, offline benchmarks, and automated test suites. They do NOT (and by design cannot) block live production traffic, which includes:
+
+1. **Live Backend on Hugging Face Spaces (`mematello-rizal-thematic-search-api.hf.space`)**:
+   - Production FastAPI runtime connects to Supabase via `DATABASE_URL` configured in HF Space Secrets.
+   - Executes live search queries (`/api/v1/search`), fetching candidate rows and expanding context intervals.
+   - *Egress rate*: ~3.88 MB per lexical search, ~5.84–6.09 MB per semantic fallback search **[Estimated]**.
+2. **GitHub Actions Keepalive Probes (`.github/workflows/keepalive.yml`)**:
+   - Automated workflow executing every ~2–5 hours to prevent HF Space inactivity sleep (48h threshold) and Supabase database pausing (7-day threshold).
+   - Hits `/health` and `/health/db`. The `/health/db` endpoint executes:
+     `SELECT 1 FROM sentences LIMIT 1`
+   - *Egress rate per probe*: Transmits a single integer (`1`) plus standard PostgreSQL protocol packet headers: **~60 to 100 bytes per probe [Estimated]**.
+   - *Cumulative monthly egress*: Over 30 days (~10–15 scheduled runs/day = ~300–450 probes/month), cumulative keepalive egress is **< 0.05 MB / month [Estimated]** (negligible against the 5.00 GB quota).
+3. **Manual Browsing & Live Site Testing (`https://rizalengine.vercel.app`)**:
+   - Chapter reading: 100% served from precomputed static JSON bundles (`chapter_cache_*.json`), consuming **0 bytes** of Supabase egress during normal chapter viewing.
+   - Search exploration: Searches issued on the live web UI invoke the live backend on HF Space, consuming the standard ~3.88–6.09 MB per query **[Estimated]**.
+
+---
+
+## 11. Conclusion & Operational Decision
 
 1. **Decision Executed**: Option C adopted exclusively. All 109+ active developer and verification scripts connecting to Postgres or reading `sentences` are safeguarded with `prod_guard.py`.
 2. **Runtime Code Preserved**: `git diff main -- backend/app` is strictly **EMPTY**.

@@ -1227,13 +1227,35 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   - *Decision = Option C*: All 109+ DB-connecting scripts in the repository now enforce `prod_guard.py` to prevent unintentional queries against production Supabase. Development, benchmarking, and verification occur 100% locally against PostgreSQL on port 5433 with bit-identical corpus metrics.
   - *Options A & B Deferred*: Option A (search LRU cache in `search.py`) and Option B (defer vector columns in `engine.py`) are **deferred**, to be reconsidered only if egress stays near the 5.00 GB free quota after dev traffic ceases.
   - *No Runtime Code Changes*: `git diff main -- backend/app` is strictly **EMPTY**.
+- **Audit Findings & Follow-up Verification (Resolved 2026-10-19)**:
+  1. *MD5 Fingerprint Analysis*:
+     - Both `restore_and_validate_local_db.py` and `build_chapter_cache.py` / `content.py` compute fingerprints identically via SQL:
+       `(SELECT md5(string_agg(sentence_text, '' ORDER BY id)) FROM sentences)`
+       `(SELECT md5(string_agg(tagalog_title || ':' || coalesce(meaning, ''), '' ORDER BY id)) FROM themes)`
+     - Local database restored from `rizal_db_backup.sql` produces sentence MD5 `b534a1d2802ddfcac14110e86370917f` and theme MD5 `8644e62684a1572ce3d7d82f5531a483` **[Measured]**.
+     - Production Supabase values recorded in bundles (generated 2026-10-16 13:49 UTC) are `e438ce3f61098624121329cd5a20f9a2` and `cd87434aff5cd54a775ee7b4ef60b056` **[Measured]**.
+     - Parsing `rizal_db_backup.sql` directly confirms the dump itself contains the exact text producing `b534a1...` and `8644e6...` **[Measured]**. The dump (mtime 2026-10-16 02:43 UTC) represents a slightly earlier state than production Supabase.
+     - *Implication*: Local database cannot be used to generate production chapter bundles because `verify_corpus_fingerprint` in `content.py` will detect the mismatch and disable the static cache. Bundles must be generated against production (using `--allow-prod`) or a fresh production dump pulled **[Inferred]**. Local DB remains 100% valid for search ranking benchmarks and local test suites.
+  2. *Guard Behavior in Real Scripts*:
+     - `explain_queries.py` and `backend/scripts/inspect_db.py` tested under local and production `DATABASE_URL`.
+     - Local Postgres (port 5433): Script starts normally, guard passes, executes queries locally, exits with status 0 **[Measured]**.
+     - Supabase URL: Guard intercepts immediately, prints target host, exits with status 1, and executes zero queries against production **[Measured]**.
+  3. *Syntax & Import Resolution*:
+     - `python -m compileall scripts backend/scripts` verified with 0 errors across all scripts **[Measured]**.
+     - Guard import resolution verified from both repo root and each script's parent directory **[Measured]**.
+  4. *Scratch Tracking Rule*:
+     - Confirmed 0 files under `scratch/` were ever tracked by git on `main` or `perf/supabase-egress` (`git ls-files scratch/` is empty) **[Measured]**.
+     - Narrowed `.gitignore` to explicitly allow tracking the 3 verification scripts referenced in `HANDOFF.md` (`scratch/verify_production_live.py`, `scratch/verify_production_themes.py`, `scratch/run_production_axe.py`) while ignoring transient scratch outputs and test scripts **[Measured]**.
+  5. *Non-Script Production Traffic*:
+     - Added Section 10 to `docs/perf/EGRESS_AUDIT.md` documenting traffic from live HF Space API, manual web browsing, and GitHub Actions keepalive (`SELECT 1 FROM sentences LIMIT 1`, ~60–100 bytes/probe, < 0.05 MB/month) **[Estimated]**.
 - **Verification Claims (Verified / Not verified)**:
   - `backend/app/` diff strictly EMPTY: **[Verified]** (`git diff main -- backend/app` returns no output).
   - `prod_guard.py` wired across all DB-connecting scripts: **[Verified]** (109+ scripts guarded).
-  - `prod_guard.py` blocks Supabase with exit code 1 and prints target host: **[Verified]** (tested against `check_vocab.py`, `run_golden_comparison_40.py`, `build_chapter_cache.py`, and `prod_guard.py`).
-  - `prod_guard.py --allow-prod` overrides cleanly: **[Verified]** (without running production queries).
-  - Local DB restore and validation on port 5433: **[Verified]** (`sentence_count`: 16,402, `theme_count`: 545, `dapt_null_count`: 4,580, MD5 matches).
+  - `prod_guard.py` blocks Supabase with exit code 1 and prints target host: **[Verified]** (tested against `check_vocab.py`, `run_golden_comparison_40.py`, `build_chapter_cache.py`, `explain_queries.py`, and `inspect_db.py`).
+  - `prod_guard.py` permits local DB on port 5433: **[Verified]** (tested against `explain_queries.py` and `inspect_db.py`).
+  - Local DB restore and validation on port 5433: **[Verified]** (`sentence_count`: 16,402, `theme_count`: 545, `dapt_null_count`: 4,580).
   - Measured average byte sizes on Supabase SQL Editor: **[Verified]** (8,853.75 emb, 8,488.25 dapt, 117.12 text).
   - Live organic traffic count on HF Space: **[Not Verified]** (HF Space free tier does not persist granular web access logs).
+
 
 

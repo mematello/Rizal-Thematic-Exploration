@@ -70,8 +70,9 @@
   - Audited 6.58 GB free-tier egress overrun. Measured via Supabase SQL editor: `embedding` = **8,853.75 bytes**, `embedding_dapt` = **8,488.25 bytes**, `sentence_text` = **117.12 bytes**. 98.0% of wire egress per row was raw vector floats.
   - Implemented and wired `scripts/prod_guard.py` across **all 109+ DB-connecting scripts** in the repository to prevent accidental developer runs against production Supabase.
   - Implemented `scripts/restore_and_validate_local_db.py` to restore `rizal_db_backup.sql` and validate local corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, `dapt_null_count`: 4,580) on port 5433 (**[Verified]**).
+  - Investigated MD5 difference between local backup (`b534a1...`) and production bundle (`e438ce...`): identical SQL computation verified; confirmed `rizal_db_backup.sql` snapshot itself produces `b534a1...` **[Measured]**. Documented that local DB cannot generate production-deployable bundles without a fresh dump or `--allow-prod` **[Inferred]**.
   - Documented local workflow in `docs/perf/HANDOFF.md` Section 2 and created `backend/.env.example`.
-  - Comprehensive audit report in `docs/perf/EGRESS_AUDIT.md` with explicit **[ESTIMATED]** labels and a 3–5 day monitoring plan (**[Verified]**, `DECISIONS.md` Item 20).
+  - Comprehensive audit report in `docs/perf/EGRESS_AUDIT.md` with explicit **[ESTIMATED]** labels, 3–5 day monitoring plan, and non-script traffic inventory (**[Verified]**, `DECISIONS.md` Item 20).
   - **Decision Executed**: **Option C adopted exclusively**. Options A (search LRU cache) and B (defer vector columns) **deferred**, to be reconsidered only if egress stays near the 5.00 GB quota after dev traffic stops.
   - Zero diff on `backend/app/**` strictly preserved.
 

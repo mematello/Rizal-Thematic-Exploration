@@ -92,5 +92,14 @@ threshold_experiment.json
 backend/app/data/*.pkl
 !backend/app/data/word_vec_cache_v1.pkl
 !backend/app/data/theme_bank.pkl
-scratch/
+# Scratch directory: ignore scratch artifacts, allow tracking verification scripts referenced in documentation
+scratch/*
+!scratch/verify_production_live.py
+!scratch/verify_production_themes.py
+!scratch/run_production_axe.py
+scratch/screenshots/
+scratch/*.png
+scratch/*.json
+
+
 

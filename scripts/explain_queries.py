@@ -7,11 +7,12 @@ index usage, sequential scans, and potential optimizations.
 Outputs to: docs/perf/query_plans.txt
 """
 
+import os
 import psycopg2
 import json
 from pathlib import Path
 
-# Database connection from docker-compose.yml
+# Database connection: defaults to local docker-compose.yml
 DB_CONFIG = {
     "host": "127.0.0.1",
     "port": 5433,
@@ -20,12 +21,20 @@ DB_CONFIG = {
     "password": "rizalpass123"
 }
 
+def get_connection():
+    db_url = os.getenv("DATABASE_URL")
+    if db_url and not ("supabase" in db_url.lower()):
+        # Handle postgresql+psycopg2://
+        clean_url = db_url.replace("postgresql+psycopg2://", "postgresql://", 1)
+        return psycopg2.connect(clean_url)
+    return psycopg2.connect(**DB_CONFIG)
+
 OUTPUT_PATH = Path(__file__).parent.parent / "docs" / "perf" / "query_plans.txt"
 
 
 def get_sample_embedding():
     """Get a real embedding vector from the database for realistic query plans"""
-    conn = psycopg2.connect(**DB_CONFIG)
+    conn = get_connection()
     cur = conn.cursor()
 
     # Get embedding as text representation
@@ -286,5 +295,7 @@ if __name__ == "__main__":
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from prod_guard import verify_not_production_db
-    verify_not_production_db(db_url=f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}", caller_name="explain_queries.py")
+    target_url = os.getenv("DATABASE_URL") or f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+    verify_not_production_db(db_url=target_url, caller_name="explain_queries.py")
     main()
+
