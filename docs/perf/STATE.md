@@ -1,23 +1,16 @@
 # Performance Optimization State
 
 **Last Updated**: 2026-10-19  
-**Branch**: `perf/supabase-egress` (from `main`)  
-**Current Phase**: Supabase Free-Tier Egress Audit & Developer Isolation Safeguards (Phase 1 & Phase 2 Complete; Phase 3 Proposals Documented). Zero diff on `backend/app`.
+**Branch**: `main` (merged `perf/supabase-egress`)  
+**Current Phase**: Supabase Free-Tier Egress Audit & Developer Isolation Safeguards (Option C Merged into Main). Zero diff on `backend/app` and `frontend`.
 
 ---
 
 ## 1. Production Deployment Coordinates
 
 - **Frontend UI**: [https://rizalengine.vercel.app](https://rizalengine.vercel.app)
-  - `git rev-parse origin/main`: `6a5bf2e3ed31d030104e747040ce467309ac5233`
-  - `git log -3 --oneline origin/main`:
-    ```text
-    6a5bf2e fix(theme-cards): apply novel-specific tokens for Fili dark theme cards
-    cffec85 fix(a11y): eliminate decorative watermark text nodes and resolve remaining text contrast to reach 0 violations across 92 contexts
-    eed5d8e docs(perf): add post-fix a11y preview evidence JSON
-    ```
-  - **`main` before theme-cards merge**: `cffec8516aefb71b32fa215128a47e6b0daa6747` (Rollback Target SHA)
-  - **`main` after theme-cards merge**: `6a5bf2e3ed31d030104e747040ce467309ac5233` (Current Production SHA)
+  - `git rev-parse origin/main`: `072eea0ee06f5f8f911817b1f4310b68ccb46d8b` (Rollback Target SHA before egress merge)
+  - Current `main` commit after egress merge: will reflect merge commit `00c2fa2c00f0188ec1bd95112856e79a1d7487e8`
   - Stack: Next.js 16.1.6, React 19.2.3, TailwindCSS v4, React Query v5.90.20
 - **Backend API**: [https://mematello-rizal-thematic-search-api.hf.space](https://mematello-rizal-thematic-search-api.hf.space)
   - `git log -1 --oneline remotes/hf/main`:
@@ -90,9 +83,15 @@
 
 ## 4. Open Follow-ups & Next Actions
 
-1. **3–5 Day Egress Monitoring Plan**:
-   - Zero production benchmarks, bundle rebuilds, or axe/golden sweeps against production Supabase for 3–5 days.
-   - Inspect Supabase Usage dashboard daily against the 15–19 Oct spike baseline (~1.0–1.5 GB/day).
+1. **Production Dev Freeze for 3–5 Days**:
+   - Zero benchmarks (`benchmark.py`), cache bundle rebuilds (`build_*_cache.py`), or axe/golden sweeps against the live Space or Supabase.
+   - All developer verification, evaluation, and test suites must run exclusively against the local Postgres instance (`localhost:5433`).
+2. **Dashboard Egress Comparison**:
+   - Compare the Supabase Usage dashboard (egress per day) against the 15–19 Oct billing spike baseline (~1.0–1.5 GB/day).
    - Reconsider deferred Options A and B only if organic user egress alone keeps usage near 5 GB after dev traffic ceases.
-2. **User Review on `perf/supabase-egress`**: Branch finalized for user review.
-3. **No Deploy / No Main Commit**: Strictly adhere to branch `perf/supabase-egress`; do NOT merge to main or push to origin/main or remotes/hf/main.
+3. **Local Cache Bundle Rebuild Constraint**:
+   - Never build or rebuild chapter or Sanggunian static bundles against the local database until the MD5 mismatch is reconciled (local backup dated 2026-10-16 02:43 UTC differs from the production corpus the bundles were fingerprinted against).
+   - If bundle rebuilding is ever required, execute against production using `--allow-prod` or pull a fresh production dump first.
+4. **No Push to remotes/hf/main**:
+   - HF Space backend remains on commit `7fb5667d4b622f98dc9095eb0370c2d488f5af27` (strictly zero diff under `backend/app/`, no deployment required).
+

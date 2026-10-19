@@ -1213,7 +1213,9 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 
 ### 20. 2026-10-19: Supabase Free-Tier Egress Audit & Developer Isolation Safeguards
 
-- **Branch**: `perf/supabase-egress`
+- **Branch**: `perf/supabase-egress` merged into `main`
+- **Rollback Target SHA**: `072eea0ee06f5f8f911817b1f4310b68ccb46d8b` (previous `origin/main` commit)
+- **Merge Date**: 2026-10-19
 - **Context**: Supabase notified org "mematello" that database egress reached 6.58 GB of the 5.00 GB free tier quota. Fair Use Policy enforcement begins 2026-11-18. Objective: identify root causes and enforce safeguards to stay safely under 1.0 GB/period without changing search ranking, determinism, or behavior.
 - **Root Cause & Evidence**:
   1. *Vector Over-fetching*: SQLAlchemy `Sentence` model queries load both 768-dim `embedding` (avg **8,853.75 bytes** [Measured]) and `embedding_dapt` (avg **8,488.25 bytes** [Measured]), totaling **17,342.00 bytes (~17.34 KB)** of text per row [Measured], vs `sentence_text` at **117.12 bytes** [Measured]. Over 98.0% of wire egress per row was raw vector floats.
