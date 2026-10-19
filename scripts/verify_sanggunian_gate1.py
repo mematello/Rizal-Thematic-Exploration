@@ -252,6 +252,15 @@ def test_latency_and_headers():
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Gate 1 Verification for Sanggunian")
+    parser.add_argument("--allow-prod", action="store_true", help="Allow running against production Supabase")
+    args = parser.parse_args()
+
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(allow_prod=args.allow_prod, caller_name="verify_sanggunian_gate1.py")
+
     print("STARTING GATE 1 VERIFICATION RUN FOR SANGGUNIAN (ITEM C PHASE 2)")
     print(f"Local URL: {LOCAL_URL}")
     print(f"HF Space:  {HF_SPACE_URL}")

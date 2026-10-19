@@ -36,7 +36,38 @@ npm run start   # Run production bundle locally
 
 ---
 
-## 2. Environment Flags & Key Endpoints
+## 2. Local Database & Zero-Egress Workflow
+
+To strictly avoid exceeding the Supabase free tier egress quota (5 GB/month), **all local development, benchmarking, cache bundle rebuilding, and parity verification MUST run against local PostgreSQL (port 5433)**:
+
+### 1. Launch Local Postgres Container (pgvector)
+```bash
+docker compose up -d postgres
+```
+This spins up PostgreSQL 15 with `pgvector` bound to `localhost:5433` (credentials: `rizal` / `rizalpass123`, database: `rizal_db`).
+
+### 2. Restore and Validate Corpus from Backup
+```bash
+python scripts/restore_and_validate_local_db.py --restore
+```
+This restores `rizal_db_backup.sql` (~253 MB) and validates that the local database matches the canonical production corpus:
+- **`sentence_count`**: 16,402 rows
+- **`theme_count`**: 545 rows
+- **`dapt_null_count`**: 4,580 rows
+- Cryptographic MD5 fingerprints for `sentence_text` and `themes`
+
+### 3. Configure Local `DATABASE_URL`
+In `backend/.env` (or via environment variable):
+```dotenv
+DATABASE_URL=postgresql://rizal:rizalpass123@localhost:5433/rizal_db
+```
+
+### 4. Production Database Guard
+All developer scripts (`build_chapter_cache.py`, `build_sanggunian_cache.py`, `benchmark.py`, `verify_sanggunian_gate1.py`, `verify_summary_live_parity.py`) enforce `scripts/prod_guard.py`. If `DATABASE_URL` host contains `supabase`, the scripts **refuse execution and immediately exit with status 1** unless `--allow-prod` is explicitly supplied.
+
+---
+
+## 3. Environment Flags & Key Endpoints
 
 | Variable / Param | Default | Purpose |
 | :--- | :---: | :--- |
@@ -56,7 +87,7 @@ npm run start   # Run production bundle locally
 
 ---
 
-## 3. Precomputed Cache Bundles & Regeneration Procedures
+## 4. Precomputed Cache Bundles & Regeneration Procedures
 
 The system uses three sets of static precomputed caches to ensure sub-10ms response times:
 
@@ -91,7 +122,7 @@ poetry run python ../scripts/build_word_vec_cache.py
 
 ---
 
-## 4. Frontend `data-novel` Architectural Conventions
+## 5. Frontend `data-novel` Architectural Conventions
 
 To support multi-novel styling, backdrop rotation, and dark mode theming, the application uses normalized `data-novel` attributes across the DOM and CSS:
 
@@ -105,7 +136,7 @@ To support multi-novel styling, backdrop rotation, and dark mode theming, the ap
 
 ---
 
-## 5. Scripts Inventory & Tooling
+## 6. Scripts Inventory & Tooling
 
 All utility and verification scripts reside in `scripts/`, `backend/scripts/`, or `scratch/`:
 
@@ -121,7 +152,7 @@ All utility and verification scripts reside in `scripts/`, `backend/scripts/`, o
 
 ---
 
-## 6. Deployment Verification Checklist
+## 7. Deployment Verification Checklist
 
 Before and after deploying any change to production, execute the following verification steps:
 

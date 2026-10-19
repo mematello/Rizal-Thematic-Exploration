@@ -372,10 +372,23 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, help="API port (overrides port in --api-base)")
     parser.add_argument("--timings-out", default="phase2_step1_timings.json", help="Timings output JSON filename")
     parser.add_argument("--snapshot-out", default="golden_snapshot.json", help="Snapshot output JSON filename")
+    parser.add_argument("--allow-prod", action="store_true", help="Allow running against production API or Supabase DB")
     args = parser.parse_args()
+
+    # Guard against accidental production Supabase egress
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(allow_prod=args.allow_prod, caller_name="benchmark.py")
 
     api_url = args.api_base
     if args.port:
         api_url = f"http://127.0.0.1:{args.port}"
+
+    if "hf.space" in api_url.lower() and not args.allow_prod:
+        sys.stderr.write(
+            "\n[PROD GUARD ERROR] Refusing to run benchmark against live HuggingFace production API!\n"
+            "Pass --allow-prod to override.\n\n"
+        )
+        sys.exit(1)
 
     run_benchmark_suite(api_base=api_url, timings_out=args.timings_out, snapshot_out=args.snapshot_out)

@@ -43,8 +43,11 @@ sys.path.insert(0, str(BACKEND_DIR))
 
 DATA_DIR = BACKEND_DIR / "app" / "data"
 SCRATCH_DIR = BACKEND_DIR / ".cache_build_scratch"
-
 load_dotenv(BACKEND_DIR / ".env")
+
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name="build_sanggunian_cache.py")
 
 from app.models.database import SessionLocal, Sentence
 from app.core.engine import get_engine
@@ -239,7 +242,10 @@ def main():
     parser = argparse.ArgumentParser(description="Precompute Sanggunian cross-reference bundles.")
     parser.add_argument("--book", choices=["all", "noli", "elfili"], default="all", help="Target novel (default: all)")
     parser.add_argument("--mode", choices=["all", "buod", "full"], default="all", help="Target mode (default: all)")
+    parser.add_argument("--allow-prod", action="store_true", help="Allow running against production Supabase")
     args = parser.parse_args()
+
+    verify_not_production_db(allow_prod=args.allow_prod, caller_name="build_sanggunian_cache.py")
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     SCRATCH_DIR.mkdir(parents=True, exist_ok=True)

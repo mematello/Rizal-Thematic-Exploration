@@ -1,8 +1,8 @@
 # Performance Optimization State
 
-**Last Updated**: 2026-10-18  
-**Branch**: `docs/sync` (post-merge `6a5bf2e` on `main`)  
-**Current Phase**: Item G Documentation & Repository Sync. Production Deployed & Verified.
+**Last Updated**: 2026-10-19  
+**Branch**: `perf/supabase-egress` (from `main`)  
+**Current Phase**: Supabase Free-Tier Egress Audit & Developer Isolation Safeguards (Phase 1 & Phase 2 Complete; Phase 3 Proposals Documented). Zero diff on `backend/app`.
 
 ---
 
@@ -66,6 +66,13 @@
   - **92-Context Accessibility Matrix**: Scanned across Home, Search, Drawer, Modal, and Sanggunian on `fix/a11y-axe` preview: **0 axe violations** (Evidence: `docs/perf/evidence/a11y_preview_raw.json`).
   - **16-Configuration Themes Tab Matrix**: Scanned live production across Chromium/WebKit, 390px/1440px, light/dark, Noli/Fili: **0 console errors**, **0 axe violations** (Evidence: `docs/perf/evidence/production_theme_verification.json`, `DECISIONS.md` Item 19).
   - Per-novel token family (`--theme-card-*`, `--map-card-*`, `--modal-*`) implemented in `globals.css` for Noli, Fili (`#1A0C0E` wine/charcoal surface + rose-gold accents), and Both.
+- **Supabase Egress Audit & Developer Isolation Safeguards (Item 20)**:
+  - Audited 6.58 GB free-tier egress overrun. Measured via Supabase SQL editor: `embedding` = **8,853.75 bytes**, `embedding_dapt` = **8,488.25 bytes**, `sentence_text` = **117.12 bytes**. 98.0% of wire egress per row was raw vector floats.
+  - Implemented `scripts/prod_guard.py` to prevent accidental developer runs against production Supabase.
+  - Implemented `scripts/restore_and_validate_local_db.py` to restore `rizal_db_backup.sql` and validate local corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545).
+  - Documented local workflow in `docs/perf/HANDOFF.md` Section 2 and created `backend/.env.example`.
+  - Comprehensive audit report in `docs/perf/EGRESS_AUDIT.md` (**[Verified]**, `DECISIONS.md` Item 20).
+  - Zero diff on `backend/app/**` strictly preserved.
 
 ---
 
@@ -75,12 +82,15 @@
 - Live Backend `/health/db`: `200 OK` `{"status":"ok","db":"ok"}` **[Verified]**
 - Live Noli 1 Buod Chapter Canonical SHA-256: `8f5c4830076befd1225f687fe90d1f47523b0fe7cf4959d84707b285513c25ec` **[Verified]**
 - Golden Search Invariance: 5 live queries verified against production HF Space (**[Verified]**, Evidence: `scripts/verify_backend_sanity.py`); 40 queries verified locally (**[Verified]**, Evidence: `scripts/run_golden_comparison_40.py` vs `docs/perf/golden_snapshot_deterministic.json`).
+- `backend/app` zero-diff rule: `git diff main -- backend/app` is strictly EMPTY **[Verified]**
 
 ---
 
 ## 4. Open Follow-ups & Next Actions
 
-1. **User Review on `docs/sync`**: Await user review of documentation synchronization, restored decision numbers, and verified operational facts.
-2. **Post-Review Merge**: When approved, merge `docs/sync` into `main` without modifying code paths.
-3. **Known Code & Label Mismatches**: Review `docs/perf/KNOWN_MISMATCHES.md` for cosmetic text updates (Footer "Next.js 15", Footer "ZeroGPU", `backend/README.md` `--reload`/`PYTHONHASHSEED`). (Kept untouched in this task under strict zero code diff constraint).
-4. **Hugging Face Space Synchronization**: No code push required. All precomputed bundles in Space match current live HEAD (`7fb5667`).
+1. **User Decision on Phase 3 Egress Proposals**:
+   - Option A: Implement in-process search LRU cache in `backend/app/api/v1/search.py` (Low risk, no bundle rebuild, 0 ranking impact).
+   - Option B: Defer vector columns on text-only DB queries in `backend/app/core/engine.py` (Medium risk, triggers Rule 5 chapter bundle rebuild and full golden re-verification).
+   - Option C (Recommended Baseline): Retain Phase 2 local development safeguards without backend modifications; monitor monthly Supabase egress under isolated developer workflow.
+2. **User Review of Documentation & Safeguards on `perf/supabase-egress`**: Await review of `docs/perf/EGRESS_AUDIT.md`, `DECISIONS.md` Item 20, and `prod_guard.py`.
+3. **No Deploy / No Main Commit**: Strictly adhere to branch `perf/supabase-egress`; do NOT merge to main or push to HF Space without explicit user approval.

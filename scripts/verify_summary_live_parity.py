@@ -26,10 +26,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 import requests
 
+from dotenv import load_dotenv
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BACKEND_DIR = REPO_ROOT / "backend"
-sys.path.insert(0, str(BACKEND_DIR))
+load_dotenv(BACKEND_DIR / ".env")
 
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name="verify_summary_live_parity.py")
+
+sys.path.insert(0, str(BACKEND_DIR))
 from app.models.database import SessionLocal, Sentence
 
 HF_BASE_URL = "https://mematello-rizal-thematic-search-api.hf.space"
@@ -64,6 +71,15 @@ def get_chapter_null_dapt_counts(db):
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Live HF Space vs Local Parity Verification")
+    parser.add_argument("--allow-prod", action="store_true", help="Allow running against production Supabase")
+    args = parser.parse_args()
+
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(allow_prod=args.allow_prod, caller_name="verify_summary_live_parity.py")
+
     print("=" * 80, flush=True)
     print("SECTION B: LIVE HF SPACE VS LOCAL BUNDLE PARITY VERIFICATION", flush=True)
     print("=" * 80, flush=True)

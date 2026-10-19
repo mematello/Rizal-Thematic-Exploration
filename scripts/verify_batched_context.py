@@ -21,8 +21,14 @@ os.environ["PERF_BENCHMARK"] = "1"
 os.environ["DISABLE_WORD_VEC_CACHE"] = "0"
 
 backend_dir = Path(__file__).parent.parent / "backend"
-sys.path.insert(0, str(backend_dir))
+from dotenv import load_dotenv
+load_dotenv(backend_dir / ".env")
+
 sys.path.insert(0, str(Path(__file__).parent))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name="verify_batched_context.py")
+
+sys.path.insert(0, str(backend_dir))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.models.database import SessionLocal, Sentence

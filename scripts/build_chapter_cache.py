@@ -33,6 +33,9 @@ SCRATCH_DIR = BACKEND_DIR / ".cache_build_scratch"
 # Load environment safely
 load_dotenv(BACKEND_DIR / ".env")
 
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from prod_guard import verify_not_production_db
+
 NOVEL_CONFIGS = {
     "noli": {"name": "Noli Me Tangere"},
     "elfili": {"name": "El Filibusterismo"},
@@ -265,5 +268,7 @@ def build_cache(base_url: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Precompute chapter static cache bundles.")
     parser.add_argument("--base-url", default="http://127.0.0.1:8000", help="FastAPI backend base URL")
+    parser.add_argument("--allow-prod", action="store_true", help="Allow running against production Supabase")
     args = parser.parse_args()
+    verify_not_production_db(allow_prod=args.allow_prod, caller_name="build_chapter_cache.py")
     build_cache(args.base_url)

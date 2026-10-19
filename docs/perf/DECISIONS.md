@@ -36,6 +36,7 @@
 | **17** | 2026-10-18 | Release | Merge All UI Work, Item 1, & Batches 2–4 to Main (Frontend Only) | Deployed |
 | **18** | 2026-10-18 | A11y | Accessibility Follow-up Batch (Axe-Core WCAG AA Compliance) | Deployed |
 | **19** | 2026-10-18 | UI / Novel | Fili Dark Theme Cards Per-Novel Tokens & Merge (`fix/theme-cards-fili`) | Deployed |
+| **20** | 2026-10-19 | DevOps / DB | Supabase Free-Tier Egress Audit & Developer Isolation Safeguards | Implemented |
 
 > **Note on Missing Item 6**: Number 6 was skipped historically in `origin/main` prior to Phase 2 deployment; no Item 6 exists in git history. To preserve exact historical references across all commit messages and evidence files, original item numbers 1–5 and 7–18 are preserved, and the subsequent Fili Dark Theme Card fix is assigned Item 19.
 
@@ -1207,3 +1208,30 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
 - Vercel production deployment ready: **[Verified]**
 - 0 axe violations on production Themes tab: **[Verified]**
 - 0 console errors on production: **[Verified]**
+
+---
+
+### 20. 2026-10-19: Supabase Free-Tier Egress Audit & Developer Isolation Safeguards
+
+- **Branch**: `perf/supabase-egress`
+- **Context**: Supabase notified org "mematello" that database egress reached 6.58 GB of the 5.00 GB free tier quota. Fair Use Policy enforcement begins 2026-11-18. Objective: identify root causes and enforce safeguards to stay safely under 1.0 GB/period without changing search ranking, determinism, or behavior.
+- **Root Cause & Evidence**:
+  1. *Vector Over-fetching*: SQLAlchemy `Sentence` model queries load both 768-dim `embedding` (avg **8,853.75 bytes** [Measured]) and `embedding_dapt` (avg **8,488.25 bytes** [Measured]), totaling **17,342.00 bytes (~17.34 KB)** of text per row [Measured], vs `sentence_text` at **117.12 bytes** [Measured]. Over 98.0% of wire egress per row was raw vector floats.
+  2. *Production Default in Developer Scripts*: 124 of 125 DB-connecting scripts in the repo defaulted to Supabase via `backend/.env`. Recent benchmarking (40 golden queries × 10 runs = 400 searches), bundle builders (`build_chapter_cache.py`, `build_sanggunian_cache.py`), and parity sweeps ran against production Supabase, generating ~6 GB of egress.
+- **Safe Decisions Implemented (Phase 2 - Zero diff on `backend/app/**`)**:
+  1. *Production DB Guard (`scripts/prod_guard.py`)*: Centralized guard module. Refuses execution if `DATABASE_URL` host contains "supabase" unless `--allow-prod` is explicitly supplied. Wired into `build_chapter_cache.py`, `build_sanggunian_cache.py`, `benchmark.py`, `verify_sanggunian_gate1.py`, and `verify_summary_live_parity.py`.
+  2. *Local Database Restore & Fingerprint Tool (`scripts/restore_and_validate_local_db.py`)*: Automated utility that restores `rizal_db_backup.sql` into local Postgres (`ankane/pgvector` on port 5433) and verifies the canonical corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, MD5 hashes).
+  3. *Local Developer Workflow Documentation*: Updated `docs/perf/HANDOFF.md` Section 2 with explicit steps to run Docker Postgres locally and set local `DATABASE_URL`. Added `backend/.env.example`.
+  4. *Audit Documentation*: Created comprehensive audit report in `docs/perf/EGRESS_AUDIT.md`.
+- **Phase 3 Proposals Formulated (Pending Approval - No Code)**:
+  - *Proposal A*: In-process thread-safe LRU cache for `/api/v1/search` in `search.py` (256 entries, ~6.4 MB RAM, 0 ranking impact, does not touch static bundle fingerprints).
+  - *Proposal B*: Defer vector columns on text-only reads in `engine.py` (55.1× row-level reduction; note: modifies `engine.py`, invalidating chapter bundle hash under Rule 5 and requiring regeneration + full golden re-verification).
+  - *Proposal C (Ranking)*: Ranked options by saving vs risk: (1) Local Dev Isolation (Adopted), (2) Search LRU Cache (Recommended next step), (3) Defer Vector Columns (Hold in reserve).
+- **Verification Claims (Verified / Not verified)**:
+  - `backend/app/` diff strictly EMPTY: **[Verified]** (`git diff main -- backend/app` returns no output).
+  - `prod_guard.py` blocks Supabase with exit code 1: **[Verified]** (tested across all wired scripts).
+  - `prod_guard.py --allow-prod` overrides cleanly: **[Verified]**.
+  - Local restore & validation script CLI: **[Verified]**.
+  - Measured average byte sizes on Supabase SQL Editor: **[Verified]** (8,853.75 emb, 8,488.25 dapt, 117.12 text).
+  - Live organic traffic count on HF Space: **[Not Verified]** (HF Space free tier does not persist granular web access logs).
+
