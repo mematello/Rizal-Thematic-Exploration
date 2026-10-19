@@ -85,5 +85,43 @@ def verify_not_production_db(db_url: str = None, allow_prod: bool = False, calle
 
     return host
 
+def verify_not_production_api(api_url: str = "", allow_prod: bool = False, caller_name: str = ""):
+    """
+    Checks if api_url points to Hugging Face production Space or Vercel production UI.
+    If yes and allow_prod is False: prints error message and exits with code 1.
+    """
+    if "--allow-prod" in sys.argv or os.getenv("ALLOW_PROD") == "1":
+        allow_prod = True
+
+    if not api_url:
+        return "unknown"
+
+    script_label = f" for '{caller_name}'" if caller_name else ""
+    is_prod_hf = "hf.space" in api_url.lower()
+    is_prod_vercel = "vercel.app" in api_url.lower()
+
+    if is_prod_hf or is_prod_vercel:
+        target_type = "HuggingFace Production API" if is_prod_hf else "Vercel Production UI"
+        if not allow_prod:
+            sys.stderr.write(
+                "\n" + "=" * 80 + "\n"
+                f"[PROD GUARD ERROR] REFUSING TO RUN{script_label} AGAINST {target_type.upper()}!\n"
+                f"Target URL: {api_url}\n\n"
+                "To run against local server:\n"
+                "  API: http://127.0.0.1:8000\n"
+                "  UI:  http://localhost:3000\n\n"
+                "To override and explicitly allow running against production:\n"
+                "  Pass the '--allow-prod' command-line flag or set ALLOW_PROD=1.\n"
+                + "=" * 80 + "\n\n"
+            )
+            sys.stderr.flush()
+            sys.exit(1)
+        else:
+            print(f"[PROD GUARD] [WARNING] Explicit override: Allowing execution against {target_type} ({api_url}).")
+    else:
+        print(f"[TARGET API] URL: {api_url}")
+
+    return api_url
+
 if __name__ == "__main__":
     verify_not_production_db()

@@ -1,4 +1,9 @@
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name="seed_db.py")
+
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text

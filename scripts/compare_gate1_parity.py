@@ -179,4 +179,7 @@ def run_parity():
 
 
 if __name__ == "__main__":
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(caller_name="compare_gate1_parity.py")
     run_parity()

@@ -1,6 +1,12 @@
 import requests
 import json
 import hashlib
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from prod_guard import verify_not_production_api
+verify_not_production_api("https://mematello-rizal-thematic-search-api.hf.space", caller_name="compare_full_sentence.py")
 
 sid = 39363
 r_hf = requests.get(f"https://mematello-rizal-thematic-search-api.hf.space/api/v1/sentences/{sid}/sanggunian")

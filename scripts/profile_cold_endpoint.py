@@ -8,6 +8,13 @@ Measures cold behavior on Noli 1, Noli 5, and El Fili 10.
 """
 
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name=Path(__file__).name)
+
+
+import sys
 import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"

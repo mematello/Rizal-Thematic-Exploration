@@ -68,10 +68,11 @@
   - Per-novel token family (`--theme-card-*`, `--map-card-*`, `--modal-*`) implemented in `globals.css` for Noli, Fili (`#1A0C0E` wine/charcoal surface + rose-gold accents), and Both.
 - **Supabase Egress Audit & Developer Isolation Safeguards (Item 20)**:
   - Audited 6.58 GB free-tier egress overrun. Measured via Supabase SQL editor: `embedding` = **8,853.75 bytes**, `embedding_dapt` = **8,488.25 bytes**, `sentence_text` = **117.12 bytes**. 98.0% of wire egress per row was raw vector floats.
-  - Implemented `scripts/prod_guard.py` to prevent accidental developer runs against production Supabase.
-  - Implemented `scripts/restore_and_validate_local_db.py` to restore `rizal_db_backup.sql` and validate local corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545).
+  - Implemented and wired `scripts/prod_guard.py` across **all 109+ DB-connecting scripts** in the repository to prevent accidental developer runs against production Supabase.
+  - Implemented `scripts/restore_and_validate_local_db.py` to restore `rizal_db_backup.sql` and validate local corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, `dapt_null_count`: 4,580) on port 5433 (**[Verified]**).
   - Documented local workflow in `docs/perf/HANDOFF.md` Section 2 and created `backend/.env.example`.
-  - Comprehensive audit report in `docs/perf/EGRESS_AUDIT.md` (**[Verified]**, `DECISIONS.md` Item 20).
+  - Comprehensive audit report in `docs/perf/EGRESS_AUDIT.md` with explicit **[ESTIMATED]** labels and a 3–5 day monitoring plan (**[Verified]**, `DECISIONS.md` Item 20).
+  - **Decision Executed**: **Option C adopted exclusively**. Options A (search LRU cache) and B (defer vector columns) **deferred**, to be reconsidered only if egress stays near the 5.00 GB quota after dev traffic stops.
   - Zero diff on `backend/app/**` strictly preserved.
 
 ---
@@ -88,9 +89,9 @@
 
 ## 4. Open Follow-ups & Next Actions
 
-1. **User Decision on Phase 3 Egress Proposals**:
-   - Option A: Implement in-process search LRU cache in `backend/app/api/v1/search.py` (Low risk, no bundle rebuild, 0 ranking impact).
-   - Option B: Defer vector columns on text-only DB queries in `backend/app/core/engine.py` (Medium risk, triggers Rule 5 chapter bundle rebuild and full golden re-verification).
-   - Option C (Recommended Baseline): Retain Phase 2 local development safeguards without backend modifications; monitor monthly Supabase egress under isolated developer workflow.
-2. **User Review of Documentation & Safeguards on `perf/supabase-egress`**: Await review of `docs/perf/EGRESS_AUDIT.md`, `DECISIONS.md` Item 20, and `prod_guard.py`.
-3. **No Deploy / No Main Commit**: Strictly adhere to branch `perf/supabase-egress`; do NOT merge to main or push to HF Space without explicit user approval.
+1. **3–5 Day Egress Monitoring Plan**:
+   - Zero production benchmarks, bundle rebuilds, or axe/golden sweeps against production Supabase for 3–5 days.
+   - Inspect Supabase Usage dashboard daily against the 15–19 Oct spike baseline (~1.0–1.5 GB/day).
+   - Reconsider deferred Options A and B only if organic user egress alone keeps usage near 5 GB after dev traffic ceases.
+2. **User Review on `perf/supabase-egress`**: Branch finalized for user review.
+3. **No Deploy / No Main Commit**: Strictly adhere to branch `perf/supabase-egress`; do NOT merge to main or push to origin/main or remotes/hf/main.

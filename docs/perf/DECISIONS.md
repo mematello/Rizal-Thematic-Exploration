@@ -1223,15 +1223,17 @@ While Item A2 eliminated the N+1 query loop for context fetching, cold requests 
   2. *Local Database Restore & Fingerprint Tool (`scripts/restore_and_validate_local_db.py`)*: Automated utility that restores `rizal_db_backup.sql` into local Postgres (`ankane/pgvector` on port 5433) and verifies the canonical corpus fingerprint (`sentence_count`: 16,402, `theme_count`: 545, MD5 hashes).
   3. *Local Developer Workflow Documentation*: Updated `docs/perf/HANDOFF.md` Section 2 with explicit steps to run Docker Postgres locally and set local `DATABASE_URL`. Added `backend/.env.example`.
   4. *Audit Documentation*: Created comprehensive audit report in `docs/perf/EGRESS_AUDIT.md`.
-- **Phase 3 Proposals Formulated (Pending Approval - No Code)**:
-  - *Proposal A*: In-process thread-safe LRU cache for `/api/v1/search` in `search.py` (256 entries, ~6.4 MB RAM, 0 ranking impact, does not touch static bundle fingerprints).
-  - *Proposal B*: Defer vector columns on text-only reads in `engine.py` (55.1× row-level reduction; note: modifies `engine.py`, invalidating chapter bundle hash under Rule 5 and requiring regeneration + full golden re-verification).
-  - *Proposal C (Ranking)*: Ranked options by saving vs risk: (1) Local Dev Isolation (Adopted), (2) Search LRU Cache (Recommended next step), (3) Defer Vector Columns (Hold in reserve).
+- **Final Decision**: **Option C adopted exclusively**.
+  - *Decision = Option C*: All 109+ DB-connecting scripts in the repository now enforce `prod_guard.py` to prevent unintentional queries against production Supabase. Development, benchmarking, and verification occur 100% locally against PostgreSQL on port 5433 with bit-identical corpus metrics.
+  - *Options A & B Deferred*: Option A (search LRU cache in `search.py`) and Option B (defer vector columns in `engine.py`) are **deferred**, to be reconsidered only if egress stays near the 5.00 GB free quota after dev traffic ceases.
+  - *No Runtime Code Changes*: `git diff main -- backend/app` is strictly **EMPTY**.
 - **Verification Claims (Verified / Not verified)**:
   - `backend/app/` diff strictly EMPTY: **[Verified]** (`git diff main -- backend/app` returns no output).
-  - `prod_guard.py` blocks Supabase with exit code 1: **[Verified]** (tested across all wired scripts).
-  - `prod_guard.py --allow-prod` overrides cleanly: **[Verified]**.
-  - Local restore & validation script CLI: **[Verified]**.
+  - `prod_guard.py` wired across all DB-connecting scripts: **[Verified]** (109+ scripts guarded).
+  - `prod_guard.py` blocks Supabase with exit code 1 and prints target host: **[Verified]** (tested against `check_vocab.py`, `run_golden_comparison_40.py`, `build_chapter_cache.py`, and `prod_guard.py`).
+  - `prod_guard.py --allow-prod` overrides cleanly: **[Verified]** (without running production queries).
+  - Local DB restore and validation on port 5433: **[Verified]** (`sentence_count`: 16,402, `theme_count`: 545, `dapt_null_count`: 4,580, MD5 matches).
   - Measured average byte sizes on Supabase SQL Editor: **[Verified]** (8,853.75 emb, 8,488.25 dapt, 117.12 text).
   - Live organic traffic count on HF Space: **[Not Verified]** (HF Space free tier does not persist granular web access logs).
+
 

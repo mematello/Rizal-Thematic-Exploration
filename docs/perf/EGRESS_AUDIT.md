@@ -216,14 +216,30 @@ The following three options are formulated for future consideration. **No code h
 
 | Rank | Proposal | Implementation Effort | Architectural Risk | Bundle Invalidation | Expected Egress Reduction | Recommended Action |
 | :---: | :--- | :---: | :---: | :---: | :---: | :--- |
-| **1** | **Move All Dev & Verification Work Local (Phase 2 Done)** | Minimal (Safeguards deployed) | **None** | None | **~90% to 95%** of past billing spike | **Adopt Immediately (Primary Fix)**. Stops developer-induced egress completely. |
-| **2** | **Proposal A: Search LRU Cache** | Low (~30 lines in `search.py`) | **Very Low** | None (Does not touch `engine.py` or `content.py`) | **20% to 50%** of live search egress | **Recommended Next Step** if user traffic grows. Clean, zero ranking risk. |
-| **3** | **Proposal B: Defer Vector Columns** | Medium (~50 lines in `engine.py`) | **Medium** | **Requires Bundle Rebuild** (Rule 5) + Golden Parity Re-verification | **95% to 98%** of DB query egress | **Hold in Reserve**. High reward, but triggers bundle rebuild and testing overhead. |
+| **1** | **Move All Dev & Verification Work Local (Option C / Phase 2 Done)** | Minimal (Safeguards deployed) | **None** | None | **~90% to 95% [ESTIMATED]** of past billing spike | **Adopted (Decision Item 20)**. Stops developer-induced egress completely with zero runtime changes. |
+| **2** | **Proposal A: Search LRU Cache** | Low (~30 lines in `search.py`) | **Very Low** | None (Does not touch `engine.py` or `content.py`) | **20% to 50% [ESTIMATED]** of live search egress | **Deferred**. Reconsider only if egress stays near 5 GB after dev traffic ceases. |
+| **3** | **Proposal B: Defer Vector Columns** | Medium (~50 lines in `engine.py`) | **Medium** | **Requires Bundle Rebuild** (Rule 5) + Golden Parity Re-verification | **95% to 98% [ESTIMATED]** of DB query egress | **Deferred**. Reconsider only if egress stays near 5 GB after dev traffic ceases. |
 
 ---
 
-## 9. Conclusion & Operational Recommendation
+## 9. Monitoring Plan
 
-1. **Immediate Root Cause Addressed**: With the production guards in place, developer scripts will no longer silently draw down Supabase egress. Local Docker Postgres provides identical data without touching the network.
-2. **Current Safe Status**: Zero runtime code modified (`backend/app/` diff is empty). Production deployment integrity remains 100% intact.
-3. **Next Steps**: Await user direction on whether to proceed with Proposal A (Search LRU cache) or remain purely operational on Phase 2.
+To verify that Option C successfully keeps Supabase egress safely under the 5.00 GB free tier quota without modifying production backend logic:
+
+1. **Production Freeze for Developer Traffic (3–5 Days)**:
+   - Execute **no production benchmarks** (`benchmark.py`), **no cache bundle rebuilds** (`build_*_cache.py`), and **no axe/golden sweeps** against the production Supabase database.
+   - All developer verification, evaluation, and test suites must run exclusively against the local Postgres instance (`localhost:5433`).
+2. **Dashboard Egress Comparison**:
+   - Check the **Supabase Usage dashboard** (`Settings > Usage > Database Egress`) daily to monitor the post-guard egress slope (daily GB/day).
+   - Compare daily egress rates during the 3–5 day monitoring window against the **15–19 Oct billing spike** baseline (~1.0–1.5 GB/day during intense developer suite runs).
+3. **Contingency Trigger**:
+   - If egress stabilizes at $< 0.05$ GB/day (projected $\le 1.0$ GB/month), Option C is completely sufficient and no runtime code changes are required.
+   - If organic user traffic alone keeps egress near the 5.00 GB quota after developer traffic is eliminated, revisit **Option A** (in-process search LRU cache) and **Option B** (deferring vector columns).
+
+---
+
+## 10. Conclusion & Operational Decision
+
+1. **Decision Executed**: Option C adopted exclusively. All 109+ active developer and verification scripts connecting to Postgres or reading `sentences` are safeguarded with `prod_guard.py`.
+2. **Runtime Code Preserved**: `git diff main -- backend/app` is strictly **EMPTY**.
+3. **Proposals Deferred**: Option A (search LRU cache) and Option B (deferring vector columns) deferred pending results from the 3–5 day monitoring window.

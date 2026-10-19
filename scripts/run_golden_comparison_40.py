@@ -37,6 +37,10 @@ def fetch_search(query, retries=5):
             time.sleep(3 * (attempt + 1))
 
 def main():
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(caller_name="run_golden_comparison_40.py")
+
     print("=== RUNNING ALL 40 GOLDEN SEARCH QUERIES ===")
     queries = load_all_40_queries()
     snapshot_queries = {}

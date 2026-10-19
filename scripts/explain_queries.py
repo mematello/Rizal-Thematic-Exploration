@@ -283,4 +283,8 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(db_url=f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}", caller_name="explain_queries.py")
     main()

@@ -1,3 +1,10 @@
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name=Path(__file__).name)
+
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import Session
 import sys

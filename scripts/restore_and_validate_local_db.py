@@ -88,6 +88,16 @@ def validate_corpus_fingerprint(db_url: str):
     """Validates that local database matches the canonical corpus fingerprint."""
     from sqlalchemy import create_engine, text
 
+    if db_url.startswith("postgresql://"):
+        try:
+            import psycopg
+        except ImportError:
+            try:
+                import psycopg2
+                db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            except ImportError:
+                pass
+
     print(f"\n[VALIDATE] Connecting to local database: {db_url}")
     try:
         engine = create_engine(db_url, connect_args={"connect_timeout": 5})

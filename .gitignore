@@ -92,4 +92,5 @@ threshold_experiment.json
 backend/app/data/*.pkl
 !backend/app/data/word_vec_cache_v1.pkl
 !backend/app/data/theme_bank.pkl
+scratch/
 

@@ -4,6 +4,13 @@ Seeds the embedding_dapt column for ALL sentences (both summary and full)
 using the custom rizal-xlm-r-dapt model.
 This column is used exclusively by the Sanggunian (cross-modal reference) system.
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name=Path(__file__).name)
+
 import sys
 import os
 import logging

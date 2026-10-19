@@ -4,8 +4,12 @@ import sys
 from pathlib import Path
 
 def main():
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from prod_guard import verify_not_production_db
+    verify_not_production_db(caller_name="fetch_snapshot.py")
+
     if len(sys.argv) < 2:
-        print("Usage: python scripts/fetch_snapshot.py <output_file.json> [port]")
+        print("Usage: python scripts/fetch_snapshot.py <output_file.json> [port] [--allow-prod]")
         sys.exit(1)
 
     out_file = Path(sys.argv[1])

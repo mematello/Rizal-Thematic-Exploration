@@ -8,6 +8,13 @@ Cases selected to cover all 4 Sanggunian scenario types:
   - Lexical-Driven (Tauhan inactive, high lexical score)
   - High-Confidence Multi-Signal (All signals strong)
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "scripts"))
+from prod_guard import verify_not_production_db
+verify_not_production_db(caller_name=Path(__file__).name)
+
 import os, sys, json
 import numpy as np
 
