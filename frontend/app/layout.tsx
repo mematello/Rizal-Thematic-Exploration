@@ -24,16 +24,30 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "RizalEngine — Thematic Exploration of Rizal's Novels",
-  description: "Semantic search and sentence alignment engine for Noli Me Tangere and El Filibusterismo",
+  title: "NoliElFili | Buod, Buong Kwento at Sanggunian ni Rizal",
+  description: "Tuklasin ang Noli Me Tangere at El Filibusterismo: Buod, Buong Kwento, mga tauhan at tema. Hanapin ang mga siping tumutugma sa Buod gamit ang Sanggunian.",
+  openGraph: {
+    title: "NoliElFili | Buod, Buong Kwento at Sanggunian ni Rizal",
+    description: "Tuklasin ang Noli Me Tangere at El Filibusterismo: Buod, Buong Kwento, mga tauhan at tema. Hanapin ang mga siping tumutugma sa Buod gamit ang Sanggunian.",
+    url: "https://nolielfili.com/",
+    siteName: "NoliElFili", type: "website", locale: "fil_PH",
+    images: [{ url: "https://nolielfili.com/icon.png", width: 512, height: 512, alt: "NoliElFili" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "NoliElFili | Buod, Buong Kwento at Sanggunian ni Rizal",
+    description: "Tuklasin ang Noli Me Tangere at El Filibusterismo: Buod, Buong Kwento, mga tauhan at tema. Hanapin ang mga siping tumutugma sa Buod gamit ang Sanggunian.",
+    images: ["https://nolielfili.com/icon.png"],
+  },
+  manifest: "/site.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "16x16 32x32 48x48 64x64 128x128 256x256" },
+      ...[16, 32, 48, 192, 512].map((size) => ({
+        url: `/favicon-${size}x${size}.png`, type: "image/png", sizes: `${size}x${size}`,
+      })),
     ],
-    apple: [
-      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
