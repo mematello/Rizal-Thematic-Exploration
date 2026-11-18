@@ -4,8 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { Search, Loader2, Zap, Clock, X } from "lucide-react";
 import { SearchBarProps, Suggestion } from "../types";
 
+    const MOCK_SUGGESTIONS: Suggestion[] = [
+        { text: 'Edukasyon', type: 'semantic' },
+        { text: 'Justicia', type: 'semantic' },
+        { text: "Simoun's Lamp", type: 'lexical' },
+        { text: 'Crisostomo Ibarra', type: 'recent' },
+    ];
+
 export function SearchBar({
-    variant = 'hero',
     defaultValue = '',
     placeholder = 'Search for themes, characters, or passages...',
     isLoading = false,
@@ -18,12 +24,7 @@ export function SearchBar({
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     // Mock suggestions (replace with API call later)
-    const MOCK_SUGGESTIONS: Suggestion[] = [
-        { text: 'Edukasyon', type: 'semantic' },
-        { text: 'Justicia', type: 'semantic' },
-        { text: "Simoun's Lamp", type: 'lexical' },
-        { text: 'Crisostomo Ibarra', type: 'recent' },
-    ];
+
 
     useEffect(() => {
         setQuery(defaultValue);
@@ -66,7 +67,7 @@ export function SearchBar({
     return (
         <div ref={wrapperRef} className="relative w-full max-w-xl mx-auto z-50">
             <div className="relative group">
-                <input
+                <input data-literary-search
                     type="search"
                     inputMode="search"
                     enterKeyHint="search"

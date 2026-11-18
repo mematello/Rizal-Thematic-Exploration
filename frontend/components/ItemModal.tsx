@@ -1,4 +1,6 @@
 "use client";
+import type { CSVThemeEntry } from "@/types";
+import {staticSite, staticJSON} from "@/lib/static-data";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -34,7 +36,9 @@ interface ItemModalProps {
     // For Themes
     themeContext?: ThemeContext;
     meaning?: string;
+    entries?: CSVThemeEntry[];
     isLoading: boolean;
+    errorMessage?: string;
     onNavigate?: (book: string, chapter: number, sentenceIndex?: number) => void;
     onSort?: (mode: 'number' | 'relevance') => void;
     sortBy?: 'number' | 'relevance';
@@ -51,7 +55,9 @@ export function ItemModal({
     chapterAppearances,
     themeContext,
     meaning,
+    entries,
     isLoading,
+    errorMessage,
     onNavigate,
     onSort,
     sortBy,
@@ -68,12 +74,19 @@ export function ItemModal({
     const [charView, setCharView] = useState<'sentences' | 'paksa'>('sentences');
 
     // Reset view when opening or changing character
-    useEffect(() => {
+    const viewKey = `${isOpen}:${title}`;
+    const [previousViewKey, setPreviousViewKey] = useState(viewKey);
+    if (previousViewKey !== viewKey) {
+        setPreviousViewKey(viewKey);
         if (isOpen) setCharView('sentences');
-    }, [isOpen, title]);
+    }
 
     useEffect(() => {
         if (!isOpen || type !== 'character') return;
+        if (staticSite) {
+            void staticJSON<Record<string, PaksaTheme[]>>(`character-paksa-${selectedNovel === 'noli' ? 'noli' : 'elfili'}.json`).then(data=>setPaksaThemes(data[title] || [])).catch(()=>setPaksaThemes([]));
+            return;
+        }
         const fetchPaksa = async () => {
             setPaksaLoading(true);
             setPaksaThemes([]);
@@ -85,7 +98,7 @@ export function ItemModal({
                     const data = await res.json();
                     setPaksaThemes(data.themes || []);
                 }
-            } catch (e) {}
+            } catch {}
             setPaksaLoading(false);
         };
         fetchPaksa();
@@ -144,7 +157,7 @@ export function ItemModal({
 
             {chapter.preview_text && (
                 <p className="text-xs text-brand-text/60 dark:text-foreground/60 italic line-clamp-4 border-t border-brand-gold/5 dark:border-brand-gold/15 pt-3 mt-2 leading-relaxed h-[5.5em]">
-                    "{chapter.preview_text}"
+                    &quot;{chapter.preview_text}&quot;
                 </p>
             )}
         </div>
@@ -171,6 +184,7 @@ export function ItemModal({
                     />
 
                     <motion.div
+                        data-item-modal
                         ref={modalRef}
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -196,7 +210,7 @@ export function ItemModal({
                                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-brand-gold mb-0.5 sm:mb-1 block">
                                         {type === "character" ? "Profil ng Tauhan" : "Thematikong Insight"}
                                     </span>
-                                    <h2 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-navy dark:text-foreground font-bold truncate tracking-tight">
+                                    <h2 className={`text-xl sm:text-2xl md:text-3xl font-serif text-brand-navy dark:text-foreground font-bold tracking-tight ${type === "theme" ? "whitespace-normal break-words [overflow-wrap:anywhere]" : "truncate"}`}>
                                         {title}
                                     </h2>
                                     {subtitle && (
@@ -254,6 +268,8 @@ export function ItemModal({
                                 {type === "character" && onSort && charView === 'sentences' && (
                                     <button
                                         type="button"
+                                        disabled={process.env.NEXT_PUBLIC_API_URL === '/backend'}
+                                        title={process.env.NEXT_PUBLIC_API_URL === '/backend' ? 'Hindi pa available ang semantic ranking sa static site' : undefined}
                                         onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
                                         className={`
                                             min-h-[32px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-xs border active:scale-95
@@ -279,7 +295,7 @@ export function ItemModal({
 
                         {/* Content */}
                         <div className="flex-1 overflow-y-auto p-6 bg-white/50 dark:bg-transparent scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent">
-                            {isLoading ? (
+                            {errorMessage ? <p role="alert" className="p-4 text-brand-text dark:text-foreground">{errorMessage}</p> : isLoading ? (
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse">
                                     {[...Array(8)].map((_, i) => (
                                         <div key={i} className="h-40 bg-gray-200 dark:bg-white/5 rounded-lg" />
@@ -291,13 +307,22 @@ export function ItemModal({
                                     {type === "theme" && (
                                         <div className="space-y-6">
                                             <div className="bg-brand-gold/10 dark:bg-[var(--modal-definition-bg)] p-5 rounded-lg border border-brand-gold/20 dark:border-[var(--modal-border)] shadow-xs">
-                                                <h4 className="font-bold text-brand-gold mb-2 uppercase tracking-widest text-xs">Kahulugan</h4>
-                                                <p className="font-serif text-brand-text dark:text-foreground/90 leading-relaxed text-base">
-                                                    {meaning}
-                                                </p>
+                                                <h4 className="font-bold text-brand-gold mb-5 uppercase tracking-widest text-xs">MGA KAHULUGAN</h4>
+                                                <ol aria-label="Mga kahulugan mula sa CSV" className="list-none divide-y divide-brand-gold/20 dark:divide-[var(--modal-border)]">
+                                                    {(entries ?? [{ meaning }]).map((entry, index) => (
+                                                        <li key={index} data-theme-entry className="flex items-start gap-3 sm:gap-5 py-5 first:pt-0 last:pb-0">
+                                                            <span data-theme-entry-number aria-hidden="true" className={`shrink-0 min-w-8 rounded-full px-2 py-1 text-center text-xs font-bold tabular-nums ${selectedNovel === 'fili' ? 'bg-[#8D2D2D]/10 text-[#8D2D2D] dark:bg-[#E06C75]/10 dark:text-[#E06C75]' : 'bg-brand-gold/10 text-[#7D5A1E] dark:text-brand-gold'}`}>
+                                                                {String(index + 1).padStart(2, '0')}
+                                                            </span>
+                                                            <p data-theme-meaning className="min-w-0 flex-1 font-serif text-brand-text dark:text-foreground/90 leading-relaxed text-base whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                                                                {entry.meaning}
+                                                            </p>
+                                                        </li>
+                                                    ))}
+                                                </ol>
                                             </div>
 
-                                            {themeContext ? (
+                                            {!entries && process.env.NEXT_PUBLIC_API_URL !== "/backend" && (themeContext ? (
                                                 (
                                                     (selectedNovel === 'noli' && themeContext.book === 'noli') ||
                                                     (selectedNovel === 'fili' && (themeContext.book === 'fili' || themeContext.book === 'elfili'))) ? (
@@ -307,10 +332,10 @@ export function ItemModal({
                                                         </h4>
                                                         <div
                                                             onClick={() => onNavigate?.(themeContext.book, themeContext.chapter_number, undefined)}
-                                                            className="bg-white dark:bg-[var(--modal-card-bg)] p-6 rounded-lg border-l-4 border-brand-gold border border-brand-gold/15 dark:border-[var(--modal-card-border)] shadow-sm cursor-pointer hover:bg-brand-gold/5 dark:hover:bg-brand-gold/10 transition-colors"
+                                                            data-appearance-card className="bg-white dark:bg-[var(--modal-card-bg)] p-6 rounded-lg border-l-4 border-brand-gold border border-brand-gold/15 dark:border-[var(--modal-card-border)] shadow-sm cursor-pointer hover:bg-brand-gold/5 dark:hover:bg-brand-gold/10 transition-colors"
                                                         >
                                                             <p className="font-serif text-lg text-brand-navy dark:text-foreground italic mb-4 leading-relaxed">
-                                                                "{themeContext.sentence_text}"
+                                                                &quot;{themeContext.sentence_text}&quot;
                                                             </p>
                                                             <div className="flex items-center justify-between text-xs text-brand-text-light dark:text-foreground/60 font-sans border-t border-brand-gold/10 dark:border-[var(--modal-border)] pt-3">
                                                                 <span className="font-bold uppercase tracking-wider">
@@ -330,7 +355,7 @@ export function ItemModal({
                                                 )
                                             ) : (
                                                 <p className="text-brand-text-light dark:text-foreground/60 italic">No context available.</p>
-                                            )}
+                                            ))}
                                         </div>
                                     )}
 
