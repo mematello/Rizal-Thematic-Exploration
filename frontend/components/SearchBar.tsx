@@ -13,7 +13,7 @@ import { SearchBarProps, Suggestion } from "../types";
 
 export function SearchBar({
     defaultValue = '',
-    placeholder = 'Search for themes, characters, or passages...',
+    placeholder = 'Maghanap sa nobela...',
     isLoading = false,
     onSearch,
     showSuggestions = true,

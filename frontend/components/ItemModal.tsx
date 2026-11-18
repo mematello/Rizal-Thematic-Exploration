@@ -59,8 +59,6 @@ export function ItemModal({
     isLoading,
     errorMessage,
     onNavigate,
-    onSort,
-    sortBy,
     selectedNovel
 }: ItemModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -230,15 +228,9 @@ export function ItemModal({
 
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
                                 {/* Static Novel Label */}
-                                <div className={`
-                                    px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.15em]
-                                    flex items-center gap-1.5 sm:gap-2 border shadow-xs whitespace-nowrap
-                                    ${selectedNovel === 'noli' ? 'bg-noli-accent/10 text-noli-accent border-noli-accent/20' :
-                                        'bg-fili-accent/10 text-fili-accent border-fili-accent/20'}
-                                `}>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                                <span data-novel-label className="font-serif text-sm text-brand-text/60 dark:text-foreground/60 whitespace-nowrap">
                                     {getNovelLabel(selectedNovel)}
-                                </div>
+                                </span>
 
                                 {type === "character" && (
                                     <div className="flex bg-white/60 dark:bg-black/40 p-0.5 rounded-full border border-brand-gold/20 shadow-xs">
@@ -265,22 +257,7 @@ export function ItemModal({
                                     </div>
                                 )}
 
-                                {type === "character" && onSort && charView === 'sentences' && (
-                                    <button
-                                        type="button"
-                                        disabled={process.env.NEXT_PUBLIC_API_URL === '/backend'}
-                                        title={process.env.NEXT_PUBLIC_API_URL === '/backend' ? 'Hindi pa available ang semantic ranking sa static site' : undefined}
-                                        onClick={() => onSort(sortBy === 'relevance' ? 'number' : 'relevance')}
-                                        className={`
-                                            min-h-[32px] px-2.5 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap shadow-xs border active:scale-95
-                                            ${sortBy === 'relevance'
-                                                ? 'bg-brand-gold text-[#0F141C] font-bold border-brand-gold'
-                                                : 'bg-white dark:bg-[var(--modal-button-bg)] text-brand-text dark:text-foreground border-brand-gold/20 dark:border-[var(--modal-border)] hover:border-brand-gold'}
-                                        `}
-                                    >
-                                        {sortBy === 'relevance' ? 'NAKA-RANK' : 'I-RANK'}
-                                    </button>
-                                )}
+
 
                                 <button
                                     type="button"

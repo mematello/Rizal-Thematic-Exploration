@@ -10,7 +10,7 @@ export function HeroSection({ novel }: { novel: "noli" | "fili" | "both" }) {
             <div className="literary-hero-copy">
                 <span className="literary-eyebrow"><BookOpen size={14} /> ANG IYONG AKLATANG RIZAL</span>
                 <h1 id="library-welcome">Buksan ang kuwento.<br /><em>Tuklasin ang kahulugan.</em></h1>
-                <p>Dalawang nobela. Maraming pananaw. Basahin ang mga kabanata, kilalanin ang mga tauhan, at tuklasin ang mga salita ni Rizal—sa sarili mong bilis.</p>
+                <p>Basahin ang Buod at Buong Kwento, tuklasin ang mga tauhan, at hanapin ang kaugnay na bahagi ng orihinal na akda.</p>
                 <a className="literary-text-link" href="#library"><ArrowDown size={16} /> Pumili ng kabanata</a>
             </div>
             <div className="literary-books" aria-label="Piliin ang iyong nobela">
